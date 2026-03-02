@@ -3,7 +3,34 @@
     <TargetFramework>net11.0</TargetFramework>
     <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
     <OutputType>Exe</OutputType>
-    <WasmMainJSPath>main.mjs</WasmMainJSPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- Redirect obj/bin into artifacts/ to keep the source tree clean -->
+    <ArtifactsPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', '..', 'artifacts'))</ArtifactsPath>
+  </PropertyGroup>
+
+  <!-- BenchmarkPreset: each preset sets Configuration + feature flags -->
+  <!-- Default to Release when BenchmarkPreset is set but not Debug -->
+  <PropertyGroup Condition="'$(BenchmarkPreset)' != 'Debug'">
+    <Configuration>Release</Configuration>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'Debug'">
+    <Configuration>Debug</Configuration>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'Aot'">
+    <RunAOTCompilation>true</RunAOTCompilation>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NativeRelink'">
+    <WasmNativeRelink>true</WasmNativeRelink>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'Invariant'">
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NoReflectionEmit'">
+    <_WasmNoReflectionEmit>true</_WasmNoReflectionEmit>
   </PropertyGroup>
 </Project>

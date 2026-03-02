@@ -10,7 +10,7 @@
  *     --app empty-browser \
  *     --publish-dir artifacts/publish/empty-browser \
  *     --output artifacts/results/result.json \
- *     --runtime coreclr --config release \
+ *     --runtime coreclr --preset no-workload \
  *     --sdk-info artifacts/sdk/sdk-info.json \
  *     --compile-time-file artifacts/results/compile-time.json
  */
@@ -34,7 +34,7 @@ const { values: args } = parseArgs({
         'publish-dir': { type: 'string' },
         'output': { type: 'string' },
         'runtime': { type: 'string' },
-        'config': { type: 'string' },
+        'preset': { type: 'string' },
         'sdk-info': { type: 'string' },
         'compile-time-file': { type: 'string' },
         'timeout': { type: 'string', default: '60000' },
@@ -46,7 +46,7 @@ const { values: args } = parseArgs({
     strict: true,
 });
 
-const requiredArgs = ['app', 'publish-dir', 'output', 'runtime', 'config', 'sdk-info'];
+const requiredArgs = ['app', 'publish-dir', 'output', 'runtime', 'preset', 'sdk-info'];
 for (const name of requiredArgs) {
     if (!args[name]) {
         console.error(`Missing required argument: --${name}`);
@@ -110,7 +110,7 @@ const meta = {
     sdkVersion: sdkInfo.sdkVersion,
     gitHash: sdkInfo.gitHash,
     runtime: args.runtime,
-    config: args.config,
+    preset: args.preset,
     engine: 'chrome',
     app: args.app,
     ...(args['ci-run-id'] && { ciRunId: args['ci-run-id'] }),

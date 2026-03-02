@@ -2,10 +2,10 @@
 # build-app.sh — Build and publish a sample app with MSBuild flags
 #
 # Usage:
-#   ./scripts/build-app.sh <app> <runtime> <config>
+#   ./scripts/build-app.sh <app> <runtime> <preset>
 #
 # Examples:
-#   ./scripts/build-app.sh empty-browser coreclr release
+#   ./scripts/build-app.sh empty-browser coreclr no-workload
 #   ./scripts/build-app.sh empty-blazor mono aot
 #
 # Output: published app in artifacts/publish/{app}/
@@ -13,9 +13,9 @@
 
 set -euo pipefail
 
-APP="${1:?Usage: build-app.sh <app> <runtime> <config>}"
-RUNTIME="${2:?Usage: build-app.sh <app> <runtime> <config>}"
-CONFIG="${3:?Usage: build-app.sh <app> <runtime> <config>}"
+APP="${1:?Usage: build-app.sh <app> <runtime> <preset>}"
+RUNTIME="${2:?Usage: build-app.sh <app> <runtime> <preset>}"
+PRESET="${3:?Usage: build-app.sh <app> <runtime> <preset>}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -38,7 +38,7 @@ fi
 # Get publish arguments from JS utility
 PUBLISH_ARGS=$(node -e "
     import { getPublishArgs } from '$SCRIPT_DIR/lib/build-config.mjs';
-    const args = getPublishArgs('$RUNTIME', '$CONFIG', '$APP_DIR', '$PUBLISH_DIR');
+    const args = getPublishArgs('$RUNTIME', '$PRESET', '$APP_DIR', '$PUBLISH_DIR');
     process.stdout.write(args.join('\n'));
 ")
 
@@ -47,7 +47,7 @@ rm -rf "$PUBLISH_DIR"
 mkdir -p "$PUBLISH_DIR"
 mkdir -p "$ARTIFACTS_DIR/results"
 
-echo "Building $APP (runtime=$RUNTIME, config=$CONFIG)..." >&2
+echo "Building $APP (runtime=$RUNTIME, preset=$PRESET)..." >&2
 echo "  dotnet $PUBLISH_ARGS" >&2
 
 # Record compile time
@@ -69,6 +69,6 @@ cat <<EOF > "$ARTIFACTS_DIR/results/compile-time.json"
   "compileTimeMs": $COMPILE_TIME_MS,
   "app": "$APP",
   "runtime": "$RUNTIME",
-  "config": "$CONFIG"
+  "preset": "$PRESET"
 }
 EOF

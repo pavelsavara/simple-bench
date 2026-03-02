@@ -10,20 +10,20 @@ Each benchmark run is identified by a combination of these dimensions:
 | **SDK Version** | `sdkVersion` | e.g. `10.0.100-preview.3.25130.1` | Resolved .NET SDK version string |
 | **Git Hash** | `gitHash` | 40-char SHA (display as 7-char) | Source commit of the SDK build |
 | **Runtime Flavor** | `runtime` | `coreclr`, `mono`, `llvm_naot` | Which .NET runtime VM |
-| **Build Configuration** | `config` | `release`, `aot`, `native-relink`, `invariant`, `no-reflection-emit`, `debug` | MSBuild publish configuration |
+| **Build Preset** | `preset` | `no-workload`, `aot`, `native-relink`, `invariant`, `no-reflection-emit`, `debug` | MSBuild publish preset |
 | **Execution Engine** | `engine` | `v8`, `node`, `chrome`, `firefox` | JS/WASM execution environment |
 | **Sample App** | `app` | `empty-browser`, `empty-blazor`, `blazing-pizza`, `microbenchmarks` | Which application was measured |
 
 ### Dimension constraints (valid combinations)
 
 ```
-config=aot               → runtime=mono only      (AOT is Mono-specific)
-config=*                 → runtime=llvm_naot      (NativeAOT via LLVM — legacy data only)
-config=native-relink     → runtime=coreclr,mono   (both support native relink)
-config=release           → runtime=coreclr,mono   (standard release build)
-config=invariant         → runtime=coreclr,mono   (InvariantGlobalization=true)
-config=no-reflection-emit→ runtime=coreclr,mono   (no System.Reflection.Emit)
-config=debug             → runtime=coreclr,mono   (debug build of the app)
+preset=aot               → runtime=mono only      (AOT is Mono-specific)
+preset=*                 → runtime=llvm_naot      (NativeAOT via LLVM — legacy data only)
+preset=native-relink     → runtime=coreclr,mono   (both support native relink)
+preset=no-workload       → runtime=coreclr,mono   (standard release build)
+preset=invariant         → runtime=coreclr,mono   (InvariantGlobalization=true)
+preset=no-reflection-emit→ runtime=coreclr,mono   (no System.Reflection.Emit)
+preset=debug             → runtime=coreclr,mono   (debug build of the app)
 
 app=empty-browser,empty-blazor,blazing-pizza  → metrics: external only
 app=microbenchmarks                           → metrics: internal only
@@ -35,15 +35,15 @@ engine=v8,node      → microbenchmarks only (CLI engines, no browser)
 
 ### Matrix exclusion summary
 
-| App | Engine | Config | Runtime |
+| App | Engine | Preset | Runtime |
 |-----|--------|--------|---------|
-| empty-browser | chrome | release, native-relink, invariant, no-reflection-emit, debug | coreclr, mono |
+| empty-browser | chrome | no-workload, native-relink, invariant, no-reflection-emit, debug | coreclr, mono |
 | empty-browser | chrome | aot | mono |
-| empty-blazor | chrome | release, native-relink, invariant, no-reflection-emit, debug | coreclr, mono |
+| empty-blazor | chrome | no-workload, native-relink, invariant, no-reflection-emit, debug | coreclr, mono |
 | empty-blazor | chrome | aot | mono |
-| blazing-pizza | chrome | release, native-relink, invariant, no-reflection-emit, debug | coreclr, mono |
+| blazing-pizza | chrome | no-workload, native-relink, invariant, no-reflection-emit, debug | coreclr, mono |
 | blazing-pizza | chrome | aot | mono |
-| microbenchmarks | v8, node, chrome, firefox | release, native-relink, invariant, no-reflection-emit, debug | coreclr, mono |
+| microbenchmarks | v8, node, chrome, firefox | no-workload, native-relink, invariant, no-reflection-emit, debug | coreclr, mono |
 | microbenchmarks | v8, node, chrome, firefox | aot | mono |
 
 **Total legs per daily run**: ~44 combinations (3 apps × 1 engine × 11 configs + 1 app × 4 engines × 11 configs)
@@ -113,21 +113,21 @@ Result data stores only the numeric value — the unit is looked up from the met
 The filename encodes the **commit time** (UTC), **short git hash** (7 chars), and all dimension values:
 
 ```
-{HH-MM-SS-UTC}_{githash7}_{runtime}_{config}_{engine}_{app}.json
+{HH-MM-SS-UTC}_{githash7}_{runtime}_{preset}_{engine}_{app}.json
 ```
 
 The file lives inside a date directory derived from the **commit date** (not the CI run date):
 
 ```
-data/{year}/{YYYY-MM-DD}/{HH-MM-SS-UTC}_{githash7}_{runtime}_{config}_{engine}_{app}.json
+data/{year}/{YYYY-MM-DD}/{HH-MM-SS-UTC}_{githash7}_{runtime}_{preset}_{engine}_{app}.json
 ```
 
 Examples:
 ```
-data/2026/2026-03-02/12-34-56-UTC_abc1234_coreclr_release_chrome_empty-browser.json
+data/2026/2026-03-02/12-34-56-UTC_abc1234_coreclr_no-workload_chrome_empty-browser.json
 data/2026/2026-03-02/12-34-56-UTC_abc1234_mono_aot_v8_microbenchmarks.json
 data/2026/2026-03-15/08-12-00-UTC_def5678_coreclr_native-relink_chrome_blazing-pizza.json
-data/2026/2026-03-15/08-12-00-UTC_def5678_mono_release_firefox_microbenchmarks.json
+data/2026/2026-03-15/08-12-00-UTC_def5678_mono_no-workload_firefox_microbenchmarks.json
 ```
 
 All dimension values are lowercase, hyphens for multi-word. The commit time uses dashes instead of colons for filesystem compatibility.
@@ -140,7 +140,7 @@ All dimension values are lowercase, hyphens for multi-word. The commit time uses
 ### Artifact naming (CI upload)
 Uploaded as individual GitHub Actions artifacts with the name:
 ```
-result_{githash7}_{runtime}_{config}_{engine}_{app}
+result_{githash7}_{runtime}_{preset}_{engine}_{app}
 ```
 
 ---
@@ -162,7 +162,7 @@ gh-pages branch root/
 │   ├── 2026-04.json                    # Month index for April 2026
 │   └── {year}/
 │       └── {YYYY-MM-DD}/              # One directory per commit date
-│           ├── {HH-MM-SS-UTC}_{githash7}_{runtime}_{config}_{engine}_{app}.json
+│           ├── {HH-MM-SS-UTC}_{githash7}_{runtime}_{preset}_{engine}_{app}.json
 │           └── ...
 ```
 
@@ -193,7 +193,7 @@ Lightweight top-level index. Fetched by the UI on page load. Lists available mon
   "lastUpdated": "2026-03-02T12:34:56Z",
   "dimensions": {
     "runtimes": ["coreclr", "mono", "llvm_naot"],
-    "configs": ["release", "aot", "native-relink", "invariant", "no-reflection-emit", "debug"],
+    "presets": ["no-workload", "aot", "native-relink", "invariant", "no-reflection-emit", "debug"],
     "engines": ["v8", "node", "chrome", "firefox"],
     "apps": ["empty-browser", "empty-blazor", "blazing-pizza", "microbenchmarks"]
   },
@@ -222,15 +222,15 @@ One file per month, e.g. `data/2026-03.json`. Maps all commits benchmarked that 
       "results": [
         {
           "runtime": "coreclr",
-          "config": "release",
+          "preset": "no-workload",
           "engine": "chrome",
           "app": "empty-browser",
-          "file": "2026/2026-03-02/12-34-56-UTC_abc1234_coreclr_release_chrome_empty-browser.json",
+          "file": "2026/2026-03-02/12-34-56-UTC_abc1234_coreclr_no-workload_chrome_empty-browser.json",
           "metrics": ["compile-time", "download-size-total", "download-size-wasm", "download-size-dlls", "time-to-reach-managed", "time-to-reach-managed-cold", "memory-peak"]
         },
         {
           "runtime": "mono",
-          "config": "aot",
+          "preset": "aot",
           "engine": "v8",
           "app": "microbenchmarks",
           "file": "2026/2026-03-02/12-34-56-UTC_abc1234_mono_aot_v8_microbenchmarks.json",
@@ -246,10 +246,10 @@ One file per month, e.g. `data/2026-03.json`. Maps all commits benchmarked that 
       "results": [
         {
           "runtime": "coreclr",
-          "config": "release",
+          "preset": "no-workload",
           "engine": "chrome",
           "app": "empty-browser",
-          "file": "2026/2026-03-15/08-12-00-UTC_def5678_coreclr_release_chrome_empty-browser.json",
+          "file": "2026/2026-03-15/08-12-00-UTC_def5678_coreclr_no-workload_chrome_empty-browser.json",
           "metrics": ["compile-time", "download-size-total", "download-size-wasm", "download-size-dlls", "time-to-reach-managed", "time-to-reach-managed-cold", "memory-peak"]
         }
       ]
@@ -266,7 +266,7 @@ One file per month, e.g. `data/2026-03.json`. Maps all commits benchmarked that 
   - `time`: commit time `HH-MM-SS-UTC`
   - `sdkVersion`: full SDK version string
   - `results[]`: all benchmark results for this commit
-    - `runtime`, `config`, `engine`, `app`: dimension values
+    - `runtime`, `preset`, `engine`, `app`: dimension values
     - `file`: relative path from `data/` to the result JSON file
     - `metrics`: array of metric keys present (allows UI to know what's available without fetching the file)
 
@@ -289,7 +289,7 @@ Metric values are bare numbers. The unit for each metric is defined in the metri
     "sdkVersion": "10.0.100-preview.3.25130.1",
     "gitHash": "abc1234def5678abc1234def5678abc1234def56",
     "runtime": "coreclr",
-    "config": "release",
+    "preset": "no-workload",
     "engine": "chrome",
     "app": "empty-browser",
     "ciRunId": "12345678",
@@ -325,7 +325,7 @@ Metric values are bare numbers. The unit for each metric is defined in the metri
     "sdkVersion": "10.0.100-preview.3.25130.1",
     "gitHash": "abc1234def5678abc1234def5678abc1234def56",
     "runtime": "coreclr",
-    "config": "release",
+    "preset": "no-workload",
     "engine": "v8",
     "app": "microbenchmarks",
     "ciRunId": "12345678",
@@ -381,7 +381,7 @@ CI benchmark job (per matrix leg)
 2. For each new result JSON file:
    a. Parse the `meta` section to get `commitDate`, `commitTime`, `gitHash`, dimensions
    b. Compute target directory: `data/{year}/{commitDate}/`
-   c. Compute filename: `{commitTime}_{gitHash7}_{runtime}_{config}_{engine}_{app}.json`
+   c. Compute filename: `{commitTime}_{gitHash7}_{runtime}_{preset}_{engine}_{app}.json`
    d. Copy file to target path
    e. Compute month key: `YYYY-MM` from `commitDate`
    f. Load or create the month index file `data/{YYYY-MM}.json`

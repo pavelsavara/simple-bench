@@ -47,7 +47,7 @@ simple-bench/
 │   │   ├── filters.test.mjs         # Filter state, URL hash parsing
 │   │   ├── consolidate.test.mjs     # Month index merge, dedup, daily sharding
 │   ├── sdk-info.test.mjs        # SDK version parsing, commit hash extraction
-│   │   ├── build-config.test.mjs    # Build config → MSBuild flag mapping
+│   │   ├── build-config.test.mjs    # Build preset → MSBuild flag mapping
 │   │   ├── measure-utils.test.mjs   # Static server, file sizes, result JSON, compile time reader
 │   │   ├── metrics.test.mjs         # Metrics registry validation
 │   │   └── fixtures/                # Sample index.json, month indexes, result JSONs, dotnet --info output
@@ -65,7 +65,7 @@ simple-bench/
 │   ├── consolidate-results.mjs     # Merge CI artifacts into gh-pages data/
 │   └── lib/
 │       ├── sdk-info.mjs            # SDK version parsing utilities (testable)
-│       ├── build-config.mjs        # Build config → MSBuild flag mapping (testable)
+│       ├── build-config.mjs        # Build preset → MSBuild flag mapping (testable)
 │       ├── metrics.mjs             # Canonical metric registry (shared by scripts + dashboard)
 │       └── measure-utils.mjs       # Static server, file sizes, result JSON utilities (testable)
 ├── apps/                            # Sample app configs and overrides
@@ -108,7 +108,7 @@ Core infrastructure that everything else depends on.
 | 1.1 | Init repo: `package.json`, `.gitignore`, `NuGet.config`, folder structure | Repo skeleton | ✅ Done |
 | 1.2 | Create [Dockerfile](docker/Dockerfile) with V8 (`d8` via jsvu), Node 24, Chrome, Firefox, Playwright system deps | Docker image | ✅ Done |
 | 1.3 | Create [resolve-sdk.sh](scripts/resolve-sdk.sh) — uses official `dotnet-install.sh`, outputs version + git hash + build date JSON via [sdk-info.mjs](scripts/lib/sdk-info.mjs) | SDK resolver | ✅ Done |
-| 1.4 | Create [build-app.sh](scripts/build-app.sh) — build/publish sample app to `artifacts/publish/` with runtime/config flags via [build-config.mjs](scripts/lib/build-config.mjs) | App builder | ✅ Done |
+| 1.4 | Create [build-app.sh](scripts/build-app.sh) — build/publish sample app to `artifacts/publish/` with runtime/preset flags via [build-config.mjs](scripts/lib/build-config.mjs) | App builder | ✅ Done |
 | 1.5 | Create [init-gh-pages.sh](scripts/init-gh-pages.sh) — repeatable script to initialize `gh-pages` branch | Data branch | ✅ Done |
 | 1.6 | Unit tests for SDK version parsing + build flag generation (35 tests) | Tests | ✅ Done |
 | 2.1 | [apps/empty-browser/](apps/empty-browser/) — `.csproj` + `Program.cs` + `main.mjs` + `index.html` (browser-wasm standalone) | App config | ✅ Done |
@@ -128,7 +128,7 @@ Get the CI loop working for the single empty-browser app.
 
 | Step | Task | Output | Depends on |
 |------|------|--------|------------|
-| 3.1 | [benchmark.yml](.github/workflows/benchmark.yml) — matrix: runtime×config, single app (empty-browser), chrome engine only | CI workflow | Phase 1-2 |
+| 3.1 | [benchmark.yml](.github/workflows/benchmark.yml) — matrix: runtime×preset, single app (empty-browser), chrome engine only | CI workflow | Phase 1-2 |
 | 3.2 | [consolidate.yml](.github/workflows/consolidate.yml) — download artifacts, merge into gh-pages, commit | CI workflow | 3.1 |
 | 3.3 | [consolidate-results.mjs](scripts/consolidate-results.mjs) — merge artifacts into gh-pages data/ | Script | 2.4 |
 | 3.4 | Unit tests for consolidate-results: month index merge, dedup, daily sharding | Tests | 3.3 |
@@ -153,7 +153,7 @@ Static web UI on GitHub Pages.
 | Step | Task | Output | Depends on |
 |------|------|--------|------------|
 | 5.1 | README.md with architecture overview, quickstart, manual run instructions | Docs | Phase 1-4 |
-| 5.2 | End-to-end test: run one config locally in Docker, verify data → dashboard | Validation | Phase 1-4 |
+| 5.2 | End-to-end test: run one preset locally in Docker, verify data → dashboard | Validation | Phase 1-4 |
 
 ### Phase 6: Additional Sample Apps
 Expand to the remaining 3 sample apps.
@@ -188,7 +188,7 @@ Add microbenchmark measurement support.
 | Docker registry | ghcr.io | Free for public repos, integrated with GH Actions |
 | Dependency pinning | All exact versions | Playwright version pins Chromium/Firefox builds; avoids silent measurement drift |
 | Runtime flavors | CoreCLR + Mono + LLVM NativeAOT | Compare all three runtimes on browser target |
-| Build configs | Release, AOT (Mono), NativeRelink, Invariant, NoReflectionEmit, Debug | Cover production + diagnostic scenarios |
+| Build presets | NoWorkload, AOT (Mono), NativeRelink, Invariant, NoReflectionEmit, Debug | Cover production + diagnostic scenarios |
 | SDK resolution | Latest nightly default, optional version param | Flexibility for regression investigation |
 | Browser versions | Latest Playwright-compatible | Consistent with Playwright's tested versions |
 
@@ -199,7 +199,7 @@ Every component has both unit tests and E2E validation:
 | Component | Unit Tests | E2E Tests |
 |-----------|-----------|----------|
 | `resolve-sdk.sh` | Verify output JSON parsing, version extraction | Run in Docker, confirm SDK installs |
-| `build-app.sh` | Verify MSBuild flag generation per config | Build empty-browser in Docker, verify `artifacts/publish/` |
+| `build-app.sh` | Verify MSBuild flag generation per preset | Build empty-browser in Docker, verify `artifacts/publish/` |
 | `measure-external.mjs` | Mock CDP events, verify metric extraction + JSON schema (download-size-total/wasm/dlls, time-to-reach-managed/cold) | Run against published app in Docker, verify result JSON |
 | `measure-internal.mjs` | Mock engine stdout, verify JSON parsing | Run microbenchmarks on V8/Node in Docker |
 | `consolidate-results.mjs` | Merge fixtures → verify month index dedup, daily sharding | Consolidation workflow with test artifacts |

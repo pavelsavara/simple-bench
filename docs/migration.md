@@ -126,28 +126,28 @@ Based on Q&A with @pavelsavara:
 
 | Old build | New runtime | Notes |
 |-----------|-------------|-------|
-| `interp` | `mono` | Interpreter mode; maps to config=`release` |
-| `aot` | `mono` | AOT compilation; maps to config=`aot` |
+| `interp` | `mono` | Interpreter mode; maps to preset=`no-workload` |
+| `aot` | `mono` | AOT compilation; maps to preset=`aot` |
 | `nativeaot` | `llvm_naot` | New runtime value to add to model |
 
-### Build + Config → Runtime + Config
+### Build + Config → Runtime + Preset
 
-The old system combines `build` and `config` into the flavor triple. The new system has a separate `runtime` and `config`. Only `simd+wasm-eh` old config is imported.
+The old system combines `build` and `config` into the flavor triple. The new system has a separate `runtime` and `preset`. Only `simd+wasm-eh` old config is imported.
 
-| Old build | Old config | New runtime | New config | Import? |
+| Old build | Old config | New runtime | New preset | Import? |
 |-----------|-----------|-------------|------------|---------|
 | `interp` | `simd+wasm-eh` | — | — | ❌ interp didn't run simd+wasm-eh |
-| `interp` | `default` | `mono` | `release` | ❌ dropped (not simd+wasm-eh) |
+| `interp` | `default` | `mono` | `no-workload` | ❌ dropped (not simd+wasm-eh) |
 | `aot` | `simd+wasm-eh` | `mono` | `aot` | ✅ |
 | `aot` | `default` | — | — | ❌ dropped |
 | `aot` | `simd` | — | — | ❌ dropped |
 | `aot` | `wasm-eh` | — | — | ❌ dropped |
 | `aot` | `nosimd` | — | — | ❌ dropped |
-| `nativeaot` | `default` | `llvm_naot` | `release` | ❌ dropped (not simd+wasm-eh, and nativeaot only had `default` config) |
+| `nativeaot` | `default` | `llvm_naot` | `no-workload` | ❌ dropped (not simd+wasm-eh, and nativeaot only had `default` config) |
 
 **Result**: Only `aot/simd+wasm-eh/{chrome,firefox}` entries are imported → `mono/aot/{chrome,firefox}`.
 
-> **Issue**: The `simd+wasm-eh` config was only measured for `aot` build, and `interp` + `nativeaot` only had `default`. This means the import only yields `mono`+`aot` data. If we also want interp and nativeaot data, we'd need to include the `default` config as well (mapping it to `release`).
+> **Issue**: The `simd+wasm-eh` config was only measured for `aot` build, and `interp` + `nativeaot` only had `default`. This means the import only yields `mono`+`aot` data. If we also want interp and nativeaot data, we'd need to include the `default` config as well (mapping it to `no-workload`).
 
 ### Environment → Engine
 
@@ -246,7 +246,7 @@ Steps:
 4. `{HH-MM-SS-UTC}` = time in UTC with dashes
 5. `{githash7}` = first 7 chars of hash
 6. `{runtime}` = `mono` (for aot build)
-7. `{config}` = `aot` (for aot build)
+7. `{preset}` = `aot` (for aot build)
 8. `{engine}` = `chrome`
 9. `{app}` = derived from measurement prefix (empty-browser or empty-blazor)
 
@@ -262,7 +262,7 @@ For each imported entry, produce **two** result JSON files (one per app if both 
     "sdkVersion": "unknown",
     "gitHash": "abc1234def5678abc1234def5678abc1234def56",
     "runtime": "mono",
-    "config": "aot",
+    "preset": "aot",
     "engine": "chrome",
     "app": "empty-browser",
     "ciRunId": "migrated",
@@ -302,10 +302,10 @@ for each entry in index.Data:
     # Filter: only simd+wasm-eh
     if config != "simd+wasm-eh": skip
 
-    # Map build to runtime+config
-    if build == "aot":     runtime="mono",  config_new="aot"
-    if build == "interp":  runtime="mono",  config_new="release"  # won't match simd+wasm-eh filter
-    if build == "nativeaot": runtime="llvm_naot", config_new="release"  # won't match
+    # Map build to runtime+preset
+    if build == "aot":     runtime="mono",  preset_new="aot"
+    if build == "interp":  runtime="mono",  preset_new="no-workload"  # won't match simd+wasm-eh filter
+    if build == "nativeaot": runtime="llvm_naot", preset_new="no-workload"  # won't match
 
     # Parse commitTime → UTC
     date, time = parse_to_utc(entry.commitTime)
@@ -316,9 +316,9 @@ for each entry in index.Data:
 
     # Write per-run JSON files
     if metrics_browser has data:
-        write_result(date, time, entry.hash, runtime, config_new, env, "empty-browser", metrics_browser)
+        write_result(date, time, entry.hash, runtime, preset_new, env, "empty-browser", metrics_browser)
     if metrics_blazor has data:
-        write_result(date, time, entry.hash, runtime, config_new, env, "empty-blazor", metrics_blazor)
+        write_result(date, time, entry.hash, runtime, preset_new, env, "empty-blazor", metrics_blazor)
 ```
 
 ---
@@ -349,9 +349,9 @@ The following changes to `docs/model.md` are needed to support the migration:
 
 ## Open Questions
 
-1. **interp/default data**: Since `simd+wasm-eh` was only measured for `aot`, the filter drops ALL `interp` data. Should we also import `interp/default` → `mono/release` to have interpreter baseline?
+1. **interp/default data**: Since `simd+wasm-eh` was only measured for `aot`, the filter drops ALL `interp` data. Should we also import `interp/default` → `mono/no-workload` to have interpreter baseline?
 
-2. **nativeaot data**: Similarly, `nativeaot` only had `default` config. Should we import `nativeaot/default` → `llvm_naot/release`?
+2. **nativeaot data**: Similarly, `nativeaot` only had `default` config. Should we import `nativeaot/default` → `llvm_naot/no-workload`?
 
 3. **sdkVersion**: The old data doesn't store SDK version. The `versions.txt` file has browser versions but not .NET SDK. Set to `"unknown"` or omit?
 

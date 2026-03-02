@@ -163,7 +163,7 @@ describe('measureFileSizes', () => {
 
 describe('buildResultJson', () => {
     it('assembles meta + metrics', () => {
-        const meta = { commitDate: '2026-03-02', runtime: 'coreclr', config: 'release', engine: 'chrome', app: 'empty-browser' };
+        const meta = { commitDate: '2026-03-02', runtime: 'coreclr', preset: 'no-workload', engine: 'chrome', app: 'empty-browser' };
         const metrics = { 'compile-time': 45200, 'download-size-total': 12100920 };
 
         const result = buildResultJson(meta, metrics);

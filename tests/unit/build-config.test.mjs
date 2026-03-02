@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 
 import {
     mapRuntimeFlavor,
-    getConfigArgs,
+    getPresetArgs,
+    PRESET_MAP,
     validateCombination,
     getPublishArgs
 } from '../../scripts/lib/build-config.mjs';
@@ -32,36 +33,40 @@ describe('mapRuntimeFlavor', () => {
     });
 });
 
-describe('getConfigArgs', () => {
-    it('release → -c Release', () => {
-        assert.deepEqual(getConfigArgs('release'), ['-c', 'Release']);
+describe('getPresetArgs', () => {
+    it('no-workload → /p:BenchmarkPreset=NoWorkload', () => {
+        assert.deepEqual(getPresetArgs('no-workload'), ['/p:BenchmarkPreset=NoWorkload']);
     });
 
-    it('aot → -c Release + AOT flag', () => {
-        assert.deepEqual(getConfigArgs('aot'), ['-c', 'Release', '/p:RunAOTCompilation=true']);
+    it('aot → /p:BenchmarkPreset=Aot', () => {
+        assert.deepEqual(getPresetArgs('aot'), ['/p:BenchmarkPreset=Aot']);
     });
 
-    it('native-relink → -c Release + relink flag', () => {
-        assert.deepEqual(getConfigArgs('native-relink'), ['-c', 'Release', '/p:WasmNativeRelink=true']);
+    it('native-relink → /p:BenchmarkPreset=NativeRelink', () => {
+        assert.deepEqual(getPresetArgs('native-relink'), ['/p:BenchmarkPreset=NativeRelink']);
     });
 
-    it('invariant → -c Release + globalization flag', () => {
-        assert.deepEqual(getConfigArgs('invariant'), ['-c', 'Release', '/p:InvariantGlobalization=true']);
+    it('invariant → /p:BenchmarkPreset=Invariant', () => {
+        assert.deepEqual(getPresetArgs('invariant'), ['/p:BenchmarkPreset=Invariant']);
     });
 
-    it('no-reflection-emit → -c Release + no-ref-emit flag', () => {
-        assert.deepEqual(getConfigArgs('no-reflection-emit'), ['-c', 'Release', '/p:_WasmNoReflectionEmit=true']);
+    it('no-reflection-emit → /p:BenchmarkPreset=NoReflectionEmit', () => {
+        assert.deepEqual(getPresetArgs('no-reflection-emit'), ['/p:BenchmarkPreset=NoReflectionEmit']);
     });
 
-    it('debug → -c Debug', () => {
-        assert.deepEqual(getConfigArgs('debug'), ['-c', 'Debug']);
+    it('debug → /p:BenchmarkPreset=Debug', () => {
+        assert.deepEqual(getPresetArgs('debug'), ['/p:BenchmarkPreset=Debug']);
     });
 
-    it('throws on unknown config', () => {
+    it('throws on unknown preset', () => {
         assert.throws(
-            () => getConfigArgs('invalid'),
-            { message: /Unknown config/ }
+            () => getPresetArgs('invalid'),
+            { message: /Unknown preset/ }
         );
+    });
+
+    it('PRESET_MAP covers all 6 presets', () => {
+        assert.equal(Object.keys(PRESET_MAP).length, 6);
     });
 });
 
@@ -77,12 +82,12 @@ describe('validateCombination', () => {
         );
     });
 
-    it('allows coreclr + release', () => {
-        assert.equal(validateCombination('coreclr', 'release'), true);
+    it('allows coreclr + no-workload', () => {
+        assert.equal(validateCombination('coreclr', 'no-workload'), true);
     });
 
-    it('allows mono + release', () => {
-        assert.equal(validateCombination('mono', 'release'), true);
+    it('allows mono + no-workload', () => {
+        assert.equal(validateCombination('mono', 'no-workload'), true);
     });
 
     it('allows coreclr + native-relink', () => {
@@ -91,12 +96,12 @@ describe('validateCombination', () => {
 });
 
 describe('getPublishArgs', () => {
-    it('builds full publish args for coreclr + release', () => {
-        const args = getPublishArgs('coreclr', 'release', '/bench/apps/empty-browser', '/bench/artifacts/publish/empty-browser');
+    it('builds full publish args for coreclr + no-workload', () => {
+        const args = getPublishArgs('coreclr', 'no-workload', '/bench/apps/empty-browser', '/bench/artifacts/publish/empty-browser');
         assert.deepEqual(args, [
             'publish',
             '/bench/apps/empty-browser',
-            '-c', 'Release',
+            '/p:BenchmarkPreset=NoWorkload',
             '/p:RuntimeFlavor=CoreCLR',
             '-o', '/bench/artifacts/publish/empty-browser'
         ]);
@@ -107,8 +112,7 @@ describe('getPublishArgs', () => {
         assert.deepEqual(args, [
             'publish',
             '/bench/apps/empty-browser',
-            '-c', 'Release',
-            '/p:RunAOTCompilation=true',
+            '/p:BenchmarkPreset=Aot',
             '/p:RuntimeFlavor=Mono',
             '-o', '/out'
         ]);

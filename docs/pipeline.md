@@ -172,25 +172,33 @@ cat /tmp/sdk-info.json
 
 ### Script: `scripts/build-app.sh`
 
-Builds and publishes a sample app with the appropriate MSBuild flags for the given runtime + config combination.
+Builds and publishes a sample app with the appropriate MSBuild flags for the given runtime + preset combination.
 
 ### Parameters
 
 ```bash
-./scripts/build-app.sh <app> <runtime> <config>
-# Example: ./scripts/build-app.sh empty-blazor coreclr release
+./scripts/build-app.sh <app> <runtime> <preset>
+# Example: ./scripts/build-app.sh empty-blazor coreclr no-workload
 ```
 
-### MSBuild flags per configuration
+### MSBuild presets
 
-| Config | Flags |
-|--------|-------|
-| `release` | `-c Release /p:RuntimeFlavor={runtime}` |
-| `aot` | `-c Release /p:RuntimeFlavor=Mono /p:RunAOTCompilation=true` |
-| `native-relink` | `-c Release /p:RuntimeFlavor={runtime} /p:WasmNativeRelink=true` |
-| `invariant` | `-c Release /p:RuntimeFlavor={runtime} /p:InvariantGlobalization=true` |
-| `no-reflection-emit` | `-c Release /p:RuntimeFlavor={runtime} /p:_WasmNoReflectionEmit=true` |
-| `debug` | `-c Debug /p:RuntimeFlavor={runtime}` |
+All build configuration is driven by two custom properties passed to `dotnet publish`:
+- **`/p:BenchmarkPreset=<value>`** — selects the preset (sets `Configuration` + feature flags in the csproj)
+- **`/p:RuntimeFlavor=<value>`** — selects CoreCLR or Mono
+
+The csproj maps `BenchmarkPreset` to the standard `Configuration` (Release/Debug) and any feature flags:
+
+| Preset dimension | `BenchmarkPreset` | `Configuration` (set by csproj) | Feature flags (set by csproj) |
+|-----------------|--------------------------|-------------------------------|-------------------------------|
+| `no-workload` | `NoWorkload` | `Release` | _(none)_ |
+| `aot` | `Aot` | `Release` | `RunAOTCompilation=true` |
+| `native-relink` | `NativeRelink` | `Release` | `WasmNativeRelink=true` |
+| `invariant` | `Invariant` | `Release` | `InvariantGlobalization=true` |
+| `no-reflection-emit` | `NoReflectionEmit` | `Release` | `_WasmNoReflectionEmit=true` |
+| `debug` | `Debug` | `Debug` | _(none)_ |
+
+The `obj/` and `bin/` directories are redirected to `artifacts/` via `<ArtifactsPath>` to keep the source tree clean.
 
 The build script records wall-clock **compile time** (start to end of `dotnet publish`) and writes it to `artifacts/results/compile-time.json` for inclusion in the final result JSON.
 
@@ -350,7 +358,7 @@ const results = await page.evaluate(() => window.__benchResults);
 | Input | Type | Default | Description |
 |-------|------|---------|-------------|
 | `sdk_version` | string | `""` (latest nightly) | Specific SDK version or empty for latest |
-| `configurations` | choice | `all` | `all`, `release-only`, `aot-only`, `native-relink-only` |
+| `presets` | choice | `all` | `all`, `no-workload-only`, `aot-only`, `native-relink-only` |
 
 ### Matrix strategy
 
@@ -360,23 +368,23 @@ strategy:
   matrix:
     app: [empty-browser, empty-blazor, blazing-pizza, microbenchmarks]
     runtime: [coreclr, mono, llvm_naot]
-    config: [release, aot, native-relink, invariant, no-reflection-emit, debug]
+    preset: [no-workload, aot, native-relink, invariant, no-reflection-emit, debug]
     engine: [v8, node, chrome, firefox]
     exclude:
       # AOT is Mono-only
       - runtime: coreclr
-        config: aot
+        preset: aot
       - runtime: llvm_naot
-        config: aot
-      # NativeAOT has limited config set
+        preset: aot
+      # NativeAOT has limited preset set
       - runtime: llvm_naot
-        config: native-relink
+        preset: native-relink
       - runtime: llvm_naot
-        config: invariant
+        preset: invariant
       - runtime: llvm_naot
-        config: no-reflection-emit
+        preset: no-reflection-emit
       - runtime: llvm_naot
-        config: debug
+        preset: debug
       # External apps only measured on Chrome
       - app: empty-browser
         engine: v8
@@ -416,7 +424,7 @@ jobs:
           echo "sdk_info=$(cat /tmp/sdk-info.json)" >> $GITHUB_OUTPUT
 
       - name: Build app
-        run: ./scripts/build-app.sh ${{ matrix.app }} ${{ matrix.runtime }} ${{ matrix.config }}
+        run: ./scripts/build-app.sh ${{ matrix.app }} ${{ matrix.runtime }} ${{ matrix.preset }}
         # Compile time is recorded to artifacts/results/compile-time.json
 
       - name: Run benchmark
@@ -427,7 +435,7 @@ jobs:
           # Extract commit date+time from the SDK build's git info
           COMMIT_DATE=$(echo '${{ steps.sdk.outputs.sdk_info }}' | jq -r .commitDate)   # YYYY-MM-DD
           COMMIT_TIME=$(echo '${{ steps.sdk.outputs.sdk_info }}' | jq -r .commitTime)   # HH-MM-SS-UTC
-          FILENAME="${COMMIT_TIME}_${GIT_HASH7}_${{ matrix.runtime }}_${{ matrix.config }}_${{ matrix.engine }}_${{ matrix.app }}.json"
+          FILENAME="${COMMIT_TIME}_${GIT_HASH7}_${{ matrix.runtime }}_${{ matrix.preset }}_${{ matrix.engine }}_${{ matrix.app }}.json"
           
           if [ "${{ matrix.app }}" = "microbenchmarks" ]; then
             node scripts/measure-internal.mjs \
@@ -438,7 +446,7 @@ jobs:
               --commit-date "$COMMIT_DATE" \
               --commit-time "$COMMIT_TIME" \
               --runtime ${{ matrix.runtime }} \
-              --config ${{ matrix.config }} \
+              --preset ${{ matrix.preset }} \
               --output "artifacts/results/${FILENAME}"
           else
             node scripts/measure-external.mjs \
@@ -449,7 +457,7 @@ jobs:
               --commit-date "$COMMIT_DATE" \
               --commit-time "$COMMIT_TIME" \
               --runtime ${{ matrix.runtime }} \
-              --config ${{ matrix.config }} \
+              --preset ${{ matrix.preset }} \
               --compile-time-file artifacts/results/compile-time.json \
               --retries 3 \
               --timeout 300000 \
@@ -459,7 +467,7 @@ jobs:
       - name: Upload result
         uses: actions/upload-artifact@v4
         with:
-          name: result_${{ matrix.runtime }}_${{ matrix.config }}_${{ matrix.engine }}_${{ matrix.app }}
+          name: result_${{ matrix.runtime }}_${{ matrix.preset }}_${{ matrix.engine }}_${{ matrix.app }}
           path: artifacts/results/*.json
           retention-days: 7
 ```
@@ -528,7 +536,7 @@ Logic:
 3. For each result JSON:
    - Parse `meta` to get `commitDate`, `commitTime`, `gitHash`, dimension values
    - Compute target directory: `{data-dir}/{year}/{commitDate}/`
-   - Compute filename: `{commitTime}_{gitHash7}_{runtime}_{config}_{engine}_{app}.json`
+   - Compute filename: `{commitTime}_{gitHash7}_{runtime}_{preset}_{engine}_{app}.json`
    - Create directory if needed
    - Copy file to target path
    - Compute month key `YYYY-MM` from `commitDate`
@@ -668,7 +676,7 @@ This is used in E2E tests to verify the full pipeline works after deployment.
   │                                                     │
   │  ┌──────────┐ ┌──────────┐ ┌──────────┐           │
   │  │ coreclr  │ │  mono    │ │  mono    │  ...×26   │
-  │  │ release  │ │  release │ │  aot     │  matrix   │
+  │  │ no-wkld  │ │  no-wkld │ │  aot     │  matrix   │
   │  │ chrome   │ │  chrome  │ │  v8      │  legs     │
   │  │ empty-bw │ │ empty-bw │ │ micro    │           │
   │  └────┬─────┘ └────┬─────┘ └────┬─────┘           │

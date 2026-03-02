@@ -20,8 +20,8 @@ The dashboard is a static single-page application hosted on GitHub Pages. It pre
 │  ☑ CoreCLR│  ├─────────────────────────────────────────────┤    │
 │  ☑ Mono   │  │                                             │    │
 │           │  │  Chart: Compile Time (ms)                   │    │
-│  CONFIG   │  │  ═══════════════════════════════════════     │    │
-│  ☑ Release│  │   [time-series line chart]                  │    │
+│  PRESET  │  │  ═══════════════════════════════════════     │    │
+│  ☑ NoWkld│  │   [time-series line chart]                  │    │
 │  ☑ AOT    │  │                                             │    │
 │  ☑ Relink │  ├─────────────────────────────────────────────┤    │
 │  ☑ Invar  │  │                                             │    │
@@ -95,10 +95,10 @@ RUNTIME
 ☑ NativeAOT
 ```
 
-### Build Configuration
+### Build Preset
 ```
-CONFIG
-☑ Release
+PRESET
+☑ NoWorkload
 ☑ AOT          (only shown when Mono is selected)
 ☑ NativeRelink
 ☑ Invariant
@@ -106,7 +106,7 @@ CONFIG
 ☑ Debug
 ```
 - AOT checkbox is hidden/disabled when Mono is deselected (AOT is Mono-only).
-- NativeAOT runtime has its own set of applicable configs.
+- NativeAOT runtime has its own set of applicable presets.
 
 ### Execution Engine
 ```
@@ -128,7 +128,7 @@ Dropdown with options: 7 days, 30 days, 90 days, 180 days, 1 year, All.
 Controls the X-axis date range for all charts on the page.
 
 ### Filter state persistence
-- All filter selections are encoded in the URL hash: `#app=microbenchmarks&runtime=coreclr,mono&config=release&engine=v8,chrome&range=30d`
+- All filter selections are encoded in the URL hash: `#app=microbenchmarks&runtime=coreclr,mono&preset=no-workload&engine=v8,chrome&range=30d`
 - Bookmarkable and shareable.
 - On page load, filters are restored from URL hash. If no hash, defaults: all checkboxes selected, 30d range.
 
@@ -144,19 +144,19 @@ Every chart is a **time-series line chart** (Chart.js `type: 'line'`).
 - **Y-axis**: Metric value. Label includes unit (e.g., "bytes", "ms", "ops/sec"). Auto-scaled to visible data range.
 
 ### Lines (Series)
-Each line represents one **engine × config × runtime** combination. Lines are differentiated by:
+Each line represents one **engine × preset × runtime** combination. Lines are differentiated by:
 
 | Visual | Maps to |
-|--------|---------|
+|--------|--------|
 | **Color** | Engine (V8=blue, Node=green, Chrome=orange, Firefox=red) |
-| **Dash pattern** | Config (Release=solid, AOT=dashed, NativeRelink=dotted, Invariant=dash-dot, NoReflectionEmit=long-dash, Debug=short-dash) |
+| **Dash pattern** | Preset (NoWorkload=solid, AOT=dashed, NativeRelink=dotted, Invariant=dash-dot, NoReflectionEmit=long-dash, Debug=short-dash) |
 | **Line thickness** | Runtime (CoreCLR=2px, Mono=1.5px, NativeAOT=1.5px) — or use shape markers instead |
 | **Point marker** | Runtime (CoreCLR=circle, Mono=triangle, NativeAOT=square) |
 
 ### Legend
 - Positioned below chart title, above the chart canvas.
 - Clickable: clicking a legend item toggles that series on/off.
-- Shows color swatch + pattern + label like "CoreCLR / Release / Chrome".
+- Shows color swatch + pattern + label like "CoreCLR / NoWorkload / Chrome".
 
 ### Tooltips
 On hover over a data point, show a tooltip with:
@@ -165,7 +165,7 @@ Date: 2026-03-02
 SDK: 10.0.100-preview.3.25130.1
 Git: abc1234
 Runtime: CoreCLR
-Config: Release
+Preset: NoWorkload
 Engine: Chrome
 ────────────────
 Download Size: 2,450,000 bytes
@@ -216,7 +216,7 @@ The entire view state is encoded in the URL hash. Changing tab or filters update
 1. On initial load: fetch `data/index.json` (~tiny, lists available months + dimensions).
 2. Based on selected time range, determine which month index files (`data/{YYYY-MM}.json`) are needed.
 3. Fetch those month indexes in parallel.
-4. Filter runs from month indexes by app, runtime, config, engine.
+4. Filter runs from month indexes by app, runtime, preset, engine.
 5. Fetch individual result JSON files for matched runs (parallel `fetch()` calls).
 6. Cache month indexes and result files in memory — don't re-fetch on filter change if already loaded.
 7. On time range expansion, fetch only the newly-visible months.
@@ -262,9 +262,9 @@ The entire view state is encoded in the URL hash. Changing tab or filters update
 | Chrome | Orange | `#F4B400` |
 | Firefox | Red | `#EA4335` |
 
-| Config | Dash | CSS |
+| Preset | Dash | CSS |
 |--------|------|-----|
-| Release | Solid | — |
+| NoWorkload | Solid | — |
 | AOT | Dashed | `[10, 5]` |
 | NativeRelink | Dotted | `[3, 3]` |
 | Invariant | Dash-dot | `[10, 3, 3, 3]` |
