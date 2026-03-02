@@ -118,7 +118,7 @@ const chartManager = new ChartManager(document.getElementById('charts-container'
 const filters = new Filters(document.getElementById('sidebar'));
 
 // Metrics per app type
-const EXTERNAL_METRICS = ['download-size', 'time-to-first-render', 'time-to-first-ui-change', 'memory-peak'];
+const EXTERNAL_METRICS = ['compile-time', 'download-size', 'time-to-first-render', 'time-to-first-ui-change', 'memory-peak'];
 const INTERNAL_METRICS = ['js-interop-ops', 'json-parse-ops', 'exception-ops'];
 const APP_METRICS = {
     'empty-browser': EXTERNAL_METRICS,
@@ -336,8 +336,8 @@ export class ChartManager {
         const seriesMap = new Map();
         
         for (const result of data) {
-            const metric = result.metrics[metricKey];
-            if (!metric) continue;
+            const value = result.metrics[metricKey];
+            if (value == null) continue;
             
             const seriesKey = `${result.meta.runtime}/${result.meta.config}/${result.meta.engine}`;
             if (!seriesMap.has(seriesKey)) {
@@ -345,8 +345,8 @@ export class ChartManager {
             }
             seriesMap.get(seriesKey).push({
                 x: result.meta.date,
-                y: metric.value,
-                meta: result.meta  // for tooltip
+                y: value,              // bare numeric value
+                meta: result.meta      // for tooltip
             });
         }
         
@@ -425,9 +425,12 @@ const ENGINE_COLORS = {
 };
 
 const CONFIG_DASHES = {
-    release:        [],         // solid
-    aot:            [10, 5],    // dashed
-    'native-relink': [3, 3]    // dotted
+    release:              [],              // solid
+    aot:                  [10, 5],         // dashed
+    'native-relink':      [3, 3],         // dotted
+    invariant:            [10, 3, 3, 3],  // dash-dot
+    'no-reflection-emit': [15, 5],        // long-dash
+    debug:                [5, 5]          // short-dash
 };
 
 const RUNTIME_MARKERS = {
@@ -435,25 +438,26 @@ const RUNTIME_MARKERS = {
     mono:    'triangle'
 };
 
-const METRIC_DISPLAY_NAMES = {
-    'download-size':          'Download Size',
-    'time-to-first-render':   'Time to First Render',
-    'time-to-first-ui-change':'Time to First UI Change',
-    'memory-peak':            'Memory Peak',
-    'js-interop-ops':         'JS Interop',
-    'json-parse-ops':         'JSON Parsing',
-    'exception-ops':          'Exception Handling'
+// Metric registry — canonical metric definitions (display name + unit).
+// Unit is a property of the metric dimension, not stored per data point.
+const METRICS = {
+    'compile-time':           { display: 'Compile Time',            unit: 'ms' },
+    'download-size':          { display: 'Download Size',           unit: 'bytes' },
+    'time-to-first-render':   { display: 'Time to First Render',    unit: 'ms' },
+    'time-to-first-ui-change':{ display: 'Time to First UI Change', unit: 'ms' },
+    'memory-peak':            { display: 'Memory Peak',             unit: 'bytes' },
+    'js-interop-ops':         { display: 'JS Interop',              unit: 'ops/min' },
+    'json-parse-ops':         { display: 'JSON Parsing',            unit: 'ops/min' },
+    'exception-ops':          { display: 'Exception Handling',      unit: 'ops/min' }
 };
 
-const METRIC_UNITS = {
-    'download-size':          'bytes',
-    'time-to-first-render':   'ms',
-    'time-to-first-ui-change':'ms',
-    'memory-peak':            'bytes',
-    'js-interop-ops':         'ops/min',
-    'json-parse-ops':         'ops/min',
-    'exception-ops':          'ops/min'
-};
+// Convenience accessors (used in chart options and tooltips)
+const METRIC_DISPLAY_NAMES = Object.fromEntries(
+    Object.entries(METRICS).map(([k, v]) => [k, v.display])
+);
+const METRIC_UNITS = Object.fromEntries(
+    Object.entries(METRICS).map(([k, v]) => [k, v.unit])
+);
 ```
 
 ### Value formatting

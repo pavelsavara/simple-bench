@@ -7,8 +7,15 @@ Three GitHub Actions workflows orchestrate the benchmarking:
 1. **benchmark.yml** — runs benchmark matrix daily (or on-demand)
 2. **consolidate.yml** — merges results into gh-pages branch
 3. **docker-build.yml** — builds/publishes the Docker image
+4. **test.yml** — runs unit + E2E tests on PR/push
 
 All benchmark jobs run inside a Docker container with pre-installed engines (V8, Node, Chrome, Firefox). The .NET SDK is downloaded at runtime from the nightly feed.
+
+All build outputs and temp files go to `artifacts/` (gitignored):
+- `artifacts/sdk/` — downloaded .NET SDK
+- `artifacts/publish/{app}/` — dotnet publish output
+- `artifacts/results/` — benchmark result JSONs
+- `artifacts/logs/` — build and measurement logs
 
 ---
 
@@ -71,6 +78,9 @@ RUN npm install -g playwright && \
 ENV PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
 ENV DOTNET_ROOT=/opt/dotnet
 ENV PATH="${DOTNET_ROOT}:${PATH}"
+ENV ARTIFACTS_DIR=/bench/artifacts
+
+RUN mkdir -p $ARTIFACTS_DIR/sdk $ARTIFACTS_DIR/publish $ARTIFACTS_DIR/results $ARTIFACTS_DIR/logs
 
 WORKDIR /bench
 ```
@@ -127,7 +137,7 @@ Downloads .NET SDK from the nightly feed and reports version + git hash.
 set -euo pipefail
 
 SDK_VERSION="${1:-}"  # Optional: specific version. Empty = latest nightly.
-INSTALL_DIR="${DOTNET_ROOT:-/opt/dotnet}"
+INSTALL_DIR="${ARTIFACTS_DIR:-/bench/artifacts}/sdk"
 
 if [ -z "$SDK_VERSION" ]; then
     # Download latest nightly
@@ -139,6 +149,10 @@ fi
 mkdir -p "$INSTALL_DIR"
 tar xzf /tmp/sdk.tar.gz -C "$INSTALL_DIR"
 rm /tmp/sdk.tar.gz
+
+# Add to PATH for this session
+export DOTNET_ROOT="$INSTALL_DIR"
+export PATH="$INSTALL_DIR:$PATH"
 
 # Extract version info
 RESOLVED_VERSION=$("$INSTALL_DIR/dotnet" --version)
@@ -171,17 +185,22 @@ Builds and publishes a sample app with the appropriate MSBuild flags for the giv
 | `release` | `-c Release /p:RuntimeFlavor={runtime}` |
 | `aot` | `-c Release /p:RuntimeFlavor=Mono /p:RunAOTCompilation=true` |
 | `native-relink` | `-c Release /p:RuntimeFlavor={runtime} /p:WasmNativeRelink=true` |
+| `invariant` | `-c Release /p:RuntimeFlavor={runtime} /p:InvariantGlobalization=true` |
+| `no-reflection-emit` | `-c Release /p:RuntimeFlavor={runtime} /p:_WasmNoReflectionEmit=true` |
+| `debug` | `-c Debug /p:RuntimeFlavor={runtime}` |
+
+The build script records wall-clock **compile time** (start to end of `dotnet publish`) and writes it to `artifacts/results/compile-time.json` for inclusion in the final result JSON.
 
 ### App setup per sample
 
 | App | Setup | Publish command |
 |-----|-------|----------------|
-| `empty-browser` | `dotnet new web` in temp dir | `dotnet publish -o /bench/publish/{app}` |
-| `empty-blazor` | `dotnet new blazorwasm` in temp dir | `dotnet publish -o /bench/publish/{app}` |
-| `blazing-pizza` | `git clone --depth 1 <repo> -b <commit>` | `dotnet publish src/BlazingPizza.Client -o /bench/publish/{app}` |
-| `microbenchmarks` | Already in `src/microbenchmarks/` | `dotnet publish -o /bench/publish/{app}` |
+| `empty-browser` | `dotnet new web` in temp dir | `dotnet publish -o artifacts/publish/{app}` |
+| `empty-blazor` | `dotnet new blazorwasm` in temp dir | `dotnet publish -o artifacts/publish/{app}` |
+| `blazing-pizza` | `git clone --depth 1 <repo> -b <commit>` | `dotnet publish src/BlazingPizza.Client -o artifacts/publish/{app}` |
+| `microbenchmarks` | Already in `src/microbenchmarks/` | `dotnet publish -o artifacts/publish/{app}` |
 
-The published output directory (`/bench/publish/{app}`) is used by the measurement scripts.
+The published output directory (`artifacts/publish/{app}`) is used by the measurement scripts.
 
 ---
 
@@ -193,8 +212,10 @@ Measures published app load characteristics using Playwright and Chrome DevTools
 
 ```
 Input:  --app <name> --publish-dir <path> --output <result.json>
-Output: JSON result file with meta + external metrics
+Output: JSON result file with meta + external metrics (compile-time, download-size, TTFR, TTFUC, memory-peak)
 ```
+
+Note: `compile-time` is not measured by this script — it is read from `artifacts/results/compile-time.json` (produced by `build-app.sh`) and merged into the final result JSON.
 
 ### Steps
 
@@ -297,7 +318,7 @@ strategy:
   matrix:
     app: [empty-browser, empty-blazor, blazing-pizza, microbenchmarks]
     runtime: [coreclr, mono]
-    config: [release, aot, native-relink]
+    config: [release, aot, native-relink, invariant, no-reflection-emit, debug]
     engine: [v8, node, chrome, firefox]
     exclude:
       # AOT is Mono-only
@@ -343,6 +364,7 @@ jobs:
 
       - name: Build app
         run: ./scripts/build-app.sh ${{ matrix.app }} ${{ matrix.runtime }} ${{ matrix.config }}
+        # Compile time is recorded to artifacts/results/compile-time.json
 
       - name: Run benchmark
         run: |
@@ -354,30 +376,31 @@ jobs:
           if [ "${{ matrix.app }}" = "microbenchmarks" ]; then
             node scripts/measure-internal.mjs \
               --engine ${{ matrix.engine }} \
-              --publish-dir /bench/publish/${{ matrix.app }} \
+              --publish-dir artifacts/publish/${{ matrix.app }} \
               --sdk-version "$SDK_VERSION" \
               --git-hash "$GIT_HASH" \
               --date "$DATE" \
               --runtime ${{ matrix.runtime }} \
               --config ${{ matrix.config }} \
-              --output "/tmp/results/${FILENAME}"
+              --output "artifacts/results/${FILENAME}"
           else
             node scripts/measure-external.mjs \
               --app ${{ matrix.app }} \
-              --publish-dir /bench/publish/${{ matrix.app }} \
+              --publish-dir artifacts/publish/${{ matrix.app }} \
               --sdk-version "$SDK_VERSION" \
               --git-hash "$GIT_HASH" \
               --date "$DATE" \
               --runtime ${{ matrix.runtime }} \
               --config ${{ matrix.config }} \
-              --output "/tmp/results/${FILENAME}"
+              --compile-time-file artifacts/results/compile-time.json \
+              --output "artifacts/results/${FILENAME}"
           fi
 
       - name: Upload result
         uses: actions/upload-artifact@v4
         with:
           name: result_${{ matrix.runtime }}_${{ matrix.config }}_${{ matrix.engine }}_${{ matrix.app }}
-          path: /tmp/results/*.json
+          path: artifacts/results/*.json
           retention-days: 7
 ```
 
@@ -498,6 +521,79 @@ A `NuGet.config` in the repo root configures these feeds:
 ### Failure notifications
 - GitHub Actions already sends email on workflow failure (if configured).
 - Future: post to a Slack/Teams channel or create a GitHub issue on repeated failures.
+
+---
+
+## Test Workflow: `test.yml`
+
+### Triggers
+- Push to main branch
+- Pull requests
+
+### Steps
+
+```yaml
+name: Tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: node --test tests/unit/
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test tests/e2e/
+```
+
+### GitHub API integration for CI verification
+
+The `tests/e2e/helpers/gh-api.mjs` helper uses `@octokit/rest` (or the `gh` CLI) to programmatically check CI status. This enables:
+- Verifying that a benchmark workflow run completed successfully
+- Checking that artifacts were uploaded
+- Confirming that the consolidation job updated the gh-pages branch
+
+```javascript
+// tests/e2e/helpers/gh-api.mjs
+import { Octokit } from '@octokit/rest';
+
+export async function getLatestWorkflowRun(owner, repo, workflowName) {
+    const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+    const { data } = await octokit.actions.listWorkflowRuns({
+        owner, repo,
+        workflow_id: workflowName,
+        per_page: 1
+    });
+    return data.workflow_runs[0];
+}
+
+export async function getRunArtifacts(owner, repo, runId) {
+    const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+    const { data } = await octokit.actions.listWorkflowRunArtifacts({
+        owner, repo,
+        run_id: runId
+    });
+    return data.artifacts;
+}
+```
+
+This is used in E2E tests to verify the full pipeline works after deployment.
 
 ---
 

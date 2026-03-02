@@ -19,20 +19,26 @@ The dashboard is a static single-page application hosted on GitHub Pages. It pre
 │           │  │ microbenchmarks                             │    │
 │  ☑ CoreCLR│  ├─────────────────────────────────────────────┤    │
 │  ☑ Mono   │  │                                             │    │
-│           │  │  Chart: Download Size (bytes)               │    │
+│           │  │  Chart: Compile Time (ms)                   │    │
 │  CONFIG   │  │  ═══════════════════════════════════════     │    │
 │  ☑ Release│  │   [time-series line chart]                  │    │
 │  ☑ AOT    │  │                                             │    │
 │  ☑ Relink │  ├─────────────────────────────────────────────┤    │
+│  ☑ Invar  │  │                                             │    │
+│  ☑ NoRefEm│  │  Chart: Download Size (bytes)               │    │
+│  ☑ Debug  │  │  ═══════════════════════════════════════     │    │
+│           │  │   [time-series line chart]                  │    │
+│  ENGINE   │  │                                             │    │
+│  ☑ V8     │  ├─────────────────────────────────────────────┤    │
+│  ☑ Node   │  │                                             │    │
+│  ☑ Chrome │  │  Chart: Time to First Render (ms)           │    │
+│  ☑ Firefox│  │  ═══════════════════════════════════════     │    │
+│           │  │   [time-series line chart]                  │    │
+│  TIME     │  │                                             │    │
+│  [30d ▼]  │  ├─────────────────────────────────────────────┤    │
 │           │  │                                             │    │
-│  ENGINE   │  │  Chart: Time to First Render (ms)           │    │
-│  ☑ V8     │  │  ═══════════════════════════════════════     │    │
-│  ☑ Node   │  │   [time-series line chart]                  │    │
-│  ☑ Chrome │  │                                             │    │
-│  ☑ Firefox│  ├─────────────────────────────────────────────┤    │
-│           │  │                                             │    │
-│  TIME     │  │  Chart: Time to First UI Change (ms)        │    │
-│  [30d ▼]  │  │  ═══════════════════════════════════════     │    │
+│           │  │  Chart: Time to First UI Change (ms)        │    │
+│           │  │  ═══════════════════════════════════════     │    │
 │           │  │   [time-series line chart]                  │    │
 │           │  │                                             │    │
 │           │  ├─────────────────────────────────────────────┤    │
@@ -54,9 +60,9 @@ Horizontal tab bar at the top of the content area. Each tab corresponds to one s
 
 | Tab | App | Metrics shown |
 |-----|-----|--------------|
-| **empty-browser** | Empty browser template | External (download-size, TTFR, TTFUC, memory-peak) |
-| **empty-blazor** | Empty Blazor WASM template | External (download-size, TTFR, TTFUC, memory-peak) |
-| **blazing-pizza** | BlazingPizza Blazor app | External (download-size, TTFR, TTFUC, memory-peak) |
+| **empty-browser** | Empty browser template | External (compile-time, download-size, TTFR, TTFUC, memory-peak) |
+| **empty-blazor** | Empty Blazor WASM template | External (compile-time, download-size, TTFR, TTFUC, memory-peak) |
+| **blazing-pizza** | BlazingPizza Blazor app | External (compile-time, download-size, TTFR, TTFUC, memory-peak) |
 | **microbenchmarks** | Custom JSExport benchmarks | Internal (js-interop-ops, json-parse-ops, exception-ops) |
 
 - Active tab is visually highlighted.
@@ -82,6 +88,9 @@ CONFIG
 ☑ Release
 ☑ AOT          (only shown when Mono is selected)
 ☑ NativeRelink
+☑ Invariant
+☑ NoReflectionEmit
+☑ Debug
 ```
 - AOT checkbox is hidden/disabled when Mono is deselected (AOT is Mono-only).
 
@@ -126,7 +135,7 @@ Each line represents one **engine × config × runtime** combination. Lines are 
 | Visual | Maps to |
 |--------|---------|
 | **Color** | Engine (V8=blue, Node=green, Chrome=orange, Firefox=red) |
-| **Dash pattern** | Config (Release=solid, AOT=dashed, NativeRelink=dotted) |
+| **Dash pattern** | Config (Release=solid, AOT=dashed, NativeRelink=dotted, Invariant=dash-dot, NoReflectionEmit=long-dash, Debug=short-dash) |
 | **Line thickness** | Runtime (CoreCLR=2px, Mono=1.5px) — or use shape markers instead |
 | **Point marker** | Runtime (CoreCLR=circle, Mono=triangle) |
 
@@ -155,19 +164,20 @@ Download Size: 2,450,000 bytes
 ## App-Specific Page Details
 
 ### Empty Browser Page (`#app=empty-browser`)
-4 charts stacked vertically:
-1. **Download Size** (bytes) — total transferred bytes to load the app
-2. **Time to First Render** (ms) — time from navigation to first contentful paint
-3. **Time to First UI Change** (ms) — time from navigation to first interactive DOM update
-4. **Memory Peak** (bytes) — peak JS heap size during load + initial interaction
+5 charts stacked vertically:
+1. **Compile Time** (ms) — wall-clock time of `dotnet publish`
+2. **Download Size** (bytes) — total transferred bytes to load the app
+3. **Time to First Render** (ms) — time from navigation to first contentful paint
+4. **Time to First UI Change** (ms) — time from navigation to first interactive DOM update
+5. **Memory Peak** (bytes) — peak JS heap size during load + initial interaction
 
-Engine filter: Chrome only (CDP-based metrics).
+Engine filter: Chrome only (CDP-based metrics). Compile time is engine-independent but still shown on this page.
 
 ### Empty Blazor Page (`#app=empty-blazor`)
-Same 4 charts as empty-browser. Same engine constraint (Chrome only).
+Same 5 charts as empty-browser. Same engine constraint (Chrome only).
 
 ### Blazing Pizza Page (`#app=blazing-pizza`)
-Same 4 charts as empty-browser. Same engine constraint (Chrome only).
+Same 5 charts as empty-browser. Same engine constraint (Chrome only).
 May show larger download sizes and longer render times due to app complexity.
 
 ### Microbenchmarks Page (`#app=microbenchmarks`)
@@ -239,6 +249,9 @@ The entire view state is encoded in the URL hash. Changing tab or filters update
 | Release | Solid | — |
 | AOT | Dashed | `[10, 5]` |
 | NativeRelink | Dotted | `[3, 3]` |
+| Invariant | Dash-dot | `[10, 3, 3, 3]` |
+| NoReflectionEmit | Long-dash | `[15, 5]` |
+| Debug | Short-dash | `[5, 5]` |
 
 | Runtime | Marker |
 |---------|--------|

@@ -21,7 +21,8 @@ simple-bench/
 │   └── workflows/
 │       ├── benchmark.yml           # Daily benchmark runs (matrix of configs)
 │       ├── consolidate.yml         # Merge results to gh-pages branch
-│       └── docker-build.yml        # Build/push Docker image to ghcr.io
+│       ├── docker-build.yml        # Build/push Docker image to ghcr.io
+│       └── test.yml                # Unit + E2E tests on PR and push
 ├── docker/
 │   └── Dockerfile                  # V8, Node, Chrome, Firefox, Playwright deps
 ├── src/
@@ -38,8 +39,20 @@ simple-bench/
 │       ├── chart-manager.js         # Chart.js chart creation/update
 │       ├── filters.js               # Side-panel filter state management
 │       └── style.css
+├── tests/
+│   ├── unit/                        # Unit tests (Node.js test runner)
+│   │   ├── data-loader.test.mjs     # Manifest filtering, data caching
+│   │   ├── chart-manager.test.mjs   # Dataset building, series grouping
+│   │   ├── filters.test.mjs         # Filter state, URL hash parsing
+│   │   ├── consolidate.test.mjs     # Manifest merge, dedup, weekly sharding
+│   │   └── fixtures/                # Sample manifest.json + result JSONs
+│   └── e2e/                         # End-to-end tests (Playwright)
+│       ├── dashboard.spec.mjs       # Load dashboard, verify charts render
+│       ├── pipeline-smoke.spec.mjs  # Build app, run measure script, verify JSON
+│       └── helpers/
+│           └── gh-api.mjs           # GitHub API helpers for CI status checks
 ├── scripts/
-│   ├── measure-external.mjs        # Playwright + CDP: download size, TTFR, TTFUC, memory
+│   ├── measure-external.mjs        # Playwright + CDP: compile time, download size, TTFR, TTFUC, memory
 │   ├── measure-internal.mjs        # Run microbenchmarks on V8/Node/Chrome/Firefox
 │   ├── resolve-sdk.sh              # Download nightly SDK, extract version+hash
 │   ├── build-app.sh                # Build/publish sample app with MSBuild flags
@@ -51,6 +64,11 @@ simple-bench/
 │   │   └── app.json
 │   └── blazing-pizza/
 │       └── app.json                 # Repo URL, pinned commit, mock backend config
+├── artifacts/                       # Build outputs and temp files (gitignored)
+│   ├── publish/                     # dotnet publish output per app
+│   ├── sdk/                         # Downloaded .NET SDK
+│   ├── results/                     # Benchmark result JSONs before upload
+│   └── logs/                        # Build and measurement logs
 ├── docs/
 │   ├── model.md
 │   ├── views.md
@@ -61,6 +79,12 @@ simple-bench/
 └── README.md
 ```
 
+The `artifacts/` directory is gitignored. All build scripts write outputs there:
+- `scripts/resolve-sdk.sh` → `artifacts/sdk/`
+- `scripts/build-app.sh` → `artifacts/publish/{app}/`
+- `scripts/measure-*.mjs` → `artifacts/results/`
+- Build logs → `artifacts/logs/`
+
 ## Implementation Phases
 
 ### Phase 1: Foundation
@@ -68,59 +92,76 @@ Core infrastructure that everything else depends on.
 
 | Step | Task | Output | Depends on |
 |------|------|--------|------------|
-| 1.1 | Init repo: `package.json`, `.gitignore`, folder structure | Repo skeleton | — |
+| 1.1 | Init repo: `package.json`, `.gitignore` (incl. `artifacts/`), folder structure | Repo skeleton | — |
 | 1.2 | Create [Dockerfile](docker/Dockerfile) with V8 (`d8`), Node LTS, Chrome, Firefox, Playwright system deps | Docker image | — |
-| 1.3 | Create [resolve-sdk.sh](scripts/resolve-sdk.sh) — download nightly SDK, output version + git hash JSON | SDK resolver | — |
-| 1.4 | Create [build-app.sh](scripts/build-app.sh) — build/publish sample app with runtime/config flags | App builder | 1.3 |
+| 1.3 | Create [resolve-sdk.sh](scripts/resolve-sdk.sh) — download nightly SDK to `artifacts/sdk/`, output version + git hash JSON | SDK resolver | — |
+| 1.4 | Create [build-app.sh](scripts/build-app.sh) — build/publish sample app to `artifacts/publish/` with runtime/config flags | App builder | 1.3 |
 | 1.5 | Create `gh-pages` branch with empty `data/manifest.json` + dashboard skeleton | Data branch | — |
+| 1.6 | Unit tests for resolve-sdk output parsing + build-app flag generation | Tests | 1.3, 1.4 |
 
-### Phase 2: Sample Apps
-Set up the 4 sample applications and the microbenchmark harness.
+### Phase 2: First End-to-End Slice (empty-browser + external metrics)
+Get one app measured end-to-end before expanding to more apps/metrics.
 
 | Step | Task | Output | Depends on |
 |------|------|--------|------------|
 | 2.1 | [apps/empty-browser/](apps/empty-browser/) — `dotnet new web` config, browser target | App config | 1.3 |
-| 2.2 | [apps/empty-blazor/](apps/empty-blazor/) — `dotnet new blazorwasm` config | App config | 1.3 |
-| 2.3 | [apps/blazing-pizza/](apps/blazing-pizza/) — clone script, pinned commit, mock backend | App config | 1.3 |
-| 2.4 | [src/microbenchmarks/](src/microbenchmarks/) — C# project with `[JSExport]` benchmark methods | C# project | 1.3 |
-| 2.5 | [bench-driver.mjs](src/microbenchmarks/bench-driver.mjs) — JS harness: loop, measure, produce JSON | JS harness | 2.4 |
+| 2.2 | [measure-external.mjs](scripts/measure-external.mjs) — Playwright + CDP: compile time, download size, TTFR, TTFUC, memory peak | External script | 1.2, 2.1 |
+| 2.3 | Unit tests for measure-external: mock CDP events, verify JSON output schema | Tests | 2.2 |
+| 2.4 | Define + document JSON output schema (see [model.md](docs/model.md)) | Schema | 2.2 |
 
-### Phase 3: Measurement Scripts
-The core measurement logic.
-
-| Step | Task | Output | Depends on |
-|------|------|--------|------------|
-| 3.1 | [measure-external.mjs](scripts/measure-external.mjs) — Playwright + CDP: TTFR, TTFUC, download size, memory peak | External script | 1.2, 2.1-2.3 |
-| 3.2 | [measure-internal.mjs](scripts/measure-internal.mjs) — run microbenchmarks on each engine, collect JSON | Internal script | 1.2, 2.4-2.5 |
-| 3.3 | Define + document JSON output schema (see [model.md](docs/model.md)) | Schema | — |
-
-### Phase 4: CI Pipelines
-GitHub Actions workflows.
+### Phase 3: CI Pipeline (single-app)
+Get the CI loop working for the single empty-browser app.
 
 | Step | Task | Output | Depends on |
 |------|------|--------|------------|
-| 4.1 | [benchmark.yml](.github/workflows/benchmark.yml) — matrix: runtime×config×app×engine, daily cron + dispatch | CI workflow | Phase 1-3 |
-| 4.2 | [consolidate.yml](.github/workflows/consolidate.yml) — download artifacts, merge into gh-pages, commit | CI workflow | 4.1 |
-| 4.3 | [docker-build.yml](.github/workflows/docker-build.yml) — build + push Docker image weekly | CI workflow | 1.2 |
-| 4.4 | [consolidate-results.mjs](scripts/consolidate-results.mjs) — script used by 4.2 to merge data | Script | 3.3 |
+| 3.1 | [benchmark.yml](.github/workflows/benchmark.yml) — matrix: runtime×config, single app (empty-browser), chrome engine only | CI workflow | Phase 1-2 |
+| 3.2 | [consolidate.yml](.github/workflows/consolidate.yml) — download artifacts, merge into gh-pages, commit | CI workflow | 3.1 |
+| 3.3 | [consolidate-results.mjs](scripts/consolidate-results.mjs) — merge artifacts into gh-pages data/ | Script | 2.4 |
+| 3.4 | Unit tests for consolidate-results: manifest merge, dedup, weekly sharding | Tests | 3.3 |
+| 3.5 | [docker-build.yml](.github/workflows/docker-build.yml) — build + push Docker image weekly | CI workflow | 1.2 |
+| 3.6 | [test.yml](.github/workflows/test.yml) — run unit + E2E tests on PR/push, use `gh` API to verify CI status | CI workflow | 2.3, 3.4 |
 
-### Phase 5: Dashboard
+### Phase 4: Dashboard
 Static web UI on GitHub Pages.
 
 | Step | Task | Output | Depends on |
 |------|------|--------|------------|
-| 5.1 | [index.html](src/dashboard/index.html) — page shell, navigation tabs, filter sidebar | HTML | 3.3 |
-| 5.2 | [data-loader.js](src/dashboard/data-loader.js) — fetch manifest, lazy-load weekly JSONs | JS module | 3.3 |
-| 5.3 | [chart-manager.js](src/dashboard/chart-manager.js) — Chart.js line charts, tooltips, colors | JS module | 5.1 |
-| 5.4 | [filters.js](src/dashboard/filters.js) — checkbox state, URL hash sync, re-render on change | JS module | 5.1 |
-| 5.5 | [app.js](src/dashboard/app.js) — orchestrator wiring modules together | JS module | 5.2-5.4 |
-| 5.6 | Generate sample test data, verify charts render correctly | Test data | 5.1-5.5 |
+| 4.1 | [index.html](src/dashboard/index.html) — page shell, navigation tabs, filter sidebar | HTML | 2.4 |
+| 4.2 | [data-loader.js](src/dashboard/data-loader.js) — fetch manifest, lazy-load weekly JSONs | JS module | 2.4 |
+| 4.3 | [chart-manager.js](src/dashboard/chart-manager.js) — Chart.js line charts, tooltips, colors | JS module | 4.1 |
+| 4.4 | [filters.js](src/dashboard/filters.js) — checkbox state, URL hash sync, re-render on change | JS module | 4.1 |
+| 4.5 | [app.js](src/dashboard/app.js) — orchestrator wiring modules together | JS module | 4.2-4.4 |
+| 4.6 | Unit tests for data-loader (filtering, caching) and filters (hash parse/serialize) | Tests | 4.2, 4.4 |
+| 4.7 | E2E test: Playwright loads dashboard with fixture data, verifies charts render | Tests | 4.1-4.5 |
+| 4.8 | Generate sample test data, verify charts render correctly | Test data | 4.1-4.5 |
 
-### Phase 6: Polish
+### Phase 5: Polish & Docs
 | Step | Task | Output | Depends on |
 |------|------|--------|------------|
-| 6.1 | README.md with architecture overview, quickstart, manual run instructions | Docs | All |
-| 6.2 | End-to-end test: run one config locally in Docker, verify data → dashboard | Validation | All |
+| 5.1 | README.md with architecture overview, quickstart, manual run instructions | Docs | Phase 1-4 |
+| 5.2 | End-to-end test: run one config locally in Docker, verify data → dashboard | Validation | Phase 1-4 |
+
+### Phase 6: Additional Sample Apps
+Expand to the remaining 3 sample apps.
+
+| Step | Task | Output | Depends on |
+|------|------|--------|------------|
+| 6.1 | [apps/empty-blazor/](apps/empty-blazor/) — `dotnet new blazorwasm` config | App config | Phase 2 |
+| 6.2 | [apps/blazing-pizza/](apps/blazing-pizza/) — clone script, pinned commit, mock backend | App config | Phase 2 |
+| 6.3 | [src/microbenchmarks/](src/microbenchmarks/) — C# project with `[JSExport]` benchmark methods | C# project | Phase 2 |
+| 6.4 | [bench-driver.mjs](src/microbenchmarks/bench-driver.mjs) — JS harness: loop, measure, produce JSON | JS harness | 6.3 |
+| 6.5 | Update benchmark.yml matrix to include all apps | CI update | Phase 3 |
+| 6.6 | E2E tests for each new app: verify build + measure produce valid JSON | Tests | 6.1-6.4 |
+
+### Phase 7: Internal Metrics
+Add microbenchmark measurement support.
+
+| Step | Task | Output | Depends on |
+|------|------|--------|------------|
+| 7.1 | [measure-internal.mjs](scripts/measure-internal.mjs) — run microbenchmarks on V8/Node/Chrome/Firefox | Internal script | 6.3-6.4 |
+| 7.2 | Unit tests for measure-internal: mock engine output, verify JSON schema | Tests | 7.1 |
+| 7.3 | Update benchmark.yml matrix to include all engines for microbenchmarks | CI update | 7.1 |
+| 7.4 | Update dashboard to show microbenchmark metrics (ops/min charts) | UI update | 7.1, Phase 4 |
 
 ## Key Decisions
 
@@ -132,13 +173,36 @@ Static web UI on GitHub Pages.
 | Browser result extraction | Playwright `page.evaluate()` | Direct, reliable, no HTTP server needed in test |
 | Docker registry | ghcr.io | Free for public repos, integrated with GH Actions |
 | Runtime flavors | CoreCLR + Mono | Compare both VMs on browser target |
-| Build configs | Release, AOT (Mono), NativeRelink | Cover the main production scenarios |
+| Build configs | Release, AOT (Mono), NativeRelink, Invariant, NoReflectionEmit, Debug | Cover production + diagnostic scenarios |
 | SDK resolution | Latest nightly default, optional version param | Flexibility for regression investigation |
 | Browser versions | Latest Playwright-compatible | Consistent with Playwright's tested versions |
+
+## Testing Strategy
+
+Every component has both unit tests and E2E validation:
+
+| Component | Unit Tests | E2E Tests |
+|-----------|-----------|----------|
+| `resolve-sdk.sh` | Verify output JSON parsing, version extraction | Run in Docker, confirm SDK installs |
+| `build-app.sh` | Verify MSBuild flag generation per config | Build empty-browser in Docker, verify `artifacts/publish/` |
+| `measure-external.mjs` | Mock CDP events, verify metric extraction + JSON schema | Run against published app in Docker, verify result JSON |
+| `measure-internal.mjs` | Mock engine stdout, verify JSON parsing | Run microbenchmarks on V8/Node in Docker |
+| `consolidate-results.mjs` | Merge fixtures → verify manifest dedup, weekly sharding | Consolidation workflow with test artifacts |
+| `data-loader.js` | Manifest filtering, caching, lazy fetch | — (covered by dashboard E2E) |
+| `filters.js` | URL hash parse/serialize, checkbox state | — (covered by dashboard E2E) |
+| `chart-manager.js` | Dataset grouping, series key generation | — (covered by dashboard E2E) |
+| Dashboard (full) | — | Playwright loads dashboard with fixture data, verifies chart rendering + filter interactions |
+
+### Test workflow: `test.yml`
+- Triggered on push and PR
+- Runs unit tests via Node.js test runner (`node --test tests/unit/`)
+- Runs E2E tests via Playwright (`npx playwright test tests/e2e/`)
+- Uses `gh` CLI / GitHub REST API to verify CI status programmatically:
+  - `tests/e2e/helpers/gh-api.mjs` uses `@octokit/rest` to check workflow run status
+  - Useful for testing the consolidation pipeline: trigger benchmark → check artifacts → verify gh-pages update
 
 ## Future Considerations
 
 - **Regression alerts**: Threshold-based detection → auto-file GitHub issues (post-MVP)
 - **Historical backfill**: Import data from existing perf runs
-- **Debug app builds**: Add app Debug/Release as another matrix dimension
 - **WASI target**: Add wasi-node and wasmtime engines when CoreCLR WASI matures

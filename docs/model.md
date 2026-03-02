@@ -10,16 +10,19 @@ Each benchmark run is identified by a combination of these dimensions:
 | **SDK Version** | `sdkVersion` | e.g. `10.0.100-preview.3.25130.1` | Resolved .NET SDK version string |
 | **Git Hash** | `gitHash` | 40-char SHA (display as 7-char) | Source commit of the SDK build |
 | **Runtime Flavor** | `runtime` | `coreclr`, `mono` | Which .NET runtime VM |
-| **Build Configuration** | `config` | `release`, `aot`, `native-relink` | MSBuild publish configuration |
+| **Build Configuration** | `config` | `release`, `aot`, `native-relink`, `invariant`, `no-reflection-emit`, `debug` | MSBuild publish configuration |
 | **Execution Engine** | `engine` | `v8`, `node`, `chrome`, `firefox` | JS/WASM execution environment |
 | **Sample App** | `app` | `empty-browser`, `empty-blazor`, `blazing-pizza`, `microbenchmarks` | Which application was measured |
 
 ### Dimension constraints (valid combinations)
 
 ```
-config=aot          → runtime=mono only      (AOT is Mono-specific)
-config=native-relink → runtime=coreclr,mono  (both support native relink)
-config=release      → runtime=coreclr,mono   (standard release build)
+config=aot               → runtime=mono only      (AOT is Mono-specific)
+config=native-relink     → runtime=coreclr,mono   (both support native relink)
+config=release           → runtime=coreclr,mono   (standard release build)
+config=invariant         → runtime=coreclr,mono   (InvariantGlobalization=true)
+config=no-reflection-emit→ runtime=coreclr,mono   (no System.Reflection.Emit)
+config=debug             → runtime=coreclr,mono   (debug build of the app)
 
 app=empty-browser,empty-blazor,blazing-pizza  → metrics: external only
 app=microbenchmarks                           → metrics: internal only
@@ -33,48 +36,63 @@ engine=v8,node      → microbenchmarks only (CLI engines, no browser)
 
 | App | Engine | Config | Runtime |
 |-----|--------|--------|---------|
-| empty-browser | chrome | release, native-relink | coreclr, mono |
+| empty-browser | chrome | release, native-relink, invariant, no-reflection-emit, debug | coreclr, mono |
 | empty-browser | chrome | aot | mono |
-| empty-blazor | chrome | release, native-relink | coreclr, mono |
+| empty-blazor | chrome | release, native-relink, invariant, no-reflection-emit, debug | coreclr, mono |
 | empty-blazor | chrome | aot | mono |
-| blazing-pizza | chrome | release, native-relink | coreclr, mono |
+| blazing-pizza | chrome | release, native-relink, invariant, no-reflection-emit, debug | coreclr, mono |
 | blazing-pizza | chrome | aot | mono |
-| microbenchmarks | v8, node, chrome, firefox | release, native-relink | coreclr, mono |
+| microbenchmarks | v8, node, chrome, firefox | release, native-relink, invariant, no-reflection-emit, debug | coreclr, mono |
 | microbenchmarks | v8, node, chrome, firefox | aot | mono |
 
-**Total legs per daily run**: ~26 combinations (3 apps × 1 engine × 5 configs + 1 app × 4 engines × 5 configs)
+**Total legs per daily run**: ~44 combinations (3 apps × 1 engine × 11 configs + 1 app × 4 engines × 11 configs)
 
 ---
 
 ## Metrics
 
-### External Metrics
-Measured via Playwright + Chrome DevTools Protocol on published sample apps (Chrome only).
+Metric definitions are part of the model — each metric has a fixed key, display name, and unit. The unit is a property of the metric dimension itself, **not** of individual data points. Result JSONs store only the numeric value.
 
-| Metric Key | Display Name | Unit | How Measured |
-|------------|-------------|------|-------------|
-| `download-size` | Download Size | `bytes` | CDP Network events: sum of `encodedDataLength` for all resources |
-| `time-to-first-render` | Time to First Render | `ms` | `PerformanceObserver` for `first-contentful-paint`, or `Performance.timing.domContentLoadedEventEnd - navigationStart` |
-| `time-to-first-ui-change` | Time to First UI Change | `ms` | `MutationObserver` on document body, timestamp of first DOM mutation after initial render |
-| `memory-peak` | Memory Peak | `bytes` | CDP `Performance.getMetrics` → `JSHeapUsedSize` peak, or `performance.measureUserAgentSpecificMemory()` |
+### Metric Definitions
 
-### Internal Metrics
-Measured via JS harness calling `[JSExport]` C# methods in tight loops.
+| Metric Key | Display Name | Unit | Category | How Measured |
+|------------|-------------|------|----------|-------------|
+| `compile-time` | Compile Time | `ms` | External | Wall-clock time of `dotnet publish` (measured in build-app.sh, included in result JSON) |
+| `download-size` | Download Size | `bytes` | External | CDP Network events: sum of `encodedDataLength` for all resources |
+| `time-to-first-render` | Time to First Render | `ms` | External | `PerformanceObserver` for `first-contentful-paint`, or `Performance.timing.domContentLoadedEventEnd - navigationStart` |
+| `time-to-first-ui-change` | Time to First UI Change | `ms` | External | `MutationObserver` on document body, timestamp of first DOM mutation after initial render |
+| `memory-peak` | Memory Peak | `bytes` | External | CDP `Performance.getMetrics` → `JSHeapUsedSize` peak, or `performance.measureUserAgentSpecificMemory()` |
+| `js-interop-ops` | JS Interop | `ops/min` | Internal | Tight loop: JS calls C# `[JSExport]` method, method returns value. Count iterations in fixed time window. |
+| `json-parse-ops` | JSON Parsing | `ops/min` | Internal | Tight loop: JS passes JSON string to C# `[JSExport]` method that deserializes with `System.Text.Json`. Count iterations. |
+| `exception-ops` | Exception Handling | `ops/min` | Internal | Tight loop: JS calls C# method that throws + catches exception. Count iterations. |
 
-| Metric Key | Display Name | Unit | How Measured |
-|------------|-------------|------|-------------|
-| `js-interop-ops` | JS Interop | `ops/min` | Tight loop: JS calls C# `[JSExport]` method, method returns value. Count iterations in fixed time window. |
-| `json-parse-ops` | JSON Parsing | `ops/min` | Tight loop: JS passes JSON string to C# `[JSExport]` method that deserializes with `System.Text.Json`. Count iterations. |
-| `exception-ops` | Exception Handling | `ops/min` | Tight loop: JS calls C# method that throws + catches exception. Count iterations. |
+### Metric registry (in code)
+
+The metric definitions are maintained as a shared constant, used by both measurement scripts and the dashboard:
+
+```javascript
+// Canonical metric registry — unit is defined here, not in data files
+const METRICS = {
+    'compile-time':           { displayName: 'Compile Time',           unit: 'ms',      category: 'external' },
+    'download-size':          { displayName: 'Download Size',          unit: 'bytes',   category: 'external' },
+    'time-to-first-render':   { displayName: 'Time to First Render',   unit: 'ms',      category: 'external' },
+    'time-to-first-ui-change':{ displayName: 'Time to First UI Change', unit: 'ms',      category: 'external' },
+    'memory-peak':            { displayName: 'Memory Peak',            unit: 'bytes',   category: 'external' },
+    'js-interop-ops':         { displayName: 'JS Interop',             unit: 'ops/min', category: 'internal' },
+    'json-parse-ops':         { displayName: 'JSON Parsing',           unit: 'ops/min', category: 'internal' },
+    'exception-ops':          { displayName: 'Exception Handling',     unit: 'ops/min', category: 'internal' }
+};
+```
 
 ### Metric value representation
 
-All metric values are stored as numbers (not strings). Units are stored alongside for display purposes.
+Result data stores only the numeric value — the unit is looked up from the metric registry:
 
 ```json
 {
-  "value": 2450000,
-  "unit": "bytes"
+  "compile-time": 45200,
+  "download-size": 2450000,
+  "time-to-first-render": 320.5
 }
 ```
 
@@ -151,7 +169,7 @@ The global index. Fetched by the UI on page load. Contains metadata for every ru
   "lastUpdated": "2026-03-02T12:34:56Z",
   "dimensions": {
     "runtimes": ["coreclr", "mono"],
-    "configs": ["release", "aot", "native-relink"],
+    "configs": ["release", "aot", "native-relink", "invariant", "no-reflection-emit", "debug"],
     "engines": ["v8", "node", "chrome", "firefox"],
     "apps": ["empty-browser", "empty-blazor", "blazing-pizza", "microbenchmarks"]
   },
@@ -166,7 +184,7 @@ The global index. Fetched by the UI on page load. Contains metadata for every ru
       "engine": "chrome",
       "app": "empty-browser",
       "file": "2026/W09/2026-03-02_coreclr_release_chrome_empty-browser.json",
-      "metrics": ["download-size", "time-to-first-render", "time-to-first-ui-change", "memory-peak"]
+      "metrics": ["compile-time", "download-size", "time-to-first-render", "time-to-first-ui-change", "memory-peak"]
     },
     {
       "date": "2026-03-02",
@@ -198,6 +216,8 @@ The global index. Fetched by the UI on page load. Contains metadata for every ru
 
 ### Per-run result JSON
 
+Metric values are bare numbers. The unit for each metric is defined in the metric registry (see above), not repeated in every data file.
+
 ```json
 {
   "meta": {
@@ -212,22 +232,11 @@ The global index. Fetched by the UI on page load. Contains metadata for every ru
     "ciRunUrl": "https://github.com/<org>/simple-bench/actions/runs/12345678"
   },
   "metrics": {
-    "download-size": {
-      "value": 2450000,
-      "unit": "bytes"
-    },
-    "time-to-first-render": {
-      "value": 320.5,
-      "unit": "ms"
-    },
-    "time-to-first-ui-change": {
-      "value": 580.2,
-      "unit": "ms"
-    },
-    "memory-peak": {
-      "value": 45000000,
-      "unit": "bytes"
-    }
+    "compile-time": 45200,
+    "download-size": 2450000,
+    "time-to-first-render": 320.5,
+    "time-to-first-ui-change": 580.2,
+    "memory-peak": 45000000
   }
 }
 ```
@@ -236,9 +245,7 @@ The global index. Fetched by the UI on page load. Contains metadata for every ru
 - `meta`: all dimension values + CI traceability
   - `ciRunId`: GitHub Actions run ID for traceability
   - `ciRunUrl`: direct link to the CI run
-- `metrics`: key-value map where key is the metric name
-  - `value`: numeric measurement (integer or float)
-  - `unit`: display unit string
+- `metrics`: key-value map where key is the metric name, value is the numeric measurement (integer or float)
 
 ### Internal microbenchmark result example
 
@@ -256,18 +263,9 @@ The global index. Fetched by the UI on page load. Contains metadata for every ru
     "ciRunUrl": "https://github.com/<org>/simple-bench/actions/runs/12345678"
   },
   "metrics": {
-    "js-interop-ops": {
-      "value": 1250000,
-      "unit": "ops/min"
-    },
-    "json-parse-ops": {
-      "value": 890000,
-      "unit": "ops/min"
-    },
-    "exception-ops": {
-      "value": 45000,
-      "unit": "ops/min"
-    }
+    "js-interop-ops": 1250000,
+    "json-parse-ops": 890000,
+    "exception-ops": 45000
   }
 }
 ```
@@ -327,8 +325,8 @@ CI benchmark job (per matrix leg)
 | Item | Estimate |
 |------|----------|
 | Single result JSON | ~300-500 bytes |
-| Daily run (26 legs) | ~10-13 KB |
-| Weekly data | ~70-90 KB |
+| Daily run (~44 legs) | ~15-22 KB |
+| Weekly data | ~100-150 KB |
 | Yearly manifest (365 × 26 entries) | ~500 KB |
 | Yearly data files | ~3.5 MB |
 
