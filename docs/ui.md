@@ -10,7 +10,7 @@ The dashboard is a static single-page app: one `index.html` that loads 4 JS modu
 src/dashboard/
 ├── index.html          # Page shell, navigation, sidebar, chart containers
 ├── app.js              # Orchestrator: init, routing, wiring modules
-├── data-loader.js      # Fetch manifest.json + weekly JSON files, cache
+├── data-loader.js      # Fetch index.json + month indexes + result JSON files, cache
 ├── chart-manager.js    # Create/update/destroy Chart.js line charts
 ├── filters.js          # Sidebar checkbox state, URL hash sync
 └── style.css           # Layout, responsive, colors
@@ -131,25 +131,29 @@ const APP_METRICS = {
 let currentApp = 'empty-browser';
 
 async function init() {
-    // 1. Load manifest
-    const manifest = await dataLoader.loadManifest();
+    // 1. Load top-level index
+    const index = await dataLoader.loadIndex();
     
     // 2. Update header
-    document.getElementById('last-updated').textContent = `Updated: ${manifest.lastUpdated}`;
-    document.getElementById('data-points').textContent = `${manifest.runs.length} data points`;
+    document.getElementById('last-updated').textContent = `Updated: ${index.lastUpdated}`;
     
-    // 3. Initialize filters from manifest dimensions + URL hash
-    filters.init(manifest.dimensions, readHashState());
+    // 3. Initialize filters from index dimensions + URL hash
+    filters.init(index.dimensions, readHashState());
     
     // 4. Restore app tab from URL hash
     const hashState = readHashState();
     if (hashState.app) currentApp = hashState.app;
     
-    // 5. Render
+    // 5. Load month indexes for the initial time range, then render
+    await dataLoader.loadMonths(filters.getState().range);
     await renderCurrentView();
     
     // 6. Listen for changes
-    filters.onChange(() => { updateHash(); renderCurrentView(); });
+    filters.onChange(async () => {
+        updateHash();
+        await dataLoader.loadMonths(filters.getState().range);
+        await renderCurrentView();
+    });
     setupTabListeners();
     window.addEventListener('hashchange', onHashChange);
 }
@@ -162,7 +166,7 @@ async function renderCurrentView() {
     const isExternal = currentApp !== 'microbenchmarks';
     filters.setEngineVisibility(isExternal ? ['chrome'] : ['v8', 'node', 'chrome', 'firefox']);
     
-    // Filter manifest runs matching current app + filters + time range
+    // Filter runs from loaded month indexes matching current app + filters + time range
     const matchingRuns = dataLoader.filterRuns(currentApp, filterState);
     
     if (matchingRuns.length === 0) {
@@ -170,7 +174,7 @@ async function renderCurrentView() {
         return;
     }
     
-    // Load needed weekly data files
+    // Load needed result data files
     const data = await dataLoader.loadRunData(matchingRuns);
     
     // Render one chart per metric
@@ -214,70 +218,104 @@ function updateHash() {
 ```javascript
 export class DataLoader {
     #baseUrl;       // 'data/'
-    #manifest;      // Parsed manifest.json
-    #cache;         // Map<filePath, parsedJSON> — in-memory cache of fetched weekly files
+    #index;         // Parsed index.json (top-level)
+    #monthCache;    // Map<monthKey, parsedMonthIndex> — cached month indexes
+    #resultCache;   // Map<filePath, parsedJSON> — cached result files
 
     constructor(baseUrl) {
         this.#baseUrl = baseUrl;
-        this.#manifest = null;
-        this.#cache = new Map();
+        this.#index = null;
+        this.#monthCache = new Map();
+        this.#resultCache = new Map();
     }
 
-    /** Fetch and parse manifest.json. Called once on init. */
-    async loadManifest() {
-        const resp = await fetch(`${this.#baseUrl}manifest.json`);
-        if (!resp.ok) throw new Error(`Failed to load manifest: ${resp.status}`);
-        this.#manifest = await resp.json();
-        return this.#manifest;
+    /** Fetch and parse index.json. Called once on init. */
+    async loadIndex() {
+        const resp = await fetch(`${this.#baseUrl}index.json`);
+        if (!resp.ok) throw new Error(`Failed to load index: ${resp.status}`);
+        this.#index = await resp.json();
+        return this.#index;
     }
 
-    /** Filter manifest runs by app, filter state, and time range. Returns run entries. */
+    /** Load month index files needed for the given time range. */
+    async loadMonths(rangeInDays) {
+        const cutoff = rangeInDays > 0
+            ? new Date(Date.now() - rangeInDays * 86400000)
+            : new Date(0);
+        const cutoffMonth = `${cutoff.getUTCFullYear()}-${String(cutoff.getUTCMonth() + 1).padStart(2, '0')}`;
+
+        const neededMonths = this.#index.months.filter(m => m >= cutoffMonth);
+        const toFetch = neededMonths.filter(m => !this.#monthCache.has(m));
+
+        await Promise.all(toFetch.map(async (month) => {
+            try {
+                const resp = await fetch(`${this.#baseUrl}${month}.json`);
+                if (resp.ok) {
+                    this.#monthCache.set(month, await resp.json());
+                }
+            } catch (e) {
+                console.warn(`Failed to fetch month index ${month}:`, e);
+            }
+        }));
+    }
+
+    /** Filter runs across loaded month indexes by app + filter state + time range. */
     filterRuns(app, filterState) {
         const cutoff = filterState.range > 0
             ? new Date(Date.now() - filterState.range * 86400000).toISOString().slice(0, 10)
             : '1970-01-01';
 
-        return this.#manifest.runs.filter(run =>
-            run.app === app &&
-            run.date >= cutoff &&
-            filterState.runtime.includes(run.runtime) &&
-            filterState.config.includes(run.config) &&
-            filterState.engine.includes(run.engine)
-        );
+        const runs = [];
+        for (const monthIndex of this.#monthCache.values()) {
+            for (const commit of monthIndex.commits) {
+                if (commit.date < cutoff) continue;
+                for (const result of commit.results) {
+                    if (result.app === app &&
+                        filterState.runtime.includes(result.runtime) &&
+                        filterState.config.includes(result.config) &&
+                        filterState.engine.includes(result.engine)) {
+                        runs.push({
+                            ...result,
+                            date: commit.date,
+                            time: commit.time,
+                            sdkVersion: commit.sdkVersion,
+                            gitHash: commit.gitHash
+                        });
+                    }
+                }
+            }
+        }
+        return runs;
     }
 
-    /** Load all data files for the given run entries. Returns array of parsed result objects. */
+    /** Load all result JSON files for the given run entries. Returns array of parsed result objects. */
     async loadRunData(runs) {
-        // Determine which files need fetching (not in cache)
-        const toFetch = runs.filter(r => !this.#cache.has(r.file));
+        const toFetch = runs.filter(r => !this.#resultCache.has(r.file));
 
-        // Fetch in parallel, batched
-        const fetchPromises = toFetch.map(async (run) => {
+        await Promise.all(toFetch.map(async (run) => {
             try {
                 const resp = await fetch(`${this.#baseUrl}${run.file}`);
                 if (resp.ok) {
-                    const data = await resp.json();
-                    this.#cache.set(run.file, data);
+                    this.#resultCache.set(run.file, await resp.json());
                 }
             } catch (e) {
                 console.warn(`Failed to fetch ${run.file}:`, e);
             }
-        });
-        await Promise.all(fetchPromises);
+        }));
 
-        // Return cached data for all requested runs
         return runs
-            .map(r => this.#cache.get(r.file))
+            .map(r => this.#resultCache.get(r.file))
             .filter(Boolean);
     }
 }
 ```
 
 ### Caching strategy
-- Manifest is fetched once and never re-fetched (user reloads page for fresh data).
-- Weekly JSON files are cached in a `Map` keyed by `file` path.
+- `index.json` is fetched once and never re-fetched (user reloads page for fresh data).
+- Month index files are cached in `#monthCache` keyed by `YYYY-MM` string.
+- Result JSON files are cached in `#resultCache` keyed by `file` path.
+- When time range expands, only the newly-visible months are fetched.
 - When filters change (but time range doesn't expand), no new fetches needed if data is already cached.
-- When time range expands, only the newly-visible weeks are fetched.
 
 ---
 
@@ -344,7 +382,7 @@ export class ChartManager {
                 seriesMap.set(seriesKey, []);
             }
             seriesMap.get(seriesKey).push({
-                x: result.meta.date,
+                x: result.meta.commitDate,
                 y: value,              // bare numeric value
                 meta: result.meta      // for tooltip
             });
@@ -747,15 +785,17 @@ User loads page
     ▼
 app.js: init()
     │
-    ├─▶ dataLoader.loadManifest()      →  fetch('data/manifest.json')
+    ├─▶ dataLoader.loadIndex()         →  fetch('data/index.json')
+    │
+    ├─▶ dataLoader.loadMonths(range)   →  fetch month index files for visible range
     │
     ├─▶ filters.init(dimensions, hash) →  render checkboxes, restore URL state
     │
     └─▶ renderCurrentView()
             │
-            ├─▶ dataLoader.filterRuns()     →  filter manifest entries in memory
+            ├─▶ dataLoader.filterRuns()     →  filter month index entries in memory
             │
-            ├─▶ dataLoader.loadRunData()    →  fetch weekly JSONs (parallel, cached)
+            ├─▶ dataLoader.loadRunData()    →  fetch result JSONs (parallel, cached)
             │
             └─▶ chartManager.renderCharts() →  create/update Chart.js instances
                     │
@@ -784,9 +824,9 @@ app.js: setCurrentApp() → updateHash() → renderCurrentView()
 
 | Scenario | UI behavior |
 |----------|-------------|
-| `manifest.json` fetch fails | Show "Failed to load data. Check your connection." with retry button |
-| Individual weekly JSON fails | Skip that file, log warning to console, show available data |
-| Manifest is empty (no runs) | Show "No benchmark data yet. Run the CI pipeline to collect data." |
+| `index.json` fetch fails | Show "Failed to load data. Check your connection." with retry button |
+| Individual month index or result JSON fails | Skip that file, log warning to console, show available data |
+| Index has no months (no runs) | Show "No benchmark data yet. Run the CI pipeline to collect data." |
 | Filters match no data | Show "No data for selected filters. Try broadening your selection." |
 | Chart.js fails to render | Log error, show fallback text in chart wrapper |
 

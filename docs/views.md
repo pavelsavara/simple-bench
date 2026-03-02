@@ -197,15 +197,17 @@ This is the page where engine comparison is most interesting — expect differen
 The entire view state is encoded in the URL hash. Changing tab or filters updates the hash. Browser back/forward navigates filter history.
 
 ### Lazy data loading
-1. On initial load: fetch `data/manifest.json` (~small, index of all runs).
-2. Based on selected time range and current app tab, determine which weekly JSON files are needed.
-3. Fetch only those weekly files (parallel `fetch()` calls).
-4. Cache fetched files in memory — don't re-fetch on filter change if data is already loaded.
-5. On time range expansion, fetch only the newly-visible weeks.
+1. On initial load: fetch `data/index.json` (~tiny, lists available months + dimensions).
+2. Based on selected time range, determine which month index files (`data/{YYYY-MM}.json`) are needed.
+3. Fetch those month indexes in parallel.
+4. Filter runs from month indexes by app, runtime, config, engine.
+5. Fetch individual result JSON files for matched runs (parallel `fetch()` calls).
+6. Cache month indexes and result files in memory — don't re-fetch on filter change if already loaded.
+7. On time range expansion, fetch only the newly-visible months.
 
 ### Loading states
-- Spinner shown while manifest loads.
-- Individual charts show "Loading..." placeholder while their data files are being fetched.
+- Spinner shown while index + month data loads.
+- Individual charts show "Loading..." placeholder while their result files are being fetched.
 - If a fetch fails, show "Failed to load data" with a retry button.
 
 ### Empty states
@@ -229,8 +231,8 @@ The entire view state is encoded in the URL hash. Changing tab or filters update
 ```
 
 - Title with icon.
-- "Last updated" from `manifest.lastUpdated`.
-- "Data points" = total count of runs in manifest.
+- "Last updated" from `index.lastUpdated`.
+- "Data points" = total count of results across loaded month indexes.
 - Link to GitHub repo in top-right corner.
 
 ---

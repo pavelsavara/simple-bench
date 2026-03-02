@@ -2,13 +2,13 @@
 
 ## Overview
 
-A benchmarking solution that measures .NET Browser/WASM performance (CoreCLR + Mono) across multiple sample apps, engines, and build configurations. Results stored as weekly-sharded JSON on `gh-pages`, visualized with a Chart.js dashboard, collected via GitHub Actions.
+A benchmarking solution that measures .NET Browser/WASM performance (CoreCLR + Mono) across multiple sample apps, engines, and build configurations. Results stored as daily-sharded JSON on `gh-pages` (organized by commit date, indexed by month), visualized with a Chart.js dashboard, collected via GitHub Actions.
 
 ## Design Documents
 
 | Document | Description |
 |----------|-------------|
-| [model.md](model.md) | Data dimensions, metric definitions, JSON schemas, file naming, directory layout, manifest structure |
+| [model.md](model.md) | Data dimensions, metric definitions, JSON schemas, file naming, directory layout, index structure |
 | [views.md](views.md) | Dashboard UI pages from user perspective — navigation, charts, filters, interactions |
 | [pipeline.md](pipeline.md) | CI pipeline: GitHub Actions workflows, Docker image, Playwright measurement, SDK resolution, result commits |
 | [ui.md](ui.md) | Dashboard JavaScript implementation — modules, data loading, Chart.js config, filter logic |
@@ -35,17 +35,17 @@ simple-bench/
 │   └── dashboard/                   # Static web UI (served from gh-pages)
 │       ├── index.html
 │       ├── app.js                   # Main application logic
-│       ├── data-loader.js           # Manifest + weekly JSON fetching
+│       ├── data-loader.js           # Index + month index + result JSON fetching
 │       ├── chart-manager.js         # Chart.js chart creation/update
 │       ├── filters.js               # Side-panel filter state management
 │       └── style.css
 ├── tests/
 │   ├── unit/                        # Unit tests (Node.js test runner)
-│   │   ├── data-loader.test.mjs     # Manifest filtering, data caching
+│   │   ├── data-loader.test.mjs     # Month index filtering, data caching
 │   │   ├── chart-manager.test.mjs   # Dataset building, series grouping
 │   │   ├── filters.test.mjs         # Filter state, URL hash parsing
-│   │   ├── consolidate.test.mjs     # Manifest merge, dedup, weekly sharding
-│   │   └── fixtures/                # Sample manifest.json + result JSONs
+│   │   ├── consolidate.test.mjs     # Month index merge, dedup, daily sharding
+│   │   └── fixtures/                # Sample index.json, month indexes + result JSONs
 │   └── e2e/                         # End-to-end tests (Playwright)
 │       ├── dashboard.spec.mjs       # Load dashboard, verify charts render
 │       ├── pipeline-smoke.spec.mjs  # Build app, run measure script, verify JSON
@@ -96,7 +96,7 @@ Core infrastructure that everything else depends on.
 | 1.2 | Create [Dockerfile](docker/Dockerfile) with V8 (`d8`), Node LTS, Chrome, Firefox, Playwright system deps | Docker image | — |
 | 1.3 | Create [resolve-sdk.sh](scripts/resolve-sdk.sh) — download nightly SDK to `artifacts/sdk/`, output version + git hash JSON | SDK resolver | — |
 | 1.4 | Create [build-app.sh](scripts/build-app.sh) — build/publish sample app to `artifacts/publish/` with runtime/config flags | App builder | 1.3 |
-| 1.5 | Create `gh-pages` branch with empty `data/manifest.json` + dashboard skeleton | Data branch | — |
+| 1.5 | Create `gh-pages` branch with empty `data/index.json` + dashboard skeleton | Data branch | — |
 | 1.6 | Unit tests for resolve-sdk output parsing + build-app flag generation | Tests | 1.3, 1.4 |
 
 ### Phase 2: First End-to-End Slice (empty-browser + external metrics)
@@ -105,7 +105,7 @@ Get one app measured end-to-end before expanding to more apps/metrics.
 | Step | Task | Output | Depends on |
 |------|------|--------|------------|
 | 2.1 | [apps/empty-browser/](apps/empty-browser/) — `dotnet new web` config, browser target | App config | 1.3 |
-| 2.2 | [measure-external.mjs](scripts/measure-external.mjs) — Playwright + CDP: compile time, download size, TTFR, TTFUC, memory peak | External script | 1.2, 2.1 |
+| 2.2 | [measure-external.mjs](scripts/measure-external.mjs) — Playwright + CDP: compile time, download size, TTFR, TTFUC, memory peak. Includes retry logic with configurable attempts and hard timeout (inspired by radekdoulik/bench-results bootstrap+timeout pattern). | External script | 1.2, 2.1 |
 | 2.3 | Unit tests for measure-external: mock CDP events, verify JSON output schema | Tests | 2.2 |
 | 2.4 | Define + document JSON output schema (see [model.md](docs/model.md)) | Schema | 2.2 |
 
@@ -117,7 +117,7 @@ Get the CI loop working for the single empty-browser app.
 | 3.1 | [benchmark.yml](.github/workflows/benchmark.yml) — matrix: runtime×config, single app (empty-browser), chrome engine only | CI workflow | Phase 1-2 |
 | 3.2 | [consolidate.yml](.github/workflows/consolidate.yml) — download artifacts, merge into gh-pages, commit | CI workflow | 3.1 |
 | 3.3 | [consolidate-results.mjs](scripts/consolidate-results.mjs) — merge artifacts into gh-pages data/ | Script | 2.4 |
-| 3.4 | Unit tests for consolidate-results: manifest merge, dedup, weekly sharding | Tests | 3.3 |
+| 3.4 | Unit tests for consolidate-results: month index merge, dedup, daily sharding | Tests | 3.3 |
 | 3.5 | [docker-build.yml](.github/workflows/docker-build.yml) — build + push Docker image weekly | CI workflow | 1.2 |
 | 3.6 | [test.yml](.github/workflows/test.yml) — run unit + E2E tests on PR/push, use `gh` API to verify CI status | CI workflow | 2.3, 3.4 |
 
@@ -127,7 +127,7 @@ Static web UI on GitHub Pages.
 | Step | Task | Output | Depends on |
 |------|------|--------|------------|
 | 4.1 | [index.html](src/dashboard/index.html) — page shell, navigation tabs, filter sidebar | HTML | 2.4 |
-| 4.2 | [data-loader.js](src/dashboard/data-loader.js) — fetch manifest, lazy-load weekly JSONs | JS module | 2.4 |
+| 4.2 | [data-loader.js](src/dashboard/data-loader.js) — fetch index, lazy-load month indexes + result JSONs | JS module | 2.4 |
 | 4.3 | [chart-manager.js](src/dashboard/chart-manager.js) — Chart.js line charts, tooltips, colors | JS module | 4.1 |
 | 4.4 | [filters.js](src/dashboard/filters.js) — checkbox state, URL hash sync, re-render on change | JS module | 4.1 |
 | 4.5 | [app.js](src/dashboard/app.js) — orchestrator wiring modules together | JS module | 4.2-4.4 |
@@ -167,7 +167,7 @@ Add microbenchmark measurement support.
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Data storage | gh-pages branch, weekly-sharded JSON | Free hosting, easy fetch() from UI, no server |
+| Data storage | gh-pages branch, daily-sharded JSON + per-month index files | Free hosting, easy fetch() from UI, no server |
 | Upload mechanism | CI artifacts → consolidation job | Avoids concurrent git push conflicts |
 | Dashboard tech | Chart.js + vanilla JS | No build step, simple to deploy on Pages |
 | Browser result extraction | Playwright `page.evaluate()` | Direct, reliable, no HTTP server needed in test |
@@ -187,8 +187,8 @@ Every component has both unit tests and E2E validation:
 | `build-app.sh` | Verify MSBuild flag generation per config | Build empty-browser in Docker, verify `artifacts/publish/` |
 | `measure-external.mjs` | Mock CDP events, verify metric extraction + JSON schema | Run against published app in Docker, verify result JSON |
 | `measure-internal.mjs` | Mock engine stdout, verify JSON parsing | Run microbenchmarks on V8/Node in Docker |
-| `consolidate-results.mjs` | Merge fixtures → verify manifest dedup, weekly sharding | Consolidation workflow with test artifacts |
-| `data-loader.js` | Manifest filtering, caching, lazy fetch | — (covered by dashboard E2E) |
+| `consolidate-results.mjs` | Merge fixtures → verify month index dedup, daily sharding | Consolidation workflow with test artifacts |
+| `data-loader.js` | Month index filtering, caching, lazy fetch | — (covered by dashboard E2E) |
 | `filters.js` | URL hash parse/serialize, checkbox state | — (covered by dashboard E2E) |
 | `chart-manager.js` | Dataset grouping, series key generation | — (covered by dashboard E2E) |
 | Dashboard (full) | — | Playwright loads dashboard with fixture data, verifies chart rendering + filter interactions |
@@ -206,3 +206,9 @@ Every component has both unit tests and E2E validation:
 - **Regression alerts**: Threshold-based detection → auto-file GitHub issues (post-MVP)
 - **Historical backfill**: Import data from existing perf runs
 - **WASI target**: Add wasi-node and wasmtime engines when CoreCLR WASI matures
+- **Gap-filling scheduler**: Adopt radekdoulik/bench-results pattern — track measured vs. unmeasured commits over a window, pick the midpoint of the largest gap for backfill when CI capacity is idle
+- **Granular AppBundle size tracking**: Track individual file sizes (`dotnet.native.wasm`, `icudt.dat`, `_framework/` dir) in addition to total download size, for finer-grained size regression detection
+- **Environment fingerprint per run**: Capture `uname -a`, `/proc/cpuinfo`, `/proc/meminfo`, browser versions, emscripten version alongside results for reproducibility and cross-machine comparisons
+- **Compact index format (IdMap)**: If month index files grow too large, adopt an integer ID mapping (flavor→int, metric→int) as used in radekdoulik/bench-results to compress the index
+- **Use minimum (or percentiles) instead of mean**: For internal microbenchmarks, store min/p50/p99 across multiple runs rather than a single value — reduces noise (bench-results stores `minTimes`)
+- **Commit-hash–based re-runs**: Allow the CI to re-benchmark a specific git commit and merge results into the correct historical date directory (already supported by the commit-date directory structure)

@@ -368,10 +368,13 @@ jobs:
 
       - name: Run benchmark
         run: |
-          DATE=$(date -u +%Y-%m-%d)
           SDK_VERSION=$(echo '${{ steps.sdk.outputs.sdk_info }}' | jq -r .sdkVersion)
           GIT_HASH=$(echo '${{ steps.sdk.outputs.sdk_info }}' | jq -r .gitHash)
-          FILENAME="${DATE}_${{ matrix.runtime }}_${{ matrix.config }}_${{ matrix.engine }}_${{ matrix.app }}.json"
+          GIT_HASH7=${GIT_HASH:0:7}
+          # Extract commit date+time from the SDK build's git info
+          COMMIT_DATE=$(echo '${{ steps.sdk.outputs.sdk_info }}' | jq -r .commitDate)   # YYYY-MM-DD
+          COMMIT_TIME=$(echo '${{ steps.sdk.outputs.sdk_info }}' | jq -r .commitTime)   # HH-MM-SS-UTC
+          FILENAME="${COMMIT_TIME}_${GIT_HASH7}_${{ matrix.runtime }}_${{ matrix.config }}_${{ matrix.engine }}_${{ matrix.app }}.json"
           
           if [ "${{ matrix.app }}" = "microbenchmarks" ]; then
             node scripts/measure-internal.mjs \
@@ -379,7 +382,8 @@ jobs:
               --publish-dir artifacts/publish/${{ matrix.app }} \
               --sdk-version "$SDK_VERSION" \
               --git-hash "$GIT_HASH" \
-              --date "$DATE" \
+              --commit-date "$COMMIT_DATE" \
+              --commit-time "$COMMIT_TIME" \
               --runtime ${{ matrix.runtime }} \
               --config ${{ matrix.config }} \
               --output "artifacts/results/${FILENAME}"
@@ -389,10 +393,13 @@ jobs:
               --publish-dir artifacts/publish/${{ matrix.app }} \
               --sdk-version "$SDK_VERSION" \
               --git-hash "$GIT_HASH" \
-              --date "$DATE" \
+              --commit-date "$COMMIT_DATE" \
+              --commit-time "$COMMIT_TIME" \
               --runtime ${{ matrix.runtime }} \
               --config ${{ matrix.config }} \
               --compile-time-file artifacts/results/compile-time.json \
+              --retries 3 \
+              --timeout 300000 \
               --output "artifacts/results/${FILENAME}"
           fi
 
@@ -464,17 +471,20 @@ Input:  consolidate-results.mjs <artifacts-dir> <data-dir>
 
 Logic:
 1. Scan `artifacts-dir` for all `*.json` files (flattened from artifact subdirs)
-2. Read existing `data-dir/manifest.json` (or create empty if first run)
+2. Read existing `data-dir/index.json` (or create empty if first run)
 3. For each result JSON:
-   - Parse `meta` to get dimension values
-   - Compute ISO week: `{year}/W{week}` from `meta.date`
-   - Compute target path: `{data-dir}/{year}/W{week}/{filename}`
+   - Parse `meta` to get `commitDate`, `commitTime`, `gitHash`, dimension values
+   - Compute target directory: `{data-dir}/{year}/{commitDate}/`
+   - Compute filename: `{commitTime}_{gitHash7}_{runtime}_{config}_{engine}_{app}.json`
    - Create directory if needed
    - Copy file to target path
-   - Build manifest entry (or replace if duplicate: same date + all dimensions)
-4. Re-derive `dimensions` from full run list
-5. Sort runs by date descending
-6. Write updated `manifest.json`
+   - Compute month key `YYYY-MM` from `commitDate`
+   - Load or create month index `{data-dir}/{YYYY-MM}.json`
+   - Find or create commit entry in month index (by `gitHash`)
+   - Add/replace result entry (same dimensions = replace)
+4. For each modified month index: sort commits by date+time, write `{YYYY-MM}.json`
+5. Update `index.json`: re-derive `months[]`, `dimensions`, `lastUpdated`
+6. Write `index.json`
 
 ### Conflict avoidance
 - Only one consolidation job runs at a time (matrix jobs upload artifacts, consolidation runs once after all complete)
@@ -513,7 +523,7 @@ A `NuGet.config` in the repo root configures these feeds:
 |----------|----------|
 | SDK download fails | Retry 3 times with backoff. If still failing, fail the job. |
 | App build fails | Fail the job. Likely a breaking change in nightly SDK — useful signal. |
-| Playwright measurement timeout | 5 minute timeout per measurement. Fail the job on timeout. |
+| Playwright measurement timeout | 5 minute timeout per measurement. Retry up to 3 times with fresh browser context before failing the job (inspired by radekdoulik/bench-results bootstrap retry + hard timeout pattern). |
 | Microbenchmark crash | Fail the job. Capture stderr in artifact for debugging. |
 | Consolidation push conflict | Retry with `git pull --rebase` once. If still failing, fail and alert. |
 | Docker image pull fails | Fall back to building from Dockerfile (slow but autonomous). |
@@ -628,8 +638,9 @@ This is used in E2E tests to verify the full pipeline works after deployment.
   ┌─────────────────────────────────────────────────────┐
   │              gh-pages branch                         │
   │                                                     │
-  │  data/manifest.json  (updated)                      │
-  │  data/2026/W09/*.json (new results)                 │
+  │  data/index.json          (updated)                │
+  │  data/2026-03.json         (month index, updated)   │
+  │  data/2026/2026-03-02/*.json (new results)          │
   │  index.html + app/   (dashboard)                    │
   └─────────────────────┬───────────────────────────────┘
                         │ GitHub Pages

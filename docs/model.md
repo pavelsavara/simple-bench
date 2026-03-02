@@ -101,24 +101,38 @@ Result data stores only the numeric value — the unit is looked up from the met
 ## File Naming Convention
 
 ### Per-run result file
+
+The filename encodes the **commit time** (UTC), **short git hash** (7 chars), and all dimension values:
+
 ```
-{date}_{runtime}_{config}_{engine}_{app}.json
+{HH-MM-SS-UTC}_{githash7}_{runtime}_{config}_{engine}_{app}.json
+```
+
+The file lives inside a date directory derived from the **commit date** (not the CI run date):
+
+```
+data/{year}/{YYYY-MM-DD}/{HH-MM-SS-UTC}_{githash7}_{runtime}_{config}_{engine}_{app}.json
 ```
 
 Examples:
 ```
-2026-03-02_coreclr_release_chrome_empty-browser.json
-2026-03-02_mono_aot_v8_microbenchmarks.json
-2026-03-02_coreclr_native-relink_chrome_blazing-pizza.json
-2026-03-15_mono_release_firefox_microbenchmarks.json
+data/2026/2026-03-02/12-34-56-UTC_abc1234_coreclr_release_chrome_empty-browser.json
+data/2026/2026-03-02/12-34-56-UTC_abc1234_mono_aot_v8_microbenchmarks.json
+data/2026/2026-03-15/08-12-00-UTC_def5678_coreclr_native-relink_chrome_blazing-pizza.json
+data/2026/2026-03-15/08-12-00-UTC_def5678_mono_release_firefox_microbenchmarks.json
 ```
 
-All dimension values are lowercase, hyphens for multi-word.
+All dimension values are lowercase, hyphens for multi-word. The commit time uses dashes instead of colons for filesystem compatibility.
+
+### Why commit-time + hash in filename?
+- **Commit hash** is the primary identity of a result (borrowed from radekdoulik/bench-results). Allows re-measuring the same commit.
+- **Commit time** provides natural chronological sort when listing a directory.
+- **Date directory** groups results by commit date, not CI run date — if a backfill benchmarks an old commit, the result goes into the original commit's date directory.
 
 ### Artifact naming (CI upload)
-Same filename, uploaded as individual GitHub Actions artifacts with the name:
+Uploaded as individual GitHub Actions artifacts with the name:
 ```
-result_{date}_{runtime}_{config}_{engine}_{app}
+result_{githash7}_{runtime}_{config}_{engine}_{app}
 ```
 
 ---
@@ -135,34 +149,36 @@ gh-pages branch root/
 │   ├── filters.js
 │   └── style.css
 ├── data/
-│   ├── manifest.json                   # Global index of all data points
+│   ├── index.json                      # Lightweight top-level index (available months)
+│   ├── 2026-03.json                    # Month index: all commits + result paths for March 2026
+│   ├── 2026-04.json                    # Month index for April 2026
 │   └── {year}/
-│       └── W{week}/                    # ISO week number (01-53)
-│           ├── {date}_{runtime}_{config}_{engine}_{app}.json
+│       └── {YYYY-MM-DD}/              # One directory per commit date
+│           ├── {HH-MM-SS-UTC}_{githash7}_{runtime}_{config}_{engine}_{app}.json
 │           └── ...
 ```
 
-### Weekly directory examples
+### Daily directory examples
 ```
-data/2026/W09/      # ISO week 9 of 2026 (Mar 2-8)
-data/2026/W10/      # ISO week 10 of 2026 (Mar 9-15)
-data/2026/W52/      # Last week of 2026
-data/2027/W01/      # First week of 2027
+data/2026/2026-03-02/    # All results for commits dated March 2, 2026
+data/2026/2026-03-15/    # All results for commits dated March 15, 2026
+data/2027/2027-01-05/    # A date in 2027
 ```
 
-### Why weekly sharding?
-- Keeps directory sizes manageable (~26 files per day × 7 days ≈ 182 files per week)
-- Enables lazy loading: UI only fetches weeks in the visible time range
-- Easy to prune old data by deleting entire week directories
-- ISO week numbers are deterministic from date
+### Why daily sharding by commit date?
+- Keeps directory sizes manageable (~44 files per commit date)
+- Groups results by the commit they benchmark, not the CI run date
+- Backfill runs for old commits land in the correct historical directory
+- Easy to prune old data by deleting date directories
+- Human-readable: `ls data/2026/2026-03-02/` shows all results for that day's commits
 
 ---
 
 ## JSON Schemas
 
-### manifest.json
+### index.json (top-level)
 
-The global index. Fetched by the UI on page load. Contains metadata for every run, enabling the UI to determine which weekly files to fetch.
+Lightweight top-level index. Fetched by the UI on page load. Lists available months and global dimension values.
 
 ```json
 {
@@ -173,46 +189,85 @@ The global index. Fetched by the UI on page load. Contains metadata for every ru
     "engines": ["v8", "node", "chrome", "firefox"],
     "apps": ["empty-browser", "empty-blazor", "blazing-pizza", "microbenchmarks"]
   },
-  "runs": [
-    {
-      "date": "2026-03-02",
-      "week": "2026/W09",
-      "sdkVersion": "10.0.100-preview.3.25130.1",
-      "gitHash": "abc1234def5678abc1234def5678abc1234def56",
-      "runtime": "coreclr",
-      "config": "release",
-      "engine": "chrome",
-      "app": "empty-browser",
-      "file": "2026/W09/2026-03-02_coreclr_release_chrome_empty-browser.json",
-      "metrics": ["compile-time", "download-size", "time-to-first-render", "time-to-first-ui-change", "memory-peak"]
-    },
-    {
-      "date": "2026-03-02",
-      "week": "2026/W09",
-      "sdkVersion": "10.0.100-preview.3.25130.1",
-      "gitHash": "abc1234def5678abc1234def5678abc1234def56",
-      "runtime": "mono",
-      "config": "aot",
-      "engine": "v8",
-      "app": "microbenchmarks",
-      "file": "2026/W09/2026-03-02_mono_aot_v8_microbenchmarks.json",
-      "metrics": ["js-interop-ops", "json-parse-ops", "exception-ops"]
-    }
-  ]
+  "months": ["2026-01", "2026-02", "2026-03"]
 }
 ```
 
 **Fields**:
 - `lastUpdated`: ISO timestamp of last consolidation
 - `dimensions`: enumeration of all known dimension values (used by UI to build filter checkboxes)
-- `runs[]`: one entry per result file
-  - `date`: ISO date string
-  - `week`: `{year}/W{week}` path segment for the weekly directory
-  - `sdkVersion`: full SDK version string
+- `months[]`: sorted list of `YYYY-MM` strings for which month index files exist
+
+### Month index: `{YYYY-MM}.json`
+
+One file per month, e.g. `data/2026-03.json`. Maps all commits benchmarked that month to their result file paths.
+
+```json
+{
+  "month": "2026-03",
+  "commits": [
+    {
+      "gitHash": "abc1234def5678abc1234def5678abc1234def56",
+      "date": "2026-03-02",
+      "time": "12-34-56-UTC",
+      "sdkVersion": "10.0.100-preview.3.25130.1",
+      "results": [
+        {
+          "runtime": "coreclr",
+          "config": "release",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2026/2026-03-02/12-34-56-UTC_abc1234_coreclr_release_chrome_empty-browser.json",
+          "metrics": ["compile-time", "download-size", "time-to-first-render", "time-to-first-ui-change", "memory-peak"]
+        },
+        {
+          "runtime": "mono",
+          "config": "aot",
+          "engine": "v8",
+          "app": "microbenchmarks",
+          "file": "2026/2026-03-02/12-34-56-UTC_abc1234_mono_aot_v8_microbenchmarks.json",
+          "metrics": ["js-interop-ops", "json-parse-ops", "exception-ops"]
+        }
+      ]
+    },
+    {
+      "gitHash": "def5678abc1234def5678abc1234def5678abc123",
+      "date": "2026-03-15",
+      "time": "08-12-00-UTC",
+      "sdkVersion": "10.0.100-preview.3.25140.5",
+      "results": [
+        {
+          "runtime": "coreclr",
+          "config": "release",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2026/2026-03-15/08-12-00-UTC_def5678_coreclr_release_chrome_empty-browser.json",
+          "metrics": ["compile-time", "download-size", "time-to-first-render", "time-to-first-ui-change", "memory-peak"]
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Fields**:
+- `month`: `YYYY-MM` identifier
+- `commits[]`: one entry per git commit benchmarked that month, sorted by date+time
   - `gitHash`: full 40-char SHA
-  - `runtime`, `config`, `engine`, `app`: dimension values
-  - `file`: relative path from `data/` to the result JSON file
-  - `metrics`: array of metric keys present in this result (allows UI to know what's available without fetching the file)
+  - `date`: commit date `YYYY-MM-DD`
+  - `time`: commit time `HH-MM-SS-UTC`
+  - `sdkVersion`: full SDK version string
+  - `results[]`: all benchmark results for this commit
+    - `runtime`, `config`, `engine`, `app`: dimension values
+    - `file`: relative path from `data/` to the result JSON file
+    - `metrics`: array of metric keys present (allows UI to know what's available without fetching the file)
+
+### Why month indexes instead of a single manifest?
+- The global manifest grows linearly (~10 KB/month). After 2 years it becomes ~250 KB.
+- Month indexes keep each file small and bounded (~10-15 KB per month).
+- The dashboard fetches only the months visible in the current time range.
+- Adding new results touches only the current month file — less merge conflict risk.
+- Inspired by radekdoulik/bench-results sliced index approach ("last 14 days" slice for fast initial load).
 
 ### Per-run result JSON
 
@@ -221,7 +276,8 @@ Metric values are bare numbers. The unit for each metric is defined in the metri
 ```json
 {
   "meta": {
-    "date": "2026-03-02",
+    "commitDate": "2026-03-02",
+    "commitTime": "12-34-56-UTC",
     "sdkVersion": "10.0.100-preview.3.25130.1",
     "gitHash": "abc1234def5678abc1234def5678abc1234def56",
     "runtime": "coreclr",
@@ -243,6 +299,8 @@ Metric values are bare numbers. The unit for each metric is defined in the metri
 
 **Fields**:
 - `meta`: all dimension values + CI traceability
+  - `commitDate`: commit date from git log (determines directory placement)
+  - `commitTime`: commit time UTC from git log (part of filename)
   - `ciRunId`: GitHub Actions run ID for traceability
   - `ciRunUrl`: direct link to the CI run
 - `metrics`: key-value map where key is the metric name, value is the numeric measurement (integer or float)
@@ -252,7 +310,8 @@ Metric values are bare numbers. The unit for each metric is defined in the metri
 ```json
 {
   "meta": {
-    "date": "2026-03-02",
+    "commitDate": "2026-03-02",
+    "commitTime": "12-34-56-UTC",
     "sdkVersion": "10.0.100-preview.3.25130.1",
     "gitHash": "abc1234def5678abc1234def5678abc1234def56",
     "runtime": "coreclr",
@@ -288,9 +347,11 @@ CI benchmark job (per matrix leg)
         │
         ├─▶ Downloads all artifacts
         │
-        ├─▶ Places each JSON into data/{year}/W{week}/
+        ├─▶ Places each JSON into data/{year}/{YYYY-MM-DD}/
         │
-        ├─▶ Appends entries to manifest.json
+        ├─▶ Updates month index data/{YYYY-MM}.json
+        │
+        ├─▶ Updates data/index.json (months list)
         │
         └─▶ Commits + pushes to gh-pages branch
         
@@ -299,24 +360,31 @@ CI benchmark job (per matrix leg)
   GitHub Pages serves updated data/
         │
         ▼
-  Dashboard fetches manifest.json → weekly JSONs → renders charts
+  Dashboard fetches index.json → month indexes → result JSONs → renders charts
 ```
 
 ---
 
-## Manifest Update Logic (consolidate-results.mjs)
+## Consolidation Logic (consolidate-results.mjs)
 
-1. Read existing `manifest.json` from gh-pages checkout
+1. Read existing `data/index.json` from gh-pages checkout (or create empty if first run)
 2. For each new result JSON file:
-   a. Parse the `meta` section
-   b. Compute the `week` value from `date`: `{year}/W{isoWeek}`
-   c. Compute the `file` path: `{year}/W{week}/{filename}`
-   d. Check for duplicates: if a run with same date + runtime + config + engine + app already exists, **replace** it (re-run overwrites previous)
-   e. Add entry to `runs[]` array
-3. Update `lastUpdated` timestamp
-4. Re-derive `dimensions` from all runs (in case new values appear)
-5. Sort `runs[]` by date descending
-6. Write updated `manifest.json`
+   a. Parse the `meta` section to get `commitDate`, `commitTime`, `gitHash`, dimensions
+   b. Compute target directory: `data/{year}/{commitDate}/`
+   c. Compute filename: `{commitTime}_{gitHash7}_{runtime}_{config}_{engine}_{app}.json`
+   d. Copy file to target path
+   e. Compute month key: `YYYY-MM` from `commitDate`
+   f. Load or create the month index file `data/{YYYY-MM}.json`
+   g. Find or create the commit entry (by `gitHash`)
+   h. Add result entry to the commit's `results[]` (replace if same dimensions already exist)
+3. For each modified month index:
+   a. Sort commits by `date` + `time`
+   b. Write updated `data/{YYYY-MM}.json`
+4. Update `data/index.json`:
+   a. Re-derive `months[]` from all existing month files
+   b. Re-derive `dimensions` from all month files (in case new values appear)
+   c. Update `lastUpdated` timestamp
+   d. Write `data/index.json`
 
 ---
 
@@ -326,8 +394,9 @@ CI benchmark job (per matrix leg)
 |------|----------|
 | Single result JSON | ~300-500 bytes |
 | Daily run (~44 legs) | ~15-22 KB |
-| Weekly data | ~100-150 KB |
-| Yearly manifest (365 × 26 entries) | ~500 KB |
-| Yearly data files | ~3.5 MB |
+| `index.json` (top-level) | ~200-400 bytes (grows by ~15 bytes/month) |
+| Single month index (`YYYY-MM.json`) | ~10-15 KB |
+| Monthly data files (result JSONs) | ~450-650 KB |
+| Yearly data files | ~5-8 MB |
 
-The manifest will grow linearly. After 2+ years it may need pagination or summarization, but for the first year it's fine as a single file.
+Month indexes are bounded and small. The top-level `index.json` grows by one entry per month — negligible. After years of operation, old month indexes can be archived or removed without affecting recent data.
