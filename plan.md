@@ -123,17 +123,17 @@ Get one app measured end-to-end before expanding to more apps/metrics.
 | 2.3 | Unit tests for measure-utils (33 tests): MIME types, static server (COOP/COEP, path traversal), file sizes, result JSON builder, compile time reader. Plus metrics registry tests. | Tests | ✅ Done |
 | 2.4 | JSON output schema documented in [model.md](docs/model.md), implemented in [measure-utils.mjs](scripts/lib/measure-utils.mjs) `buildResultJson()` | Schema | ✅ Done |
 
-### Phase 3: CI Pipeline (single-app)
+### Phase 3: CI Pipeline (single-app) ✅
 Get the CI loop working for the single empty-browser app.
 
-| Step | Task | Output | Depends on |
-|------|------|--------|------------|
-| 3.1 | [benchmark.yml](.github/workflows/benchmark.yml) — matrix: runtime×preset, single app (empty-browser), chrome engine only | CI workflow | Phase 1-2 |
-| 3.2 | [consolidate.yml](.github/workflows/consolidate.yml) — download artifacts, merge into gh-pages, commit | CI workflow | 3.1 |
-| 3.3 | [consolidate-results.mjs](scripts/consolidate-results.mjs) — merge artifacts into gh-pages data/ | Script | 2.4 |
-| 3.4 | Unit tests for consolidate-results: month index merge, dedup, daily sharding | Tests | 3.3 |
-| 3.5 | [docker-build.yml](.github/workflows/docker-build.yml) — build + push Docker image weekly | CI workflow | 1.2 |
-| 3.6 | [test.yml](.github/workflows/test.yml) — run unit + E2E tests on PR/push, use `gh` API to verify CI status | CI workflow | 2.3, 3.4 |
+| Step | Task | Output | Status |
+|------|------|--------|--------|
+| 3.1 | [benchmark.yml](.github/workflows/benchmark.yml) — matrix: runtime×preset, single app (empty-browser), chrome engine only | CI workflow | ✅ Done |
+| 3.2 | [consolidate.yml](.github/workflows/consolidate.yml) — download artifacts, merge into gh-pages, commit | CI workflow | ✅ Done |
+| 3.3 | [consolidate-results.mjs](scripts/consolidate-results.mjs) — merge artifacts into gh-pages data/ | Script | ✅ Done |
+| 3.4 | Unit tests for consolidate-results: month index merge, dedup, daily sharding (34 tests) | Tests | ✅ Done |
+| 3.5 | [docker-build.yml](.github/workflows/docker-build.yml) — build + push Docker image weekly | CI workflow | ✅ Done |
+| 3.6 | [test.yml](.github/workflows/test.yml) — run unit tests on PR/push | CI workflow | ✅ Done |
 
 ### Phase 4: Dashboard
 Static web UI on GitHub Pages.

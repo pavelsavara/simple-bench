@@ -59,9 +59,10 @@ Metric definitions are part of the model — each metric has a fixed key, displa
 | Metric Key | Display Name | Unit | Category | How Measured |
 |------------|-------------|------|----------|-------------|
 | `compile-time` | Compile Time | `ms` | External | Wall-clock time of `dotnet publish` (measured in build-app.sh, included in result JSON) |
-| `download-size-total` | Download Size (Total) | `bytes` | External | Total published app bundle size |
-| `download-size-wasm` | Download Size (WASM) | `bytes` | External | Size of dotnet.native.wasm (or dotnet.wasm for older builds) |
-| `download-size-dlls` | Download Size (DLLs) | `bytes` | External | Total size of managed DLL assemblies |
+| `disk-size-total` | Disk Size (Total) | `bytes` | External | Total published app bundle size |
+| `disk-size-wasm` | Download Size (WASM) | `bytes` | External | Size of dotnet.native.wasm (or dotnet.wasm for older builds) |
+| `disk-size-dlls` | Download Size (DLLs) | `bytes` | External | Total size of managed DLL assemblies |
+| `download-size-total` | Download Size (Total) | `bytes` | External | Total download app size as measured by browser |
 | `time-to-reach-managed` | Time to Reach Managed | `ms` | External | `globalThis.dotnet_managed_ready` (C# via JSImport) — warm (minimum of 3 reloads) |
 | `time-to-reach-managed-cold` | Time to Reach Managed (Cold) | `ms` | External | Same marker, first navigation (no cache) |
 | `memory-peak` | Memory Peak | `bytes` | External | CDP `JSHeapUsedSize` sampled every 100ms, peak value across cold+warm loads |

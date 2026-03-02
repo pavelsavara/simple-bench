@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk.WebAssembly">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <BenchmarkPreset Condition="'$(BenchmarkPreset)' == ''">Debug</BenchmarkPreset>
   </PropertyGroup>
 
 <!-- TODO 
-    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+<OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
 <BlazorWebAssemblyJiterpreter>false</BlazorWebAssemblyJiterpreter>
 <TrimMode>link</TrimMode>
 -->
