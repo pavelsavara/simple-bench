@@ -52,3 +52,10 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Node
+node_modules/
+
+# Playwright
+test-results/
+playwright-report/

@@ -46,7 +46,9 @@ simple-bench/
 │   │   ├── chart-manager.test.mjs   # Dataset building, series grouping
 │   │   ├── filters.test.mjs         # Filter state, URL hash parsing
 │   │   ├── consolidate.test.mjs     # Month index merge, dedup, daily sharding
-│   │   └── fixtures/                # Sample index.json, month indexes + result JSONs
+│   │   ├── sdk-info.test.mjs        # SDK version parsing, commit hash extraction
+│   │   ├── build-config.test.mjs    # Build config → MSBuild flag mapping
+│   │   └── fixtures/                # Sample index.json, month indexes, result JSONs, dotnet --info output
 │   └── e2e/                         # End-to-end tests (Playwright)
 │       ├── dashboard.spec.mjs       # Load dashboard, verify charts render
 │       ├── pipeline-smoke.spec.mjs  # Build app, run measure script, verify JSON
@@ -57,7 +59,11 @@ simple-bench/
 │   ├── measure-internal.mjs        # Run microbenchmarks on V8/Node/Chrome/Firefox
 │   ├── resolve-sdk.sh              # Download nightly SDK, extract version+hash
 │   ├── build-app.sh                # Build/publish sample app with MSBuild flags
-│   └── consolidate-results.mjs     # Merge CI artifacts into gh-pages data/
+│   ├── init-gh-pages.sh            # Initialize gh-pages branch (one-time setup)
+│   ├── consolidate-results.mjs     # Merge CI artifacts into gh-pages data/
+│   └── lib/
+│       ├── sdk-info.mjs            # SDK version parsing utilities (testable)
+│       └── build-config.mjs        # Build config → MSBuild flag mapping (testable)
 ├── apps/                            # Sample app configs and overrides
 │   ├── empty-browser/
 │   │   └── app.json                 # App metadata, template name, build flags
@@ -77,6 +83,7 @@ simple-bench/
 │   ├── ui.md
 │   └── migration.md
 ├── plan.md                          # This file
+├── NuGet.config                     # NuGet feeds (dotnet-public, dotnet10, dotnet11)
 ├── package.json                     # Playwright + any Node dependencies
 └── README.md
 ```
@@ -89,17 +96,18 @@ The `artifacts/` directory is gitignored. All build scripts write outputs there:
 
 ## Implementation Phases
 
-### Phase 1: Foundation
+### Phase 1: Foundation ✅
 Core infrastructure that everything else depends on.
 
-| Step | Task | Output | Depends on |
-|------|------|--------|------------|
-| 1.1 | Init repo: `package.json`, `.gitignore` (incl. `artifacts/`), folder structure | Repo skeleton | — |
-| 1.2 | Create [Dockerfile](docker/Dockerfile) with V8 (`d8`), Node LTS, Chrome, Firefox, Playwright system deps | Docker image | — |
-| 1.3 | Create [resolve-sdk.sh](scripts/resolve-sdk.sh) — download nightly SDK to `artifacts/sdk/`, output version + git hash JSON | SDK resolver | — |
-| 1.4 | Create [build-app.sh](scripts/build-app.sh) — build/publish sample app to `artifacts/publish/` with runtime/config flags | App builder | 1.3 |
-| 1.5 | Create `gh-pages` branch with empty `data/index.json` + dashboard skeleton | Data branch | — |
-| 1.6 | Unit tests for resolve-sdk output parsing + build-app flag generation | Tests | 1.3, 1.4 |
+| Step | Task | Output | Status |
+|------|------|--------|--------|
+| 1.1 | Init repo: `package.json`, `.gitignore`, `NuGet.config`, folder structure | Repo skeleton | ✅ Done |
+| 1.2 | Create [Dockerfile](docker/Dockerfile) with V8 (`d8` via jsvu), Node 24, Chrome, Firefox, Playwright system deps | Docker image | ✅ Done |
+| 1.3 | Create [resolve-sdk.sh](scripts/resolve-sdk.sh) — uses official `dotnet-install.sh`, outputs version + git hash + build date JSON via [sdk-info.mjs](scripts/lib/sdk-info.mjs) | SDK resolver | ✅ Done |
+| 1.4 | Create [build-app.sh](scripts/build-app.sh) — build/publish sample app to `artifacts/publish/` with runtime/config flags via [build-config.mjs](scripts/lib/build-config.mjs) | App builder | ✅ Done |
+| 1.5 | Create [init-gh-pages.sh](scripts/init-gh-pages.sh) — repeatable script to initialize `gh-pages` branch | Data branch | ✅ Done |
+| 1.6 | Unit tests for SDK version parsing + build flag generation (35 tests) | Tests | ✅ Done |
+| 2.1 | [apps/empty-browser/](apps/empty-browser/) — `.csproj` + `Program.cs` + `main.mjs` + `index.html` (browser-wasm standalone) | App config | ✅ Done |
 
 ### Phase 2: First End-to-End Slice (empty-browser + external metrics)
 Get one app measured end-to-end before expanding to more apps/metrics.
@@ -197,7 +205,7 @@ Every component has both unit tests and E2E validation:
 
 ### Test workflow: `test.yml`
 - Triggered on push and PR
-- Runs unit tests via Node.js test runner (`node --test tests/unit/`)
+- Runs unit tests via Node.js test runner (`node --test tests/unit/*.test.mjs`)
 - Runs E2E tests via Playwright (`npx playwright test tests/e2e/`)
 - Uses `gh` CLI / GitHub REST API to verify CI status programmatically:
   - `tests/e2e/helpers/gh-api.mjs` uses `@octokit/rest` to check workflow run status

@@ -1,0 +1,9 @@
+{
+    "name": "empty-browser",
+    "displayName": "Empty Browser",
+    "description": "Minimal browser-wasm standalone app for external metrics",
+    "metrics": "external",
+    "engines": [
+        "chrome"
+    ]
+}
