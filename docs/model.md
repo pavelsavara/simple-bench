@@ -9,7 +9,7 @@ Each benchmark run is identified by a combination of these dimensions:
 | **Date** | `date` | ISO date `YYYY-MM-DD` | Calendar date of the run |
 | **SDK Version** | `sdkVersion` | e.g. `10.0.100-preview.3.25130.1` | Resolved .NET SDK version string |
 | **Git Hash** | `gitHash` | 40-char SHA (display as 7-char) | Source commit of the SDK build |
-| **Runtime Flavor** | `runtime` | `coreclr`, `mono` | Which .NET runtime VM |
+| **Runtime Flavor** | `runtime` | `coreclr`, `mono`, `llvm_naot` | Which .NET runtime VM |
 | **Build Configuration** | `config` | `release`, `aot`, `native-relink`, `invariant`, `no-reflection-emit`, `debug` | MSBuild publish configuration |
 | **Execution Engine** | `engine` | `v8`, `node`, `chrome`, `firefox` | JS/WASM execution environment |
 | **Sample App** | `app` | `empty-browser`, `empty-blazor`, `blazing-pizza`, `microbenchmarks` | Which application was measured |
@@ -18,6 +18,7 @@ Each benchmark run is identified by a combination of these dimensions:
 
 ```
 config=aot               → runtime=mono only      (AOT is Mono-specific)
+config=*                 → runtime=llvm_naot      (NativeAOT via LLVM — legacy data only)
 config=native-relink     → runtime=coreclr,mono   (both support native relink)
 config=release           → runtime=coreclr,mono   (standard release build)
 config=invariant         → runtime=coreclr,mono   (InvariantGlobalization=true)
@@ -58,13 +59,15 @@ Metric definitions are part of the model — each metric has a fixed key, displa
 | Metric Key | Display Name | Unit | Category | How Measured |
 |------------|-------------|------|----------|-------------|
 | `compile-time` | Compile Time | `ms` | External | Wall-clock time of `dotnet publish` (measured in build-app.sh, included in result JSON) |
-| `download-size` | Download Size | `bytes` | External | CDP Network events: sum of `encodedDataLength` for all resources |
-| `time-to-first-render` | Time to First Render | `ms` | External | `PerformanceObserver` for `first-contentful-paint`, or `Performance.timing.domContentLoadedEventEnd - navigationStart` |
-| `time-to-first-ui-change` | Time to First UI Change | `ms` | External | `MutationObserver` on document body, timestamp of first DOM mutation after initial render |
+| `download-size-total` | Download Size (Total) | `bytes` | External | Total published app bundle size |
+| `download-size-wasm` | Download Size (WASM) | `bytes` | External | Size of dotnet.native.wasm (or dotnet.wasm for older builds) |
+| `download-size-dlls` | Download Size (DLLs) | `bytes` | External | Total size of managed DLL assemblies |
+| `time-to-reach-managed` | Time to Reach Managed | `ms` | External | Wall-clock time from navigation start to first managed code execution (warm) |
+| `time-to-reach-managed-cold` | Time to Reach Managed (Cold) | `ms` | External | Same as above but with cold browser cache |
 | `memory-peak` | Memory Peak | `bytes` | External | CDP `Performance.getMetrics` → `JSHeapUsedSize` peak, or `performance.measureUserAgentSpecificMemory()` |
-| `js-interop-ops` | JS Interop | `ops/min` | Internal | Tight loop: JS calls C# `[JSExport]` method, method returns value. Count iterations in fixed time window. |
-| `json-parse-ops` | JSON Parsing | `ops/min` | Internal | Tight loop: JS passes JSON string to C# `[JSExport]` method that deserializes with `System.Text.Json`. Count iterations. |
-| `exception-ops` | Exception Handling | `ops/min` | Internal | Tight loop: JS calls C# method that throws + catches exception. Count iterations. |
+| `js-interop-ops` | JS Interop | `ops/sec` | Internal | Tight loop: JS calls C# `[JSExport]` method, method returns value. Count iterations in fixed time window. |
+| `json-parse-ops` | JSON Parsing | `ops/sec` | Internal | Tight loop: JS passes JSON string to C# `[JSExport]` method that deserializes with `System.Text.Json`. Count iterations. |
+| `exception-ops` | Exception Handling | `ops/sec` | Internal | Tight loop: JS calls C# method that throws + catches exception. Count iterations. |
 
 ### Metric registry (in code)
 
@@ -74,13 +77,15 @@ The metric definitions are maintained as a shared constant, used by both measure
 // Canonical metric registry — unit is defined here, not in data files
 const METRICS = {
     'compile-time':           { displayName: 'Compile Time',           unit: 'ms',      category: 'external' },
-    'download-size':          { displayName: 'Download Size',          unit: 'bytes',   category: 'external' },
-    'time-to-first-render':   { displayName: 'Time to First Render',   unit: 'ms',      category: 'external' },
-    'time-to-first-ui-change':{ displayName: 'Time to First UI Change', unit: 'ms',      category: 'external' },
+    'download-size-total':    { displayName: 'Download Size (Total)',   unit: 'bytes',   category: 'external' },
+    'download-size-wasm':     { displayName: 'Download Size (WASM)',    unit: 'bytes',   category: 'external' },
+    'download-size-dlls':     { displayName: 'Download Size (DLLs)',    unit: 'bytes',   category: 'external' },
+    'time-to-reach-managed':  { displayName: 'Time to Reach Managed',  unit: 'ms',      category: 'external' },
+    'time-to-reach-managed-cold': { displayName: 'Time to Reach Managed (Cold)', unit: 'ms', category: 'external' },
     'memory-peak':            { displayName: 'Memory Peak',            unit: 'bytes',   category: 'external' },
-    'js-interop-ops':         { displayName: 'JS Interop',             unit: 'ops/min', category: 'internal' },
-    'json-parse-ops':         { displayName: 'JSON Parsing',           unit: 'ops/min', category: 'internal' },
-    'exception-ops':          { displayName: 'Exception Handling',     unit: 'ops/min', category: 'internal' }
+    'js-interop-ops':         { displayName: 'JS Interop',             unit: 'ops/sec', category: 'internal' },
+    'json-parse-ops':         { displayName: 'JSON Parsing',           unit: 'ops/sec', category: 'internal' },
+    'exception-ops':          { displayName: 'Exception Handling',     unit: 'ops/sec', category: 'internal' }
 };
 ```
 
@@ -91,8 +96,11 @@ Result data stores only the numeric value — the unit is looked up from the met
 ```json
 {
   "compile-time": 45200,
-  "download-size": 2450000,
-  "time-to-first-render": 320.5
+  "download-size-total": 12100920,
+  "download-size-wasm": 8187744,
+  "download-size-dlls": 1758720,
+  "time-to-reach-managed": 289.15,
+  "time-to-reach-managed-cold": 7446
 }
 ```
 
@@ -184,7 +192,7 @@ Lightweight top-level index. Fetched by the UI on page load. Lists available mon
 {
   "lastUpdated": "2026-03-02T12:34:56Z",
   "dimensions": {
-    "runtimes": ["coreclr", "mono"],
+    "runtimes": ["coreclr", "mono", "llvm_naot"],
     "configs": ["release", "aot", "native-relink", "invariant", "no-reflection-emit", "debug"],
     "engines": ["v8", "node", "chrome", "firefox"],
     "apps": ["empty-browser", "empty-blazor", "blazing-pizza", "microbenchmarks"]
@@ -218,7 +226,7 @@ One file per month, e.g. `data/2026-03.json`. Maps all commits benchmarked that 
           "engine": "chrome",
           "app": "empty-browser",
           "file": "2026/2026-03-02/12-34-56-UTC_abc1234_coreclr_release_chrome_empty-browser.json",
-          "metrics": ["compile-time", "download-size", "time-to-first-render", "time-to-first-ui-change", "memory-peak"]
+          "metrics": ["compile-time", "download-size-total", "download-size-wasm", "download-size-dlls", "time-to-reach-managed", "time-to-reach-managed-cold", "memory-peak"]
         },
         {
           "runtime": "mono",
@@ -242,7 +250,7 @@ One file per month, e.g. `data/2026-03.json`. Maps all commits benchmarked that 
           "engine": "chrome",
           "app": "empty-browser",
           "file": "2026/2026-03-15/08-12-00-UTC_def5678_coreclr_release_chrome_empty-browser.json",
-          "metrics": ["compile-time", "download-size", "time-to-first-render", "time-to-first-ui-change", "memory-peak"]
+          "metrics": ["compile-time", "download-size-total", "download-size-wasm", "download-size-dlls", "time-to-reach-managed", "time-to-reach-managed-cold", "memory-peak"]
         }
       ]
     }
@@ -289,9 +297,11 @@ Metric values are bare numbers. The unit for each metric is defined in the metri
   },
   "metrics": {
     "compile-time": 45200,
-    "download-size": 2450000,
-    "time-to-first-render": 320.5,
-    "time-to-first-ui-change": 580.2,
+    "download-size-total": 12100920,
+    "download-size-wasm": 8187744,
+    "download-size-dlls": 1758720,
+    "time-to-reach-managed": 289.15,
+    "time-to-reach-managed-cold": 7446,
     "memory-peak": 45000000
   }
 }

@@ -25,19 +25,31 @@ The dashboard is a static single-page application hosted on GitHub Pages. It pre
 │  ☑ AOT    │  │                                             │    │
 │  ☑ Relink │  ├─────────────────────────────────────────────┤    │
 │  ☑ Invar  │  │                                             │    │
-│  ☑ NoRefEm│  │  Chart: Download Size (bytes)               │    │
+│  ☑ NoRefEm│  │  Chart: Download Size — Total (bytes)       │    │
 │  ☑ Debug  │  │  ═══════════════════════════════════════     │    │
 │           │  │   [time-series line chart]                  │    │
 │  ENGINE   │  │                                             │    │
 │  ☑ V8     │  ├─────────────────────────────────────────────┤    │
 │  ☑ Node   │  │                                             │    │
-│  ☑ Chrome │  │  Chart: Time to First Render (ms)           │    │
+│  ☑ Chrome │  │  Chart: Download Size — dotnet.wasm (bytes) │    │
 │  ☑ Firefox│  │  ═══════════════════════════════════════     │    │
 │           │  │   [time-series line chart]                  │    │
 │  TIME     │  │                                             │    │
 │  [30d ▼]  │  ├─────────────────────────────────────────────┤    │
 │           │  │                                             │    │
-│           │  │  Chart: Time to First UI Change (ms)        │    │
+│           │  │  Chart: Download Size — DLLs (bytes)        │    │
+│           │  │  ═══════════════════════════════════════     │    │
+│           │  │   [time-series line chart]                  │    │
+│           │  │                                             │    │
+│           │  ├─────────────────────────────────────────────┤    │
+│           │  │                                             │    │
+│           │  │  Chart: Time to Reach Managed (ms)          │    │
+│           │  │  ═══════════════════════════════════════     │    │
+│           │  │   [time-series line chart]                  │    │
+│           │  │                                             │    │
+│           │  ├─────────────────────────────────────────────┤    │
+│           │  │                                             │    │
+│           │  │  Chart: Time to Reach Managed Cold (ms)     │    │
 │           │  │  ═══════════════════════════════════════     │    │
 │           │  │   [time-series line chart]                  │    │
 │           │  │                                             │    │
@@ -60,9 +72,9 @@ Horizontal tab bar at the top of the content area. Each tab corresponds to one s
 
 | Tab | App | Metrics shown |
 |-----|-----|--------------|
-| **empty-browser** | Empty browser template | External (compile-time, download-size, TTFR, TTFUC, memory-peak) |
-| **empty-blazor** | Empty Blazor WASM template | External (compile-time, download-size, TTFR, TTFUC, memory-peak) |
-| **blazing-pizza** | BlazingPizza Blazor app | External (compile-time, download-size, TTFR, TTFUC, memory-peak) |
+| **empty-browser** | Empty browser template | External (compile-time, download-size-total/wasm/dlls, time-to-reach-managed, time-to-reach-managed-cold, memory-peak) |
+| **empty-blazor** | Empty Blazor WASM template | External (compile-time, download-size-total/wasm/dlls, time-to-reach-managed, time-to-reach-managed-cold, memory-peak) |
+| **blazing-pizza** | BlazingPizza Blazor app | External (compile-time, download-size-total/wasm/dlls, time-to-reach-managed, time-to-reach-managed-cold, memory-peak) |
 | **microbenchmarks** | Custom JSExport benchmarks | Internal (js-interop-ops, json-parse-ops, exception-ops) |
 
 - Active tab is visually highlighted.
@@ -80,6 +92,7 @@ Fixed-width left sidebar (~220px). All filters are multi-select checkboxes. Chan
 RUNTIME
 ☑ CoreCLR
 ☑ Mono
+☑ NativeAOT
 ```
 
 ### Build Configuration
@@ -93,6 +106,7 @@ CONFIG
 ☑ Debug
 ```
 - AOT checkbox is hidden/disabled when Mono is deselected (AOT is Mono-only).
+- NativeAOT runtime has its own set of applicable configs.
 
 ### Execution Engine
 ```
@@ -127,7 +141,7 @@ Every chart is a **time-series line chart** (Chart.js `type: 'line'`).
 
 ### Axes
 - **X-axis**: Date (time scale). Ticks show `YYYY-MM-DD`. Zoom/pan if possible (via chartjs-plugin-zoom, optional).
-- **Y-axis**: Metric value. Label includes unit (e.g., "bytes", "ms", "ops/min"). Auto-scaled to visible data range.
+- **Y-axis**: Metric value. Label includes unit (e.g., "bytes", "ms", "ops/sec"). Auto-scaled to visible data range.
 
 ### Lines (Series)
 Each line represents one **engine × config × runtime** combination. Lines are differentiated by:
@@ -136,8 +150,8 @@ Each line represents one **engine × config × runtime** combination. Lines are 
 |--------|---------|
 | **Color** | Engine (V8=blue, Node=green, Chrome=orange, Firefox=red) |
 | **Dash pattern** | Config (Release=solid, AOT=dashed, NativeRelink=dotted, Invariant=dash-dot, NoReflectionEmit=long-dash, Debug=short-dash) |
-| **Line thickness** | Runtime (CoreCLR=2px, Mono=1.5px) — or use shape markers instead |
-| **Point marker** | Runtime (CoreCLR=circle, Mono=triangle) |
+| **Line thickness** | Runtime (CoreCLR=2px, Mono=1.5px, NativeAOT=1.5px) — or use shape markers instead |
+| **Point marker** | Runtime (CoreCLR=circle, Mono=triangle, NativeAOT=square) |
 
 ### Legend
 - Positioned below chart title, above the chart canvas.
@@ -164,27 +178,29 @@ Download Size: 2,450,000 bytes
 ## App-Specific Page Details
 
 ### Empty Browser Page (`#app=empty-browser`)
-5 charts stacked vertically:
+7 charts stacked vertically:
 1. **Compile Time** (ms) — wall-clock time of `dotnet publish`
-2. **Download Size** (bytes) — total transferred bytes to load the app
-3. **Time to First Render** (ms) — time from navigation to first contentful paint
-4. **Time to First UI Change** (ms) — time from navigation to first interactive DOM update
-5. **Memory Peak** (bytes) — peak JS heap size during load + initial interaction
+2. **Download Size — Total** (bytes) — total transferred bytes to load the app
+3. **Download Size — dotnet.wasm** (bytes) — size of the `dotnet.native.wasm` file
+4. **Download Size — DLLs** (bytes) — total size of managed DLL files
+5. **Time to Reach Managed** (ms) — time from navigation to reaching managed code (warm, reloaded page)
+6. **Time to Reach Managed Cold** (ms) — time from navigation to reaching managed code (cold, first load)
+7. **Memory Peak** (bytes) — peak JS heap size during load + initial interaction
 
 Engine filter: Chrome only (CDP-based metrics). Compile time is engine-independent but still shown on this page.
 
 ### Empty Blazor Page (`#app=empty-blazor`)
-Same 5 charts as empty-browser. Same engine constraint (Chrome only).
+Same 7 charts as empty-browser. Same engine constraint (Chrome only).
 
 ### Blazing Pizza Page (`#app=blazing-pizza`)
-Same 5 charts as empty-browser. Same engine constraint (Chrome only).
+Same 7 charts as empty-browser. Same engine constraint (Chrome only).
 May show larger download sizes and longer render times due to app complexity.
 
 ### Microbenchmarks Page (`#app=microbenchmarks`)
 3 charts stacked vertically:
-1. **JS Interop** (ops/min) — round-trip calls from JS to C# [JSExport] and back
-2. **JSON Parsing** (ops/min) — System.Text.Json deserialize operations
-3. **Exception Handling** (ops/min) — throw + catch cycle throughput
+1. **JS Interop** (ops/sec) — round-trip calls from JS to C# [JSExport] and back
+2. **JSON Parsing** (ops/sec) — System.Text.Json deserialize operations
+3. **Exception Handling** (ops/sec) — throw + catch cycle throughput
 
 Engine filter: All 4 engines shown (V8, Node, Chrome, Firefox).
 This is the page where engine comparison is most interesting — expect different perf characteristics per engine.
@@ -259,3 +275,4 @@ The entire view state is encoded in the URL hash. Changing tab or filters update
 |---------|--------|
 | CoreCLR | ● Circle |
 | Mono | ▲ Triangle |
+| NativeAOT | ■ Square |

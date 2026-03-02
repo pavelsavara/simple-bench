@@ -118,7 +118,7 @@ const chartManager = new ChartManager(document.getElementById('charts-container'
 const filters = new Filters(document.getElementById('sidebar'));
 
 // Metrics per app type
-const EXTERNAL_METRICS = ['compile-time', 'download-size', 'time-to-first-render', 'time-to-first-ui-change', 'memory-peak'];
+const EXTERNAL_METRICS = ['compile-time', 'download-size-total', 'download-size-wasm', 'download-size-dlls', 'time-to-reach-managed', 'time-to-reach-managed-cold', 'memory-peak'];
 const INTERNAL_METRICS = ['js-interop-ops', 'json-parse-ops', 'exception-ops'];
 const APP_METRICS = {
     'empty-browser': EXTERNAL_METRICS,
@@ -472,21 +472,24 @@ const CONFIG_DASHES = {
 };
 
 const RUNTIME_MARKERS = {
-    coreclr: 'circle',
-    mono:    'triangle'
+    coreclr:   'circle',
+    mono:      'triangle',
+    llvm_naot: 'rectRot'
 };
 
 // Metric registry — canonical metric definitions (display name + unit).
 // Unit is a property of the metric dimension, not stored per data point.
 const METRICS = {
-    'compile-time':           { display: 'Compile Time',            unit: 'ms' },
-    'download-size':          { display: 'Download Size',           unit: 'bytes' },
-    'time-to-first-render':   { display: 'Time to First Render',    unit: 'ms' },
-    'time-to-first-ui-change':{ display: 'Time to First UI Change', unit: 'ms' },
-    'memory-peak':            { display: 'Memory Peak',             unit: 'bytes' },
-    'js-interop-ops':         { display: 'JS Interop',              unit: 'ops/min' },
-    'json-parse-ops':         { display: 'JSON Parsing',            unit: 'ops/min' },
-    'exception-ops':          { display: 'Exception Handling',      unit: 'ops/min' }
+    'compile-time':                { display: 'Compile Time',                  unit: 'ms' },
+    'download-size-total':         { display: 'Download Size — Total',         unit: 'bytes' },
+    'download-size-wasm':          { display: 'Download Size — dotnet.wasm',   unit: 'bytes' },
+    'download-size-dlls':          { display: 'Download Size — DLLs',          unit: 'bytes' },
+    'time-to-reach-managed':       { display: 'Time to Reach Managed',         unit: 'ms' },
+    'time-to-reach-managed-cold':  { display: 'Time to Reach Managed (Cold)',  unit: 'ms' },
+    'memory-peak':                 { display: 'Memory Peak',                   unit: 'bytes' },
+    'js-interop-ops':              { display: 'JS Interop',                    unit: 'ops/sec' },
+    'json-parse-ops':              { display: 'JSON Parsing',                  unit: 'ops/sec' },
+    'exception-ops':               { display: 'Exception Handling',            unit: 'ops/sec' }
 };
 
 // Convenience accessors (used in chart options and tooltips)
@@ -510,8 +513,8 @@ function formatValue(value, unit) {
     if (unit === 'ms') {
         return `${value.toFixed(1)} ms`;
     }
-    if (unit === 'ops/min') {
-        return `${value.toLocaleString()} ops/min`;
+    if (unit === 'ops/sec') {
+        return `${value.toLocaleString()} ops/sec`;
     }
     return value.toString();
 }

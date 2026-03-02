@@ -12,6 +12,7 @@ A benchmarking solution that measures .NET Browser/WASM performance (CoreCLR + M
 | [views.md](views.md) | Dashboard UI pages from user perspective — navigation, charts, filters, interactions |
 | [pipeline.md](pipeline.md) | CI pipeline: GitHub Actions workflows, Docker image, Playwright measurement, SDK resolution, result commits |
 | [ui.md](ui.md) | Dashboard JavaScript implementation — modules, data loading, Chart.js config, filter logic |
+| [migration.md](migration.md) | Old → new schema mapping for importing WasmPerformanceMeasurements historical data |
 
 ## Repo Structure
 
@@ -52,7 +53,7 @@ simple-bench/
 │       └── helpers/
 │           └── gh-api.mjs           # GitHub API helpers for CI status checks
 ├── scripts/
-│   ├── measure-external.mjs        # Playwright + CDP: compile time, download size, TTFR, TTFUC, memory
+│   ├── measure-external.mjs        # Playwright + CDP: download sizes, reach-managed timing, memory
 │   ├── measure-internal.mjs        # Run microbenchmarks on V8/Node/Chrome/Firefox
 │   ├── resolve-sdk.sh              # Download nightly SDK, extract version+hash
 │   ├── build-app.sh                # Build/publish sample app with MSBuild flags
@@ -73,7 +74,8 @@ simple-bench/
 │   ├── model.md
 │   ├── views.md
 │   ├── pipeline.md
-│   └── ui.md
+│   ├── ui.md
+│   └── migration.md
 ├── plan.md                          # This file
 ├── package.json                     # Playwright + any Node dependencies
 └── README.md
@@ -105,7 +107,7 @@ Get one app measured end-to-end before expanding to more apps/metrics.
 | Step | Task | Output | Depends on |
 |------|------|--------|------------|
 | 2.1 | [apps/empty-browser/](apps/empty-browser/) — `dotnet new web` config, browser target | App config | 1.3 |
-| 2.2 | [measure-external.mjs](scripts/measure-external.mjs) — Playwright + CDP: compile time, download size, TTFR, TTFUC, memory peak. Includes retry logic with configurable attempts and hard timeout (inspired by radekdoulik/bench-results bootstrap+timeout pattern). | External script | 1.2, 2.1 |
+| 2.2 | [measure-external.mjs](scripts/measure-external.mjs) — Playwright + CDP: compile time, download sizes (total/wasm/dlls), time-to-reach-managed (warm+cold), memory peak. Includes retry logic with configurable attempts and hard timeout (inspired by radekdoulik/bench-results bootstrap+timeout pattern). | External script | 1.2, 2.1 |
 | 2.3 | Unit tests for measure-external: mock CDP events, verify JSON output schema | Tests | 2.2 |
 | 2.4 | Define + document JSON output schema (see [model.md](docs/model.md)) | Schema | 2.2 |
 
@@ -161,7 +163,7 @@ Add microbenchmark measurement support.
 | 7.1 | [measure-internal.mjs](scripts/measure-internal.mjs) — run microbenchmarks on V8/Node/Chrome/Firefox | Internal script | 6.3-6.4 |
 | 7.2 | Unit tests for measure-internal: mock engine output, verify JSON schema | Tests | 7.1 |
 | 7.3 | Update benchmark.yml matrix to include all engines for microbenchmarks | CI update | 7.1 |
-| 7.4 | Update dashboard to show microbenchmark metrics (ops/min charts) | UI update | 7.1, Phase 4 |
+| 7.4 | Update dashboard to show microbenchmark metrics (ops/sec charts) | UI update | 7.1, Phase 4 |
 
 ## Key Decisions
 
@@ -172,7 +174,7 @@ Add microbenchmark measurement support.
 | Dashboard tech | Chart.js + vanilla JS | No build step, simple to deploy on Pages |
 | Browser result extraction | Playwright `page.evaluate()` | Direct, reliable, no HTTP server needed in test |
 | Docker registry | ghcr.io | Free for public repos, integrated with GH Actions |
-| Runtime flavors | CoreCLR + Mono | Compare both VMs on browser target |
+| Runtime flavors | CoreCLR + Mono + LLVM NativeAOT | Compare all three runtimes on browser target |
 | Build configs | Release, AOT (Mono), NativeRelink, Invariant, NoReflectionEmit, Debug | Cover production + diagnostic scenarios |
 | SDK resolution | Latest nightly default, optional version param | Flexibility for regression investigation |
 | Browser versions | Latest Playwright-compatible | Consistent with Playwright's tested versions |
@@ -185,7 +187,7 @@ Every component has both unit tests and E2E validation:
 |-----------|-----------|----------|
 | `resolve-sdk.sh` | Verify output JSON parsing, version extraction | Run in Docker, confirm SDK installs |
 | `build-app.sh` | Verify MSBuild flag generation per config | Build empty-browser in Docker, verify `artifacts/publish/` |
-| `measure-external.mjs` | Mock CDP events, verify metric extraction + JSON schema | Run against published app in Docker, verify result JSON |
+| `measure-external.mjs` | Mock CDP events, verify metric extraction + JSON schema (download-size-total/wasm/dlls, time-to-reach-managed/cold) | Run against published app in Docker, verify result JSON |
 | `measure-internal.mjs` | Mock engine stdout, verify JSON parsing | Run microbenchmarks on V8/Node in Docker |
 | `consolidate-results.mjs` | Merge fixtures → verify month index dedup, daily sharding | Consolidation workflow with test artifacts |
 | `data-loader.js` | Month index filtering, caching, lazy fetch | — (covered by dashboard E2E) |

@@ -212,7 +212,7 @@ Measures published app load characteristics using Playwright and Chrome DevTools
 
 ```
 Input:  --app <name> --publish-dir <path> --output <result.json>
-Output: JSON result file with meta + external metrics (compile-time, download-size, TTFR, TTFUC, memory-peak)
+Output: JSON result file with meta + external metrics (compile-time, download-size-total/wasm/dlls, time-to-reach-managed, time-to-reach-managed-cold, memory-peak)
 ```
 
 Note: `compile-time` is not measured by this script — it is read from `artifacts/results/compile-time.json` (produced by `build-app.sh`) and merged into the final result JSON.
@@ -235,21 +235,34 @@ await client.send('Performance.enable');
 
 // 4. Track network requests for download size
 let totalDownloadSize = 0;
+let wasmSize = 0;
+let dllsSize = 0;
 client.on('Network.loadingFinished', (event) => {
     totalDownloadSize += event.encodedDataLength;
+    // Track individual components by URL pattern
+    // wasmSize: *.wasm files (dotnet.native.wasm)
+    // dllsSize: *.dll files
 });
 
-// 5. Navigate and measure timing
+// 5. Navigate and measure timing (cold load)
 await page.goto(`http://localhost:${port}`);
 
 // 6. Extract timing via page.evaluate()
 const timing = await page.evaluate(() => {
-    const fcp = performance.getEntriesByName('first-contentful-paint')[0];
     return {
-        timeToFirstRender: fcp ? fcp.startTime : null,
-        timeToFirstUiChange: window.__firstMutationTime ?? null
+        timeToReachManaged: window.__managedReachedTime ?? null
     };
 });
+const timeToReachManagedCold = timing.timeToReachManaged;
+
+// 6b. Reload and measure warm timing
+await page.reload();
+const warmTiming = await page.evaluate(() => {
+    return {
+        timeToReachManaged: window.__managedReachedTime ?? null
+    };
+});
+const timeToReachManaged = warmTiming.timeToReachManaged;
 
 // 7. Get memory peak from CDP
 const perfMetrics = await client.send('Performance.getMetrics');
@@ -258,18 +271,17 @@ const heapUsed = perfMetrics.metrics.find(m => m.name === 'JSHeapUsedSize');
 // 8. Write result JSON
 ```
 
-### First UI Change detection
-The sample apps need a small injected script (or the measurement script injects it via `page.addInitScript`) that sets up a `MutationObserver`:
+### Reach-Managed detection
+The sample apps need to call a timing marker when managed code is first reached. The measurement script detects this via `page.evaluate()` checking `window.__managedReachedTime`:
 
 ```javascript
-// Injected into the page before navigation
-const observer = new MutationObserver(() => {
-    if (!window.__firstMutationTime) {
-        window.__firstMutationTime = performance.now();
-    }
-});
-observer.observe(document.body, { childList: true, subtree: true });
+// In the .NET app's startup path (e.g., Program.cs):
+// JSHost.GlobalThis.SetProperty("__managedReachedTime", performance.now());
+// The measurement script reads this value after page load.
 ```
+
+- **Cold**: measured on first navigation (includes all caching, JIT, etc.)
+- **Warm**: measured after a `page.reload()` (browser caches active)
 
 ### Internal Metrics: `scripts/measure-internal.mjs`
 
@@ -317,13 +329,24 @@ strategy:
   fail-fast: false
   matrix:
     app: [empty-browser, empty-blazor, blazing-pizza, microbenchmarks]
-    runtime: [coreclr, mono]
+    runtime: [coreclr, mono, llvm_naot]
     config: [release, aot, native-relink, invariant, no-reflection-emit, debug]
     engine: [v8, node, chrome, firefox]
     exclude:
       # AOT is Mono-only
       - runtime: coreclr
         config: aot
+      - runtime: llvm_naot
+        config: aot
+      # NativeAOT has limited config set
+      - runtime: llvm_naot
+        config: native-relink
+      - runtime: llvm_naot
+        config: invariant
+      - runtime: llvm_naot
+        config: no-reflection-emit
+      - runtime: llvm_naot
+        config: debug
       # External apps only measured on Chrome
       - app: empty-browser
         engine: v8
