@@ -220,68 +220,95 @@ Note: `compile-time` is not measured by this script — it is read from `artifac
 ### Steps
 
 ```javascript
-// 1. Start static HTTP server for the published app
-const server = await startServer(publishDir, port);
+// 1. Start static HTTP server with COOP/COEP headers (built-in node:http)
+const srv = await startStaticServer(publishDir); // auto-assigns port
+// All responses include:
+//   Cross-Origin-Opener-Policy: same-origin
+//   Cross-Origin-Embedder-Policy: require-corp
 
-// 2. Launch Chrome via Playwright with CDP
+// 2. Read file-system sizes: wasm + dlls (uncompressed, from publish dir)
+const fileSizes = await measureFileSizes(publishDir);
+// fileSizes.wasmSize — total bytes of *.wasm files in _framework/
+// fileSizes.dllsSize — total bytes of *.dll files in _framework/
+
+// 3. Launch Chrome via Playwright with CDP
 const browser = await chromium.launch();
 const context = await browser.newContext();
 const page = await context.newPage();
-
-// 3. Set up CDP session for network and performance tracking
-const client = await page.context().newCDPSession(page);
+const client = await context.newCDPSession(page);
 await client.send('Network.enable');
 await client.send('Performance.enable');
 
-// 4. Track network requests for download size
-let totalDownloadSize = 0;
-let wasmSize = 0;
-let dllsSize = 0;
-client.on('Network.loadingFinished', (event) => {
-    totalDownloadSize += event.encodedDataLength;
-    // Track individual components by URL pattern
-    // wasmSize: *.wasm files (dotnet.native.wasm)
-    // dllsSize: *.dll files
+// 4. Track compressed download size via CDP
+let downloadSizeTotal = 0;
+client.on('Network.loadingFinished', (evt) => {
+    downloadSizeTotal += evt.encodedDataLength; // compressed bytes over wire
 });
 
-// 5. Navigate and measure timing (cold load)
-await page.goto(`http://localhost:${port}`);
-
-// 6. Extract timing via page.evaluate()
-const timing = await page.evaluate(() => {
-    return {
-        timeToReachManaged: window.__managedReachedTime ?? null
-    };
+// 5. Start periodic memory sampling (every 100ms, track peak JSHeapUsedSize)
+let memoryPeak = 0;
+const memoryPoller = startMemorySampling(client, (value) => {
+    if (value > memoryPeak) memoryPeak = value;
 });
-const timeToReachManagedCold = timing.timeToReachManaged;
 
-// 6b. Reload and measure warm timing
-await page.reload();
-const warmTiming = await page.evaluate(() => {
-    return {
-        timeToReachManaged: window.__managedReachedTime ?? null
-    };
-});
-const timeToReachManaged = warmTiming.timeToReachManaged;
+// 6. Cold load — first navigation
+await page.goto(url, { timeout, waitUntil: 'load' });
+await page.waitForFunction(
+    () => globalThis.dotnet_managed_ready !== undefined,
+    { timeout }
+);
+const coldTime = await page.evaluate(() => globalThis.dotnet_managed_ready);
 
-// 7. Get memory peak from CDP
-const perfMetrics = await client.send('Performance.getMetrics');
-const heapUsed = perfMetrics.metrics.find(m => m.name === 'JSHeapUsedSize');
+// 7. Warm loads — 3 reloads, take minimum
+let warmMin = Infinity;
+for (let i = 0; i < 3; i++) {
+    await page.reload({ timeout, waitUntil: 'load' });
+    await page.waitForFunction(
+        () => globalThis.dotnet_managed_ready !== undefined,
+        { timeout }
+    );
+    const warm = await page.evaluate(() => globalThis.dotnet_managed_ready);
+    if (warm < warmMin) warmMin = warm;
+}
 
-// 8. Write result JSON
+// 8. Let memory settle, stop sampling, write result JSON
+await sleep(2000);
+stopMemorySampling(memoryPoller);
 ```
+
+### Download size strategy
+
+| Metric | Source | Why |
+|--------|--------|-----|
+| `download-size-total` | CDP `encodedDataLength` sum | Reflects real-world download cost (compressed) |
+| `download-size-wasm` | `fs.stat` on `*.wasm` in `_framework/` | Tracks code size changes (uncompressed) |
+| `download-size-dlls` | `fs.stat` on `*.dll` in `_framework/` | Tracks managed assembly size (uncompressed) |
 
 ### Reach-Managed detection
-The sample apps need to call a timing marker when managed code is first reached. The measurement script detects this via `page.evaluate()` checking `window.__managedReachedTime`:
+
+Two timing markers are set during app startup:
+
+1. **`dotnet_ready`** — JS-side marker set in `main.mjs` just before `dotnet.run()`. Measures time from navigation to WASM bootstrap completion.
+2. **`dotnet_managed_ready`** — C#-side marker set in `Program.cs` via `[JSImport]` interop. Measures time from navigation to actual managed code execution.
 
 ```javascript
-// In the .NET app's startup path (e.g., Program.cs):
-// JSHost.GlobalThis.SetProperty("__managedReachedTime", performance.now());
-// The measurement script reads this value after page load.
+// main.mjs:
+globalThis.dotnet_ready = performance.now();
+await dotnet.run();
+
+// Program.cs (via JSImport interop):
+Interop.SetGlobalProperty("dotnet_managed_ready", Interop.GetTimestamp());
 ```
 
-- **Cold**: measured on first navigation (includes all caching, JIT, etc.)
-- **Warm**: measured after a `page.reload()` (browser caches active)
+The measurement script uses `dotnet_managed_ready` for the time-to-reach-managed metrics:
+- **Cold**: measured on first navigation (no cache)
+- **Warm**: minimum of 3 reloads (browser caches active)
+
+### Memory peak measurement
+CDP `JSHeapUsedSize` is sampled every 100ms during the entire measurement (cold + warm loads + 2s settle time). The maximum observed value is reported as `memory-peak`.
+
+### Retry strategy
+Only **timeout errors** trigger a retry (configurable, default 2 retries). Navigation failures and other errors fail immediately.
 
 ### Internal Metrics: `scripts/measure-internal.mjs`
 

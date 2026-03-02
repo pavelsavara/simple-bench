@@ -62,9 +62,9 @@ Metric definitions are part of the model — each metric has a fixed key, displa
 | `download-size-total` | Download Size (Total) | `bytes` | External | Total published app bundle size |
 | `download-size-wasm` | Download Size (WASM) | `bytes` | External | Size of dotnet.native.wasm (or dotnet.wasm for older builds) |
 | `download-size-dlls` | Download Size (DLLs) | `bytes` | External | Total size of managed DLL assemblies |
-| `time-to-reach-managed` | Time to Reach Managed | `ms` | External | Wall-clock time from navigation start to first managed code execution (warm) |
-| `time-to-reach-managed-cold` | Time to Reach Managed (Cold) | `ms` | External | Same as above but with cold browser cache |
-| `memory-peak` | Memory Peak | `bytes` | External | CDP `Performance.getMetrics` → `JSHeapUsedSize` peak, or `performance.measureUserAgentSpecificMemory()` |
+| `time-to-reach-managed` | Time to Reach Managed | `ms` | External | `globalThis.dotnet_managed_ready` (C# via JSImport) — warm (minimum of 3 reloads) |
+| `time-to-reach-managed-cold` | Time to Reach Managed (Cold) | `ms` | External | Same marker, first navigation (no cache) |
+| `memory-peak` | Memory Peak | `bytes` | External | CDP `JSHeapUsedSize` sampled every 100ms, peak value across cold+warm loads |
 | `js-interop-ops` | JS Interop | `ops/sec` | Internal | Tight loop: JS calls C# `[JSExport]` method, method returns value. Count iterations in fixed time window. |
 | `json-parse-ops` | JSON Parsing | `ops/sec` | Internal | Tight loop: JS passes JSON string to C# `[JSExport]` method that deserializes with `System.Text.Json`. Count iterations. |
 | `exception-ops` | Exception Handling | `ops/sec` | Internal | Tight loop: JS calls C# method that throws + catches exception. Count iterations. |

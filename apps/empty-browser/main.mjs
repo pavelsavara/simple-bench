@@ -1,11 +1,19 @@
 import { dotnet } from './_framework/dotnet.mjs';
 
+// Helpers called from C# via [JSImport("getTimestamp", "main.mjs")] etc.
+export function getTimestamp() {
+    return performance.now();
+}
+
+export function setGlobalProperty(name, value) {
+    globalThis[name] = value;
+}
+
 const { getConfig } = await dotnet
     .withDiagnosticTracing(false)
     .create();
 
-// Signal that managed code is about to run — used by measure-external.mjs
-// for the "time-to-reach-managed" metric (warm measurement on reload).
-globalThis.__managedReachedTime = performance.now();
+// JS-side marker: WASM bootstrapped, about to enter managed code.
+globalThis.dotnet_ready = performance.now();
 
 await dotnet.run();

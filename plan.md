@@ -46,8 +46,10 @@ simple-bench/
 │   │   ├── chart-manager.test.mjs   # Dataset building, series grouping
 │   │   ├── filters.test.mjs         # Filter state, URL hash parsing
 │   │   ├── consolidate.test.mjs     # Month index merge, dedup, daily sharding
-│   │   ├── sdk-info.test.mjs        # SDK version parsing, commit hash extraction
+│   ├── sdk-info.test.mjs        # SDK version parsing, commit hash extraction
 │   │   ├── build-config.test.mjs    # Build config → MSBuild flag mapping
+│   │   ├── measure-utils.test.mjs   # Static server, file sizes, result JSON, compile time reader
+│   │   ├── metrics.test.mjs         # Metrics registry validation
 │   │   └── fixtures/                # Sample index.json, month indexes, result JSONs, dotnet --info output
 │   └── e2e/                         # End-to-end tests (Playwright)
 │       ├── dashboard.spec.mjs       # Load dashboard, verify charts render
@@ -63,7 +65,9 @@ simple-bench/
 │   ├── consolidate-results.mjs     # Merge CI artifacts into gh-pages data/
 │   └── lib/
 │       ├── sdk-info.mjs            # SDK version parsing utilities (testable)
-│       └── build-config.mjs        # Build config → MSBuild flag mapping (testable)
+│       ├── build-config.mjs        # Build config → MSBuild flag mapping (testable)
+│       ├── metrics.mjs             # Canonical metric registry (shared by scripts + dashboard)
+│       └── measure-utils.mjs       # Static server, file sizes, result JSON utilities (testable)
 ├── apps/                            # Sample app configs and overrides
 │   ├── empty-browser/
 │   │   └── app.json                 # App metadata, template name, build flags
@@ -109,15 +113,15 @@ Core infrastructure that everything else depends on.
 | 1.6 | Unit tests for SDK version parsing + build flag generation (35 tests) | Tests | ✅ Done |
 | 2.1 | [apps/empty-browser/](apps/empty-browser/) — `.csproj` + `Program.cs` + `main.mjs` + `index.html` (browser-wasm standalone) | App config | ✅ Done |
 
-### Phase 2: First End-to-End Slice (empty-browser + external metrics)
+### Phase 2: First End-to-End Slice (empty-browser + external metrics) ✅
 Get one app measured end-to-end before expanding to more apps/metrics.
 
-| Step | Task | Output | Depends on |
-|------|------|--------|------------|
-| 2.1 | [apps/empty-browser/](apps/empty-browser/) — `dotnet new web` config, browser target | App config | 1.3 |
-| 2.2 | [measure-external.mjs](scripts/measure-external.mjs) — Playwright + CDP: compile time, download sizes (total/wasm/dlls), time-to-reach-managed (warm+cold), memory peak. Includes retry logic with configurable attempts and hard timeout (inspired by radekdoulik/bench-results bootstrap+timeout pattern). | External script | 1.2, 2.1 |
-| 2.3 | Unit tests for measure-external: mock CDP events, verify JSON output schema | Tests | 2.2 |
-| 2.4 | Define + document JSON output schema (see [model.md](docs/model.md)) | Schema | 2.2 |
+| Step | Task | Output | Status |
+|------|------|--------|--------|
+| 2.1 | [apps/empty-browser/](apps/empty-browser/) — `dotnet new web` config, browser target, `dotnet_ready` JS marker + `dotnet_managed_ready` C# marker via JSImport | App config | ✅ Done |
+| 2.2 | [measure-external.mjs](scripts/measure-external.mjs) — Playwright + CDP: compile time, download sizes (CDP total + FS wasm/dlls), time-to-reach-managed (min of 3 warm reloads), time-to-reach-managed-cold, memory peak (100ms JSHeapUsedSize sampling). Built-in node:http server with COOP/COEP. Retry on timeout only (default 2). | External script | ✅ Done |
+| 2.3 | Unit tests for measure-utils (33 tests): MIME types, static server (COOP/COEP, path traversal), file sizes, result JSON builder, compile time reader. Plus metrics registry tests. | Tests | ✅ Done |
+| 2.4 | JSON output schema documented in [model.md](docs/model.md), implemented in [measure-utils.mjs](scripts/lib/measure-utils.mjs) `buildResultJson()` | Schema | ✅ Done |
 
 ### Phase 3: CI Pipeline (single-app)
 Get the CI loop working for the single empty-browser app.
