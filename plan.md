@@ -186,6 +186,7 @@ Add microbenchmark measurement support.
 | Dashboard tech | Chart.js + vanilla JS | No build step, simple to deploy on Pages |
 | Browser result extraction | Playwright `page.evaluate()` | Direct, reliable, no HTTP server needed in test |
 | Docker registry | ghcr.io | Free for public repos, integrated with GH Actions |
+| Dependency pinning | All exact versions | Playwright version pins Chromium/Firefox builds; avoids silent measurement drift |
 | Runtime flavors | CoreCLR + Mono + LLVM NativeAOT | Compare all three runtimes on browser target |
 | Build configs | Release, AOT (Mono), NativeRelink, Invariant, NoReflectionEmit, Debug | Cover production + diagnostic scenarios |
 | SDK resolution | Latest nightly default, optional version param | Flexibility for regression investigation |

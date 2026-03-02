@@ -32,15 +32,17 @@ All build outputs and temp files go to `artifacts/` (gitignored):
 
 | Component | Version strategy | Install method |
 |-----------|-----------------|----------------|
-| **V8 (`d8`)** | Latest stable | Download prebuilt from `https://storage.googleapis.com/aspect-build/aspect-d8/` or build from chromium snapshots |
-| **Node.js** | LTS (22.x) | `nvm install --lts` or NodeSource apt repo |
-| **Chrome** | Latest Playwright-compatible | `npx playwright install --with-deps chromium` |
-| **Firefox** | Latest Playwright-compatible | `npx playwright install --with-deps firefox` |
-| **Playwright** | Latest | `npm install playwright` (global in /opt/playwright) |
-| **Python 3** | System | `apt install python3 python3-pip` |
+| **Ubuntu** | Pinned digest | `ubuntu:24.04@sha256:...` |
+| **V8 (`d8`)** | Pinned jsvu version | `npm install -g jsvu@2.2.1` |
+| **Node.js** | Pinned major (24.x) | NodeSource apt repo |
+| **Chrome** | Pinned via Playwright version | `npx playwright install --with-deps chromium` |
+| **Firefox** | Pinned via Playwright version | `npx playwright install --with-deps firefox` |
+| **Playwright** | Exact version (matches `package.json`) | `npm install -g playwright@1.50.0` |
 | **jq** | System | `apt install jq` |
 | **.NET prerequisites** | System | `apt install libicu-dev libssl-dev zlib1g-dev` |
 | **curl, git, tar, unzip** | System | `apt install` |
+
+> **Version pinning policy**: All tool versions that can influence benchmark measurements are pinned to exact versions. Playwright pins the exact Chromium/Firefox builds, so updating Playwright is the single control point for browser engine changes. Bumps should be done intentionally via PR with the expectation that timing metrics may shift.
 
 ### What is NOT in the image
 - **.NET SDK**: Downloaded at benchmark runtime from nightly feed. Different runs may test different SDK versions.
@@ -49,34 +51,35 @@ All build outputs and temp files go to `artifacts/` (gitignored):
 ### Dockerfile outline
 
 ```dockerfile
-FROM ubuntu:24.04
+FROM ubuntu:24.04@sha256:...   # pinned digest — update intentionally
 
 # System packages
 RUN apt-get update && apt-get install -y \
-    curl git tar unzip jq python3 python3-pip \
+    curl git tar unzip jq python3 \
     libicu-dev libssl-dev zlib1g-dev \
-    # Playwright system dependencies
     libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 \
     libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 \
     libpango-1.0-0 libcairo2 libasound2t64 libxshmfence1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Node.js LTS
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-    && apt-get install -y nodejs
+# Node.js 24.x (Current) — pinned major
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
-# V8 d8 standalone
-RUN mkdir -p /opt/v8 && \
-    curl -fsSL <v8-prebuilt-url> -o /tmp/d8.zip && \
-    unzip /tmp/d8.zip -d /opt/v8 && \
-    ln -s /opt/v8/d8 /usr/local/bin/d8
+# V8 d8 via jsvu — pinned jsvu version
+RUN npm install -g jsvu@2.2.1 \
+    && jsvu --os=linux64 --engines=v8 \
+    && ln -s /root/.jsvu/bin/v8 /usr/local/bin/d8
 
-# Playwright browsers (Chrome + Firefox)
-RUN npm install -g playwright && \
-    npx playwright install --with-deps chromium firefox
+# Playwright — pinned to match package.json
+RUN npm install -g playwright@1.50.0 \
+    && npx playwright install --with-deps chromium firefox
 
 ENV PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
 ENV DOTNET_ROOT=/opt/dotnet
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
+ENV DOTNET_NOLOGO=1
 ENV PATH="${DOTNET_ROOT}:${PATH}"
 ENV ARTIFACTS_DIR=/bench/artifacts
 
