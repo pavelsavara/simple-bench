@@ -18,8 +18,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# V8 d8 via jsvu — pinned jsvu version
-RUN npm install -g jsvu@2.2.1 \
+# V8 d8 via jsvu — pinned version
+RUN npm install -g jsvu@3.0.3 \
     && jsvu --os=linux64 --engines=v8 \
     && ln -s /root/.jsvu/bin/v8 /usr/local/bin/d8
 
