@@ -23,8 +23,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runtime: [coreclr, mono]
-        preset: [no-workload, aot, native-relink, invariant, no-reflection-emit, debug]
+        # runtime: [coreclr, mono]
+        # preset: [no-workload, aot, native-relink, invariant, no-reflection-emit, debug]
+        runtime: [mono]
+        preset: [no-workload]
         exclude:
           # AOT is Mono-only
           - runtime: coreclr
@@ -35,12 +37,12 @@ jobs:
       - name: Resolve SDK
         id: sdk
         run: |
-          ./scripts/resolve-sdk.sh "${{ inputs.sdk_channel || '11.0' }}" "${{ inputs.sdk_version }}"
+          bash ./scripts/resolve-sdk.sh "${{ inputs.sdk_channel || '11.0' }}" "${{ inputs.sdk_version }}"
           SDK_INFO=$(cat "${ARTIFACTS_DIR:-artifacts}/sdk/sdk-info.json")
           echo "sdk_info=$SDK_INFO" >> "$GITHUB_OUTPUT"
 
       - name: Build app
-        run: ./scripts/build-app.sh empty-browser ${{ matrix.runtime }} ${{ matrix.preset }}
+        run: bash ./scripts/build-app.sh empty-browser ${{ matrix.runtime }} ${{ matrix.preset }}
 
       - name: Run benchmark
         run: |
