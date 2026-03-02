@@ -61,7 +61,7 @@ export function getPublishArgs(runtime, preset, appDir, outputDir) {
     const presetArgs = getPresetArgs(preset);
 
     return [
-        'publish',
+        preset !== 'debug' ? 'publish' : 'build',
         appDir,
         ...presetArgs,
         `/p:RuntimeFlavor=${runtimeFlavor}`,

@@ -1,16 +1,55 @@
+using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices.JavaScript;
+using System.Threading.Tasks;
 
-// Managed-side marker: set globalThis.dotnet_managed_ready to current timestamp.
-// This fires when managed code actually executes (more accurate than JS-side marker).
-Interop.SetGlobalProperty("dotnet_managed_ready", Interop.GetTimestamp());
+Console.WriteLine("Hello, Browser!");
 
-Console.WriteLine("empty-browser loaded");
+if (args.Length == 1 && args[0] == "start")
+    StopwatchSample.Start();
 
-internal static partial class Interop
+while (true)
 {
-    [JSImport("getTimestamp", "main.mjs")]
-    internal static partial double GetTimestamp();
+    StopwatchSample.Render();
+    await Task.Delay(1000);
+}
 
-    [JSImport("setGlobalProperty", "main.mjs")]
-    internal static partial void SetGlobalProperty(string name, double value);
+partial class StopwatchSample
+{
+    private static Stopwatch stopwatch = new();
+
+    public static void Start() => stopwatch.Start();
+    public static void Render() => SetInnerText("#time", stopwatch.Elapsed.ToString(@"mm\:ss"));
+    
+    [JSImport("dom.setInnerText", "main.js")]
+    internal static partial void SetInnerText(string selector, string content);
+
+    [JSExport]
+    internal static bool Toggle()
+    {
+        if (stopwatch.IsRunning)
+        {
+            stopwatch.Stop();
+            return false;
+        }
+        else
+        {
+            stopwatch.Start();
+            return true;
+        }
+    }
+
+    [JSExport]
+    internal static void Reset()
+    {
+        if (stopwatch.IsRunning)
+            stopwatch.Restart();
+        else
+            stopwatch.Reset();
+
+        Render();
+    }
+
+    [JSExport]
+    internal static bool IsRunning() => stopwatch.IsRunning;
 }

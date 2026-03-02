@@ -1,15 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--  Licensed to the .NET Foundation under one or more agreements. -->
+<!-- The .NET Foundation licenses this file to you under the MIT license. -->
+<html>
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>empty-browser</title>
+  <title>empty-browser</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preload" id="webassembly" />
+  <script type="importmap"></script>
+  <script type='module' src="main#[.{fingerprint}].js"></script>
 </head>
 
 <body>
-    <div id="out"></div>
-    <script type="module" src="./main.mjs"></script>
+  <div id="out"></div>
 </body>
 
 </html>
