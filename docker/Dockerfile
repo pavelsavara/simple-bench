@@ -1,4 +1,4 @@
-FROM ubuntu:24.04@sha256:b59d21599a2b151e7f6a8ac0589693d8af84a0b2a0cab87c2a91b611b917a6d0
+FROM ubuntu:24.04
 
 # Avoid interactive prompts during package install
 ENV DEBIAN_FRONTEND=noninteractive
