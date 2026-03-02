@@ -23,8 +23,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runtime: [coreclr, mono]
-        preset: [no-workload, aot, native-relink, invariant, no-reflection-emit, debug]
+        #runtime: [coreclr, mono]
+        #preset: [no-workload, aot, native-relink, invariant, no-reflection-emit, debug]
+        runtime: [mono]
+        preset: [no-workload]
         exclude:
           # AOT is Mono-only
           - runtime: coreclr
@@ -53,7 +55,7 @@ jobs:
 
           node scripts/measure-external.mjs \
             --app empty-browser \
-            --publish-dir "${ARTIFACTS_DIR:-artifacts}/publish/empty-browser" \
+            --publish-dir "${ARTIFACTS_DIR:-artifacts}/publish/empty-browser/wwwroot" \
             --sdk-info "${ARTIFACTS_DIR:-artifacts}/sdk/sdk-info.json" \
             --compile-time-file "${ARTIFACTS_DIR:-artifacts}/results/compile-time.json" \
             --runtime ${{ matrix.runtime }} \

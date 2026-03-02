@@ -3,30 +3,15 @@
 
 import { dotnet } from './_framework/dotnet.js'
 
-const { setModuleImports, getAssemblyExports, getConfig, runMain } = await dotnet
+const { setModuleImports, runMain } = await dotnet
     .withApplicationArguments("start")
     .create();
 
 setModuleImports('main.js', {
-    dom: {
-        setInnerText: (selector, time) => document.querySelector(selector).innerText = time
+    bench: {
+        setManagedReady: () => { globalThis.dotnet_managed_ready = performance.now(); }
     }
 });
 
-const config = getConfig();
-const exports = await getAssemblyExports(config.mainAssemblyName);
-
-document.getElementById('reset').addEventListener('click', e => {
-    exports.StopwatchSample.Reset();
-    e.preventDefault();
-});
-
-const pauseButton = document.getElementById('pause');
-pauseButton.addEventListener('click', e => {
-    const isRunning = exports.StopwatchSample.Toggle();
-    pauseButton.innerText = isRunning ? 'Pause' : 'Start';
-    e.preventDefault();
-});
-
-// run the C# Main() method and keep the runtime process running and executing further API calls
+globalThis.dotnet_ready = performance.now();
 await runMain();

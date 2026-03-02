@@ -1,3 +1,6 @@
+# Licensed to the .NET Foundation under one or more agreements.
+# The .NET Foundation licenses this file to you under the MIT license.
+
 FROM ubuntu:24.04
 
 # Avoid interactive prompts during package install
@@ -24,7 +27,7 @@ RUN npm install -g jsvu@3.0.3 \
     && ln -s /root/.jsvu/bin/v8 /usr/local/bin/d8
 
 # Playwright — pinned to match package.json (exact version controls browser builds)
-RUN npm install -g playwright@1.50.0 \
+RUN npm install -g playwright@1.58.2 \
     && npx playwright install --with-deps chromium firefox
 
 # Environment
