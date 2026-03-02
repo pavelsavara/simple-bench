@@ -1,0 +1,3436 @@
+{
+  "month": "2023-12",
+  "commits": [
+    {
+      "gitHash": "b69f79c2b6cd69a4979146774329260870b35dcb",
+      "date": "2023-12-04",
+      "time": "10-31-47-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-04/10-31-47-UTC_b69f79c_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-04/10-31-47-UTC_b69f79c_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-04/10-31-47-UTC_b69f79c_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-04/10-31-47-UTC_b69f79c_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-04/10-31-47-UTC_b69f79c_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-04/10-31-47-UTC_b69f79c_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-04/10-31-47-UTC_b69f79c_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-04/10-31-47-UTC_b69f79c_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "0c513d95c181159f3ea02531c7901ce15503f3ee",
+      "date": "2023-12-04",
+      "time": "22-25-23-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-04/22-25-23-UTC_0c513d9_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-04/22-25-23-UTC_0c513d9_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-04/22-25-23-UTC_0c513d9_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-04/22-25-23-UTC_0c513d9_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-04/22-25-23-UTC_0c513d9_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-04/22-25-23-UTC_0c513d9_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-04/22-25-23-UTC_0c513d9_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-04/22-25-23-UTC_0c513d9_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "6249fd2e59ed1308eb7cf976fb48c1ecab5eaa4e",
+      "date": "2023-12-05",
+      "time": "08-53-15-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-05/08-53-15-UTC_6249fd2_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-05/08-53-15-UTC_6249fd2_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-05/08-53-15-UTC_6249fd2_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-05/08-53-15-UTC_6249fd2_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-05/08-53-15-UTC_6249fd2_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-05/08-53-15-UTC_6249fd2_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-05/08-53-15-UTC_6249fd2_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-05/08-53-15-UTC_6249fd2_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "c08faf9216976a14f06a11373fbd3aec7671bf7a",
+      "date": "2023-12-05",
+      "time": "12-16-43-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-05/12-16-43-UTC_c08faf9_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-05/12-16-43-UTC_c08faf9_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-05/12-16-43-UTC_c08faf9_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-05/12-16-43-UTC_c08faf9_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-05/12-16-43-UTC_c08faf9_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-05/12-16-43-UTC_c08faf9_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-05/12-16-43-UTC_c08faf9_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-05/12-16-43-UTC_c08faf9_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "46fa28fd94d32e5152ee4c68830822c64594edb5",
+      "date": "2023-12-05",
+      "time": "23-01-36-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-05/23-01-36-UTC_46fa28f_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-05/23-01-36-UTC_46fa28f_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-05/23-01-36-UTC_46fa28f_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-05/23-01-36-UTC_46fa28f_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-05/23-01-36-UTC_46fa28f_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-05/23-01-36-UTC_46fa28f_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-05/23-01-36-UTC_46fa28f_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-05/23-01-36-UTC_46fa28f_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "71f3bf163b2ab8ea297350dfcc2362a27ec439ee",
+      "date": "2023-12-06",
+      "time": "02-59-22-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/02-59-22-UTC_71f3bf1_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/02-59-22-UTC_71f3bf1_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/02-59-22-UTC_71f3bf1_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/02-59-22-UTC_71f3bf1_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/02-59-22-UTC_71f3bf1_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/02-59-22-UTC_71f3bf1_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/02-59-22-UTC_71f3bf1_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/02-59-22-UTC_71f3bf1_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "a69586e1f101df42a3bcf52d6edddb38c4f2676f",
+      "date": "2023-12-06",
+      "time": "07-56-04-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/07-56-04-UTC_a69586e_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/07-56-04-UTC_a69586e_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/07-56-04-UTC_a69586e_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/07-56-04-UTC_a69586e_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/07-56-04-UTC_a69586e_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/07-56-04-UTC_a69586e_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/07-56-04-UTC_a69586e_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/07-56-04-UTC_a69586e_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "b345e2dbd6936eb281fadb7d70473358be578d24",
+      "date": "2023-12-06",
+      "time": "10-50-53-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/10-50-53-UTC_b345e2d_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/10-50-53-UTC_b345e2d_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/10-50-53-UTC_b345e2d_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/10-50-53-UTC_b345e2d_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/10-50-53-UTC_b345e2d_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/10-50-53-UTC_b345e2d_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/10-50-53-UTC_b345e2d_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/10-50-53-UTC_b345e2d_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "2bfa26cebc917d05a3363078fa277ab5fee2651b",
+      "date": "2023-12-06",
+      "time": "14-59-50-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/14-59-50-UTC_2bfa26c_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/14-59-50-UTC_2bfa26c_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/14-59-50-UTC_2bfa26c_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/14-59-50-UTC_2bfa26c_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/14-59-50-UTC_2bfa26c_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/14-59-50-UTC_2bfa26c_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/14-59-50-UTC_2bfa26c_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/14-59-50-UTC_2bfa26c_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "1aae18a21ebb5f08a2a734cfe31ba4bd00b2ad7b",
+      "date": "2023-12-06",
+      "time": "21-43-24-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/21-43-24-UTC_1aae18a_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/21-43-24-UTC_1aae18a_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/21-43-24-UTC_1aae18a_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/21-43-24-UTC_1aae18a_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/21-43-24-UTC_1aae18a_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/21-43-24-UTC_1aae18a_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-06/21-43-24-UTC_1aae18a_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-06/21-43-24-UTC_1aae18a_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "eafe8187aaef010016a6b76fccc0b2db4f678e2f",
+      "date": "2023-12-07",
+      "time": "01-43-07-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-07/01-43-07-UTC_eafe818_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-07/01-43-07-UTC_eafe818_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-07/01-43-07-UTC_eafe818_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-07/01-43-07-UTC_eafe818_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-07/01-43-07-UTC_eafe818_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-07/01-43-07-UTC_eafe818_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-07/01-43-07-UTC_eafe818_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-07/01-43-07-UTC_eafe818_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "5b0f743ab425a08bf6e5d61f421e96abc73ac735",
+      "date": "2023-12-07",
+      "time": "07-03-41-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-07/07-03-41-UTC_5b0f743_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-07/07-03-41-UTC_5b0f743_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-07/07-03-41-UTC_5b0f743_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-07/07-03-41-UTC_5b0f743_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-07/07-03-41-UTC_5b0f743_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-07/07-03-41-UTC_5b0f743_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-07/07-03-41-UTC_5b0f743_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-07/07-03-41-UTC_5b0f743_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "90dc96ed98fd18092fdbf899f91f0abd514d7b80",
+      "date": "2023-12-07",
+      "time": "11-15-59-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-07/11-15-59-UTC_90dc96e_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-07/11-15-59-UTC_90dc96e_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-07/11-15-59-UTC_90dc96e_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-07/11-15-59-UTC_90dc96e_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-07/11-15-59-UTC_90dc96e_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-07/11-15-59-UTC_90dc96e_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-07/11-15-59-UTC_90dc96e_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-07/11-15-59-UTC_90dc96e_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "7bbfcc40061d4a542db168395ca3f6e2687cc09a",
+      "date": "2023-12-07",
+      "time": "23-39-33-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-07/23-39-33-UTC_7bbfcc4_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-07/23-39-33-UTC_7bbfcc4_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-07/23-39-33-UTC_7bbfcc4_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-07/23-39-33-UTC_7bbfcc4_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-07/23-39-33-UTC_7bbfcc4_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-07/23-39-33-UTC_7bbfcc4_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-07/23-39-33-UTC_7bbfcc4_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-07/23-39-33-UTC_7bbfcc4_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "292d035ed27649fb0dee7f61c04b1b99287f91b2",
+      "date": "2023-12-08",
+      "time": "04-59-49-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-08/04-59-49-UTC_292d035_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-08/04-59-49-UTC_292d035_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-08/04-59-49-UTC_292d035_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-08/04-59-49-UTC_292d035_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-08/04-59-49-UTC_292d035_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-08/04-59-49-UTC_292d035_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-08/04-59-49-UTC_292d035_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-08/04-59-49-UTC_292d035_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "6253efeab73fd39ba76e4a7ccaaa480bc52842e0",
+      "date": "2023-12-08",
+      "time": "09-19-55-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-08/09-19-55-UTC_6253efe_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-08/09-19-55-UTC_6253efe_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-08/09-19-55-UTC_6253efe_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-08/09-19-55-UTC_6253efe_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "701428f04d14b9e02331a6ef7faecc32bd81f9ea",
+      "date": "2023-12-09",
+      "time": "12-28-05-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-09/12-28-05-UTC_701428f_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-09/12-28-05-UTC_701428f_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-09/12-28-05-UTC_701428f_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-09/12-28-05-UTC_701428f_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-09/12-28-05-UTC_701428f_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-09/12-28-05-UTC_701428f_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-09/12-28-05-UTC_701428f_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-09/12-28-05-UTC_701428f_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "1473deaa50785b956edd7d078e68c0581c1b4d95",
+      "date": "2023-12-09",
+      "time": "20-03-19-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-09/20-03-19-UTC_1473dea_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-09/20-03-19-UTC_1473dea_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-09/20-03-19-UTC_1473dea_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-09/20-03-19-UTC_1473dea_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-09/20-03-19-UTC_1473dea_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-09/20-03-19-UTC_1473dea_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-09/20-03-19-UTC_1473dea_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-09/20-03-19-UTC_1473dea_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "6de7549ae1872009baade9091be76071f955c47d",
+      "date": "2023-12-10",
+      "time": "15-04-51-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-10/15-04-51-UTC_6de7549_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-10/15-04-51-UTC_6de7549_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-10/15-04-51-UTC_6de7549_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-10/15-04-51-UTC_6de7549_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-10/15-04-51-UTC_6de7549_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-10/15-04-51-UTC_6de7549_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-10/15-04-51-UTC_6de7549_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-10/15-04-51-UTC_6de7549_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "486142a4b87ed6e3134bd1a8726156fb3f55157a",
+      "date": "2023-12-13",
+      "time": "15-23-58-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-13/15-23-58-UTC_486142a_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-13/15-23-58-UTC_486142a_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-13/15-23-58-UTC_486142a_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-13/15-23-58-UTC_486142a_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-13/15-23-58-UTC_486142a_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-13/15-23-58-UTC_486142a_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-13/15-23-58-UTC_486142a_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-13/15-23-58-UTC_486142a_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "fbf109b6b7f749e899b8859d0eea5ba75b9136ef",
+      "date": "2023-12-14",
+      "time": "01-47-56-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-14/01-47-56-UTC_fbf109b_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-14/01-47-56-UTC_fbf109b_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-14/01-47-56-UTC_fbf109b_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-14/01-47-56-UTC_fbf109b_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-14/01-47-56-UTC_fbf109b_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-14/01-47-56-UTC_fbf109b_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-14/01-47-56-UTC_fbf109b_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-14/01-47-56-UTC_fbf109b_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "9aa3fdc69c8ebfa0bea2021aa2883abeceb904ac",
+      "date": "2023-12-14",
+      "time": "23-40-39-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-14/23-40-39-UTC_9aa3fdc_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-14/23-40-39-UTC_9aa3fdc_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-14/23-40-39-UTC_9aa3fdc_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-14/23-40-39-UTC_9aa3fdc_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-14/23-40-39-UTC_9aa3fdc_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-14/23-40-39-UTC_9aa3fdc_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-14/23-40-39-UTC_9aa3fdc_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-14/23-40-39-UTC_9aa3fdc_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "99cfd79e7c8e8d42bc2c55f6662d64c74cbe8428",
+      "date": "2023-12-15",
+      "time": "02-13-23-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-15/02-13-23-UTC_99cfd79_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-15/02-13-23-UTC_99cfd79_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-15/02-13-23-UTC_99cfd79_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-15/02-13-23-UTC_99cfd79_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-15/02-13-23-UTC_99cfd79_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-15/02-13-23-UTC_99cfd79_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-15/02-13-23-UTC_99cfd79_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-15/02-13-23-UTC_99cfd79_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "41b32f83c3957733315173228e843aac665d5b5d",
+      "date": "2023-12-16",
+      "time": "06-25-08-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-16/06-25-08-UTC_41b32f8_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-16/06-25-08-UTC_41b32f8_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-16/06-25-08-UTC_41b32f8_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-16/06-25-08-UTC_41b32f8_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-16/06-25-08-UTC_41b32f8_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-16/06-25-08-UTC_41b32f8_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-16/06-25-08-UTC_41b32f8_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-16/06-25-08-UTC_41b32f8_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "46506bf2073b92f5ec3b33ebf994c888e6009c66",
+      "date": "2023-12-18",
+      "time": "12-05-08-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-18/12-05-08-UTC_46506bf_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-18/12-05-08-UTC_46506bf_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-18/12-05-08-UTC_46506bf_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-18/12-05-08-UTC_46506bf_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-18/12-05-08-UTC_46506bf_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-18/12-05-08-UTC_46506bf_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-18/12-05-08-UTC_46506bf_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-18/12-05-08-UTC_46506bf_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "a4659e5bfe9682d600881f753954e1e5660ea41a",
+      "date": "2023-12-18",
+      "time": "23-18-28-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-18/23-18-28-UTC_a4659e5_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-18/23-18-28-UTC_a4659e5_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-18/23-18-28-UTC_a4659e5_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-18/23-18-28-UTC_a4659e5_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-18/23-18-28-UTC_a4659e5_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-18/23-18-28-UTC_a4659e5_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-18/23-18-28-UTC_a4659e5_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-18/23-18-28-UTC_a4659e5_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "c282395b63c1757d4f4c1dc2e236680cfe2e7f96",
+      "date": "2023-12-19",
+      "time": "03-32-11-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-19/03-32-11-UTC_c282395_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-19/03-32-11-UTC_c282395_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-19/03-32-11-UTC_c282395_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-19/03-32-11-UTC_c282395_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-19/03-32-11-UTC_c282395_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-19/03-32-11-UTC_c282395_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-19/03-32-11-UTC_c282395_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-19/03-32-11-UTC_c282395_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "0cf461b302f58c7add3f6dc405873fb2212b513f",
+      "date": "2023-12-21",
+      "time": "23-23-33-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-21/23-23-33-UTC_0cf461b_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-21/23-23-33-UTC_0cf461b_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-21/23-23-33-UTC_0cf461b_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-21/23-23-33-UTC_0cf461b_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-21/23-23-33-UTC_0cf461b_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-21/23-23-33-UTC_0cf461b_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-21/23-23-33-UTC_0cf461b_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-21/23-23-33-UTC_0cf461b_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "8121f82d7d46118eef03a99eecbde64d8021cec7",
+      "date": "2023-12-27",
+      "time": "22-02-36-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-27/22-02-36-UTC_8121f82_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-27/22-02-36-UTC_8121f82_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-27/22-02-36-UTC_8121f82_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-27/22-02-36-UTC_8121f82_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-27/22-02-36-UTC_8121f82_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-27/22-02-36-UTC_8121f82_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "b4ba5da5a0b8e0c7e3027a695f2acb2d9d19137b",
+      "date": "2023-12-28",
+      "time": "21-44-49-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-28/21-44-49-UTC_b4ba5da_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-28/21-44-49-UTC_b4ba5da_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-28/21-44-49-UTC_b4ba5da_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-28/21-44-49-UTC_b4ba5da_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-28/21-44-49-UTC_b4ba5da_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-28/21-44-49-UTC_b4ba5da_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-28/21-44-49-UTC_b4ba5da_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-28/21-44-49-UTC_b4ba5da_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "e6a15a0fbf0b1f293ea73bc863eba72405e88c5f",
+      "date": "2023-12-29",
+      "time": "18-38-08-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-29/18-38-08-UTC_e6a15a0_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-29/18-38-08-UTC_e6a15a0_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-29/18-38-08-UTC_e6a15a0_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-29/18-38-08-UTC_e6a15a0_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-29/18-38-08-UTC_e6a15a0_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-29/18-38-08-UTC_e6a15a0_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-29/18-38-08-UTC_e6a15a0_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-29/18-38-08-UTC_e6a15a0_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "2de9facc8668bac0d8b9d53f9e2bd654a1f49e9b",
+      "date": "2023-12-30",
+      "time": "02-37-53-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-30/02-37-53-UTC_2de9fac_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-30/02-37-53-UTC_2de9fac_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-30/02-37-53-UTC_2de9fac_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-30/02-37-53-UTC_2de9fac_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-30/02-37-53-UTC_2de9fac_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-30/02-37-53-UTC_2de9fac_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-30/02-37-53-UTC_2de9fac_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-30/02-37-53-UTC_2de9fac_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "462e71b36627c0ca11b530264b59221f194221b9",
+      "date": "2023-12-30",
+      "time": "18-05-12-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-30/18-05-12-UTC_462e71b_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-30/18-05-12-UTC_462e71b_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-30/18-05-12-UTC_462e71b_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-30/18-05-12-UTC_462e71b_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-30/18-05-12-UTC_462e71b_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-30/18-05-12-UTC_462e71b_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-30/18-05-12-UTC_462e71b_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-30/18-05-12-UTC_462e71b_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "36999021ccc20a6220aa88e0ff0d1a3dc6277d7d",
+      "date": "2023-12-30",
+      "time": "23-05-44-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-30/23-05-44-UTC_3699902_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-30/23-05-44-UTC_3699902_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-30/23-05-44-UTC_3699902_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-30/23-05-44-UTC_3699902_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-30/23-05-44-UTC_3699902_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-30/23-05-44-UTC_3699902_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-30/23-05-44-UTC_3699902_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-30/23-05-44-UTC_3699902_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "9057843a2e09797adc3ac1d6f149e79a9252cda6",
+      "date": "2023-12-31",
+      "time": "08-06-54-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-31/08-06-54-UTC_9057843_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-31/08-06-54-UTC_9057843_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-31/08-06-54-UTC_9057843_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-31/08-06-54-UTC_9057843_mono_no-workload_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-12-31/08-06-54-UTC_9057843_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-31/08-06-54-UTC_9057843_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-12-31/08-06-54-UTC_9057843_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2023/2023-12-31/08-06-54-UTC_9057843_mono_no-workload_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    }
+  ]
+}

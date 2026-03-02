@@ -1,0 +1,3404 @@
+{
+  "month": "2024-12",
+  "commits": [
+    {
+      "gitHash": "7ccf49137b4ffdc15ce67a4267ffd5ba66fa7ea8",
+      "date": "2024-12-02",
+      "time": "15-41-04-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-02/15-41-04-UTC_7ccf491_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "8106febcc640083f43b22b1a831f98a0ab86175e",
+      "date": "2024-12-02",
+      "time": "22-21-38-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-02/22-21-38-UTC_8106feb_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "12afdedd8050847aa90473e254fa782f54360990",
+      "date": "2024-12-03",
+      "time": "08-00-36-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-03/08-00-36-UTC_12afded_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-03/08-00-36-UTC_12afded_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "c5213dec4dc9668a9ca12340e00f538f6730ae60",
+      "date": "2024-12-03",
+      "time": "12-38-19-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-03/12-38-19-UTC_c5213de_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "2b679cf0507574da8331b0667d7ea4c39c9054be",
+      "date": "2024-12-03",
+      "time": "18-20-36-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-03/18-20-36-UTC_2b679cf_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-03/18-20-36-UTC_2b679cf_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "6d12a304b3068f8a9308a1aec4f3b95dd636a693",
+      "date": "2024-12-03",
+      "time": "21-25-35-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-03/21-25-35-UTC_6d12a30_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "60a29248bbb501dd037d2984daea3635cf20b412",
+      "date": "2024-12-03",
+      "time": "22-12-58-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-03/22-12-58-UTC_60a2924_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-03/22-12-58-UTC_60a2924_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "9084fe5c2238142213377209344d88e99ff3e02a",
+      "date": "2024-12-04",
+      "time": "04-15-04-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-04/04-15-04-UTC_9084fe5_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "949c3ec60bc6914aa2763c24deb7adad9d90841c",
+      "date": "2024-12-04",
+      "time": "10-17-08-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-04/10-17-08-UTC_949c3ec_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-04/10-17-08-UTC_949c3ec_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "e165eb495bbf851f9a69af774f0c6f48c4638d2b",
+      "date": "2024-12-04",
+      "time": "15-04-48-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-04/15-04-48-UTC_e165eb4_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-04/15-04-48-UTC_e165eb4_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "f7974ea6fa005dc2e9c19e7e04cb22f50656347e",
+      "date": "2024-12-04",
+      "time": "17-06-35-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-04/17-06-35-UTC_f7974ea_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-04/17-06-35-UTC_f7974ea_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "73877b4c28134aaa70e8cd8c7f54fac53bb1eeaf",
+      "date": "2024-12-04",
+      "time": "17-32-55-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-04/17-32-55-UTC_73877b4_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-04/17-32-55-UTC_73877b4_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "11031c4171b5a46eedcae777fe805e7d29a94411",
+      "date": "2024-12-04",
+      "time": "19-03-05-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-04/19-03-05-UTC_11031c4_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-04/19-03-05-UTC_11031c4_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "e81c18601a3924c59fad3c887429ceba4e9b066a",
+      "date": "2024-12-04",
+      "time": "21-56-43-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-04/21-56-43-UTC_e81c186_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "b7713a4718241a7a78c0967d697e5722adaf4321",
+      "date": "2024-12-04",
+      "time": "22-05-45-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-04/22-05-45-UTC_b7713a4_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-04/22-05-45-UTC_b7713a4_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "14078925eccb57738df37c6bc09ae494ee22af14",
+      "date": "2024-12-04",
+      "time": "23-05-41-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-04/23-05-41-UTC_1407892_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-04/23-05-41-UTC_1407892_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "9cdd6532042339a40e5f8f63314e0df6595b54c4",
+      "date": "2024-12-05",
+      "time": "01-53-59-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-05/01-53-59-UTC_9cdd653_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-05/01-53-59-UTC_9cdd653_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "06a8404a3bed1da495860c64bf13bea23d991128",
+      "date": "2024-12-05",
+      "time": "04-55-41-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-05/04-55-41-UTC_06a8404_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-05/04-55-41-UTC_06a8404_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "e99557baffbe864d624cc1c95c9cbf2eefae684f",
+      "date": "2024-12-05",
+      "time": "09-55-33-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-05/09-55-33-UTC_e99557b_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-05/09-55-33-UTC_e99557b_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "223dea5d66a1fd0257b6f4c65ba0fc3caffd4f0e",
+      "date": "2024-12-05",
+      "time": "17-16-19-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-05/17-16-19-UTC_223dea5_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-05/17-16-19-UTC_223dea5_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "052ad42c4e651f203da34f59eeca6432599aa8e9",
+      "date": "2024-12-05",
+      "time": "17-19-26-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-05/17-19-26-UTC_052ad42_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-05/17-19-26-UTC_052ad42_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "49ba409d0be30850c8f75f9869b4eb24fc8e3283",
+      "date": "2024-12-05",
+      "time": "18-19-41-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-05/18-19-41-UTC_49ba409_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-05/18-19-41-UTC_49ba409_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "5a5ea3ea91138f6d36691f1a0f6064481823583f",
+      "date": "2024-12-05",
+      "time": "20-44-31-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-05/20-44-31-UTC_5a5ea3e_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "2300123cdf9038f24b80b63272f9dafaa39ed5aa",
+      "date": "2024-12-05",
+      "time": "22-00-01-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-05/22-00-01-UTC_2300123_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-05/22-00-01-UTC_2300123_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "2c9aaafe07d273a565f577e443fdb0e02543d7d5",
+      "date": "2024-12-05",
+      "time": "23-21-02-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-05/23-21-02-UTC_2c9aaaf_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "bf44aaab18b8f8281264b0ccdd47f8a621514aa2",
+      "date": "2024-12-06",
+      "time": "00-52-57-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-06/00-52-57-UTC_bf44aaa_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-06/00-52-57-UTC_bf44aaa_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "8fca0a156dcbb1eba5c79e387a6d8f924bfdd3a6",
+      "date": "2024-12-06",
+      "time": "05-44-30-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-06/05-44-30-UTC_8fca0a1_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-06/05-44-30-UTC_8fca0a1_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "e2e4642f95b3fbbc81d0593030aae4859d844e94",
+      "date": "2024-12-06",
+      "time": "16-55-04-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-06/16-55-04-UTC_e2e4642_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-06/16-55-04-UTC_e2e4642_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "fa451cf3e460baa1440f70b641853cc0d97bdd06",
+      "date": "2024-12-06",
+      "time": "19-26-40-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-06/19-26-40-UTC_fa451cf_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "2d81cbb28a8feb1af5b790664b511b264d032877",
+      "date": "2024-12-06",
+      "time": "23-37-36-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-06/23-37-36-UTC_2d81cbb_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-06/23-37-36-UTC_2d81cbb_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "5ae9467d6ab7b31bf1cda35ca15ca5a2d21d3046",
+      "date": "2024-12-07",
+      "time": "16-44-27-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-07/16-44-27-UTC_5ae9467_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-07/16-44-27-UTC_5ae9467_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "f8f713e3c6f10570cd8911f10bfb4e43bba4b072",
+      "date": "2024-12-09",
+      "time": "01-52-36-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-09/01-52-36-UTC_f8f713e_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-09/01-52-36-UTC_f8f713e_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "28cf901ccec85466635407edbe93d45b0ad2452d",
+      "date": "2024-12-09",
+      "time": "11-47-06-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-09/11-47-06-UTC_28cf901_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-09/11-47-06-UTC_28cf901_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "09eea2a3889189c3242e8135193ff9a095272743",
+      "date": "2024-12-09",
+      "time": "14-48-56-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-09/14-48-56-UTC_09eea2a_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "016d356e43659b7789d23defe570628c8864ee73",
+      "date": "2024-12-09",
+      "time": "18-56-41-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-09/18-56-41-UTC_016d356_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "537d4f29145ebd7a42e5f42a021bf18f7cebf249",
+      "date": "2024-12-10",
+      "time": "01-58-05-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-10/01-58-05-UTC_537d4f2_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-10/01-58-05-UTC_537d4f2_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "c9148c8783ee953da8da033ae3222b9f24963e0c",
+      "date": "2024-12-10",
+      "time": "06-04-17-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-10/06-04-17-UTC_c9148c8_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-10/06-04-17-UTC_c9148c8_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "920a17ac91440abb5b34109104e72da77ec58b59",
+      "date": "2024-12-10",
+      "time": "09-51-35-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-10/09-51-35-UTC_920a17a_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "ad304792cfd5af4155120f054b48850bf91acf62",
+      "date": "2024-12-10",
+      "time": "12-04-42-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-10/12-04-42-UTC_ad30479_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-10/12-04-42-UTC_ad30479_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "cc66c7769902766ccdf26af708f4484d04e3e604",
+      "date": "2024-12-10",
+      "time": "18-26-48-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-10/18-26-48-UTC_cc66c77_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-10/18-26-48-UTC_cc66c77_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "eab352d9b4339a912456f3577b7dd6f21c0c3ef6",
+      "date": "2024-12-11",
+      "time": "01-48-52-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-11/01-48-52-UTC_eab352d_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "6362f242fc6e3065948b3bf922406509cb721a73",
+      "date": "2024-12-11",
+      "time": "06-14-01-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-11/06-14-01-UTC_6362f24_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "da51e029d112c1855d060eafa3c49f8e8d1b163b",
+      "date": "2024-12-11",
+      "time": "17-05-01-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-11/17-05-01-UTC_da51e02_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-11/17-05-01-UTC_da51e02_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "a39002402edbc1610c5961a4bc7e79a1e3532eda",
+      "date": "2024-12-11",
+      "time": "21-35-42-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-11/21-35-42-UTC_a390024_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-11/21-35-42-UTC_a390024_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "f30cfc0616bd9a50bdeb96049afff04cd5e2a8d9",
+      "date": "2024-12-12",
+      "time": "10-41-06-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-12/10-41-06-UTC_f30cfc0_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-12/10-41-06-UTC_f30cfc0_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "dfb2b8a861fc97ce90c8f31c886d4d27c5b36f46",
+      "date": "2024-12-12",
+      "time": "11-25-30-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-12/11-25-30-UTC_dfb2b8a_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-12/11-25-30-UTC_dfb2b8a_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "bf40019418629c210212e053d2380206e02fcf4d",
+      "date": "2024-12-12",
+      "time": "13-14-47-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-12/13-14-47-UTC_bf40019_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "36b2bddf53cfe3581f16cc7735f3d779f8781847",
+      "date": "2024-12-12",
+      "time": "15-56-39-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-12/15-56-39-UTC_36b2bdd_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "4951e38fc5882ddf7df68c956acb6f5586ef47dd",
+      "date": "2024-12-12",
+      "time": "19-22-36-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-12/19-22-36-UTC_4951e38_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-12/19-22-36-UTC_4951e38_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "43b89b4a40f7642891e48801d56bd706ab717d6b",
+      "date": "2024-12-12",
+      "time": "23-23-12-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-12/23-23-12-UTC_43b89b4_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-12/23-23-12-UTC_43b89b4_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "8fa662c3ba88c301ddb8aecf9ec1061ddef629c4",
+      "date": "2024-12-13",
+      "time": "10-00-24-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-13/10-00-24-UTC_8fa662c_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-13/10-00-24-UTC_8fa662c_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "c95667cf760334a68e117e0ba45b60417aa1ebd4",
+      "date": "2024-12-13",
+      "time": "11-31-34-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-13/11-31-34-UTC_c95667c_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-13/11-31-34-UTC_c95667c_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "5a9362f509629304c91ae07662f649282f956552",
+      "date": "2024-12-13",
+      "time": "13-28-01-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-13/13-28-01-UTC_5a9362f_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-13/13-28-01-UTC_5a9362f_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "90dfc04d8f863e053e42edf0992c1b63398b12fb",
+      "date": "2024-12-13",
+      "time": "20-26-16-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-13/20-26-16-UTC_90dfc04_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-13/20-26-16-UTC_90dfc04_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "87f0e70e40ad6f6e88e4de4ae9f18353182be401",
+      "date": "2024-12-13",
+      "time": "23-28-10-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-13/23-28-10-UTC_87f0e70_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-13/23-28-10-UTC_87f0e70_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "ed46aa21a6cab467339ce42d31a6f03a74f4de97",
+      "date": "2024-12-14",
+      "time": "01-00-51-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-14/01-00-51-UTC_ed46aa2_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "3aa1ec5bb1f50f0a1bed9cfcac8734f742bcf24b",
+      "date": "2024-12-14",
+      "time": "02-49-19-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-14/02-49-19-UTC_3aa1ec5_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "20dc14622a3985fb4eac2b31194bf1c2a8c64680",
+      "date": "2024-12-16",
+      "time": "08-37-08-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-16/08-37-08-UTC_20dc146_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-16/08-37-08-UTC_20dc146_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "db9a4c6ecf40c49ebfa253cef92fdca683982fbf",
+      "date": "2024-12-16",
+      "time": "15-22-49-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-16/15-22-49-UTC_db9a4c6_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "b33f75519ea498df81b38fab75c4813b03c9a3e3",
+      "date": "2024-12-16",
+      "time": "17-30-22-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-16/17-30-22-UTC_b33f755_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-16/17-30-22-UTC_b33f755_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "e34ec6cf555b46998a500764d0aef9eed37cf0ef",
+      "date": "2024-12-16",
+      "time": "19-46-34-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-16/19-46-34-UTC_e34ec6c_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-16/19-46-34-UTC_e34ec6c_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "d108be1917222891d3a41ac798441a248a046989",
+      "date": "2024-12-16",
+      "time": "22-32-22-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-16/22-32-22-UTC_d108be1_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "144dcae3497f73366ec7d076e6e7ea4ff856ce7d",
+      "date": "2024-12-17",
+      "time": "00-31-58-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-17/00-31-58-UTC_144dcae_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "e78ee77456c94b83c83e485bb1a16a1d3d3a2573",
+      "date": "2024-12-17",
+      "time": "03-09-35-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-17/03-09-35-UTC_e78ee77_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "6e894a87a7cc69ac90817860534c7fe223eae4cb",
+      "date": "2024-12-17",
+      "time": "11-58-24-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-17/11-58-24-UTC_6e894a8_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "6d6f2bd36c7d5e134177383958b02522b770bd04",
+      "date": "2024-12-17",
+      "time": "14-34-09-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-17/14-34-09-UTC_6d6f2bd_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-17/14-34-09-UTC_6d6f2bd_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "78ede327fe8c4322cf14e75e30c2f06b2ccca32b",
+      "date": "2024-12-17",
+      "time": "18-31-57-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-17/18-31-57-UTC_78ede32_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-17/18-31-57-UTC_78ede32_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "8edcc3123615dfe02fbd830505b2acdd5f428bfa",
+      "date": "2024-12-18",
+      "time": "04-42-31-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-18/04-42-31-UTC_8edcc31_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-18/04-42-31-UTC_8edcc31_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-18/04-42-31-UTC_8edcc31_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-18/04-42-31-UTC_8edcc31_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "237c7594967573e809db40b09dded0d4a6d98cec",
+      "date": "2024-12-18",
+      "time": "14-09-12-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-18/14-09-12-UTC_237c759_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-18/14-09-12-UTC_237c759_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-18/14-09-12-UTC_237c759_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-18/14-09-12-UTC_237c759_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "d7e85d93c12aaa43937f8ef5f920c36b5afc756d",
+      "date": "2024-12-18",
+      "time": "15-21-59-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-18/15-21-59-UTC_d7e85d9_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-18/15-21-59-UTC_d7e85d9_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-18/15-21-59-UTC_d7e85d9_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-18/15-21-59-UTC_d7e85d9_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "7508993a32255ad2a589d8eb837f3192199d872d",
+      "date": "2024-12-18",
+      "time": "18-04-50-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-18/18-04-50-UTC_7508993_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-18/18-04-50-UTC_7508993_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-18/18-04-50-UTC_7508993_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-18/18-04-50-UTC_7508993_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "4822cc017a578c7b1d08ce6cb11d3c91690215b5",
+      "date": "2024-12-18",
+      "time": "21-01-26-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-18/21-01-26-UTC_4822cc0_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-18/21-01-26-UTC_4822cc0_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-18/21-01-26-UTC_4822cc0_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-18/21-01-26-UTC_4822cc0_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "ddc786706341544a2e0fb209862b31b4d1d34b6f",
+      "date": "2024-12-19",
+      "time": "06-37-04-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-19/06-37-04-UTC_ddc7867_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-19/06-37-04-UTC_ddc7867_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-19/06-37-04-UTC_ddc7867_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-19/06-37-04-UTC_ddc7867_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "4695f3f0e2fcfdd94602a21d6ef0670fc85f6d2a",
+      "date": "2024-12-19",
+      "time": "06-45-48-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-19/06-45-48-UTC_4695f3f_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-19/06-45-48-UTC_4695f3f_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-19/06-45-48-UTC_4695f3f_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-19/06-45-48-UTC_4695f3f_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "2d1175bb24a234c48d0a52e608ac8142ca102da6",
+      "date": "2024-12-19",
+      "time": "11-49-51-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-19/11-49-51-UTC_2d1175b_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-19/11-49-51-UTC_2d1175b_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-19/11-49-51-UTC_2d1175b_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-19/11-49-51-UTC_2d1175b_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "1019d315632c78b6bfc870e5893fa7ceb90b0e3c",
+      "date": "2024-12-19",
+      "time": "17-05-30-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-19/17-05-30-UTC_1019d31_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-19/17-05-30-UTC_1019d31_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "208b974f93c0ee35a171eba374ca36aa9a78e930",
+      "date": "2024-12-19",
+      "time": "21-15-10-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-19/21-15-10-UTC_208b974_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-19/21-15-10-UTC_208b974_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-19/21-15-10-UTC_208b974_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-19/21-15-10-UTC_208b974_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "cf4d2b0594a7af4a5ff39ffd4fe5cfb0c5577a3d",
+      "date": "2024-12-20",
+      "time": "04-45-08-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-20/04-45-08-UTC_cf4d2b0_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-20/04-45-08-UTC_cf4d2b0_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-20/04-45-08-UTC_cf4d2b0_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-20/04-45-08-UTC_cf4d2b0_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "ec1e5618301432756374f9f38e2d2cf50bc30f1b",
+      "date": "2024-12-20",
+      "time": "10-49-39-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-20/10-49-39-UTC_ec1e561_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-20/10-49-39-UTC_ec1e561_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "5e38bb11cc8b039de8b704cc97217eb4cc76fa5c",
+      "date": "2024-12-20",
+      "time": "13-48-32-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-20/13-48-32-UTC_5e38bb1_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-20/13-48-32-UTC_5e38bb1_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-20/13-48-32-UTC_5e38bb1_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-20/13-48-32-UTC_5e38bb1_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "b6038a4d837523cdab681f29e963ed249332a41c",
+      "date": "2024-12-20",
+      "time": "15-48-42-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-20/15-48-42-UTC_b6038a4_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-20/15-48-42-UTC_b6038a4_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "9e7d746638dd5facb456d50427e293f25c79a12d",
+      "date": "2024-12-20",
+      "time": "17-08-21-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-20/17-08-21-UTC_9e7d746_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-20/17-08-21-UTC_9e7d746_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-20/17-08-21-UTC_9e7d746_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-20/17-08-21-UTC_9e7d746_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "d08dff5b310c6d643a896704f99d99127779a206",
+      "date": "2024-12-20",
+      "time": "18-29-14-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-20/18-29-14-UTC_d08dff5_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-20/18-29-14-UTC_d08dff5_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-20/18-29-14-UTC_d08dff5_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-20/18-29-14-UTC_d08dff5_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "57ab984bd0dbbacd02315d41e09144d2823e9475",
+      "date": "2024-12-20",
+      "time": "20-28-53-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-20/20-28-53-UTC_57ab984_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-20/20-28-53-UTC_57ab984_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-20/20-28-53-UTC_57ab984_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-20/20-28-53-UTC_57ab984_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "0cba4a126edefdc0584e21fb7e180e44aa2e7b88",
+      "date": "2024-12-22",
+      "time": "16-34-33-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-22/16-34-33-UTC_0cba4a1_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-22/16-34-33-UTC_0cba4a1_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-22/16-34-33-UTC_0cba4a1_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-22/16-34-33-UTC_0cba4a1_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "31af68bcfe08911c4bff57b24dc12774d19c2dc9",
+      "date": "2024-12-23",
+      "time": "07-48-07-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-23/07-48-07-UTC_31af68b_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-23/07-48-07-UTC_31af68b_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-23/07-48-07-UTC_31af68b_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-23/07-48-07-UTC_31af68b_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "9c1bae39b9da5281ae19f87e2f03d9d3503a5b78",
+      "date": "2024-12-23",
+      "time": "08-51-59-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-23/08-51-59-UTC_9c1bae3_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-23/08-51-59-UTC_9c1bae3_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-23/08-51-59-UTC_9c1bae3_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-23/08-51-59-UTC_9c1bae3_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "f3d43efa514a87f04aa994749409297e8f3e94e2",
+      "date": "2024-12-24",
+      "time": "03-05-35-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-24/03-05-35-UTC_f3d43ef_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-24/03-05-35-UTC_f3d43ef_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-24/03-05-35-UTC_f3d43ef_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-24/03-05-35-UTC_f3d43ef_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "e5878e95931f2207472afb423c1236dae0aece07",
+      "date": "2024-12-26",
+      "time": "14-20-12-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-26/14-20-12-UTC_e5878e9_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-26/14-20-12-UTC_e5878e9_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-26/14-20-12-UTC_e5878e9_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-26/14-20-12-UTC_e5878e9_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "194ad1667552ed2538bbbb83e336979b02ae6482",
+      "date": "2024-12-26",
+      "time": "21-47-52-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-26/21-47-52-UTC_194ad16_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-26/21-47-52-UTC_194ad16_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "9f03591f354445893a191f5331d4af85b8737b91",
+      "date": "2024-12-27",
+      "time": "16-33-51-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-27/16-33-51-UTC_9f03591_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-27/16-33-51-UTC_9f03591_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "d3943fd3ca8ca7ff0185ba122e1977108abfb411",
+      "date": "2024-12-27",
+      "time": "19-04-45-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-27/19-04-45-UTC_d3943fd_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-27/19-04-45-UTC_d3943fd_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-27/19-04-45-UTC_d3943fd_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-27/19-04-45-UTC_d3943fd_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "670db5c71851946b9ec3f669f4a67d4339836a0e",
+      "date": "2024-12-28",
+      "time": "20-33-19-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-28/20-33-19-UTC_670db5c_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-28/20-33-19-UTC_670db5c_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-28/20-33-19-UTC_670db5c_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-28/20-33-19-UTC_670db5c_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "3f918c377110a8b50aa97aa5b7594922d77b3e50",
+      "date": "2024-12-30",
+      "time": "08-27-41-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-30/08-27-41-UTC_3f918c3_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-30/08-27-41-UTC_3f918c3_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-30/08-27-41-UTC_3f918c3_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-30/08-27-41-UTC_3f918c3_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "5cc07a1251926d8c1dfba0d58faabab11e049587",
+      "date": "2024-12-30",
+      "time": "12-32-21-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-30/12-32-21-UTC_5cc07a1_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-30/12-32-21-UTC_5cc07a1_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-30/12-32-21-UTC_5cc07a1_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-30/12-32-21-UTC_5cc07a1_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "4a9d4bfa37229c3180e28640f142b99d70bcc294",
+      "date": "2024-12-30",
+      "time": "12-34-44-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-30/12-34-44-UTC_4a9d4bf_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-30/12-34-44-UTC_4a9d4bf_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-30/12-34-44-UTC_4a9d4bf_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-30/12-34-44-UTC_4a9d4bf_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "1613dd360914841b0dc1976a8499fce54a47f6a6",
+      "date": "2024-12-30",
+      "time": "17-09-39-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-30/17-09-39-UTC_1613dd3_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-30/17-09-39-UTC_1613dd3_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-30/17-09-39-UTC_1613dd3_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-30/17-09-39-UTC_1613dd3_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "511d26611c051c56e546404ea616c220cc78817c",
+      "date": "2024-12-31",
+      "time": "22-05-37-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2024/2024-12-31/22-05-37-UTC_511d266_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-31/22-05-37-UTC_511d266_mono_aot_chrome_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2024/2024-12-31/22-05-37-UTC_511d266_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2024/2024-12-31/22-05-37-UTC_511d266_mono_aot_firefox_empty-blazor.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold"
+          ]
+        }
+      ]
+    }
+  ]
+}

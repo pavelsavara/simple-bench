@@ -1,0 +1,5405 @@
+{
+  "month": "2023-06",
+  "commits": [
+    {
+      "gitHash": "1575ed9a9e0386b0e6ea1c336bcc760a0218f2d6",
+      "date": "2023-06-01",
+      "time": "01-04-59-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/01-04-59-UTC_1575ed9_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/01-04-59-UTC_1575ed9_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/01-04-59-UTC_1575ed9_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/01-04-59-UTC_1575ed9_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "3eb4407e441b539c81c6ea8cc797f97536abd01f",
+      "date": "2023-06-01",
+      "time": "05-52-46-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/05-52-46-UTC_3eb4407_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/05-52-46-UTC_3eb4407_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/05-52-46-UTC_3eb4407_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/05-52-46-UTC_3eb4407_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "534d1dfdca50108b06504ade48b7970d4395a42e",
+      "date": "2023-06-01",
+      "time": "10-15-14-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/10-15-14-UTC_534d1df_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/10-15-14-UTC_534d1df_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/10-15-14-UTC_534d1df_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/10-15-14-UTC_534d1df_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "9c4d51c0a45a129745b2eec9fb5497042cd805fb",
+      "date": "2023-06-01",
+      "time": "14-31-03-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/14-31-03-UTC_9c4d51c_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/14-31-03-UTC_9c4d51c_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/14-31-03-UTC_9c4d51c_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/14-31-03-UTC_9c4d51c_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "125b216c3918c76c6dbdf45d47212ea91623e5a2",
+      "date": "2023-06-01",
+      "time": "16-59-33-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/16-59-33-UTC_125b216_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/16-59-33-UTC_125b216_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/16-59-33-UTC_125b216_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/16-59-33-UTC_125b216_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "bebd6445c7ff00da6eecbfbe582996a281f11b53",
+      "date": "2023-06-01",
+      "time": "22-58-30-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/22-58-30-UTC_bebd644_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/22-58-30-UTC_bebd644_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/22-58-30-UTC_bebd644_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-01/22-58-30-UTC_bebd644_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "0931b5299bd5379e709e9b6e283c35e173122687",
+      "date": "2023-06-02",
+      "time": "02-21-19-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/02-21-19-UTC_0931b52_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/02-21-19-UTC_0931b52_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/02-21-19-UTC_0931b52_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/02-21-19-UTC_0931b52_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "c81e83ab01fb3aed44de34e5aff659d28e6c91f4",
+      "date": "2023-06-02",
+      "time": "03-25-13-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/03-25-13-UTC_c81e83a_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/03-25-13-UTC_c81e83a_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/03-25-13-UTC_c81e83a_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/03-25-13-UTC_c81e83a_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "6cb44ff34d19289e0eb7373d8ae6872f2f0e65a0",
+      "date": "2023-06-02",
+      "time": "10-30-02-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/10-30-02-UTC_6cb44ff_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/10-30-02-UTC_6cb44ff_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/10-30-02-UTC_6cb44ff_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/10-30-02-UTC_6cb44ff_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "e126ca32f7c5704dd3f05af9a1547704264da788",
+      "date": "2023-06-02",
+      "time": "14-43-49-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/14-43-49-UTC_e126ca3_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/14-43-49-UTC_e126ca3_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/14-43-49-UTC_e126ca3_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/14-43-49-UTC_e126ca3_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "f4ef5c8af72304f679663ba134035206baf84095",
+      "date": "2023-06-02",
+      "time": "18-53-36-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/18-53-36-UTC_f4ef5c8_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/18-53-36-UTC_f4ef5c8_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/18-53-36-UTC_f4ef5c8_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/18-53-36-UTC_f4ef5c8_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "fd4e0927d981b0a6e9ff291734ed688f0b25cc15",
+      "date": "2023-06-02",
+      "time": "22-51-28-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/22-51-28-UTC_fd4e092_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/22-51-28-UTC_fd4e092_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/22-51-28-UTC_fd4e092_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-02/22-51-28-UTC_fd4e092_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "93d819417c24fbdea554b6b2a4a3d482866bdfba",
+      "date": "2023-06-03",
+      "time": "01-27-16-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-03/01-27-16-UTC_93d8194_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-03/01-27-16-UTC_93d8194_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-03/01-27-16-UTC_93d8194_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-03/01-27-16-UTC_93d8194_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "2f18320e731cc3b06bc43cdb4d82dffc4f8f81fc",
+      "date": "2023-06-03",
+      "time": "04-12-47-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-03/04-12-47-UTC_2f18320_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-03/04-12-47-UTC_2f18320_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-03/04-12-47-UTC_2f18320_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-03/04-12-47-UTC_2f18320_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "75a180625adb9b3e6e1b7245c9a0890082c7141f",
+      "date": "2023-06-03",
+      "time": "14-57-39-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-03/14-57-39-UTC_75a1806_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-03/14-57-39-UTC_75a1806_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-03/14-57-39-UTC_75a1806_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-03/14-57-39-UTC_75a1806_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "7319f861b9a6a4bbd09655ae254e64b7fdea83de",
+      "date": "2023-06-03",
+      "time": "20-53-59-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-03/20-53-59-UTC_7319f86_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-03/20-53-59-UTC_7319f86_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-03/20-53-59-UTC_7319f86_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-03/20-53-59-UTC_7319f86_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "da1da02bbd2cb54490b7fc22f43ec32f5f302615",
+      "date": "2023-06-04",
+      "time": "00-53-30-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-04/00-53-30-UTC_da1da02_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-04/00-53-30-UTC_da1da02_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-04/00-53-30-UTC_da1da02_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-04/00-53-30-UTC_da1da02_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "2bf8f1aa83e192a307d5846424880cd61bec1a4f",
+      "date": "2023-06-04",
+      "time": "21-29-52-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-04/21-29-52-UTC_2bf8f1a_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-04/21-29-52-UTC_2bf8f1a_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-04/21-29-52-UTC_2bf8f1a_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-04/21-29-52-UTC_2bf8f1a_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "9f8f6531b72c44da09d5ffcadf638f11cf51d227",
+      "date": "2023-06-05",
+      "time": "10-43-22-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-05/10-43-22-UTC_9f8f653_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-05/10-43-22-UTC_9f8f653_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-05/10-43-22-UTC_9f8f653_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-05/10-43-22-UTC_9f8f653_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "18c649598635b218b39a0cd5d4bee9b58ea5eb91",
+      "date": "2023-06-05",
+      "time": "14-39-48-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-05/14-39-48-UTC_18c6495_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-05/14-39-48-UTC_18c6495_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-05/14-39-48-UTC_18c6495_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-05/14-39-48-UTC_18c6495_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "53af66a48215f0b7833dce499343eccae1dc9dff",
+      "date": "2023-06-05",
+      "time": "22-09-45-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-05/22-09-45-UTC_53af66a_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-05/22-09-45-UTC_53af66a_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-05/22-09-45-UTC_53af66a_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-05/22-09-45-UTC_53af66a_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "4d94ad61e5a8e085eefb785fd9f5f9e3a36d147a",
+      "date": "2023-06-06",
+      "time": "02-35-39-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-06/02-35-39-UTC_4d94ad6_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-06/02-35-39-UTC_4d94ad6_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-06/02-35-39-UTC_4d94ad6_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-06/02-35-39-UTC_4d94ad6_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "054eb4aa9a836bde419c4bbcf0f66abd51bc391a",
+      "date": "2023-06-06",
+      "time": "10-58-48-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-06/10-58-48-UTC_054eb4a_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-06/10-58-48-UTC_054eb4a_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-06/10-58-48-UTC_054eb4a_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-06/10-58-48-UTC_054eb4a_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "10222f94e5d89b19959117dd9e5b8576ef63f878",
+      "date": "2023-06-06",
+      "time": "17-17-50-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-06/17-17-50-UTC_10222f9_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-06/17-17-50-UTC_10222f9_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-06/17-17-50-UTC_10222f9_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-06/17-17-50-UTC_10222f9_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "6e34b5d4e9b16321f37c108fea3aa7e4e04b495a",
+      "date": "2023-06-07",
+      "time": "08-31-22-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-07/08-31-22-UTC_6e34b5d_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-07/08-31-22-UTC_6e34b5d_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-07/08-31-22-UTC_6e34b5d_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-07/08-31-22-UTC_6e34b5d_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "2eaf1d20e7622486266b912d4bbc53b132a717a1",
+      "date": "2023-06-07",
+      "time": "14-16-19-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-07/14-16-19-UTC_2eaf1d2_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-07/14-16-19-UTC_2eaf1d2_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-07/14-16-19-UTC_2eaf1d2_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-07/14-16-19-UTC_2eaf1d2_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "b8e0ce05a84ba6591514d496604bbebf2e652e7a",
+      "date": "2023-06-07",
+      "time": "22-32-37-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-07/22-32-37-UTC_b8e0ce0_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-07/22-32-37-UTC_b8e0ce0_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-07/22-32-37-UTC_b8e0ce0_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-07/22-32-37-UTC_b8e0ce0_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "79effd2c09a7a3049d0b29c998e444ba51864131",
+      "date": "2023-06-08",
+      "time": "02-41-32-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-08/02-41-32-UTC_79effd2_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-08/02-41-32-UTC_79effd2_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-08/02-41-32-UTC_79effd2_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-08/02-41-32-UTC_79effd2_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "03f2be66ea268a1ea285899f56f55b81e5a25044",
+      "date": "2023-06-08",
+      "time": "10-20-21-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-08/10-20-21-UTC_03f2be6_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-08/10-20-21-UTC_03f2be6_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-08/10-20-21-UTC_03f2be6_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-08/10-20-21-UTC_03f2be6_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "eef8dd9b87363734a6c0103949bff978b723e312",
+      "date": "2023-06-08",
+      "time": "13-48-44-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-08/13-48-44-UTC_eef8dd9_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-08/13-48-44-UTC_eef8dd9_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-08/13-48-44-UTC_eef8dd9_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-08/13-48-44-UTC_eef8dd9_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "3fded0bb77c852b10d712bd629ced740499a3aa6",
+      "date": "2023-06-08",
+      "time": "20-20-44-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-08/20-20-44-UTC_3fded0b_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-08/20-20-44-UTC_3fded0b_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-08/20-20-44-UTC_3fded0b_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-08/20-20-44-UTC_3fded0b_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "aaffd8bf6e0743b204b273e8a1e48dd628ba5d0f",
+      "date": "2023-06-09",
+      "time": "02-21-24-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-09/02-21-24-UTC_aaffd8b_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-09/02-21-24-UTC_aaffd8b_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-09/02-21-24-UTC_aaffd8b_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-09/02-21-24-UTC_aaffd8b_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "fa0d21579125aaf954e1e0d5084842d69feba299",
+      "date": "2023-06-09",
+      "time": "10-45-21-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-09/10-45-21-UTC_fa0d215_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-09/10-45-21-UTC_fa0d215_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-09/10-45-21-UTC_fa0d215_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-09/10-45-21-UTC_fa0d215_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "1d5448c9b24edb85f3cc1c858b8a8ce1df28490d",
+      "date": "2023-06-09",
+      "time": "14-37-37-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-09/14-37-37-UTC_1d5448c_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-09/14-37-37-UTC_1d5448c_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-09/14-37-37-UTC_1d5448c_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-09/14-37-37-UTC_1d5448c_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "454057de49d9e2ab337f808e1f65d1dda8dbe71a",
+      "date": "2023-06-09",
+      "time": "22-45-29-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-09/22-45-29-UTC_454057d_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-09/22-45-29-UTC_454057d_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-09/22-45-29-UTC_454057d_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-09/22-45-29-UTC_454057d_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "224927519c43aeb044d8856f0f1fe061d4e986a6",
+      "date": "2023-06-10",
+      "time": "00-43-48-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-10/00-43-48-UTC_2249275_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-10/00-43-48-UTC_2249275_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-10/00-43-48-UTC_2249275_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-10/00-43-48-UTC_2249275_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "66def3a7024d8c860c047a9b1681085c591d46ca",
+      "date": "2023-06-10",
+      "time": "14-06-10-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-10/14-06-10-UTC_66def3a_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-10/14-06-10-UTC_66def3a_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-10/14-06-10-UTC_66def3a_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-10/14-06-10-UTC_66def3a_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "362678a6c7d45f9a49c4aaa946701f791c56b484",
+      "date": "2023-06-10",
+      "time": "19-23-52-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-10/19-23-52-UTC_362678a_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-10/19-23-52-UTC_362678a_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-10/19-23-52-UTC_362678a_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-10/19-23-52-UTC_362678a_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "19712d9cbeb086bf196c43b8b502e463702fc910",
+      "date": "2023-06-11",
+      "time": "18-04-57-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-11/18-04-57-UTC_19712d9_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-11/18-04-57-UTC_19712d9_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-11/18-04-57-UTC_19712d9_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-11/18-04-57-UTC_19712d9_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "89f3a9ef41383bb409b69d1a0f0db910f3ed9a34",
+      "date": "2023-06-12",
+      "time": "09-38-12-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-12/09-38-12-UTC_89f3a9e_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-12/09-38-12-UTC_89f3a9e_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-12/09-38-12-UTC_89f3a9e_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-12/09-38-12-UTC_89f3a9e_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "7b25983451968a7edfeba78a3a16c050dba12a4f",
+      "date": "2023-06-12",
+      "time": "12-47-15-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-12/12-47-15-UTC_7b25983_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-12/12-47-15-UTC_7b25983_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-12/12-47-15-UTC_7b25983_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-12/12-47-15-UTC_7b25983_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "f6868c12de1e9c378ac1eaf4477bbc14171b1c6b",
+      "date": "2023-06-12",
+      "time": "22-30-59-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-12/22-30-59-UTC_f6868c1_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-12/22-30-59-UTC_f6868c1_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-12/22-30-59-UTC_f6868c1_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-12/22-30-59-UTC_f6868c1_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "8d0b619038ee969bae7cd3a29b083062ba9a827a",
+      "date": "2023-06-13",
+      "time": "02-05-13-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-13/02-05-13-UTC_8d0b619_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-13/02-05-13-UTC_8d0b619_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-13/02-05-13-UTC_8d0b619_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-13/02-05-13-UTC_8d0b619_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "fb166455a9e32b605d611f9c011810d4d2f0657c",
+      "date": "2023-06-13",
+      "time": "10-06-26-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-13/10-06-26-UTC_fb16645_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-13/10-06-26-UTC_fb16645_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-13/10-06-26-UTC_fb16645_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-13/10-06-26-UTC_fb16645_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "8fb25a8b046621ef5fe0626e043b7976a71c0670",
+      "date": "2023-06-13",
+      "time": "14-58-17-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-13/14-58-17-UTC_8fb25a8_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-13/14-58-17-UTC_8fb25a8_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-13/14-58-17-UTC_8fb25a8_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-13/14-58-17-UTC_8fb25a8_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "8042facb423e8a1151282409e70e380273674926",
+      "date": "2023-06-13",
+      "time": "22-25-50-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-13/22-25-50-UTC_8042fac_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-13/22-25-50-UTC_8042fac_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-13/22-25-50-UTC_8042fac_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-13/22-25-50-UTC_8042fac_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "8b7c300bfdf9e81eec919a232d682a5294b7b7bd",
+      "date": "2023-06-14",
+      "time": "02-47-39-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-14/02-47-39-UTC_8b7c300_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-14/02-47-39-UTC_8b7c300_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-14/02-47-39-UTC_8b7c300_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-14/02-47-39-UTC_8b7c300_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "e1afb22f6749da255d343c427ac3488ba0dcc842",
+      "date": "2023-06-14",
+      "time": "10-51-44-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-14/10-51-44-UTC_e1afb22_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-14/10-51-44-UTC_e1afb22_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-14/10-51-44-UTC_e1afb22_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-14/10-51-44-UTC_e1afb22_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "8d3d7eaac5e4242ae30c4ad334b558d6cbd1e53a",
+      "date": "2023-06-14",
+      "time": "13-40-36-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-14/13-40-36-UTC_8d3d7ea_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-14/13-40-36-UTC_8d3d7ea_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-14/13-40-36-UTC_8d3d7ea_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-14/13-40-36-UTC_8d3d7ea_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "f385924a049b25bbeb47fedab8dcd80159d854ae",
+      "date": "2023-06-14",
+      "time": "22-30-12-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-14/22-30-12-UTC_f385924_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-14/22-30-12-UTC_f385924_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-14/22-30-12-UTC_f385924_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-14/22-30-12-UTC_f385924_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "0a0fa137097595ad8ec0e2aa9ecffb524cd5df95",
+      "date": "2023-06-15",
+      "time": "01-50-10-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-15/01-50-10-UTC_0a0fa13_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-15/01-50-10-UTC_0a0fa13_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-15/01-50-10-UTC_0a0fa13_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-15/01-50-10-UTC_0a0fa13_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "95836f6145dfe1e76ce25e0694e4f8cd76c6e051",
+      "date": "2023-06-15",
+      "time": "10-08-46-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-15/10-08-46-UTC_95836f6_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-15/10-08-46-UTC_95836f6_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-15/10-08-46-UTC_95836f6_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-15/10-08-46-UTC_95836f6_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "c6da14e2c095fba00b1efd0584fb147ac3d6f0bf",
+      "date": "2023-06-15",
+      "time": "14-54-39-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-15/14-54-39-UTC_c6da14e_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-15/14-54-39-UTC_c6da14e_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-15/14-54-39-UTC_c6da14e_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-15/14-54-39-UTC_c6da14e_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "795ab6bd20d2ab234dbbcfe80e18097bbfd5bac9",
+      "date": "2023-06-15",
+      "time": "22-53-19-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-15/22-53-19-UTC_795ab6b_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-15/22-53-19-UTC_795ab6b_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-15/22-53-19-UTC_795ab6b_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-15/22-53-19-UTC_795ab6b_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "35a5afb63fb08edca5d04a382d0663c2e1031e7a",
+      "date": "2023-06-16",
+      "time": "00-55-40-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-16/00-55-40-UTC_35a5afb_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-16/00-55-40-UTC_35a5afb_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-16/00-55-40-UTC_35a5afb_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-16/00-55-40-UTC_35a5afb_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "77ad8064a2c2d3557eadbee9fdcf24083d4d23e5",
+      "date": "2023-06-16",
+      "time": "10-47-47-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-16/10-47-47-UTC_77ad806_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-16/10-47-47-UTC_77ad806_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-16/10-47-47-UTC_77ad806_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-16/10-47-47-UTC_77ad806_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "4ae16683d798947f08c81d0bb604cfb06bb51bb5",
+      "date": "2023-06-16",
+      "time": "14-41-30-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-16/14-41-30-UTC_4ae1668_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-16/14-41-30-UTC_4ae1668_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-16/14-41-30-UTC_4ae1668_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-16/14-41-30-UTC_4ae1668_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "b84612bbf950636f30f0b21ebb7c3befe0a09807",
+      "date": "2023-06-16",
+      "time": "18-22-12-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-16/18-22-12-UTC_b84612b_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-16/18-22-12-UTC_b84612b_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-16/18-22-12-UTC_b84612b_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-16/18-22-12-UTC_b84612b_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "fe88013164abfd9cfb3e1dc3b518acf4c7c924a9",
+      "date": "2023-06-17",
+      "time": "02-27-15-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-17/02-27-15-UTC_fe88013_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-17/02-27-15-UTC_fe88013_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-17/02-27-15-UTC_fe88013_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-17/02-27-15-UTC_fe88013_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "27b7aea81e30194853f2a114e240dfe7f8e01cac",
+      "date": "2023-06-17",
+      "time": "07-45-27-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-17/07-45-27-UTC_27b7aea_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-17/07-45-27-UTC_27b7aea_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-17/07-45-27-UTC_27b7aea_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-17/07-45-27-UTC_27b7aea_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "2c62994efb2495dcaef2312de3ab25ea4792b23a",
+      "date": "2023-06-17",
+      "time": "18-37-57-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-17/18-37-57-UTC_2c62994_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-17/18-37-57-UTC_2c62994_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-17/18-37-57-UTC_2c62994_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-17/18-37-57-UTC_2c62994_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "eb7149483d71097ff07a2682f01df35bf7b9709b",
+      "date": "2023-06-18",
+      "time": "22-20-40-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-18/22-20-40-UTC_eb71494_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-18/22-20-40-UTC_eb71494_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-18/22-20-40-UTC_eb71494_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-18/22-20-40-UTC_eb71494_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "5fe7b06e1c4881d4e89a4baf00f2cbd6f4ff5838",
+      "date": "2023-06-19",
+      "time": "10-28-05-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-19/10-28-05-UTC_5fe7b06_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-19/10-28-05-UTC_5fe7b06_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-19/10-28-05-UTC_5fe7b06_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-19/10-28-05-UTC_5fe7b06_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "824f39ab01ce675baa4a948afbaa299561d7fa14",
+      "date": "2023-06-19",
+      "time": "21-56-20-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-19/21-56-20-UTC_824f39a_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-19/21-56-20-UTC_824f39a_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-19/21-56-20-UTC_824f39a_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-19/21-56-20-UTC_824f39a_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "3a303b8e0a67e3e330c26b4a305caa407f66e443",
+      "date": "2023-06-20",
+      "time": "09-17-03-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-20/09-17-03-UTC_3a303b8_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-20/09-17-03-UTC_3a303b8_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-20/09-17-03-UTC_3a303b8_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-20/09-17-03-UTC_3a303b8_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "f3b599e5777eb1db7c396fdc1597c390f22879e6",
+      "date": "2023-06-20",
+      "time": "22-18-38-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-20/22-18-38-UTC_f3b599e_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-20/22-18-38-UTC_f3b599e_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-20/22-18-38-UTC_f3b599e_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-20/22-18-38-UTC_f3b599e_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "f644e5be3268064485fb74c3c9cb5735e446df4a",
+      "date": "2023-06-21",
+      "time": "10-50-31-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-21/10-50-31-UTC_f644e5b_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-21/10-50-31-UTC_f644e5b_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-21/10-50-31-UTC_f644e5b_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-21/10-50-31-UTC_f644e5b_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "927ef08bf65f28a85509e1a49e23c6ab7aa575b9",
+      "date": "2023-06-21",
+      "time": "22-36-47-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-21/22-36-47-UTC_927ef08_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-21/22-36-47-UTC_927ef08_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-21/22-36-47-UTC_927ef08_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-21/22-36-47-UTC_927ef08_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "7b7d56fa3967a272c0f720ff0d9e38c4b2af369d",
+      "date": "2023-06-22",
+      "time": "10-47-04-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-22/10-47-04-UTC_7b7d56f_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-22/10-47-04-UTC_7b7d56f_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-22/10-47-04-UTC_7b7d56f_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-22/10-47-04-UTC_7b7d56f_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "e913e774f912344121d95b780fb719d71d576959",
+      "date": "2023-06-22",
+      "time": "18-52-14-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-22/18-52-14-UTC_e913e77_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-22/18-52-14-UTC_e913e77_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-22/18-52-14-UTC_e913e77_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-22/18-52-14-UTC_e913e77_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "82ed3dc2834fefa9c9be78686258fc6b9e878236",
+      "date": "2023-06-22",
+      "time": "22-38-33-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-22/22-38-33-UTC_82ed3dc_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-22/22-38-33-UTC_82ed3dc_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-22/22-38-33-UTC_82ed3dc_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-22/22-38-33-UTC_82ed3dc_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "5331448bc790aa27b8bfa08ee0f56761d10347b4",
+      "date": "2023-06-23",
+      "time": "06-04-39-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-23/06-04-39-UTC_5331448_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-23/06-04-39-UTC_5331448_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-23/06-04-39-UTC_5331448_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-23/06-04-39-UTC_5331448_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "bee49d523f6a245c0bb5e8dc1ac56bbcced91035",
+      "date": "2023-06-23",
+      "time": "10-59-03-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-23/10-59-03-UTC_bee49d5_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-23/10-59-03-UTC_bee49d5_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-23/10-59-03-UTC_bee49d5_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-23/10-59-03-UTC_bee49d5_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "574ad01138404aa3e8677c85d666cf75a798527b",
+      "date": "2023-06-23",
+      "time": "18-45-04-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-23/18-45-04-UTC_574ad01_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-23/18-45-04-UTC_574ad01_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-23/18-45-04-UTC_574ad01_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-23/18-45-04-UTC_574ad01_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "8b2dc46f50f1e0da47979b5a45da2ddfd4d68f13",
+      "date": "2023-06-23",
+      "time": "22-41-44-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-23/22-41-44-UTC_8b2dc46_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-23/22-41-44-UTC_8b2dc46_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-23/22-41-44-UTC_8b2dc46_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-23/22-41-44-UTC_8b2dc46_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "cfe30c057debbdd9ad21b36ae61062dbe72a1f83",
+      "date": "2023-06-24",
+      "time": "03-48-56-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-24/03-48-56-UTC_cfe30c0_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-24/03-48-56-UTC_cfe30c0_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-24/03-48-56-UTC_cfe30c0_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-24/03-48-56-UTC_cfe30c0_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "eaa9717d90115cea43b4cdd7a2a49e6d3c3d780e",
+      "date": "2023-06-25",
+      "time": "18-54-18-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-25/18-54-18-UTC_eaa9717_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-25/18-54-18-UTC_eaa9717_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-25/18-54-18-UTC_eaa9717_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-25/18-54-18-UTC_eaa9717_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "f4496a0b96b46561cd500130bfee60834eebec04",
+      "date": "2023-06-27",
+      "time": "14-15-55-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-27/14-15-55-UTC_f4496a0_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-27/14-15-55-UTC_f4496a0_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-27/14-15-55-UTC_f4496a0_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-27/14-15-55-UTC_f4496a0_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "f777fe6e7bee80ea5ce57b5ae06a0c3060b8b1c4",
+      "date": "2023-06-27",
+      "time": "18-06-54-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-27/18-06-54-UTC_f777fe6_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-27/18-06-54-UTC_f777fe6_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-27/18-06-54-UTC_f777fe6_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-27/18-06-54-UTC_f777fe6_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "d48a250da90dbff5e1849ae20127350bd6bb5901",
+      "date": "2023-06-27",
+      "time": "23-39-34-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-27/23-39-34-UTC_d48a250_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-27/23-39-34-UTC_d48a250_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-27/23-39-34-UTC_d48a250_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-27/23-39-34-UTC_d48a250_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total",
+            "download-size-dlls",
+            "download-size-wasm"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "c06d77a74f64d6c5b0280db56fb0c6a43c0aa907",
+      "date": "2023-06-28",
+      "time": "14-39-29-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-28/14-39-29-UTC_c06d77a_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-28/14-39-29-UTC_c06d77a_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-28/14-39-29-UTC_c06d77a_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-28/14-39-29-UTC_c06d77a_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "cfae69f62414b68e4c98dd3b294154baabf58a5a",
+      "date": "2023-06-28",
+      "time": "23-03-41-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-28/23-03-41-UTC_cfae69f_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-28/23-03-41-UTC_cfae69f_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-28/23-03-41-UTC_cfae69f_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-28/23-03-41-UTC_cfae69f_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "205ac7665ce00fa5b61e1d9b0a5254e67df68cf6",
+      "date": "2023-06-29",
+      "time": "14-26-23-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-29/14-26-23-UTC_205ac76_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-29/14-26-23-UTC_205ac76_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-29/14-26-23-UTC_205ac76_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-29/14-26-23-UTC_205ac76_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "cdd7566751185d8330b1229b5b7aeb64605fbbf2",
+      "date": "2023-06-30",
+      "time": "02-58-29-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-30/02-58-29-UTC_cdd7566_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-30/02-58-29-UTC_cdd7566_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-30/02-58-29-UTC_cdd7566_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-30/02-58-29-UTC_cdd7566_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    },
+    {
+      "gitHash": "0aca9e5a458039a153a1c3d9b28f3397a2b383aa",
+      "date": "2023-06-30",
+      "time": "13-19-14-UTC",
+      "sdkVersion": "unknown",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-30/13-19-14-UTC_0aca9e5_mono_no-workload_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-30/13-19-14-UTC_0aca9e5_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "firefox",
+          "app": "empty-browser",
+          "file": "2023/2023-06-30/13-19-14-UTC_0aca9e5_mono_aot_firefox_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2023/2023-06-30/13-19-14-UTC_0aca9e5_mono_aot_chrome_empty-browser.json",
+          "metrics": [
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "download-size-total"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "meta": {
+    "commitDate": "2024-04-04",
+    "commitTime": "16-17-04-UTC",
+    "sdkVersion": "unknown",
+    "gitHash": "cf382659e228e0e7c62e12557ede1fbec3bdc619",
+    "runtime": "mono",
+    "preset": "aot",
+    "engine": "chrome",
+    "app": "empty-browser",
+    "ciRunId": "migrated",
+    "ciRunUrl": "https://github.com/radekdoulik/WasmPerformanceMeasurements"
+  },
+  "metrics": {
+    "time-to-reach-managed": 308.94117647058823,
+    "time-to-reach-managed-cold": 3424.6666666666665,
+    "download-size-total": 17459765
+  }
+}
