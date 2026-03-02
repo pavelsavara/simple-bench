@@ -110,13 +110,16 @@ Based on Q&A with @pavelsavara:
 |----------|--------|
 | **Import scope** | All historical data (all 5334 commits, 2022-2025) |
 | **Build → runtime mapping** | `interp` → `mono`, `aot` → `mono`, `nativeaot` → `llvm_naot` (new runtime) |
-| **Config filter** | **Only** `simd+wasm-eh` — drop `default`, `simd`, `wasm-eh`, `nosimd`, `threads`, `mt`, `legacy`, `hybrid-globalization` |
+| **Config filter** | **Only** `default` — import `aot.default` and `interp.default`, drop all other configs |
 | **Environment mapping** | `chrome` → `chrome`, `firefox` → `firefox` (no v8/node in old data) |
 | **App mapping** | browser-template → `empty-browser`, blazor-template → `empty-blazor` |
 | **Timing metrics** | Only AppStart → Reach managed (warm + cold). Drop all other categories. |
 | **Size metrics** | `download-size-total`, `download-size-wasm`, `download-size-dlls`. Ignore ICU. |
 | **Unit** | Keep as ms/op for AppStart metrics. Change internal ops metrics to ops/sec (model update). |
-| **Script** | Document only — implement later |
+| **sdkVersion** | Set to `"unknown"` (old data doesn't store SDK version) |
+| **Timeout filter** | Values ≥ 20000ms filtered as failed measurements |
+| **Data source** | `index.json` from `index2.zip` (pre-computed minTimes and sizes) |
+| **Script** | `scripts/migrate-old-data.mjs` — implemented and tested |
 
 ---
 
@@ -132,22 +135,21 @@ Based on Q&A with @pavelsavara:
 
 ### Build + Config → Runtime + Preset
 
-The old system combines `build` and `config` into the flavor triple. The new system has a separate `runtime` and `preset`. Only `simd+wasm-eh` old config is imported.
+The old system combines `build` and `config` into the flavor triple. The new system has a separate `runtime` and `preset`. Only the `default` config is imported (fullest history and richest metrics).
 
 | Old build | Old config | New runtime | New preset | Import? |
 |-----------|-----------|-------------|------------|---------|
-| `interp` | `simd+wasm-eh` | — | — | ❌ interp didn't run simd+wasm-eh |
-| `interp` | `default` | `mono` | `no-workload` | ❌ dropped (not simd+wasm-eh) |
-| `aot` | `simd+wasm-eh` | `mono` | `aot` | ✅ |
-| `aot` | `default` | — | — | ❌ dropped |
+| `interp` | `default` | `mono` | `no-workload` | ✅ |
+| `aot` | `default` | `mono` | `aot` | ✅ |
+| `aot` | `simd+wasm-eh` | — | — | ❌ dropped (only 6 months of data, conflicts with `aot.default`) |
 | `aot` | `simd` | — | — | ❌ dropped |
 | `aot` | `wasm-eh` | — | — | ❌ dropped |
 | `aot` | `nosimd` | — | — | ❌ dropped |
-| `nativeaot` | `default` | `llvm_naot` | `no-workload` | ❌ dropped (not simd+wasm-eh, and nativeaot only had `default` config) |
+| `nativeaot` | `default` | `llvm_naot` | `no-workload` | ❌ dropped (only 1 entry) |
+| `interp` | `threads` | — | — | ❌ dropped |
+| `*` | `legacy`, `hybrid-globalization` | — | — | ❌ dropped |
 
-**Result**: Only `aot/simd+wasm-eh/{chrome,firefox}` entries are imported → `mono/aot/{chrome,firefox}`.
-
-> **Issue**: The `simd+wasm-eh` config was only measured for `aot` build, and `interp` + `nativeaot` only had `default`. This means the import only yields `mono`+`aot` data. If we also want interp and nativeaot data, we'd need to include the `default` config as well (mapping it to `no-workload`).
+**Result**: `aot/default/{chrome,firefox}` → `mono/aot/{chrome,firefox}` and `interp/default/{chrome,firefox}` → `mono/no-workload/{chrome,firefox}`. This yields 15,381 source entries → 21,813 result files (some entries produce both browser and blazor results).
 
 ### Environment → Engine
 
@@ -296,16 +298,15 @@ Advantages of using the index:
 
 ```
 for each entry in index.Data:
-    flavor = FlavorMap.reverse[entry.flavorId]  # e.g. "aot.simd+wasm-eh.chrome"
+    flavor = FlavorMap.reverse[entry.flavorId]  # e.g. "aot.default.chrome"
     parse flavor → (build, config, env)
 
-    # Filter: only simd+wasm-eh
-    if config != "simd+wasm-eh": skip
+    # Filter: only default config, only aot and interp builds
+    if flavorId not in {0, 1, 2, 3}: skip
 
     # Map build to runtime+preset
     if build == "aot":     runtime="mono",  preset_new="aot"
-    if build == "interp":  runtime="mono",  preset_new="no-workload"  # won't match simd+wasm-eh filter
-    if build == "nativeaot": runtime="llvm_naot", preset_new="no-workload"  # won't match
+    if build == "interp":  runtime="mono",  preset_new="no-workload"
 
     # Parse commitTime → UTC
     date, time = parse_to_utc(entry.commitTime)
@@ -325,13 +326,14 @@ for each entry in index.Data:
 
 ## Estimated Output Volume
 
-| Metric | Estimate |
-|--------|----------|
-| Commits with `aot/simd+wasm-eh` data | ~800–1200 (subset of 5334 total; simd+wasm-eh wasn't measured for all) |
-| Result files per commit | 2–4 (chrome+firefox × browser+blazor) |
-| Total result JSON files | ~2000–5000 |
-| Total data size | ~5–15 MB (small JSON files) |
-| Month index files | ~40–44 (2022-03 through 2025-11) |
+| Metric | Value |
+|--------|-------|
+| Source entries matched | 15,381 (of 21,040 total in index) |
+| Result files written | 21,813 (browser + blazor per entry) |
+| Total data size | ~18.8 MB |
+| Month index files | 43 (2022-03 through 2025-09) |
+| Year directories | 4 (2022, 2023, 2024, 2025) |
+| Dimensions | mono × {aot, no-workload} × {chrome, firefox} × {empty-browser, empty-blazor} |
 
 ---
 
@@ -347,18 +349,18 @@ The following changes to `docs/model.md` are needed to support the migration:
 
 ---
 
-## Open Questions
+## Resolved Questions
 
-1. **interp/default data**: Since `simd+wasm-eh` was only measured for `aot`, the filter drops ALL `interp` data. Should we also import `interp/default` → `mono/no-workload` to have interpreter baseline?
+1. **interp/default data**: ✅ Resolved — importing `interp/default` → `mono/no-workload` (4286 chrome + 3080 firefox entries).
 
-2. **nativeaot data**: Similarly, `nativeaot` only had `default` config. Should we import `nativeaot/default` → `llvm_naot/no-workload`?
+2. **nativeaot data**: ✅ Resolved — not imported (only 1 entry in index).
 
-3. **sdkVersion**: The old data doesn't store SDK version. The `versions.txt` file has browser versions but not .NET SDK. Set to `"unknown"` or omit?
+3. **sdkVersion**: ✅ Resolved — set to `"unknown"`.
 
-4. **Size data availability**: Sizes are `null` for many early entries in the index (before size tracking was added ~May 2022). Missing sizes should produce result files without the `download-size-*` metrics.
+4. **Size data availability**: ✅ Resolved — sizes are included when present. Missing sizes produce result files without `download-size-*` metrics. Size AppBundle available for ~82% of entries; managed/dotnet.wasm available for ~13%/~10%.
 
-5. **Timeout values**: Some AppStart metrics show 20006/20007ms (20-second timeout). These should be filtered out as failed measurements rather than imported as valid data points.
+5. **Timeout values**: ✅ Resolved — values ≥ 20,000ms are filtered out as failed measurements.
 
-6. **Error-as-measurement-name**: The MeasurementMap contains ~50 entries that are error stack traces stored as measurement names (e.g. `"String, String IndexOf Intl.Segmenter is not a constructor\n…"`). These are automatically excluded since we only import specific metric keys.
+6. **Error-as-measurement-name**: ✅ Auto-excluded — we only extract specific measurement IDs.
 
-7. **Blazor data quality**: Many Blazor AppStart measurements show timeout values (20006ms), especially for "Blazor Reach managed" and "Blazor First UI". This suggests the Blazor template benchmarks often timed out. Should we still import these timeouts or filter them?
+7. **Blazor data quality**: ✅ Resolved — Blazor entries with timeout values are filtered. Valid Blazor metrics are imported (available from ~Oct 2023 onward).
