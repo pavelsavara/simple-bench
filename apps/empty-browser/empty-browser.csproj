@@ -1,0 +1,94 @@
+<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
+  <PropertyGroup>
+    <TargetFramework>net11.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <BenchmarkPreset Condition="'$(BenchmarkPreset)' == ''">Debug</BenchmarkPreset>
+  </PropertyGroup>
+
+<!-- TODO 
+<OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+<BlazorWebAssemblyJiterpreter>false</BlazorWebAssemblyJiterpreter>
+<TrimMode>link</TrimMode>
+-->
+
+  <!-- Presets -->
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'Debug'">
+    <Configuration>Debug</Configuration>
+    <WasmEmitSymbolMap>true</WasmEmitSymbolMap>
+    <EnableDiagnostics>true</EnableDiagnostics>
+    <MetricsSupport>true</MetricsSupport>
+    <EventSourceSupport>true</EventSourceSupport>
+    <StackTraceSupport>true</StackTraceSupport>
+    <DebugSymbols>true</DebugSymbols>
+    <CompressionEnabled>false</CompressionEnabled>
+    <WasmEnableWebcil>false</WasmEnableWebcil>
+    <WasmNativeStrip>false</WasmNativeStrip>
+    <WasmNativeDebugSymbols>true</WasmNativeDebugSymbols>
+    <WasmIncludeFullIcuData>true</WasmIncludeFullIcuData>
+
+    <EnableAggressiveTrimming>false</EnableAggressiveTrimming>
+    <PublishTrimmed>true</PublishTrimmed>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NoWorkload'">
+    <Configuration>Release</Configuration>
+    <WasmBuildNative>false</WasmBuildNative>
+
+    <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
+    <PublishTrimmed>true</PublishTrimmed>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NativeRelink'">
+    <Configuration>Release</Configuration>
+    <WasmBuildNative>true</WasmBuildNative>
+    <WasmNativeStrip>true</WasmNativeStrip>
+
+    <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
+    <PublishTrimmed>true</PublishTrimmed>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'Aot'">
+    <Configuration>Release</Configuration>
+    <WasmBuildNative>true</WasmBuildNative>
+    <WasmNativeStrip>true</WasmNativeStrip>
+    <RunAOTCompilation>true</RunAOTCompilation>
+
+    <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
+    <PublishTrimmed>true</PublishTrimmed>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'Invariant' or '$(BenchmarkPreset)' == 'NoReflectionEmit'">
+    <Configuration>Release</Configuration>
+    <WasmBuildNative>true</WasmBuildNative>
+    <WasmNativeStrip>true</WasmNativeStrip>
+
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <InvariantTimeZone>true</InvariantTimeZone>
+    
+    <EnableDiagnostics>false</EnableDiagnostics>
+    <MetricsSupport>false</MetricsSupport>
+    <EventSourceSupport>false</EventSourceSupport>
+    <StackTraceSupport>false</StackTraceSupport>
+    <DebugSymbols>false</DebugSymbols>
+    <PredefinedCulturesOnly>true</PredefinedCulturesOnly>
+    <StackTraceLineNumberSupport>false</StackTraceLineNumberSupport>
+    <WasmEmitSymbolMap>false</WasmEmitSymbolMap>
+    
+    <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>full</TrimMode>
+
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NoReflectionEmit'">
+    <DynamicCodeSupport>false</DynamicCodeSupport>
+    <StackTraceSupport>false</StackTraceSupport>
+  </PropertyGroup>
+
+  <!-- end of presets -->
+
+  <ItemGroup>
+    <StaticWebAssetFingerprintPattern Include="JS" Pattern="*.js" Expression="#[.{fingerprint}]!" />
+  </ItemGroup>
+
+</Project>
