@@ -169,18 +169,8 @@ async function installWorkload() {
     console.error('\n═══ Phase 4: Install wasm-tools workload ═══');
     const dotnetPath = dotnet();
 
-    // Find a .csproj to use for workload restore
-    const apps = await discoverApps();
-    const firstApp = apps[0];
-    const appDir = join(APPS_DIR, firstApp);
-    const files = await readdir(appDir);
-    const csproj = files.find(f => f.endsWith('.csproj'));
-    if (!csproj) {
-        throw new Error(`No .csproj found in ${appDir}`);
-    }
-
-    run(dotnetPath, ['workload', 'restore', join(appDir, csproj)], {
-        label: 'dotnet workload restore',
+    run(dotnetPath, ['workload', 'install', 'wasm-tools'], {
+        label: 'dotnet workload install wasm-tools',
     });
 
     // Verify and capture version
@@ -264,21 +254,18 @@ async function main() {
     // Phase 2: Validate no workload pre-installed (ensures clean SDK image)
     await validateNoWorkload();
 
-    // Phase 3: Install workload + capture version
-    // Must happen before ANY build — Microsoft.NET.Sdk.WebAssembly requires
-    // the wasm-tools workload even for non-native presets (it provides the
-    // WASM linker, boot JSON generator, Mono runtime integration, etc.)
-    await installWorkload();
-
     // Discover apps
     const apps = await discoverApps();
     console.error(`\nDiscovered apps: ${apps.join(', ')}`);
 
-    // Phase 4: Build non-native presets (no WasmBuildNative / no AOT)
-    await buildApps(apps, nonWorkload, 'Phase 4: Build non-native presets');
+    // Phase 3: Build non-workload presets (no wasm-tools needed)
+    await buildApps(apps, nonWorkload, 'Phase 3: Build non-workload presets');
 
-    // Phase 5: Build native/workload presets (WasmBuildNative=true / AOT / etc.)
-    await buildApps(apps, workload, 'Phase 5: Build native presets');
+    // Phase 4: Install workload + capture version
+    await installWorkload();
+
+    // Phase 5: Build workload/native presets (WasmBuildNative=true / AOT / etc.)
+    await buildApps(apps, workload, 'Phase 5: Build workload/native presets');
 
     // Phase 6: Run measurements (unless dry-run)
     if (args['dry-run']) {
