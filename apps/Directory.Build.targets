@@ -1,0 +1,5 @@
+<Project>
+    <Target Name="SetBenchmarkPreset" BeforeTargets="Build">
+        <Message Text="Using BenchmarkPreset: '$(BenchmarkPreset)'" Importance="High" />
+    </Target>
+</Project>

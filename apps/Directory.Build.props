@@ -14,15 +14,17 @@
     <WasmBuildNative>false</WasmBuildNative>
 
     <WasmEmitSymbolMap>true</WasmEmitSymbolMap>
-    <EnableDiagnostics>true</EnableDiagnostics>
     <MetricsSupport>true</MetricsSupport>
     <EventSourceSupport>true</EventSourceSupport>
     <StackTraceSupport>true</StackTraceSupport>
     <DebugSymbols>true</DebugSymbols>
     <CompressionEnabled>false</CompressionEnabled>
     <WasmEnableWebcil>false</WasmEnableWebcil>
+    <!-- TODO 
+    <EnableDiagnostics>true</EnableDiagnostics>
     <WasmNativeStrip>false</WasmNativeStrip>
     <WasmNativeDebugSymbols>true</WasmNativeDebugSymbols>
+    -->
     <WasmIncludeFullIcuData>true</WasmIncludeFullIcuData>
 
     <EnableAggressiveTrimming>false</EnableAggressiveTrimming>
@@ -100,4 +102,5 @@
     <ArtifactsPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'artifacts', '$(BenchmarkPreset)'))</ArtifactsPath>
     <BaseIntermediateOutputPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'artifacts', '$(BenchmarkPreset)', 'obj', '$(MSBuildProjectName)'))</BaseIntermediateOutputPath>
   </PropertyGroup>
+
 </Project>
