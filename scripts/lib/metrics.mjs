@@ -5,9 +5,10 @@
  */
 export const METRICS = {
     'compile-time': { displayName: 'Compile Time', unit: 'ms', category: 'external' },
+    'disk-size-total': { displayName: 'Disk Size (Total)', unit: 'bytes', category: 'external' },
+    'disk-size-wasm': { displayName: 'Disk Size (WASM)', unit: 'bytes', category: 'external' },
+    'disk-size-dlls': { displayName: 'Disk Size (DLLs)', unit: 'bytes', category: 'external' },
     'download-size-total': { displayName: 'Download Size (Total)', unit: 'bytes', category: 'external' },
-    'download-size-wasm': { displayName: 'Download Size (WASM)', unit: 'bytes', category: 'external' },
-    'download-size-dlls': { displayName: 'Download Size (DLLs)', unit: 'bytes', category: 'external' },
     'time-to-reach-managed': { displayName: 'Time to Reach Managed', unit: 'ms', category: 'external' },
     'time-to-reach-managed-cold': { displayName: 'Time to Reach Managed (Cold)', unit: 'ms', category: 'external' },
     'memory-peak': { displayName: 'Memory Peak', unit: 'bytes', category: 'external' },

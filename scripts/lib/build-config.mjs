@@ -8,7 +8,7 @@ export function mapRuntimeFlavor(runtime) {
     switch (runtime) {
         case 'coreclr': return 'CoreCLR';
         case 'mono': return 'Mono';
-        case 'naot_llvm': return 'Mono';
+        case 'naotllvm': return 'Mono';
         default:
             throw new Error(`Unknown runtime: ${runtime}. Expected 'coreclr' or 'mono'.`);
     }
@@ -21,6 +21,7 @@ const PRESET_MAP = {
     'no-workload': 'NoWorkload',
     'aot': 'Aot',
     'native-relink': 'NativeRelink',
+    'no-jiterp': 'NoJiterp',
     'invariant': 'Invariant',
     'no-reflection-emit': 'NoReflectionEmit',
 };
@@ -48,6 +49,9 @@ export function validateCombination(runtime, preset) {
     if (preset === 'aot' && runtime !== 'mono') {
         throw new Error(`Preset 'aot' is only valid with runtime 'mono', got '${runtime}'`);
     }
+    if (preset === 'no-jiterp' && runtime !== 'mono') {
+        throw new Error(`Preset 'no-jiterp' is only valid with runtime 'mono', got '${runtime}'`);
+    }
     return true;
 }
 
@@ -61,7 +65,7 @@ export function getPublishArgs(runtime, preset, appDir, outputDir) {
     const presetArgs = getPresetArgs(preset);
 
     return [
-        preset !== 'debug' ? 'publish' : 'build',
+        'publish',
         appDir,
         ...presetArgs,
         `/p:RuntimeFlavor=${runtimeFlavor}`,

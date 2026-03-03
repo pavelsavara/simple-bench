@@ -119,7 +119,8 @@ describe('measureFileSizes', () => {
         await rm(tmpDir, { recursive: true, force: true });
     });
 
-    it('measures wasm and dll sizes', async () => {
+    it('measures total, wasm and dll sizes', async () => {
+        await writeFile(join(tmpDir, 'index.html'), Buffer.alloc(100));
         await writeFile(join(tmpDir, '_framework', 'dotnet.native.wasm'), Buffer.alloc(1024));
         await writeFile(join(tmpDir, '_framework', 'System.Runtime.dll'), Buffer.alloc(512));
         await writeFile(join(tmpDir, '_framework', 'App.dll'), Buffer.alloc(256));
@@ -127,12 +128,14 @@ describe('measureFileSizes', () => {
         const sizes = await measureFileSizes(tmpDir);
         assert.equal(sizes.wasmSize, 1024);
         assert.equal(sizes.dllsSize, 768); // 512 + 256
+        assert.equal(sizes.totalSize, 100 + 1024 + 512 + 256); // all files
     });
 
     it('returns zeros when _framework directory missing', async () => {
         const emptyDir = join(tmpdir(), `bench-empty-${Date.now()}`);
         await mkdir(emptyDir, { recursive: true });
         const sizes = await measureFileSizes(emptyDir);
+        assert.equal(sizes.totalSize, 0);
         assert.equal(sizes.wasmSize, 0);
         assert.equal(sizes.dllsSize, 0);
         await rm(emptyDir, { recursive: true, force: true });
@@ -164,7 +167,7 @@ describe('measureFileSizes', () => {
 describe('buildResultJson', () => {
     it('assembles meta + metrics', () => {
         const meta = { commitDate: '2026-03-02', runtime: 'coreclr', preset: 'no-workload', engine: 'chrome', app: 'empty-browser' };
-        const metrics = { 'compile-time': 45200, 'download-size-total': 12100920 };
+        const metrics = { 'compile-time': 45200, 'disk-size-total': 12100920 };
 
         const result = buildResultJson(meta, metrics);
         assert.deepEqual(result.meta, meta);
@@ -173,7 +176,7 @@ describe('buildResultJson', () => {
 
     it('strips null metrics', () => {
         const meta = { runtime: 'mono' };
-        const metrics = { 'compile-time': 1000, 'memory-peak': null, 'download-size-wasm': undefined };
+        const metrics = { 'compile-time': 1000, 'memory-peak': null, 'disk-size-wasm': undefined };
 
         const result = buildResultJson(meta, metrics);
         assert.deepEqual(result.metrics, { 'compile-time': 1000 });
@@ -181,10 +184,10 @@ describe('buildResultJson', () => {
 
     it('strips NaN and Infinity', () => {
         const meta = {};
-        const metrics = { 'compile-time': NaN, 'memory-peak': Infinity, 'download-size-total': 500 };
+        const metrics = { 'compile-time': NaN, 'memory-peak': Infinity, 'disk-size-total': 500 };
 
         const result = buildResultJson(meta, metrics);
-        assert.deepEqual(result.metrics, { 'download-size-total': 500 });
+        assert.deepEqual(result.metrics, { 'disk-size-total': 500 });
     });
 });
 

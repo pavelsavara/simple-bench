@@ -25,11 +25,8 @@ describe('mapRuntimeFlavor', () => {
         );
     });
 
-    it('throws on llvm_naot (not buildable, legacy only)', () => {
-        assert.throws(
-            () => mapRuntimeFlavor('llvm_naot'),
-            { message: /Unknown runtime/ }
-        );
+    it('maps naotllvm to Mono (legacy data only)', () => {
+        assert.equal(mapRuntimeFlavor('naotllvm'), 'Mono');
     });
 });
 
@@ -54,6 +51,10 @@ describe('getPresetArgs', () => {
         assert.deepEqual(getPresetArgs('no-reflection-emit'), ['/p:BenchmarkPreset=NoReflectionEmit']);
     });
 
+    it('no-jiterp → /p:BenchmarkPreset=NoJiterp', () => {
+        assert.deepEqual(getPresetArgs('no-jiterp'), ['/p:BenchmarkPreset=NoJiterp']);
+    });
+
     it('debug → /p:BenchmarkPreset=Debug', () => {
         assert.deepEqual(getPresetArgs('debug'), ['/p:BenchmarkPreset=Debug']);
     });
@@ -65,8 +66,8 @@ describe('getPresetArgs', () => {
         );
     });
 
-    it('PRESET_MAP covers all 6 presets', () => {
-        assert.equal(Object.keys(PRESET_MAP).length, 6);
+    it('PRESET_MAP covers all 7 presets', () => {
+        assert.equal(Object.keys(PRESET_MAP).length, 7);
     });
 });
 
@@ -78,6 +79,17 @@ describe('validateCombination', () => {
     it('rejects coreclr + aot', () => {
         assert.throws(
             () => validateCombination('coreclr', 'aot'),
+            { message: /only valid with runtime 'mono'/ }
+        );
+    });
+
+    it('allows mono + no-jiterp', () => {
+        assert.equal(validateCombination('mono', 'no-jiterp'), true);
+    });
+
+    it('rejects coreclr + no-jiterp', () => {
+        assert.throws(
+            () => validateCombination('coreclr', 'no-jiterp'),
             { message: /only valid with runtime 'mono'/ }
         );
     });
@@ -123,5 +135,16 @@ describe('getPublishArgs', () => {
             () => getPublishArgs('coreclr', 'aot', '/app', '/out'),
             { message: /only valid with runtime 'mono'/ }
         );
+    });
+
+    it('builds publish args for debug preset (uses publish, not build)', () => {
+        const args = getPublishArgs('coreclr', 'debug', '/app', '/out');
+        assert.deepEqual(args, [
+            'publish',
+            '/app',
+            '/p:BenchmarkPreset=Debug',
+            '/p:RuntimeFlavor=CoreCLR',
+            '-o', '/out'
+        ]);
     });
 });

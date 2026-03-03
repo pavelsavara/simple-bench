@@ -109,12 +109,12 @@ Based on Q&A with @pavelsavara:
 | Decision | Choice |
 |----------|--------|
 | **Import scope** | All historical data (all 5334 commits, 2022-2025) |
-| **Build → runtime mapping** | `interp` → `mono`, `aot` → `mono`, `nativeaot` → `llvm_naot` (new runtime) |
+| **Build → runtime mapping** | `interp` → `mono`, `aot` → `mono`, `nativeaot` → `naotllvm` (new runtime) |
 | **Config filter** | **Only** `default` — import `aot.default` and `interp.default`, drop all other configs |
 | **Environment mapping** | `chrome` → `chrome`, `firefox` → `firefox` (no v8/node in old data) |
 | **App mapping** | browser-template → `empty-browser`, blazor-template → `empty-blazor` |
 | **Timing metrics** | Only AppStart → Reach managed (warm + cold). Drop all other categories. |
-| **Size metrics** | `download-size-total`, `download-size-wasm`, `download-size-dlls`. Ignore ICU. |
+| **Size metrics** | `disk-size-total`, `disk-size-wasm`, `disk-size-dlls`. Ignore ICU. |
 | **Unit** | Keep as ms/op for AppStart metrics. Change internal ops metrics to ops/sec (model update). |
 | **sdkVersion** | Set to `"unknown"` (old data doesn't store SDK version) |
 | **Timeout filter** | Values ≥ 20000ms filtered as failed measurements |
@@ -131,7 +131,7 @@ Based on Q&A with @pavelsavara:
 |-----------|-------------|-------|
 | `interp` | `mono` | Interpreter mode; maps to preset=`no-workload` |
 | `aot` | `mono` | AOT compilation; maps to preset=`aot` |
-| `nativeaot` | `llvm_naot` | New runtime value to add to model |
+| `nativeaot` | `naotllvm` | New runtime value to add to model |
 
 ### Build + Config → Runtime + Preset
 
@@ -145,7 +145,7 @@ The old system combines `build` and `config` into the flavor triple. The new sys
 | `aot` | `simd` | — | — | ❌ dropped |
 | `aot` | `wasm-eh` | — | — | ❌ dropped |
 | `aot` | `nosimd` | — | — | ❌ dropped |
-| `nativeaot` | `default` | `llvm_naot` | `no-workload` | ❌ dropped (only 1 entry) |
+| `nativeaot` | `default` | `naotllvm` | `no-workload` | ❌ dropped (only 1 entry) |
 | `interp` | `threads` | — | — | ❌ dropped |
 | `*` | `legacy`, `hybrid-globalization` | — | — | ❌ dropped |
 
@@ -345,9 +345,9 @@ for each entry in index.Data:
 
 The following changes to `docs/model.md` are needed to support the migration:
 
-1. **Add `llvm_naot` to runtime dimension** — new runtime flavor for NativeAOT data
+1. **Add `naotllvm` to runtime dimension** — new runtime flavor for NativeAOT data
 2. **Add warm/cold reach-managed metrics** — `time-to-reach-managed` (ms) and `time-to-reach-managed-cold` (ms)
-3. **Add size breakdown metrics** — `download-size-total`, `download-size-wasm`, `download-size-dlls` (all bytes)
+3. **Add size breakdown metrics** — `disk-size-total`, `disk-size-wasm`, `disk-size-dlls` (all bytes)
 4. **Change ops/min → ops/sec** for internal microbenchmark metrics (per user request)
 5. **Remove `time-to-first-ui-change`** — replaced by `time-to-reach-managed` which is the actual measured concept
 

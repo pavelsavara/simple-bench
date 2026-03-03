@@ -125,9 +125,9 @@ export function extractBrowserMetrics(minTimes, sizes) {
     const sizeWasm = extractSize(sizes, M.SIZE_DOTNET_NATIVE_WASM)
         ?? extractSize(sizes, M.SIZE_DOTNET_WASM);
 
-    if (sizeTotal !== undefined) metrics['download-size-total'] = sizeTotal;
-    if (sizeDlls !== undefined) metrics['download-size-dlls'] = sizeDlls;
-    if (sizeWasm !== undefined) metrics['download-size-wasm'] = sizeWasm;
+    if (sizeTotal !== undefined) metrics['disk-size-total'] = sizeTotal;
+    if (sizeDlls !== undefined) metrics['disk-size-dlls'] = sizeDlls;
+    if (sizeWasm !== undefined) metrics['disk-size-wasm'] = sizeWasm;
 
     return Object.keys(metrics).length > 0 ? metrics : null;
 }

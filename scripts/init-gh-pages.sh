@@ -29,8 +29,8 @@ cat > data/index.json << 'INDEXEOF'
   "months": [],
   "lastUpdated": null,
   "dimensions": {
-    "runtimes": ["coreclr", "mono", "llvm_naot"],
-    "presets": ["no-workload", "aot", "native-relink", "invariant", "no-reflection-emit", "debug"],
+    "runtimes": ["coreclr", "mono", "naotllvm"],
+    "presets": ["no-workload", "aot", "native-relink", "no-jiterp", "invariant", "no-reflection-emit", "debug"],
     "engines": ["v8", "node", "chrome", "firefox"],
     "apps": ["empty-browser", "empty-blazor", "blazing-pizza", "microbenchmarks"]
   }

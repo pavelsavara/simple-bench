@@ -17,7 +17,7 @@
                     "file": "2026/2026-03-01/10-00-00-UTC_abc1234_coreclr_no-workload_chrome_empty-browser.json",
                     "metrics": [
                         "compile-time",
-                        "download-size-total",
+                        "disk-size-total",
                         "time-to-reach-managed"
                     ]
                 },
@@ -29,7 +29,7 @@
                     "file": "2026/2026-03-01/10-00-00-UTC_abc1234_mono_aot_chrome_empty-browser.json",
                     "metrics": [
                         "compile-time",
-                        "download-size-total",
+                        "disk-size-total",
                         "time-to-reach-managed"
                     ]
                 }
@@ -51,7 +51,7 @@
                     "file": "2026/2026-03-02/12-00-00-UTC_def5678_coreclr_no-workload_chrome_empty-browser.json",
                     "metrics": [
                         "compile-time",
-                        "download-size-total",
+                        "disk-size-total",
                         "time-to-reach-managed"
                     ]
                 },
