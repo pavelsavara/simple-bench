@@ -230,7 +230,9 @@ Size data comes from the index's `sizes` field (or from result JSON's `minTimes`
 
 | Old field | New field | Transformation |
 |-----------|-----------|---------------|
-| `hash` (40 chars) | `gitHash` | Direct copy |
+| `hash` (40 chars) | `runtimeGitHash` | Direct copy (old data only has one hash; used as runtime hash) |
+| `hash` (40 chars) | `sdkGitHash` | Copy same hash (no separate SDK hash available in old data) |
+| (not available) | `vmrGitHash` | Set to `""` (VMR didn't exist for old Mono data) |
 | `commitTime` (ISO with offset) | `commitDate` + `commitTime` | Parse → UTC → `YYYY-MM-DD` and `HH-MM-SS-UTC` |
 | (not available) | `sdkVersion` | Set to `"unknown"` or reconstruct from runtime version info |
 | `timeStamp` | (not mapped) | CI run timestamp — not used in new schema |
@@ -239,14 +241,14 @@ Size data comes from the index's `sizes` field (or from result JSON's `minTimes`
 
 From old: `measurements/{hash40}/aot/simd+wasm-eh/chrome/results.json`
 
-New: `data/{year}/{YYYY-MM-DD}/{HH-MM-SS-UTC}_{githash7}_mono_aot_chrome_empty-browser.json`
+New: `data/{year}/{YYYY-MM-DD}/{HH-MM-SS-UTC}_{runtimehash7}_mono_aot_chrome_empty-browser.json`
 
 Steps:
 1. Parse `commitTime` → UTC date + time
 2. `{year}` = date's year
 3. `{YYYY-MM-DD}` = date
 4. `{HH-MM-SS-UTC}` = time in UTC with dashes
-5. `{githash7}` = first 7 chars of hash
+5. `{runtimehash7}` = first 7 chars of hash
 6. `{runtime}` = `mono` (for aot build)
 7. `{preset}` = `aot` (for aot build)
 8. `{engine}` = `chrome`
@@ -262,7 +264,9 @@ For each imported entry, produce **two** result JSON files (one per app if both 
     "commitDate": "2023-06-15",
     "commitTime": "14-23-45-UTC",
     "sdkVersion": "unknown",
-    "gitHash": "abc1234def5678abc1234def5678abc1234def56",
+    "runtimeGitHash": "abc1234def5678abc1234def5678abc1234def56",
+    "sdkGitHash": "abc1234def5678abc1234def5678abc1234def56",
+    "vmrGitHash": "",
     "runtime": "mono",
     "preset": "aot",
     "engine": "chrome",

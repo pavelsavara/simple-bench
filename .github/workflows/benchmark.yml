@@ -59,10 +59,10 @@ jobs:
         shell: bash
         run: |
           SDK_INFO_FILE="${ARTIFACTS_DIR:-artifacts}/sdk/sdk-info.json"
-          GIT_HASH=$(jq -r .gitHash "$SDK_INFO_FILE")
-          GIT_HASH7=${GIT_HASH:0:7}
+          RUNTIME_HASH=$(jq -r '.runtimeGitHash // .gitHash' "$SDK_INFO_FILE")
+          RUNTIME_HASH7=${RUNTIME_HASH:0:7}
           COMMIT_TIME=$(jq -r .commitTime "$SDK_INFO_FILE")
-          FILENAME="${COMMIT_TIME}_${GIT_HASH7}_${{ matrix.runtime }}_${{ matrix.preset }}_chrome_empty-browser.json"
+          FILENAME="${COMMIT_TIME}_${RUNTIME_HASH7}_${{ matrix.runtime }}_${{ matrix.preset }}_chrome_empty-browser.json"
 
           node scripts/measure-external.mjs \
             --app empty-browser \

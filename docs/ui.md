@@ -279,7 +279,9 @@ export class DataLoader {
                             date: commit.date,
                             time: commit.time,
                             sdkVersion: commit.sdkVersion,
-                            gitHash: commit.gitHash
+                            runtimeGitHash: commit.runtimeGitHash || commit.gitHash,
+                            sdkGitHash: commit.sdkGitHash || '',
+                            vmrGitHash: commit.vmrGitHash || ''
                         });
                     }
                 }
@@ -420,7 +422,7 @@ export class ChartManager {
                             return [
                                 `${ctx.dataset.label}: ${formatValue(ctx.raw.y, METRIC_UNITS[metricKey])}`,
                                 `SDK: ${meta.sdkVersion}`,
-                                `Git: ${meta.gitHash.slice(0, 7)}`
+                                `Git: ${meta.runtimeGitHash.slice(0, 7)}`
                             ];
                         }
                     }

@@ -1,5 +1,17 @@
 #!/bin/bash
-# resolve-sdk.sh — Download .NET SDK and output version + git hash JSON
+# resolve-sdk.sh — Download .NET SDK and output version + git hashes JSON
+#
+# Resolves three git hashes from three different repos:
+#   - vmrGitHash:     dotnet/dotnet (VMR) commit that produced the SDK build
+#   - sdkGitHash:     dotnet/sdk repo commit
+#   - runtimeGitHash: dotnet/runtime repo commit
+#
+# Resolution algorithm:
+#   1. Install SDK, run `dotnet --info`
+#   2. Extract "SDK: Commit:" hash (DOTNET_COMMIT)
+#   3. Try fetching src/source-manifest.json from dotnet/dotnet at DOTNET_COMMIT
+#   4. If found → DOTNET_COMMIT is the VMR commit; parse sdk + runtime hashes from manifest
+#   5. If not → fallback: DOTNET_COMMIT is sdkGitHash, Host Commit is runtimeGitHash
 #
 # Usage:
 #   ./scripts/resolve-sdk.sh [channel] [specific-version]
@@ -46,11 +58,60 @@ fi
 # Extract version and commit info
 RESOLVED_VERSION=$("$INSTALL_DIR/dotnet" --version)
 DOTNET_INFO=$("$INSTALL_DIR/dotnet" --info)
-GIT_HASH=$(echo "$DOTNET_INFO" | grep -oP 'Commit:\s+\K[a-f0-9]+' | head -1)
 
-if [ -z "$GIT_HASH" ]; then
-    echo "Warning: Could not extract git hash from dotnet --info" >&2
-    GIT_HASH="0000000000000000000000000000000000000000"
+# Extract the first Commit: line (from .NET SDK section)
+DOTNET_COMMIT=$(echo "$DOTNET_INFO" | grep -oP 'Commit:\s+\K[a-f0-9]+' | head -1)
+# Extract the Host section's Commit: line (from dotnet/runtime host)
+HOST_COMMIT=$(echo "$DOTNET_INFO" | sed -n '/^Host:/,/^$/p' | grep -oP 'Commit:\s+\K[a-f0-9]+' | head -1)
+
+if [ -z "$DOTNET_COMMIT" ]; then
+    echo "Warning: Could not extract commit hash from dotnet --info" >&2
+    DOTNET_COMMIT="0000000000000000000000000000000000000000"
+fi
+
+# ── Resolve three git hashes ────────────────────────────────────────────────
+# Try treating DOTNET_COMMIT as a VMR (dotnet/dotnet) commit by fetching
+# src/source-manifest.json at that hash. For VMR-based builds (≥.NET 9),
+# the SDK section's Commit: is the VMR commit hash.
+
+VMR_GIT_HASH=""
+SDK_GIT_HASH=""
+RUNTIME_GIT_HASH=""
+
+MANIFEST_URL="https://raw.githubusercontent.com/dotnet/dotnet/$DOTNET_COMMIT/src/source-manifest.json"
+echo "Trying VMR resolution at $DOTNET_COMMIT..." >&2
+
+if MANIFEST=$(curl -fsSL "$MANIFEST_URL" 2>/dev/null); then
+    echo "VMR commit confirmed. Extracting repo hashes from source-manifest.json..." >&2
+    VMR_GIT_HASH="$DOTNET_COMMIT"
+
+    # Parse individual repo hashes from the VMR source-manifest.json
+    SDK_GIT_HASH=$(echo "$MANIFEST" | node -e "
+        const data = JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf8'));
+        const entry = (data.repositories || []).find(r => r.path === 'src/sdk');
+        process.stdout.write(entry?.commitSha || '');
+    ")
+    RUNTIME_GIT_HASH=$(echo "$MANIFEST" | node -e "
+        const data = JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf8'));
+        const entry = (data.repositories || []).find(r => r.path === 'src/runtime');
+        process.stdout.write(entry?.commitSha || '');
+    ")
+
+    echo "  vmrGitHash:     $VMR_GIT_HASH" >&2
+    echo "  sdkGitHash:     $SDK_GIT_HASH" >&2
+    echo "  runtimeGitHash: $RUNTIME_GIT_HASH" >&2
+else
+    echo "VMR resolution failed (non-VMR build or network error). Using fallback." >&2
+fi
+
+# Fallback: if VMR resolution didn't provide hashes
+if [ -z "$SDK_GIT_HASH" ]; then
+    SDK_GIT_HASH="$DOTNET_COMMIT"
+    echo "  sdkGitHash (fallback from SDK Commit): $SDK_GIT_HASH" >&2
+fi
+if [ -z "$RUNTIME_GIT_HASH" ]; then
+    RUNTIME_GIT_HASH="${HOST_COMMIT:-$DOTNET_COMMIT}"
+    echo "  runtimeGitHash (fallback from Host Commit): $RUNTIME_GIT_HASH" >&2
 fi
 
 # Parse build date from version string (YYDDD pattern)
@@ -73,7 +134,9 @@ COMMIT_TIME=$(date -u +%H-%M-%S-UTC)
 cat <<EOF > "$INSTALL_DIR/sdk-info.json"
 {
   "sdkVersion": "$RESOLVED_VERSION",
-  "gitHash": "$GIT_HASH",
+  "runtimeGitHash": "$RUNTIME_GIT_HASH",
+  "sdkGitHash": "$SDK_GIT_HASH",
+  "vmrGitHash": "$VMR_GIT_HASH",
   "commitDate": "$COMMIT_DATE",
   "commitTime": "$COMMIT_TIME"
 }

@@ -157,12 +157,14 @@ rm /tmp/sdk.tar.gz
 export DOTNET_ROOT="$INSTALL_DIR"
 export PATH="$INSTALL_DIR:$PATH"
 
-# Extract version info
+# Extract version info and resolve git hashes
+# See scripts/resolve-sdk.sh for full algorithm:
+# 1. Gets SDK commit (vmrGitHash) and Host commit from `dotnet --info`
+# 2. Fetches source-manifest.json from VMR to resolve sdkGitHash and runtimeGitHash
+# 3. Falls back to SDK_COMMIT/HOST_COMMIT if not a VMR build
 RESOLVED_VERSION=$("$INSTALL_DIR/dotnet" --version)
-GIT_HASH=$("$INSTALL_DIR/dotnet" --info | grep -oP 'Commit:\s+\K[a-f0-9]+')
-
-# Output as JSON for downstream consumption
-echo "{\"sdkVersion\": \"$RESOLVED_VERSION\", \"gitHash\": \"$GIT_HASH\"}" > /tmp/sdk-info.json
+# ... (hash resolution logic) ...
+echo '{"sdkVersion":"...","runtimeGitHash":"...","sdkGitHash":"...","vmrGitHash":"...","commitDate":"...","commitTime":"..."}' > /tmp/sdk-info.json
 cat /tmp/sdk-info.json
 ```
 
@@ -429,20 +431,19 @@ jobs:
 
       - name: Run benchmark
         run: |
-          SDK_VERSION=$(echo '${{ steps.sdk.outputs.sdk_info }}' | jq -r .sdkVersion)
-          GIT_HASH=$(echo '${{ steps.sdk.outputs.sdk_info }}' | jq -r .gitHash)
-          GIT_HASH7=${GIT_HASH:0:7}
-          # Extract commit date+time from the SDK build's git info
-          COMMIT_DATE=$(echo '${{ steps.sdk.outputs.sdk_info }}' | jq -r .commitDate)   # YYYY-MM-DD
-          COMMIT_TIME=$(echo '${{ steps.sdk.outputs.sdk_info }}' | jq -r .commitTime)   # HH-MM-SS-UTC
-          FILENAME="${COMMIT_TIME}_${GIT_HASH7}_${{ matrix.runtime }}_${{ matrix.preset }}_${{ matrix.engine }}_${{ matrix.app }}.json"
+          SDK_INFO='${{ steps.sdk.outputs.sdk_info }}'
+          SDK_VERSION=$(echo "$SDK_INFO" | jq -r .sdkVersion)
+          RUNTIME_HASH=$(echo "$SDK_INFO" | jq -r '.runtimeGitHash // .gitHash')
+          RUNTIME_HASH7=${RUNTIME_HASH:0:7}
+          COMMIT_DATE=$(echo "$SDK_INFO" | jq -r .commitDate)   # YYYY-MM-DD
+          COMMIT_TIME=$(echo "$SDK_INFO" | jq -r .commitTime)   # HH-MM-SS-UTC
+          FILENAME="${COMMIT_TIME}_${RUNTIME_HASH7}_${{ matrix.runtime }}_${{ matrix.preset }}_${{ matrix.engine }}_${{ matrix.app }}.json"
           
           if [ "${{ matrix.app }}" = "microbenchmarks" ]; then
             node scripts/measure-internal.mjs \
               --engine ${{ matrix.engine }} \
               --publish-dir artifacts/publish/${{ matrix.app }} \
-              --sdk-version "$SDK_VERSION" \
-              --git-hash "$GIT_HASH" \
+              --sdk-info /tmp/sdk-info.json \
               --commit-date "$COMMIT_DATE" \
               --commit-time "$COMMIT_TIME" \
               --runtime ${{ matrix.runtime }} \
@@ -452,8 +453,7 @@ jobs:
             node scripts/measure-external.mjs \
               --app ${{ matrix.app }} \
               --publish-dir artifacts/publish/${{ matrix.app }} \
-              --sdk-version "$SDK_VERSION" \
-              --git-hash "$GIT_HASH" \
+              --sdk-info /tmp/sdk-info.json \
               --commit-date "$COMMIT_DATE" \
               --commit-time "$COMMIT_TIME" \
               --runtime ${{ matrix.runtime }} \
@@ -534,14 +534,14 @@ Logic:
 1. Scan `artifacts-dir` for all `*.json` files (flattened from artifact subdirs)
 2. Read existing `data-dir/index.json` (or create empty if first run)
 3. For each result JSON:
-   - Parse `meta` to get `commitDate`, `commitTime`, `gitHash`, dimension values
+   - Parse `meta` to get `commitDate`, `commitTime`, `runtimeGitHash`, `sdkGitHash`, `vmrGitHash`, dimension values
    - Compute target directory: `{data-dir}/{year}/{commitDate}/`
-   - Compute filename: `{commitTime}_{gitHash7}_{runtime}_{preset}_{engine}_{app}.json`
+   - Compute filename: `{commitTime}_{runtimehash7}_{runtime}_{preset}_{engine}_{app}.json`
    - Create directory if needed
    - Copy file to target path
    - Compute month key `YYYY-MM` from `commitDate`
    - Load or create month index `{data-dir}/{YYYY-MM}.json`
-   - Find or create commit entry in month index (by `gitHash`)
+   - Find or create commit entry in month index (by `runtimeGitHash`)
    - Add/replace result entry (same dimensions = replace)
 4. For each modified month index: sort commits by date+time, write `{YYYY-MM}.json`
 5. Update `index.json`: re-derive `months[]`, `dimensions`, `lastUpdated`
