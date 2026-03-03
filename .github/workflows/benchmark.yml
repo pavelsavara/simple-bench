@@ -43,6 +43,10 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
+      - name: Export container env to GitHub Actions
+        shell: bash
+        run: echo "ARTIFACTS_DIR=${ARTIFACTS_DIR:-artifacts}" >> "$GITHUB_ENV"
+
       - name: Resolve SDK
         shell: bash
         run: ./scripts/resolve-sdk.sh "${{ inputs.sdk_channel || '11.0' }}" "${{ inputs.sdk_version }}"
