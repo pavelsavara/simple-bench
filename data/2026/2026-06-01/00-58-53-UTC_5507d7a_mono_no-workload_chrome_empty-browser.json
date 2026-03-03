@@ -1,0 +1,22 @@
+{
+  "meta": {
+    "commitDate": "2026-06-01",
+    "commitTime": "00-58-53-UTC",
+    "sdkVersion": "11.0.100-preview.3.26152.106",
+    "gitHash": "5507d7a2f0",
+    "runtime": "mono",
+    "preset": "no-workload",
+    "engine": "chrome",
+    "app": "empty-browser",
+    "ciRunId": "22603163707",
+    "ciRunUrl": "https://github.com/pavelsavara/simple-bench/actions/runs/22603163707"
+  },
+  "metrics": {
+    "compile-time": 21322,
+    "download-size-total": 6460390,
+    "download-size-wasm": 4305543,
+    "time-to-reach-managed": 105.33499999999185,
+    "time-to-reach-managed-cold": 232.93500000001222,
+    "memory-peak": 6116456
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "month": "2026-06",
+  "commits": [
+    {
+      "gitHash": "5507d7a2f0",
+      "date": "2026-06-01",
+      "time": "00-58-53-UTC",
+      "sdkVersion": "11.0.100-preview.3.26152.106",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "engine": "chrome",
+          "app": "empty-browser",
+          "file": "2026/2026-06-01/00-58-53-UTC_5507d7a_mono_no-workload_chrome_empty-browser.json",
+          "metrics": [
+            "compile-time",
+            "download-size-total",
+            "download-size-wasm",
+            "time-to-reach-managed",
+            "time-to-reach-managed-cold",
+            "memory-peak"
+          ]
+        }
+      ]
+    }
+  ]
+}
