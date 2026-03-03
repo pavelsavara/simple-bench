@@ -3,7 +3,7 @@ on:
   schedule:
     - cron: '0 0 * * 0'  # Weekly on Sunday
   push:
-    paths: ['docker/**']
+    paths: ['docker/**', 'package.json', 'package-lock.json']
   workflow_dispatch:
 
 jobs:
@@ -22,6 +22,7 @@ jobs:
 
       - uses: docker/build-push-action@v6
         with:
-          context: docker/
+          context: .
+          file: docker/Dockerfile
           push: true
           tags: ghcr.io/${{ github.repository }}/browser-bench:latest
