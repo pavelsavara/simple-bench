@@ -70,7 +70,9 @@ export class DataLoader {
                             date: commit.date,
                             time: commit.time,
                             sdkVersion: commit.sdkVersion,
-                            gitHash: commit.gitHash
+                            runtimeGitHash: commit.runtimeGitHash || commit.gitHash,
+                            sdkGitHash: commit.sdkGitHash || '',
+                            vmrGitHash: commit.vmrGitHash || ''
                         });
                     }
                 }
