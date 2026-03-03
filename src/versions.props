@@ -1,0 +1,10 @@
+<Project>
+
+  <PropertyGroup>
+    <DefaultTargetFramework>net11.0</DefaultTargetFramework>
+    <MicrosoftAspNetCoreVersion>11.0.0-alpha.1.26064.118</MicrosoftAspNetCoreVersion>
+    <MicrosoftEntityFrameworkCoreVersion>11.0.0-alpha.1.26064.118</MicrosoftEntityFrameworkCoreVersion>
+    <WebPushVersion>1.0.12</WebPushVersion>
+  </PropertyGroup>
+
+</Project>
