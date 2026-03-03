@@ -1,0 +1,68 @@
+{
+    "month": "2026-03",
+    "commits": [
+        {
+            "gitHash": "abc1234def5678abc1234def5678abc1234def567",
+            "date": "2026-03-01",
+            "time": "10-00-00-UTC",
+            "sdkVersion": "10.0.100-preview.3.25130.1",
+            "results": [
+                {
+                    "runtime": "coreclr",
+                    "preset": "no-workload",
+                    "engine": "chrome",
+                    "app": "empty-browser",
+                    "file": "2026/2026-03-01/10-00-00-UTC_abc1234_coreclr_no-workload_chrome_empty-browser.json",
+                    "metrics": [
+                        "compile-time",
+                        "download-size-total",
+                        "time-to-reach-managed"
+                    ]
+                },
+                {
+                    "runtime": "mono",
+                    "preset": "aot",
+                    "engine": "chrome",
+                    "app": "empty-browser",
+                    "file": "2026/2026-03-01/10-00-00-UTC_abc1234_mono_aot_chrome_empty-browser.json",
+                    "metrics": [
+                        "compile-time",
+                        "download-size-total",
+                        "time-to-reach-managed"
+                    ]
+                }
+            ]
+        },
+        {
+            "gitHash": "def5678abc1234def5678abc1234def5678abc1234",
+            "date": "2026-03-02",
+            "time": "12-00-00-UTC",
+            "sdkVersion": "10.0.100-preview.3.25140.5",
+            "results": [
+                {
+                    "runtime": "coreclr",
+                    "preset": "no-workload",
+                    "engine": "chrome",
+                    "app": "empty-browser",
+                    "file": "2026/2026-03-02/12-00-00-UTC_def5678_coreclr_no-workload_chrome_empty-browser.json",
+                    "metrics": [
+                        "compile-time",
+                        "download-size-total",
+                        "time-to-reach-managed"
+                    ]
+                },
+                {
+                    "runtime": "mono",
+                    "preset": "no-workload",
+                    "engine": "firefox",
+                    "app": "microbenchmarks",
+                    "file": "2026/2026-03-02/12-00-00-UTC_def5678_mono_no-workload_firefox_microbenchmarks.json",
+                    "metrics": [
+                        "js-interop-ops",
+                        "json-parse-ops"
+                    ]
+                }
+            ]
+        }
+    ]
+}

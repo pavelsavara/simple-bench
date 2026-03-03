@@ -1,0 +1,19 @@
+{
+    "meta": {
+        "commitDate": "2026-03-01",
+        "commitTime": "10-00-00-UTC",
+        "sdkVersion": "10.0.100-preview.3.25130.1",
+        "gitHash": "abc1234def5678abc1234def5678abc1234def567",
+        "runtime": "coreclr",
+        "preset": "no-workload",
+        "engine": "chrome",
+        "app": "empty-browser",
+        "ciRunId": "100",
+        "ciRunUrl": "https://github.com/test/actions/runs/100"
+    },
+    "metrics": {
+        "compile-time": 42000,
+        "download-size-total": 12000000,
+        "time-to-reach-managed": 300.5
+    }
+}
