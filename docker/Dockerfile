@@ -44,3 +44,7 @@ ENV ARTIFACTS_DIR=/bench/artifacts
 RUN mkdir -p $ARTIFACTS_DIR/sdk $ARTIFACTS_DIR/publish $ARTIFACTS_DIR/results $ARTIFACTS_DIR/logs
 
 WORKDIR /bench
+
+# Pre-install npm dependencies so they're baked into the image
+COPY package.json package-lock.json ./
+RUN npm ci && rm -rf /root/.npm

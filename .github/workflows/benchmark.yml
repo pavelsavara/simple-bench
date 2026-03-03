@@ -38,9 +38,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install npm dependencies
-        run: npm ci
-
       - name: Export container env to GitHub Actions
         shell: bash
         run: echo "ARTIFACTS_DIR=${ARTIFACTS_DIR:-artifacts}" >> "$GITHUB_ENV"
