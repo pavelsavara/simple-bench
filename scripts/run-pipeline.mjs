@@ -13,6 +13,11 @@
  *   5. For all apps × workload presets → build
  *   6. For all engines × apps × presets → run measurements
  *
+ * Engine mapping:
+ *   empty-blazor: chrome, firefox  (needs browser DOM)
+ *   empty-browser, microbenchmarks: chrome, firefox, v8, node
+ *   --dry-run / PR: chrome only
+ *
  * Usage:
  *   node scripts/run-pipeline.mjs [options]
  *
@@ -193,7 +198,26 @@ async function installWorkload() {
 
 // ── Phase 6: Run measurements ───────────────────────────────────────────────
 
-async function runMeasurements(apps, presets) {
+/** Apps that require a browser (DOM, fetch, service workers). */
+const BROWSER_ONLY_APPS = new Set(['empty-blazor']);
+
+/** Apps measured with measure-internal.mjs (microbenchmarks). */
+const INTERNAL_APPS = new Set(['microbenchmarks']);
+
+const ALL_BROWSER_ENGINES = ['chrome', 'firefox'];
+const ALL_CLI_ENGINES = ['v8', 'node'];
+
+/**
+ * Return the list of engines to test for a given app.
+ * --dry-run restricts to chrome only for fast PR validation.
+ */
+function getEnginesForApp(app, isDryRun) {
+    if (isDryRun) return ['chrome'];
+    if (BROWSER_ONLY_APPS.has(app)) return ALL_BROWSER_ENGINES;
+    return [...ALL_BROWSER_ENGINES, ...ALL_CLI_ENGINES];
+}
+
+async function runMeasurements(apps, presets, isDryRun) {
     console.error('\n═══ Phase 6: Run measurements ═══');
     const runtime = args.runtime;
     const sdkInfo = JSON.parse(await readFile(SDK_INFO_PATH, 'utf-8'));
@@ -201,11 +225,10 @@ async function runMeasurements(apps, presets) {
     const runtimeHash7 = runtimeHash.slice(0, 7);
     const commitTime = sdkInfo.commitTime;
 
-    // Engines: for browser apps use chrome; future: could expand
-    const engines = ['chrome'];
+    for (const app of apps) {
+        const engines = getEnginesForApp(app, isDryRun);
 
-    for (const engine of engines) {
-        for (const app of apps) {
+        for (const engine of engines) {
             for (const preset of presets) {
                 // Skip invalid combinations
                 try {
@@ -219,20 +242,40 @@ async function runMeasurements(apps, presets) {
                 const compileTimeFile = join(ARTIFACTS_DIR, 'results', 'compile-time.json');
                 const outputFile = join(ARTIFACTS_DIR, 'results', filename);
 
-                run('node', [
-                    join(SCRIPT_DIR, 'measure-external.mjs'),
-                    '--app', app,
-                    '--publish-dir', publishDir,
-                    '--sdk-info', SDK_INFO_PATH,
-                    '--compile-time-file', compileTimeFile,
-                    '--runtime', runtime,
-                    '--preset', preset,
-                    '--retries', args.retries,
-                    '--timeout', args.timeout,
-                    ...(args['ci-run-id'] ? ['--ci-run-id', args['ci-run-id']] : []),
-                    ...(args['ci-run-url'] ? ['--ci-run-url', args['ci-run-url']] : []),
-                    '--output', outputFile,
-                ], { label: `measure ${app} (${runtime}/${preset}/${engine})` });
+                if (INTERNAL_APPS.has(app)) {
+                    // Microbenchmarks → measure-internal.mjs
+                    run('node', [
+                        join(SCRIPT_DIR, 'measure-internal.mjs'),
+                        '--publish-dir', publishDir,
+                        '--engine', engine,
+                        '--output', outputFile,
+                        '--runtime', runtime,
+                        '--preset', preset,
+                        '--sdk-info', SDK_INFO_PATH,
+                        '--compile-time-file', compileTimeFile,
+                        '--retries', args.retries,
+                        '--timeout', args.timeout,
+                        ...(args['ci-run-id'] ? ['--ci-run-id', args['ci-run-id']] : []),
+                        ...(args['ci-run-url'] ? ['--ci-run-url', args['ci-run-url']] : []),
+                    ], { label: `measure ${app} (${runtime}/${preset}/${engine})` });
+                } else {
+                    // Browser apps → measure-external.mjs
+                    run('node', [
+                        join(SCRIPT_DIR, 'measure-external.mjs'),
+                        '--app', app,
+                        '--publish-dir', publishDir,
+                        '--sdk-info', SDK_INFO_PATH,
+                        '--compile-time-file', compileTimeFile,
+                        '--engine', engine,
+                        '--runtime', runtime,
+                        '--preset', preset,
+                        '--retries', args.retries,
+                        '--timeout', args.timeout,
+                        ...(args['ci-run-id'] ? ['--ci-run-id', args['ci-run-id']] : []),
+                        ...(args['ci-run-url'] ? ['--ci-run-url', args['ci-run-url']] : []),
+                        '--output', outputFile,
+                    ], { label: `measure ${app} (${runtime}/${preset}/${engine})` });
+                }
             }
         }
     }
@@ -267,12 +310,9 @@ async function main() {
     // Phase 5: Build workload/native presets (WasmBuildNative=true / AOT / etc.)
     await buildApps(apps, workload, 'Phase 5: Build workload/native presets');
 
-    // Phase 6: Run measurements (unless dry-run)
-    if (args['dry-run']) {
-        console.error('\n⚠ Dry run — skipping measurements');
-    } else {
-        await runMeasurements(apps, allPresets);
-    }
+    // Phase 6: Run measurements
+    //   --dry-run restricts to chrome-only (fast PR validation)
+    await runMeasurements(apps, allPresets, args['dry-run']);
 
     console.error('\n✓ Pipeline complete');
 }

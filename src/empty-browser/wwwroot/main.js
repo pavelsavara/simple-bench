@@ -15,3 +15,11 @@ setModuleImports('main.js', {
 
 globalThis.dotnet_ready = performance.now();
 await runMain();
+
+// CLI engines (v8/d8, node): output timing as JSON for measurement scripts.
+// In a browser, `window` exists so this is skipped.
+if (typeof window === 'undefined' && typeof globalThis.dotnet_managed_ready !== 'undefined') {
+    console.log(JSON.stringify({
+        'time-to-reach-managed': globalThis.dotnet_managed_ready
+    }));
+}
