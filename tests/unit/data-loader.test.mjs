@@ -41,25 +41,23 @@ class TestableDataLoader {
     }
 
     /** Same logic as DataLoader.loadMonths but determines which months are needed. */
-    getNeededMonths(rangeInDays) {
+    getNeededMonths(range) {
         if (!this.#index) throw new Error('Index not loaded');
-        const cutoff = rangeInDays > 0
-            ? new Date(Date.now() - rangeInDays * 86400000)
-            : new Date(0);
-        const cutoffMonth = `${cutoff.getUTCFullYear()}-${String(cutoff.getUTCMonth() + 1).padStart(2, '0')}`;
+        const cutoffMonth = range?.min
+            ? range.min.slice(0, 7)
+            : '0000-00';
         return this.#index.months.filter(m => m >= cutoffMonth);
     }
 
     /** Same filterRuns logic as the real DataLoader. */
     filterRuns(app, filterState) {
-        const cutoff = filterState.range > 0
-            ? new Date(Date.now() - filterState.range * 86400000).toISOString().slice(0, 10)
-            : '1970-01-01';
+        const cutoffMin = filterState.range?.min || '1970-01-01';
+        const cutoffMax = filterState.range?.max || '9999-12-31';
 
         const runs = [];
         for (const monthIndex of this.#monthCache.values()) {
             for (const commit of monthIndex.commits) {
-                if (commit.date < cutoff) continue;
+                if (commit.date < cutoffMin || commit.date > cutoffMax) continue;
                 for (const result of commit.results) {
                     if (result.app === app &&
                         filterState.runtime.includes(result.runtime) &&
@@ -124,16 +122,14 @@ describe('DataLoader', () => {
     });
 
     describe('getNeededMonths()', () => {
-        it('returns all months for range=0 (All)', () => {
-            const months = loader.getNeededMonths(0);
+        it('returns all months for null range (All)', () => {
+            const months = loader.getNeededMonths({ min: null, max: null });
             assert.deepEqual(months, ['2026-02', '2026-03']);
         });
 
-        it('filters months by range', () => {
-            // With a 7-day range from "now" (test date ~March 2026), only 2026-03 should be needed
-            // but this depends on current date, so test with range=0 as reliable case
-            const months = loader.getNeededMonths(0);
-            assert.ok(months.length >= 1);
+        it('filters months by min date', () => {
+            const months = loader.getNeededMonths({ min: '2026-03-01', max: '2026-03-31' });
+            assert.deepEqual(months, ['2026-03']);
         });
     });
 
@@ -143,7 +139,7 @@ describe('DataLoader', () => {
                 runtime: ['coreclr', 'mono'],
                 preset: ['no-workload', 'aot'],
                 engine: ['chrome', 'firefox'],
-                range: 0
+                range: { min: null, max: null }
             });
             // March has 3 empty-browser results, Feb has 1
             assert.equal(runs.length, 4);
@@ -154,7 +150,7 @@ describe('DataLoader', () => {
                 runtime: ['coreclr'],
                 preset: ['no-workload', 'aot'],
                 engine: ['chrome', 'firefox'],
-                range: 0
+                range: { min: null, max: null }
             });
             // Only coreclr results for empty-browser: Mar 1 + Mar 2 + Feb 15 = 3
             assert.equal(runs.length, 3);
@@ -165,7 +161,7 @@ describe('DataLoader', () => {
                 runtime: ['coreclr', 'mono'],
                 preset: ['aot'],
                 engine: ['chrome', 'firefox'],
-                range: 0
+                range: { min: null, max: null }
             });
             // Only mono/aot on Mar 1
             assert.equal(runs.length, 1);
@@ -178,22 +174,29 @@ describe('DataLoader', () => {
                 runtime: ['coreclr', 'mono'],
                 preset: ['no-workload', 'aot'],
                 engine: ['firefox'],
-                range: 0
+                range: { min: null, max: null }
             });
             // No empty-browser results with firefox engine in our fixtures
             assert.equal(runs.length, 0);
         });
 
-        it('filters by time range', () => {
-            // Use a range that would exclude Feb 2026 data
-            // Since range is based on Date.now(), use range=0 (all) vs checking specific dates
+        it('filters by date range', () => {
             const allRuns = loader.filterRuns('empty-browser', {
                 runtime: ['coreclr', 'mono'],
                 preset: ['no-workload', 'aot'],
                 engine: ['chrome', 'firefox'],
-                range: 0
+                range: { min: null, max: null }
             });
-            assert.ok(allRuns.length > 0);
+            assert.equal(allRuns.length, 4);
+
+            // Only March data
+            const marchRuns = loader.filterRuns('empty-browser', {
+                runtime: ['coreclr', 'mono'],
+                preset: ['no-workload', 'aot'],
+                engine: ['chrome', 'firefox'],
+                range: { min: '2026-03-01', max: '2026-03-31' }
+            });
+            assert.equal(marchRuns.length, 3);
         });
 
         it('returns empty for non-existent app', () => {
@@ -201,7 +204,7 @@ describe('DataLoader', () => {
                 runtime: ['coreclr', 'mono'],
                 preset: ['no-workload', 'aot'],
                 engine: ['chrome', 'firefox'],
-                range: 0
+                range: { min: null, max: null }
             });
             assert.equal(runs.length, 0);
         });
@@ -211,7 +214,7 @@ describe('DataLoader', () => {
                 runtime: ['coreclr'],
                 preset: ['no-workload'],
                 engine: ['chrome'],
-                range: 0
+                range: { min: null, max: null }
             });
             assert.ok(runs.length >= 1);
             const run = runs[0];
@@ -227,7 +230,7 @@ describe('DataLoader', () => {
                 runtime: ['mono'],
                 preset: ['no-workload'],
                 engine: ['firefox'],
-                range: 0
+                range: { min: null, max: null }
             });
             assert.equal(runs.length, 1);
             assert.equal(runs[0].app, 'microbenchmarks');

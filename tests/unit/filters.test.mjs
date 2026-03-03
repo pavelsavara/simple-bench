@@ -7,12 +7,15 @@ import assert from 'node:assert/strict';
 /** Reimplementation of readHashState for testing. */
 function readHashState(hash) {
     const params = new URLSearchParams(hash);
+    const rangeParts = params.get('range')?.split(',');
     return {
         app: params.get('app') || 'empty-browser',
         runtime: params.get('runtime')?.split(',') || null,
         preset: params.get('preset')?.split(',') || null,
         engine: params.get('engine')?.split(',') || null,
-        range: parseInt(params.get('range') || '30')
+        range: rangeParts?.length === 2
+            ? { min: rangeParts[0], max: rangeParts[1] }
+            : { min: null, max: null }
     };
 }
 
@@ -23,7 +26,9 @@ function writeHash(app, filterState) {
     if (filterState.runtime.length) params.set('runtime', filterState.runtime.join(','));
     if (filterState.preset.length) params.set('preset', filterState.preset.join(','));
     if (filterState.engine.length) params.set('engine', filterState.engine.join(','));
-    params.set('range', filterState.range.toString());
+    if (filterState.range.min && filterState.range.max) {
+        params.set('range', `${filterState.range.min},${filterState.range.max}`);
+    }
     return params.toString();
 }
 
@@ -34,7 +39,7 @@ describe('Filters — hash parsing', () => {
         assert.equal(state.runtime, null);
         assert.equal(state.preset, null);
         assert.equal(state.engine, null);
-        assert.equal(state.range, 30);
+        assert.deepEqual(state.range, { min: null, max: null });
     });
 
     it('parses app from hash', () => {
@@ -57,23 +62,23 @@ describe('Filters — hash parsing', () => {
         assert.deepEqual(state.engine, ['v8', 'chrome']);
     });
 
-    it('parses range', () => {
-        const state = readHashState('app=empty-browser&range=90');
-        assert.equal(state.range, 90);
+    it('parses date range', () => {
+        const state = readHashState('app=empty-browser&range=2025-06-01,2026-03-01');
+        assert.deepEqual(state.range, { min: '2025-06-01', max: '2026-03-01' });
     });
 
-    it('parses range=0 (All)', () => {
-        const state = readHashState('range=0');
-        assert.equal(state.range, 0);
+    it('parses missing range as nulls', () => {
+        const state = readHashState('app=empty-browser');
+        assert.deepEqual(state.range, { min: null, max: null });
     });
 
     it('parses full hash string', () => {
-        const state = readHashState('app=microbenchmarks&runtime=coreclr&preset=no-workload&engine=v8,chrome&range=365');
+        const state = readHashState('app=microbenchmarks&runtime=coreclr&preset=no-workload&engine=v8,chrome&range=2025-01-01,2026-01-01');
         assert.equal(state.app, 'microbenchmarks');
         assert.deepEqual(state.runtime, ['coreclr']);
         assert.deepEqual(state.preset, ['no-workload']);
         assert.deepEqual(state.engine, ['v8', 'chrome']);
-        assert.equal(state.range, 365);
+        assert.deepEqual(state.range, { min: '2025-01-01', max: '2026-01-01' });
     });
 
     it('handles single values without commas', () => {
@@ -88,14 +93,14 @@ describe('Filters — hash writing', () => {
             runtime: ['coreclr', 'mono'],
             preset: ['no-workload'],
             engine: ['chrome'],
-            range: 30
+            range: { min: '2026-02-01', max: '2026-03-03' }
         });
         const parsed = readHashState(hash);
         assert.equal(parsed.app, 'empty-browser');
         assert.deepEqual(parsed.runtime, ['coreclr', 'mono']);
         assert.deepEqual(parsed.preset, ['no-workload']);
         assert.deepEqual(parsed.engine, ['chrome']);
-        assert.equal(parsed.range, 30);
+        assert.deepEqual(parsed.range, { min: '2026-02-01', max: '2026-03-03' });
     });
 
     it('round-trips through parse/write', () => {
@@ -103,7 +108,7 @@ describe('Filters — hash writing', () => {
             runtime: ['coreclr'],
             preset: ['aot', 'no-workload'],
             engine: ['v8', 'node'],
-            range: 90
+            range: { min: '2025-12-01', max: '2026-03-01' }
         };
         const hash = writeHash('microbenchmarks', original);
         const parsed = readHashState(hash);
@@ -111,7 +116,7 @@ describe('Filters — hash writing', () => {
         assert.deepEqual(parsed.runtime, original.runtime);
         assert.deepEqual(parsed.preset, original.preset);
         assert.deepEqual(parsed.engine, original.engine);
-        assert.equal(parsed.range, original.range);
+        assert.deepEqual(parsed.range, original.range);
     });
 
     it('omits empty filter arrays', () => {
@@ -119,22 +124,23 @@ describe('Filters — hash writing', () => {
             runtime: [],
             preset: [],
             engine: [],
-            range: 30
+            range: { min: null, max: null }
         });
         assert.ok(!hash.includes('runtime='));
         assert.ok(!hash.includes('preset='));
         assert.ok(!hash.includes('engine='));
+        assert.ok(!hash.includes('range='));
     });
 
-    it('writes range=0 for all', () => {
+    it('omits range when min/max are null', () => {
         const hash = writeHash('empty-browser', {
             runtime: ['coreclr'],
             preset: ['no-workload'],
             engine: ['chrome'],
-            range: 0
+            range: { min: null, max: null }
         });
         const parsed = readHashState(hash);
-        assert.equal(parsed.range, 0);
+        assert.deepEqual(parsed.range, { min: null, max: null });
     });
 });
 
