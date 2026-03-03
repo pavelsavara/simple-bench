@@ -113,10 +113,10 @@ describe('validateCombination', () => {
 
 describe('getPublishArgs', () => {
     it('builds full publish args for coreclr + no-workload', () => {
-        const args = getPublishArgs('coreclr', 'no-workload', '/bench/apps/empty-browser', '/bench/artifacts/publish/empty-browser');
+        const args = getPublishArgs('coreclr', 'no-workload', '/bench/src/empty-browser', '/bench/artifacts/publish/empty-browser');
         assert.deepEqual(args, [
             'publish',
-            '/bench/apps/empty-browser',
+            '/bench/src/empty-browser',
             '/p:BenchmarkPreset=NoWorkload',
             '/p:RuntimeFlavor=CoreCLR',
             '-o', '/bench/artifacts/publish/empty-browser'
@@ -124,10 +124,10 @@ describe('getPublishArgs', () => {
     });
 
     it('builds full publish args for mono + aot', () => {
-        const args = getPublishArgs('mono', 'aot', '/bench/apps/empty-browser', '/out');
+        const args = getPublishArgs('mono', 'aot', '/bench/src/empty-browser', '/out');
         assert.deepEqual(args, [
             'publish',
-            '/bench/apps/empty-browser',
+            '/bench/src/empty-browser',
             '/p:BenchmarkPreset=Aot',
             '/p:RuntimeFlavor=Mono',
             '-o', '/out'

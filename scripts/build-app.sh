@@ -20,7 +20,7 @@ PRESET="${3:?Usage: build-app.sh <app> <runtime> <preset>}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 ARTIFACTS_DIR="${ARTIFACTS_DIR:-$REPO_DIR/artifacts}"
-APP_DIR="$REPO_DIR/apps/$APP"
+APP_DIR="$REPO_DIR/src/$APP"
 PUBLISH_DIR="$ARTIFACTS_DIR/publish/$APP"
 
 # Validate app directory exists

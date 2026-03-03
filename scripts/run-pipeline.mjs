@@ -53,7 +53,7 @@ const { values: args } = parseArgs({
 const SCRIPT_DIR = new URL('.', import.meta.url).pathname;
 const REPO_DIR = resolve(SCRIPT_DIR, '..');
 const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR || join(REPO_DIR, 'artifacts');
-const APPS_DIR = join(REPO_DIR, 'apps');
+const APPS_DIR = join(REPO_DIR, 'src');
 const SDK_INFO_PATH = join(ARTIFACTS_DIR, 'sdk', 'sdk-info.json');
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -91,7 +91,7 @@ function dotnet() {
     }
 }
 
-/** Discover app directories under apps/ (each dir with a .csproj). */
+/** Discover app directories under src/ (each dir with a .csproj). */
 async function discoverApps() {
     const entries = await readdir(APPS_DIR, { withFileTypes: true });
     const apps = [];

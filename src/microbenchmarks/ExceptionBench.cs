@@ -5,21 +5,45 @@ using System;
 using System.Runtime.InteropServices.JavaScript;
 
 /// <summary>
-/// Exception handling benchmark.
-/// Throws and catches an exception in a tight loop to measure overhead.
+/// Exception handling benchmark with realistic stack depth.
+/// Recursive Fibonacci that throws from 20 levels deep, caught at the top.
+/// Each JS call runs 100 iterations to amortize interop overhead and measure
+/// the exception unwinding cost through a deep managed call stack.
 /// </summary>
 public static partial class ExceptionBench
 {
+    private const int Depth = 20;
+    private const int Iterations = 100;
+
     [JSExport]
     public static int ThrowCatch(int value)
     {
-        try
+        int result = 0;
+        for (int i = 0; i < Iterations; i++)
         {
-            throw new InvalidOperationException("bench");
+            try
+            {
+                result += Fib(value, Depth);
+            }
+            catch (InvalidOperationException)
+            {
+                result += i;
+            }
         }
-        catch
+        return result;
+    }
+
+    /// <summary>
+    /// Linear recursion to depth 20, then throws.
+    /// This creates a 20-frame managed stack for the exception to unwind through,
+    /// without the exponential blowup of tree-recursive Fibonacci.
+    /// </summary>
+    private static int Fib(int value, int depth)
+    {
+        if (depth <= 0)
         {
-            return value;
+            throw new InvalidOperationException("bench: reached bottom of recursion");
         }
+        return Fib(value + 1, depth - 1) + depth;
     }
 }

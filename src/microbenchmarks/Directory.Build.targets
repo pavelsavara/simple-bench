@@ -1,3 +1,0 @@
-<Project>
-  <Import Project="../../apps/Directory.Build.targets" />
-</Project>

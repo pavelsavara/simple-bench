@@ -167,8 +167,10 @@ async function measureBrowser(browserEngine, publishDirPath, timeoutMs, retries)
                 await page.goto(pageUrl, { timeout: timeoutMs, waitUntil: 'load' });
 
                 // Wait for benchmarks to complete (bench_complete is set after all benchmarks run)
+                // Note: waitForFunction(fn, arg, options) — timeout goes in 3rd param
                 await page.waitForFunction(
                     () => globalThis.bench_complete !== undefined,
+                    null,
                     { timeout: timeoutMs }
                 );
 
