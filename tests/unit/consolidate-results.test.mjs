@@ -42,9 +42,10 @@ function makeResult(metaOverrides = {}, metrics = null) {
         meta: makeMeta(metaOverrides),
         metrics: metrics || {
             'compile-time': 45200,
+            'disk-size-total': 15046484,
+            'disk-size-wasm': 8187744,
+            'disk-size-dlls': 1758720,
             'download-size-total': 12100920,
-            'download-size-wasm': 8187744,
-            'download-size-dlls': 1758720,
             'time-to-reach-managed': 289.15,
             'time-to-reach-managed-cold': 7446,
             'memory-peak': 45000000,
@@ -153,8 +154,8 @@ describe('buildMonthResultEntry', () => {
         assert.equal(entry.app, 'empty-browser');
         assert.ok(entry.file.includes('2026/2026-03-02/'));
         assert.ok(entry.metrics.includes('compile-time'));
-        assert.ok(entry.metrics.includes('download-size-total'));
-        assert.equal(entry.metrics.length, 7);
+        assert.ok(entry.metrics.includes('disk-size-total'));
+        assert.equal(entry.metrics.length, 8);
     });
 });
 

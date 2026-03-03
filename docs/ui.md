@@ -476,16 +476,17 @@ const PRESET_DASHES = {
 const RUNTIME_MARKERS = {
     coreclr:   'circle',
     mono:      'triangle',
-    llvm_naot: 'rectRot'
+    naotllvm: 'rectRot'
 };
 
 // Metric registry — canonical metric definitions (display name + unit).
 // Unit is a property of the metric dimension, not stored per data point.
 const METRICS = {
     'compile-time':                { display: 'Compile Time',                  unit: 'ms' },
-    'download-size-total':         { display: 'Download Size — Total',         unit: 'bytes' },
-    'download-size-wasm':          { display: 'Download Size — dotnet.wasm',   unit: 'bytes' },
-    'download-size-dlls':          { display: 'Download Size — DLLs',          unit: 'bytes' },
+    'disk-size-total':             { display: 'Disk Size — Total',              unit: 'bytes' },
+    'disk-size-wasm':              { display: 'Disk Size — dotnet.wasm',        unit: 'bytes' },
+    'disk-size-dlls':              { display: 'Disk Size — DLLs',               unit: 'bytes' },
+    'download-size-total':         { display: 'Download Size — Total',          unit: 'bytes' },
     'time-to-reach-managed':       { display: 'Time to Reach Managed',         unit: 'ms' },
     'time-to-reach-managed-cold':  { display: 'Time to Reach Managed (Cold)',  unit: 'ms' },
     'memory-peak':                 { display: 'Memory Peak',                   unit: 'bytes' },

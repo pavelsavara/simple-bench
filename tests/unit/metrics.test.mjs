@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { METRICS, EXTERNAL_METRICS, INTERNAL_METRICS } from '../../scripts/lib/metrics.mjs';
 
 describe('METRICS registry', () => {
-    it('has 10 metric definitions', () => {
-        assert.equal(Object.keys(METRICS).length, 10);
+    it('has 11 metric definitions', () => {
+        assert.equal(Object.keys(METRICS).length, 11);
     });
 
     it('all entries have displayName, unit, and category', () => {
@@ -30,8 +30,8 @@ describe('METRICS registry', () => {
         }
     });
 
-    it('EXTERNAL_METRICS has 7 entries', () => {
-        assert.equal(EXTERNAL_METRICS.length, 7);
+    it('EXTERNAL_METRICS has 8 entries', () => {
+        assert.equal(EXTERNAL_METRICS.length, 8);
     });
 
     it('INTERNAL_METRICS has 3 entries', () => {
@@ -40,8 +40,8 @@ describe('METRICS registry', () => {
 
     it('contains all expected external metric keys', () => {
         const expected = [
-            'compile-time', 'download-size-total', 'download-size-wasm',
-            'download-size-dlls', 'time-to-reach-managed', 'time-to-reach-managed-cold',
+            'compile-time', 'disk-size-total', 'disk-size-wasm',
+            'disk-size-dlls', 'download-size-total', 'time-to-reach-managed', 'time-to-reach-managed-cold',
             'memory-peak',
         ];
         for (const key of expected) {

@@ -11,7 +11,7 @@ Each benchmark run is identified by a combination of these dimensions:
 | **Runtime Git Hash** | `runtimeGitHash` | 40-char SHA (display as 7-char) | Commit from `dotnet/runtime` — the runtime being benchmarked |
 | **SDK Git Hash** | `sdkGitHash` | 40-char SHA | Commit from `dotnet/sdk` |
 | **VMR Git Hash** | `vmrGitHash` | 40-char SHA | Commit from `dotnet/dotnet` (VMR) that produced the SDK build |
-| **Runtime Flavor** | `runtime` | `coreclr`, `mono`, `llvm_naot` | Which .NET runtime VM |
+| **Runtime Flavor** | `runtime` | `coreclr`, `mono`, `naotllvm` | Which .NET runtime VM |
 | **Build Preset** | `preset` | `no-workload`, `aot`, `native-relink`, `no-jiterp`, `invariant`, `no-reflection-emit`, `debug` | MSBuild publish preset |
 | **Execution Engine** | `engine` | `v8`, `node`, `chrome`, `firefox` | JS/WASM execution environment |
 | **Sample App** | `app` | `empty-browser`, `empty-blazor`, `blazing-pizza`, `microbenchmarks` | Which application was measured |
@@ -39,7 +39,7 @@ The `runtimeGitHash` is used in filenames (7-char prefix) since we primarily ben
 
 ```
 preset=aot               → runtime=mono only      (AOT is Mono-specific)
-preset=*                 → runtime=llvm_naot      (NativeAOT via LLVM — legacy data only)
+preset=*                 → runtime=naotllvm       (NativeAOT via LLVM — legacy data only)
 preset=native-relink     → runtime=coreclr,mono   (both support native relink)
 preset=no-jiterp         → runtime=mono only      (native relink without jiterpreter)
 preset=no-workload       → runtime=coreclr,mono   (standard release build)
@@ -82,8 +82,8 @@ Metric definitions are part of the model — each metric has a fixed key, displa
 |------------|-------------|------|----------|-------------|
 | `compile-time` | Compile Time | `ms` | External | Wall-clock time of `dotnet publish` (measured in build-app.sh, included in result JSON) |
 | `disk-size-total` | Disk Size (Total) | `bytes` | External | Total published app bundle size |
-| `disk-size-wasm` | Download Size (WASM) | `bytes` | External | Size of dotnet.native.wasm (or dotnet.wasm for older builds) |
-| `disk-size-dlls` | Download Size (DLLs) | `bytes` | External | Total size of managed DLL assemblies |
+| `disk-size-wasm` | Disk Size (WASM) | `bytes` | External | Size of dotnet.native.wasm (or dotnet.wasm for older builds) |
+| `disk-size-dlls` | Disk Size (DLLs) | `bytes` | External | Total size of managed DLL assemblies |
 | `download-size-total` | Download Size (Total) | `bytes` | External | Total download app size as measured by browser |
 | `time-to-reach-managed` | Time to Reach Managed | `ms` | External | `globalThis.dotnet_managed_ready` (C# via JSImport) — warm (minimum of 3 reloads) |
 | `time-to-reach-managed-cold` | Time to Reach Managed (Cold) | `ms` | External | Same marker, first navigation (no cache) |
@@ -100,9 +100,10 @@ The metric definitions are maintained as a shared constant, used by both measure
 // Canonical metric registry — unit is defined here, not in data files
 const METRICS = {
     'compile-time':           { displayName: 'Compile Time',           unit: 'ms',      category: 'external' },
+    'disk-size-total':        { displayName: 'Disk Size (Total)',       unit: 'bytes',   category: 'external' },
+    'disk-size-wasm':         { displayName: 'Disk Size (WASM)',        unit: 'bytes',   category: 'external' },
+    'disk-size-dlls':         { displayName: 'Disk Size (DLLs)',        unit: 'bytes',   category: 'external' },
     'download-size-total':    { displayName: 'Download Size (Total)',   unit: 'bytes',   category: 'external' },
-    'download-size-wasm':     { displayName: 'Download Size (WASM)',    unit: 'bytes',   category: 'external' },
-    'download-size-dlls':     { displayName: 'Download Size (DLLs)',    unit: 'bytes',   category: 'external' },
     'time-to-reach-managed':  { displayName: 'Time to Reach Managed',  unit: 'ms',      category: 'external' },
     'time-to-reach-managed-cold': { displayName: 'Time to Reach Managed (Cold)', unit: 'ms', category: 'external' },
     'memory-peak':            { displayName: 'Memory Peak',            unit: 'bytes',   category: 'external' },
@@ -119,9 +120,10 @@ Result data stores only the numeric value — the unit is looked up from the met
 ```json
 {
   "compile-time": 45200,
+  "disk-size-total": 15046484,
+  "disk-size-wasm": 8187744,
+  "disk-size-dlls": 1758720,
   "download-size-total": 12100920,
-  "download-size-wasm": 8187744,
-  "download-size-dlls": 1758720,
   "time-to-reach-managed": 289.15,
   "time-to-reach-managed-cold": 7446
 }
@@ -215,7 +217,7 @@ Lightweight top-level index. Fetched by the UI on page load. Lists available mon
 {
   "lastUpdated": "2026-03-02T12:34:56Z",
   "dimensions": {
-    "runtimes": ["coreclr", "mono", "llvm_naot"],
+    "runtimes": ["coreclr", "mono", "naotllvm"],
     "presets": ["no-workload", "aot", "native-relink", "invariant", "no-reflection-emit", "debug"],
     "engines": ["v8", "node", "chrome", "firefox"],
     "apps": ["empty-browser", "empty-blazor", "blazing-pizza", "microbenchmarks"]
@@ -251,7 +253,7 @@ One file per month, e.g. `data/2026-03.json`. Maps all commits benchmarked that 
           "engine": "chrome",
           "app": "empty-browser",
           "file": "2026/2026-03-02/12-34-56-UTC_abc1234_coreclr_no-workload_chrome_empty-browser.json",
-          "metrics": ["compile-time", "download-size-total", "download-size-wasm", "download-size-dlls", "time-to-reach-managed", "time-to-reach-managed-cold", "memory-peak"]
+          "metrics": ["compile-time", "disk-size-total", "disk-size-wasm", "disk-size-dlls", "download-size-total", "time-to-reach-managed", "time-to-reach-managed-cold", "memory-peak"]
         },
         {
           "runtime": "mono",
@@ -277,7 +279,7 @@ One file per month, e.g. `data/2026-03.json`. Maps all commits benchmarked that 
           "engine": "chrome",
           "app": "empty-browser",
           "file": "2026/2026-03-15/08-12-00-UTC_def5678_coreclr_no-workload_chrome_empty-browser.json",
-          "metrics": ["compile-time", "download-size-total", "download-size-wasm", "download-size-dlls", "time-to-reach-managed", "time-to-reach-managed-cold", "memory-peak"]
+          "metrics": ["compile-time", "disk-size-total", "disk-size-wasm", "disk-size-dlls", "download-size-total", "time-to-reach-managed", "time-to-reach-managed-cold", "memory-peak"]
         }
       ]
     }
@@ -328,9 +330,10 @@ Metric values are bare numbers. The unit for each metric is defined in the metri
   },
   "metrics": {
     "compile-time": 45200,
+    "disk-size-total": 15046484,
+    "disk-size-wasm": 8187744,
+    "disk-size-dlls": 1758720,
     "download-size-total": 12100920,
-    "download-size-wasm": 8187744,
-    "download-size-dlls": 1758720,
     "time-to-reach-managed": 289.15,
     "time-to-reach-managed-cold": 7446,
     "memory-peak": 45000000

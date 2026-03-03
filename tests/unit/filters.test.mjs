@@ -166,13 +166,13 @@ describe('Filters — chart-manager constants', () => {
     const RUNTIME_MARKERS = {
         coreclr: 'circle',
         mono: 'triangle',
-        llvm_naot: 'rectRot'
+        naotllvm: 'rectRot'
     };
 
     const RUNTIME_LINE_WIDTH = {
         coreclr: 2,
         mono: 1.5,
-        llvm_naot: 1.5
+        naotllvm: 1.5
     };
 
     it('has colors for all 4 engines', () => {
@@ -201,7 +201,7 @@ describe('Filters — chart-manager constants', () => {
         assert.equal(Object.keys(RUNTIME_LINE_WIDTH).length, 3);
         assert.equal(RUNTIME_LINE_WIDTH.coreclr, 2);
         assert.equal(RUNTIME_LINE_WIDTH.mono, 1.5);
-        assert.equal(RUNTIME_LINE_WIDTH.llvm_naot, 1.5);
+        assert.equal(RUNTIME_LINE_WIDTH.naotllvm, 1.5);
     });
 });
 

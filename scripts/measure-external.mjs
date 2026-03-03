@@ -2,7 +2,7 @@
 /**
  * measure-external.mjs — Measure external metrics via Playwright + CDP.
  *
- * Collects: compile-time, download-size-total/wasm/dlls,
+ * Collects: compile-time, disk-size-total/wasm/dlls, download-size-total,
  *           time-to-reach-managed (warm), time-to-reach-managed-cold, memory-peak
  *
  * Usage:
@@ -139,9 +139,10 @@ const meta = {
 
 const metrics = {
     'compile-time': compileTime,
+    'disk-size-total': fileSizes.totalSize || null,
+    'disk-size-wasm': fileSizes.wasmSize || null,
+    'disk-size-dlls': fileSizes.dllsSize || null,
     'download-size-total': result.downloadSizeTotal,
-    'download-size-wasm': fileSizes.wasmSize || null,
-    'download-size-dlls': fileSizes.dllsSize || null,
     'time-to-reach-managed': result.timeToReachManaged,
     'time-to-reach-managed-cold': result.timeToReachManagedCold,
     'memory-peak': result.memoryPeak,

@@ -225,7 +225,7 @@ Measures published app load characteristics using Playwright and Chrome DevTools
 
 ```
 Input:  --app <name> --publish-dir <path> --output <result.json>
-Output: JSON result file with meta + external metrics (compile-time, download-size-total/wasm/dlls, time-to-reach-managed, time-to-reach-managed-cold, memory-peak)
+Output: JSON result file with meta + external metrics (compile-time, disk-size-total/wasm/dlls, download-size-total, time-to-reach-managed, time-to-reach-managed-cold, memory-peak)
 ```
 
 Note: `compile-time` is not measured by this script — it is read from `artifacts/results/compile-time.json` (produced by `build-app.sh`) and merged into the final result JSON.
@@ -289,13 +289,14 @@ await sleep(2000);
 stopMemorySampling(memoryPoller);
 ```
 
-### Download size strategy
+### Size measurement strategy
 
 | Metric | Source | Why |
 |--------|--------|-----|
+| `disk-size-total` | `fs.stat` sum of all files in publish dir | Tracks total published bundle size |
+| `disk-size-wasm` | `fs.stat` on `*.wasm` in `_framework/` | Tracks code size changes (uncompressed) |
+| `disk-size-dlls` | `fs.stat` on `*.dll` in `_framework/` | Tracks managed assembly size (uncompressed) |
 | `download-size-total` | CDP `encodedDataLength` sum | Reflects real-world download cost (compressed) |
-| `download-size-wasm` | `fs.stat` on `*.wasm` in `_framework/` | Tracks code size changes (uncompressed) |
-| `download-size-dlls` | `fs.stat` on `*.dll` in `_framework/` | Tracks managed assembly size (uncompressed) |
 
 ### Reach-Managed detection
 
@@ -369,23 +370,23 @@ strategy:
   fail-fast: false
   matrix:
     app: [empty-browser, empty-blazor, blazing-pizza, microbenchmarks]
-    runtime: [coreclr, mono, llvm_naot]
+    runtime: [coreclr, mono, naotllvm]
     preset: [no-workload, aot, native-relink, invariant, no-reflection-emit, debug]
     engine: [v8, node, chrome, firefox]
     exclude:
       # AOT is Mono-only
       - runtime: coreclr
         preset: aot
-      - runtime: llvm_naot
+      - runtime: naotllvm
         preset: aot
       # NativeAOT has limited preset set
-      - runtime: llvm_naot
+      - runtime: naotllvm
         preset: native-relink
-      - runtime: llvm_naot
+      - runtime: naotllvm
         preset: invariant
-      - runtime: llvm_naot
+      - runtime: naotllvm
         preset: no-reflection-emit
-      - runtime: llvm_naot
+      - runtime: naotllvm
         preset: debug
       # External apps only measured on Chrome
       - app: empty-browser

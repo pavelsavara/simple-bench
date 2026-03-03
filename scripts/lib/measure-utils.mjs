@@ -136,11 +136,28 @@ export function startStaticServer(rootDir, port = 0, options = {}) {
 // ── File size measurement ───────────────────────────────────────────────────
 
 /**
- * Walk the publish directory's _framework/ folder and measure wasm + dll sizes.
+ * Walk the publish directory and measure total, wasm, and dll sizes.
+ * Total size covers the entire publish directory; wasm/dll are from _framework/.
  * @param {string} publishDir Path to published app directory
- * @returns {Promise<{wasmSize: number, dllsSize: number}>}
+ * @returns {Promise<{totalSize: number, wasmSize: number, dllsSize: number}>}
  */
 export async function measureFileSizes(publishDir) {
+    // Total size of the entire publish directory
+    let totalSize = 0;
+    try {
+        const allEntries = await readdir(publishDir, { recursive: true, withFileTypes: true });
+        for (const entry of allEntries) {
+            if (!entry.isFile()) continue;
+            const parentPath = entry.parentPath || entry.path;
+            const fullPath = join(parentPath, entry.name);
+            const fileStat = await stat(fullPath);
+            totalSize += fileStat.size;
+        }
+    } catch {
+        // publishDir doesn't exist or can't be read
+    }
+
+    // WASM + DLL sizes from _framework/
     const frameworkDir = join(publishDir, '_framework');
     let wasmSize = 0;
     let dllsSize = 0;
@@ -149,7 +166,7 @@ export async function measureFileSizes(publishDir) {
     try {
         entries = await readdir(frameworkDir, { recursive: true, withFileTypes: true });
     } catch {
-        return { wasmSize: 0, dllsSize: 0 };
+        return { totalSize, wasmSize: 0, dllsSize: 0 };
     }
 
     for (const entry of entries) {
@@ -162,7 +179,7 @@ export async function measureFileSizes(publishDir) {
         else if (ext === '.dll') dllsSize += fileStat.size;
     }
 
-    return { wasmSize, dllsSize };
+    return { totalSize, wasmSize, dllsSize };
 }
 
 // ── Result JSON builder ─────────────────────────────────────────────────────

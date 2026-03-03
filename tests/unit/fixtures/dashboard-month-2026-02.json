@@ -17,7 +17,7 @@
                     "file": "2026/2026-02-15/08-00-00-UTC_aaa1111_coreclr_no-workload_chrome_empty-browser.json",
                     "metrics": [
                         "compile-time",
-                        "download-size-total"
+                        "disk-size-total"
                     ]
                 }
             ]

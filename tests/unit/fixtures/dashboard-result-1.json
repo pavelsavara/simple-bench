@@ -15,7 +15,7 @@
     },
     "metrics": {
         "compile-time": 42000,
-        "download-size-total": 12000000,
+        "disk-size-total": 12000000,
         "time-to-reach-managed": 300.5
     }
 }

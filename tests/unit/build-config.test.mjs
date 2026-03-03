@@ -25,11 +25,8 @@ describe('mapRuntimeFlavor', () => {
         );
     });
 
-    it('throws on llvm_naot (not buildable, legacy only)', () => {
-        assert.throws(
-            () => mapRuntimeFlavor('llvm_naot'),
-            { message: /Unknown runtime/ }
-        );
+    it('maps naotllvm to Mono (legacy data only)', () => {
+        assert.equal(mapRuntimeFlavor('naotllvm'), 'Mono');
     });
 });
 
@@ -138,5 +135,16 @@ describe('getPublishArgs', () => {
             () => getPublishArgs('coreclr', 'aot', '/app', '/out'),
             { message: /only valid with runtime 'mono'/ }
         );
+    });
+
+    it('builds publish args for debug preset (uses publish, not build)', () => {
+        const args = getPublishArgs('coreclr', 'debug', '/app', '/out');
+        assert.deepEqual(args, [
+            'publish',
+            '/app',
+            '/p:BenchmarkPreset=Debug',
+            '/p:RuntimeFlavor=CoreCLR',
+            '-o', '/out'
+        ]);
     });
 });

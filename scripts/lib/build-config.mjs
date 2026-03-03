@@ -8,7 +8,7 @@ export function mapRuntimeFlavor(runtime) {
     switch (runtime) {
         case 'coreclr': return 'CoreCLR';
         case 'mono': return 'Mono';
-        case 'naot_llvm': return 'Mono';
+        case 'naotllvm': return 'Mono';
         default:
             throw new Error(`Unknown runtime: ${runtime}. Expected 'coreclr' or 'mono'.`);
     }
@@ -65,7 +65,7 @@ export function getPublishArgs(runtime, preset, appDir, outputDir) {
     const presetArgs = getPresetArgs(preset);
 
     return [
-        preset !== 'debug' ? 'publish' : 'build',
+        'publish',
         appDir,
         ...presetArgs,
         `/p:RuntimeFlavor=${runtimeFlavor}`,

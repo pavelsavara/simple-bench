@@ -104,7 +104,7 @@ describe('extractBrowserMetrics', () => {
         );
         assert.equal(metrics['time-to-reach-managed'], 350.5);
         assert.equal(metrics['time-to-reach-managed-cold'], 7200.0);
-        assert.equal(metrics['download-size-total'], 12000000);
+        assert.equal(metrics['disk-size-total'], 12000000);
     });
 
     it('prefers Browser-prefixed (id 101/102) over unprefixed', () => {
@@ -130,9 +130,9 @@ describe('extractBrowserMetrics', () => {
             { 1: 350.0 },
             { 24: 12000000, 25: 1750000, 26: 8000000 }
         );
-        assert.equal(metrics['download-size-total'], 12000000);
-        assert.equal(metrics['download-size-dlls'], 1750000);
-        assert.equal(metrics['download-size-wasm'], 8000000);
+        assert.equal(metrics['disk-size-total'], 12000000);
+        assert.equal(metrics['disk-size-dlls'], 1750000);
+        assert.equal(metrics['disk-size-wasm'], 8000000);
     });
 
     it('prefers dotnet.native.wasm (id 76) over dotnet.wasm (id 26)', () => {
@@ -140,7 +140,7 @@ describe('extractBrowserMetrics', () => {
             { 1: 350.0 },
             { 26: 8000000, 76: 7500000 }
         );
-        assert.equal(metrics['download-size-wasm'], 7500000);
+        assert.equal(metrics['disk-size-wasm'], 7500000);
     });
 
     it('falls back to dotnet.wasm (id 26) when native.wasm missing', () => {
@@ -148,7 +148,7 @@ describe('extractBrowserMetrics', () => {
             { 1: 350.0 },
             { 26: 8000000 }
         );
-        assert.equal(metrics['download-size-wasm'], 8000000);
+        assert.equal(metrics['disk-size-wasm'], 8000000);
     });
 
     it('filters out timeout values >= 20000', () => {
@@ -175,7 +175,7 @@ describe('extractBrowserMetrics', () => {
 
     it('handles sizes without timing', () => {
         const metrics = extractBrowserMetrics(null, { 24: 12000000 });
-        assert.equal(metrics['download-size-total'], 12000000);
+        assert.equal(metrics['disk-size-total'], 12000000);
         assert.equal(metrics['time-to-reach-managed'], undefined);
     });
 });
@@ -282,7 +282,7 @@ describe('convertEntry', () => {
         const results = convertEntry(entry);
         assert.equal(results.length, 1);
         assert.equal(results[0].meta.app, 'empty-browser');
-        assert.equal(results[0].metrics['download-size-total'], 12000000);
+        assert.equal(results[0].metrics['disk-size-total'], 12000000);
         assert.equal(results[0].metrics['time-to-reach-managed'], undefined);
     });
 
