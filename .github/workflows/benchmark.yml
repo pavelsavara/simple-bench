@@ -2,6 +2,7 @@ name: Benchmark
 on:
   schedule:
     - cron: '0 4 * * *'  # Daily at 04:00 UTC
+  pull_request:
   workflow_dispatch:
     inputs:
       sdk_version:
@@ -14,6 +15,11 @@ on:
         required: false
         default: '11.0'
         type: string
+      dry_run:
+        description: 'Dry run (run benchmarks but do not publish results)'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   bench:
@@ -66,7 +72,7 @@ jobs:
 
       - name: Upload result
         uses: actions/upload-artifact@v4
-        if: always()
+        if: ${{ always() && github.event_name != 'pull_request' && !inputs.dry_run }}
         with:
           name: result_${{ matrix.runtime }}_${{ matrix.preset }}_chrome_empty-browser
           path: ${{ env.ARTIFACTS_DIR || 'artifacts' }}/results/*.json
