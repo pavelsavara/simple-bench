@@ -85,38 +85,39 @@ try {
     // No endpoints file — serve without fingerprint resolution
 }
 
-// ── Start server ────────────────────────────────────────────────────────────
+// ── Start server & measure ──────────────────────────────────────────────────
 
-const srv = await startStaticServer(args['publish-dir'], 0, { fingerprintMap });
+let result;
+let srv;
+
+srv = await startStaticServer(args['publish-dir'], 0, { fingerprintMap });
 const pageUrl = `http://127.0.0.1:${srv.port}/`;
 console.error(`Serving ${args['publish-dir']} on ${pageUrl}`);
 
-// ── Measure ─────────────────────────────────────────────────────────────────
-
-let result;
-let lastError;
-
-for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    if (attempt > 0) {
-        console.error(`Retry ${attempt}/${maxRetries}...`);
-    }
-    try {
-        result = await runMeasurement(pageUrl, timeout, warmRuns);
-        break;
-    } catch (err) {
-        lastError = err;
-        // Only retry on timeout errors
-        if (!isTimeoutError(err)) {
-            throw err;
+{
+    let lastError;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        if (attempt > 0) {
+            console.error(`Retry ${attempt}/${maxRetries}...`);
         }
-        console.error(`Timeout: ${err.message}`);
+        try {
+            result = await runMeasurement(pageUrl, timeout, warmRuns);
+            break;
+        } catch (err) {
+            lastError = err;
+            // Only retry on timeout errors
+            if (!isTimeoutError(err)) {
+                throw err;
+            }
+            console.error(`Timeout: ${err.message}`);
+        }
     }
-}
 
-if (!result) {
-    console.error(`All ${maxRetries + 1} attempts failed. Last error: ${lastError?.message}`);
-    await srv.close();
-    process.exit(1);
+    if (!result) {
+        console.error(`All ${maxRetries + 1} attempts failed. Last error: ${lastError?.message}`);
+        await srv.close();
+        process.exit(1);
+    }
 }
 
 // ── Assemble output ─────────────────────────────────────────────────────────
