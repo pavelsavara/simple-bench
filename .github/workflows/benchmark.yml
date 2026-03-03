@@ -57,3 +57,12 @@ jobs:
           path: ${{ env.ARTIFACTS_DIR || 'artifacts' }}/results/*.json
           if-no-files-found: ignore
           retention-days: 7
+
+      - name: Upload published apps
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: published-apps
+          path: ${{ env.ARTIFACTS_DIR || 'artifacts' }}/publish/*/wwwroot/
+          if-no-files-found: ignore
+          retention-days: 3

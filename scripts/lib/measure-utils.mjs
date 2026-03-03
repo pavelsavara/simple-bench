@@ -191,11 +191,11 @@ export async function measureFileSizes(publishDir) {
  * @returns {object}
  */
 export function buildResultJson(meta, metrics) {
-    // Strip null/undefined metrics
+    // Strip null/undefined metrics and round numbers to integers
     const cleanMetrics = {};
     for (const [k, v] of Object.entries(metrics)) {
         if (v != null && Number.isFinite(v)) {
-            cleanMetrics[k] = v;
+            cleanMetrics[k] = Math.round(v);
         }
     }
     return { meta, metrics: cleanMetrics };
