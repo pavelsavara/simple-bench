@@ -7,7 +7,6 @@
 
 <!-- TODO 
 <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
-<BlazorWebAssemblyJiterpreter>false</BlazorWebAssemblyJiterpreter>
 <TrimMode>link</TrimMode>
 -->
 
@@ -52,6 +51,16 @@
     <WasmBuildNative>true</WasmBuildNative>
     <WasmNativeStrip>true</WasmNativeStrip>
     <RunAOTCompilation>true</RunAOTCompilation>
+
+    <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
+    <PublishTrimmed>true</PublishTrimmed>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NoJiterp'">
+    <Configuration>Release</Configuration>
+    <WasmBuildNative>true</WasmBuildNative>
+    <WasmNativeStrip>true</WasmNativeStrip>
+    <BlazorWebAssemblyJiterpreter>false</BlazorWebAssemblyJiterpreter>
 
     <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
     <PublishTrimmed>true</PublishTrimmed>

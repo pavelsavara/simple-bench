@@ -21,6 +21,7 @@ const PRESET_MAP = {
     'no-workload': 'NoWorkload',
     'aot': 'Aot',
     'native-relink': 'NativeRelink',
+    'no-jiterp': 'NoJiterp',
     'invariant': 'Invariant',
     'no-reflection-emit': 'NoReflectionEmit',
 };
@@ -47,6 +48,9 @@ export function getPresetArgs(preset) {
 export function validateCombination(runtime, preset) {
     if (preset === 'aot' && runtime !== 'mono') {
         throw new Error(`Preset 'aot' is only valid with runtime 'mono', got '${runtime}'`);
+    }
+    if (preset === 'no-jiterp' && runtime !== 'mono') {
+        throw new Error(`Preset 'no-jiterp' is only valid with runtime 'mono', got '${runtime}'`);
     }
     return true;
 }

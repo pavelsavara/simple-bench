@@ -12,7 +12,7 @@ Each benchmark run is identified by a combination of these dimensions:
 | **SDK Git Hash** | `sdkGitHash` | 40-char SHA | Commit from `dotnet/sdk` |
 | **VMR Git Hash** | `vmrGitHash` | 40-char SHA | Commit from `dotnet/dotnet` (VMR) that produced the SDK build |
 | **Runtime Flavor** | `runtime` | `coreclr`, `mono`, `llvm_naot` | Which .NET runtime VM |
-| **Build Preset** | `preset` | `no-workload`, `aot`, `native-relink`, `invariant`, `no-reflection-emit`, `debug` | MSBuild publish preset |
+| **Build Preset** | `preset` | `no-workload`, `aot`, `native-relink`, `no-jiterp`, `invariant`, `no-reflection-emit`, `debug` | MSBuild publish preset |
 | **Execution Engine** | `engine` | `v8`, `node`, `chrome`, `firefox` | JS/WASM execution environment |
 | **Sample App** | `app` | `empty-browser`, `empty-blazor`, `blazing-pizza`, `microbenchmarks` | Which application was measured |
 
@@ -41,6 +41,7 @@ The `runtimeGitHash` is used in filenames (7-char prefix) since we primarily ben
 preset=aot               → runtime=mono only      (AOT is Mono-specific)
 preset=*                 → runtime=llvm_naot      (NativeAOT via LLVM — legacy data only)
 preset=native-relink     → runtime=coreclr,mono   (both support native relink)
+preset=no-jiterp         → runtime=mono only      (native relink without jiterpreter)
 preset=no-workload       → runtime=coreclr,mono   (standard release build)
 preset=invariant         → runtime=coreclr,mono   (InvariantGlobalization=true)
 preset=no-reflection-emit→ runtime=coreclr,mono   (no System.Reflection.Emit)
@@ -59,13 +60,13 @@ engine=v8,node      → microbenchmarks only (CLI engines, no browser)
 | App | Engine | Preset | Runtime |
 |-----|--------|--------|---------|
 | empty-browser | chrome | no-workload, native-relink, invariant, no-reflection-emit, debug | coreclr, mono |
-| empty-browser | chrome | aot | mono |
+| empty-browser | chrome | aot, no-jiterp | mono |
 | empty-blazor | chrome | no-workload, native-relink, invariant, no-reflection-emit, debug | coreclr, mono |
-| empty-blazor | chrome | aot | mono |
+| empty-blazor | chrome | aot, no-jiterp | mono |
 | blazing-pizza | chrome | no-workload, native-relink, invariant, no-reflection-emit, debug | coreclr, mono |
-| blazing-pizza | chrome | aot | mono |
+| blazing-pizza | chrome | aot, no-jiterp | mono |
 | microbenchmarks | v8, node, chrome, firefox | no-workload, native-relink, invariant, no-reflection-emit, debug | coreclr, mono |
-| microbenchmarks | v8, node, chrome, firefox | aot | mono |
+| microbenchmarks | v8, node, chrome, firefox | aot, no-jiterp | mono |
 
 **Total legs per daily run**: ~44 combinations (3 apps × 1 engine × 11 configs + 1 app × 4 engines × 11 configs)
 

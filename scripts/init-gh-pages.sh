@@ -30,7 +30,7 @@ cat > data/index.json << 'INDEXEOF'
   "lastUpdated": null,
   "dimensions": {
     "runtimes": ["coreclr", "mono", "llvm_naot"],
-    "presets": ["no-workload", "aot", "native-relink", "invariant", "no-reflection-emit", "debug"],
+    "presets": ["no-workload", "aot", "native-relink", "no-jiterp", "invariant", "no-reflection-emit", "debug"],
     "engines": ["v8", "node", "chrome", "firefox"],
     "apps": ["empty-browser", "empty-blazor", "blazing-pizza", "microbenchmarks"]
   }

@@ -54,6 +54,10 @@ describe('getPresetArgs', () => {
         assert.deepEqual(getPresetArgs('no-reflection-emit'), ['/p:BenchmarkPreset=NoReflectionEmit']);
     });
 
+    it('no-jiterp → /p:BenchmarkPreset=NoJiterp', () => {
+        assert.deepEqual(getPresetArgs('no-jiterp'), ['/p:BenchmarkPreset=NoJiterp']);
+    });
+
     it('debug → /p:BenchmarkPreset=Debug', () => {
         assert.deepEqual(getPresetArgs('debug'), ['/p:BenchmarkPreset=Debug']);
     });
@@ -65,8 +69,8 @@ describe('getPresetArgs', () => {
         );
     });
 
-    it('PRESET_MAP covers all 6 presets', () => {
-        assert.equal(Object.keys(PRESET_MAP).length, 6);
+    it('PRESET_MAP covers all 7 presets', () => {
+        assert.equal(Object.keys(PRESET_MAP).length, 7);
     });
 });
 
@@ -78,6 +82,17 @@ describe('validateCombination', () => {
     it('rejects coreclr + aot', () => {
         assert.throws(
             () => validateCombination('coreclr', 'aot'),
+            { message: /only valid with runtime 'mono'/ }
+        );
+    });
+
+    it('allows mono + no-jiterp', () => {
+        assert.equal(validateCombination('mono', 'no-jiterp'), true);
+    });
+
+    it('rejects coreclr + no-jiterp', () => {
+        assert.throws(
+            () => validateCombination('coreclr', 'no-jiterp'),
             { message: /only valid with runtime 'mono'/ }
         );
     });

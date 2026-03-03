@@ -88,12 +88,12 @@ if MANIFEST=$(curl -fsSL "$MANIFEST_URL" 2>/dev/null); then
     # Parse individual repo hashes from the VMR source-manifest.json
     SDK_GIT_HASH=$(echo "$MANIFEST" | node -e "
         const data = JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf8'));
-        const entry = (data.repositories || []).find(r => r.path === 'src/sdk');
+        const entry = (data.repositories || []).find(r => r.path === 'sdk' || r.path === 'src/sdk');
         process.stdout.write(entry?.commitSha || '');
     ")
     RUNTIME_GIT_HASH=$(echo "$MANIFEST" | node -e "
         const data = JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf8'));
-        const entry = (data.repositories || []).find(r => r.path === 'src/runtime');
+        const entry = (data.repositories || []).find(r => r.path === 'runtime' || r.path === 'src/runtime');
         process.stdout.write(entry?.commitSha || '');
     ")
 
