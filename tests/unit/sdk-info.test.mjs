@@ -7,6 +7,7 @@ import { dirname, join } from 'node:path';
 import {
     parseBuildDate,
     parseCommitHash,
+    parseHostCommitHash,
     parseSdkVersion,
     buildSdkInfo
 } from '../../scripts/lib/sdk-info.mjs';
@@ -85,17 +86,45 @@ describe('parseSdkVersion', () => {
     });
 });
 
+describe('parseHostCommitHash', () => {
+    it('extracts host commit hash from dotnet --info output', async () => {
+        const info = await readFile(join(fixturesDir, 'dotnet-info-sample.txt'), 'utf-8');
+        const hash = parseHostCommitHash(info);
+        assert.equal(hash, 'a1b2c3d4e5');
+    });
+
+    it('returns null when no Host section present', () => {
+        assert.equal(parseHostCommitHash('.NET SDK:\n  Commit:  abc123'), null);
+    });
+
+    it('returns different hash from SDK commit', async () => {
+        const info = `.NET SDK:
+ Version: 11.0.100
+ Commit: aaaa1111bbbb2222cccc3333dddd4444eeee5555
+
+Host:
+  Version: 11.0.0
+  Commit:  ffff6666`;
+        assert.equal(parseCommitHash(info), 'aaaa1111bbbb2222cccc3333dddd4444eeee5555');
+        assert.equal(parseHostCommitHash(info), 'ffff6666');
+    });
+});
+
 describe('buildSdkInfo', () => {
-    it('builds valid SDK info object', () => {
+    it('builds valid SDK info object with three hashes', () => {
         const info = buildSdkInfo(
             '11.0.100-preview.3.26062.1',
-            'a1b2c3d4e5f6',
+            'runtime_hash_abc',
+            'sdk_hash_def',
+            'vmr_hash_ghi',
             '2026-03-03',
             '14-30-00-UTC'
         );
         assert.deepEqual(info, {
             sdkVersion: '11.0.100-preview.3.26062.1',
-            gitHash: 'a1b2c3d4e5f6',
+            runtimeGitHash: 'runtime_hash_abc',
+            sdkGitHash: 'sdk_hash_def',
+            vmrGitHash: 'vmr_hash_ghi',
             commitDate: '2026-03-03',
             commitTime: '14-30-00-UTC'
         });

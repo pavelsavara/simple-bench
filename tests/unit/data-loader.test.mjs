@@ -68,7 +68,9 @@ class TestableDataLoader {
                             date: commit.date,
                             time: commit.time,
                             sdkVersion: commit.sdkVersion,
-                            gitHash: commit.gitHash
+                            runtimeGitHash: commit.runtimeGitHash || commit.gitHash,
+                            sdkGitHash: commit.sdkGitHash || '',
+                            vmrGitHash: commit.vmrGitHash || ''
                         });
                     }
                 }
@@ -221,7 +223,7 @@ describe('DataLoader', () => {
             assert.ok(run.date);
             assert.ok(run.time);
             assert.ok(run.sdkVersion);
-            assert.ok(run.gitHash);
+            assert.ok(run.runtimeGitHash);
             assert.ok(run.file);
         });
 

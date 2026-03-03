@@ -2,7 +2,9 @@
     "month": "2026-02",
     "commits": [
         {
-            "gitHash": "aaa1111bbb2222ccc3333ddd4444eee5555fff666",
+            "runtimeGitHash": "aaa1111bbb2222ccc3333ddd4444eee5555fff666",
+            "sdkGitHash": "fff6665eee4443ddd2221ccc0009bbb8887aaa666",
+            "vmrGitHash": "1234567890abcdef1234567890abcdef12345678",
             "date": "2026-02-15",
             "time": "08-00-00-UTC",
             "sdkVersion": "10.0.100-preview.2.25100.1",

@@ -32,12 +32,23 @@ export function parseBuildDate(sdkVersion) {
 }
 
 /**
- * Parse git commit hash from `dotnet --info` output.
- * Looks for "Commit:  <hex>" line.
+ * Parse git commit hash from `dotnet --info` output — SDK section.
+ * Looks for "Commit:  <hex>" line in the ".NET SDK:" section.
  */
 export function parseCommitHash(dotnetInfoOutput) {
     const match = dotnetInfoOutput.match(/Commit:\s+([a-f0-9]+)/i);
     return match ? match[1] : null;
+}
+
+/**
+ * Parse host commit hash from `dotnet --info` output — Host section.
+ * The Host section appears after ".NET SDK:" and has its own "Commit:" line.
+ * This is the dotnet/runtime (host) commit, often a short hash (~10 chars).
+ * We pick the second "Commit:" line (first is SDK, second is Host).
+ */
+export function parseHostCommitHash(dotnetInfoOutput) {
+    const commits = [...dotnetInfoOutput.matchAll(/Commit:\s+([a-f0-9]+)/gi)];
+    return commits.length >= 2 ? commits[1][1] : null;
 }
 
 /**
@@ -50,10 +61,12 @@ export function parseSdkVersion(dotnetVersionOutput) {
 /**
  * Build the SDK info JSON object from parsed components.
  */
-export function buildSdkInfo(sdkVersion, gitHash, commitDate, commitTime) {
+export function buildSdkInfo(sdkVersion, runtimeGitHash, sdkGitHash, vmrGitHash, commitDate, commitTime) {
     return {
         sdkVersion,
-        gitHash,
+        runtimeGitHash,
+        sdkGitHash,
+        vmrGitHash,
         commitDate,   // "YYYY-MM-DD"
         commitTime    // "HH-MM-SS-UTC"
     };

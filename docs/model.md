@@ -8,11 +8,32 @@ Each benchmark run is identified by a combination of these dimensions:
 |-----------|-----|-----------------|-------------|
 | **Date** | `date` | ISO date `YYYY-MM-DD` | Calendar date of the run |
 | **SDK Version** | `sdkVersion` | e.g. `10.0.100-preview.3.25130.1` | Resolved .NET SDK version string |
-| **Git Hash** | `gitHash` | 40-char SHA (display as 7-char) | Source commit of the SDK build |
+| **Runtime Git Hash** | `runtimeGitHash` | 40-char SHA (display as 7-char) | Commit from `dotnet/runtime` — the runtime being benchmarked |
+| **SDK Git Hash** | `sdkGitHash` | 40-char SHA | Commit from `dotnet/sdk` |
+| **VMR Git Hash** | `vmrGitHash` | 40-char SHA | Commit from `dotnet/dotnet` (VMR) that produced the SDK build |
 | **Runtime Flavor** | `runtime` | `coreclr`, `mono`, `llvm_naot` | Which .NET runtime VM |
 | **Build Preset** | `preset` | `no-workload`, `aot`, `native-relink`, `invariant`, `no-reflection-emit`, `debug` | MSBuild publish preset |
 | **Execution Engine** | `engine` | `v8`, `node`, `chrome`, `firefox` | JS/WASM execution environment |
 | **Sample App** | `app` | `empty-browser`, `empty-blazor`, `blazing-pizza`, `microbenchmarks` | Which application was measured |
+
+### Git hash resolution
+
+The .NET SDK is built from the **VMR** (`dotnet/dotnet`, Virtual Monolithic Repository), which integrates source from individual product repos. A single SDK build corresponds to exactly one commit in each of three repos:
+
+| Hash | Source | Resolved from |
+|------|--------|---------------|
+| `vmrGitHash` | `dotnet/dotnet` | `dotnet --info` ".NET SDK: Commit:" — for VMR-based builds (≥.NET 9), this is the VMR commit |
+| `sdkGitHash` | `dotnet/sdk` | VMR `src/source-manifest.json` → `repositories[path="src/sdk"].commitSha` |
+| `runtimeGitHash` | `dotnet/runtime` | VMR `src/source-manifest.json` → `repositories[path="src/runtime"].commitSha` |
+
+**Resolution algorithm** (in `resolve-sdk.sh`):
+1. Install SDK, run `dotnet --info`
+2. Extract the "SDK: Commit:" hash (`DOTNET_COMMIT`)
+3. Try fetching `src/source-manifest.json` from `dotnet/dotnet` at that hash (via GitHub raw URL)
+4. If successful → `DOTNET_COMMIT` is the VMR commit; parse `sdkGitHash` and `runtimeGitHash` from the manifest
+5. If not found → fallback: use `DOTNET_COMMIT` as `sdkGitHash`, extract runtime hash from "Host: Commit:" in `dotnet --info`
+
+The `runtimeGitHash` is used in filenames (7-char prefix) since we primarily benchmark runtime performance.
 
 ### Dimension constraints (valid combinations)
 
@@ -111,16 +132,16 @@ Result data stores only the numeric value — the unit is looked up from the met
 
 ### Per-run result file
 
-The filename encodes the **commit time** (UTC), **short git hash** (7 chars), and all dimension values:
+The filename encodes the **commit time** (UTC), **short runtime git hash** (7 chars from `dotnet/runtime`), and all dimension values:
 
 ```
-{HH-MM-SS-UTC}_{githash7}_{runtime}_{preset}_{engine}_{app}.json
+{HH-MM-SS-UTC}_{runtimehash7}_{runtime}_{preset}_{engine}_{app}.json
 ```
 
 The file lives inside a date directory derived from the **commit date** (not the CI run date):
 
 ```
-data/{year}/{YYYY-MM-DD}/{HH-MM-SS-UTC}_{githash7}_{runtime}_{preset}_{engine}_{app}.json
+data/{year}/{YYYY-MM-DD}/{HH-MM-SS-UTC}_{runtimehash7}_{runtime}_{preset}_{engine}_{app}.json
 ```
 
 Examples:
@@ -134,14 +155,14 @@ data/2026/2026-03-15/08-12-00-UTC_def5678_mono_no-workload_firefox_microbenchmar
 All dimension values are lowercase, hyphens for multi-word. The commit time uses dashes instead of colons for filesystem compatibility.
 
 ### Why commit-time + hash in filename?
-- **Commit hash** is the primary identity of a result (borrowed from radekdoulik/bench-results). Allows re-measuring the same commit.
+- **Runtime commit hash** is the primary identity of a result (borrowed from radekdoulik/bench-results). The `dotnet/runtime` hash is used because we primarily benchmark runtime performance. Allows re-measuring the same commit.
 - **Commit time** provides natural chronological sort when listing a directory.
 - **Date directory** groups results by commit date, not CI run date — if a backfill benchmarks an old commit, the result goes into the original commit's date directory.
 
 ### Artifact naming (CI upload)
 Uploaded as individual GitHub Actions artifacts with the name:
 ```
-result_{githash7}_{runtime}_{preset}_{engine}_{app}
+result_{runtimehash7}_{runtime}_{preset}_{engine}_{app}
 ```
 
 ---
@@ -163,7 +184,7 @@ gh-pages branch root/
 │   ├── 2026-04.json                    # Month index for April 2026
 │   └── {year}/
 │       └── {YYYY-MM-DD}/              # One directory per commit date
-│           ├── {HH-MM-SS-UTC}_{githash7}_{runtime}_{preset}_{engine}_{app}.json
+│           ├── {HH-MM-SS-UTC}_{runtimehash7}_{runtime}_{preset}_{engine}_{app}.json
 │           └── ...
 ```
 
@@ -216,7 +237,9 @@ One file per month, e.g. `data/2026-03.json`. Maps all commits benchmarked that 
   "month": "2026-03",
   "commits": [
     {
-      "gitHash": "abc1234def5678abc1234def5678abc1234def56",
+      "runtimeGitHash": "abc1234def5678abc1234def5678abc1234def56",
+      "sdkGitHash": "1111111222222233333334444444555555566666",
+      "vmrGitHash": "aaaa1111bbbb2222cccc3333dddd4444eeee5555",
       "date": "2026-03-02",
       "time": "12-34-56-UTC",
       "sdkVersion": "10.0.100-preview.3.25130.1",
@@ -240,7 +263,9 @@ One file per month, e.g. `data/2026-03.json`. Maps all commits benchmarked that 
       ]
     },
     {
-      "gitHash": "def5678abc1234def5678abc1234def5678abc123",
+      "runtimeGitHash": "def5678abc1234def5678abc1234def5678abc123",
+      "sdkGitHash": "6666666777777788888889999999000000011111",
+      "vmrGitHash": "ffff1111gggg2222hhhh3333iiii4444jjjj5555",
       "date": "2026-03-15",
       "time": "08-12-00-UTC",
       "sdkVersion": "10.0.100-preview.3.25140.5",
@@ -261,8 +286,10 @@ One file per month, e.g. `data/2026-03.json`. Maps all commits benchmarked that 
 
 **Fields**:
 - `month`: `YYYY-MM` identifier
-- `commits[]`: one entry per git commit benchmarked that month, sorted by date+time
-  - `gitHash`: full 40-char SHA
+- `commits[]`: one entry per SDK build benchmarked that month, sorted by date+time
+  - `runtimeGitHash`: full 40-char SHA from `dotnet/runtime`
+  - `sdkGitHash`: full 40-char SHA from `dotnet/sdk`
+  - `vmrGitHash`: full 40-char SHA from `dotnet/dotnet` (VMR), empty string if unknown
   - `date`: commit date `YYYY-MM-DD`
   - `time`: commit time `HH-MM-SS-UTC`
   - `sdkVersion`: full SDK version string
@@ -288,7 +315,9 @@ Metric values are bare numbers. The unit for each metric is defined in the metri
     "commitDate": "2026-03-02",
     "commitTime": "12-34-56-UTC",
     "sdkVersion": "10.0.100-preview.3.25130.1",
-    "gitHash": "abc1234def5678abc1234def5678abc1234def56",
+    "runtimeGitHash": "abc1234def5678abc1234def5678abc1234def56",
+    "sdkGitHash": "1111111222222233333334444444555555566666",
+    "vmrGitHash": "aaaa1111bbbb2222cccc3333dddd4444eeee5555",
     "runtime": "coreclr",
     "preset": "no-workload",
     "engine": "chrome",
@@ -324,7 +353,9 @@ Metric values are bare numbers. The unit for each metric is defined in the metri
     "commitDate": "2026-03-02",
     "commitTime": "12-34-56-UTC",
     "sdkVersion": "10.0.100-preview.3.25130.1",
-    "gitHash": "abc1234def5678abc1234def5678abc1234def56",
+    "runtimeGitHash": "abc1234def5678abc1234def5678abc1234def56",
+    "sdkGitHash": "1111111222222233333334444444555555566666",
+    "vmrGitHash": "aaaa1111bbbb2222cccc3333dddd4444eeee5555",
     "runtime": "coreclr",
     "preset": "no-workload",
     "engine": "v8",
@@ -337,6 +368,21 @@ Metric values are bare numbers. The unit for each metric is defined in the metri
     "json-parse-ops": 890000,
     "exception-ops": 45000
   }
+}
+```
+
+### sdk-info.json (resolve-sdk.sh output)
+
+Written by `resolve-sdk.sh` to `$INSTALL_DIR/sdk-info.json`. Consumed by measurement scripts.
+
+```json
+{
+  "sdkVersion": "11.0.100-preview.3.26062.1",
+  "runtimeGitHash": "abc1234def5678abc1234def5678abc1234def56",
+  "sdkGitHash": "1111111222222233333334444444555555566666",
+  "vmrGitHash": "aaaa1111bbbb2222cccc3333dddd4444eeee5555",
+  "commitDate": "2026-03-03",
+  "commitTime": "14-30-00-UTC"
 }
 ```
 
@@ -380,13 +426,13 @@ CI benchmark job (per matrix leg)
 
 1. Read existing `data/index.json` from gh-pages checkout (or create empty if first run)
 2. For each new result JSON file:
-   a. Parse the `meta` section to get `commitDate`, `commitTime`, `gitHash`, dimensions
+   a. Parse the `meta` section to get `commitDate`, `commitTime`, `runtimeGitHash`, `sdkGitHash`, `vmrGitHash`, dimensions
    b. Compute target directory: `data/{year}/{commitDate}/`
-   c. Compute filename: `{commitTime}_{gitHash7}_{runtime}_{preset}_{engine}_{app}.json`
+   c. Compute filename: `{commitTime}_{runtimeHash7}_{runtime}_{preset}_{engine}_{app}.json`
    d. Copy file to target path
    e. Compute month key: `YYYY-MM` from `commitDate`
    f. Load or create the month index file `data/{YYYY-MM}.json`
-   g. Find or create the commit entry (by `gitHash`)
+   g. Find or create the commit entry (by `runtimeGitHash`)
    h. Add result entry to the commit's `results[]` (replace if same dimensions already exist)
 3. For each modified month index:
    a. Sort commits by `date` + `time`

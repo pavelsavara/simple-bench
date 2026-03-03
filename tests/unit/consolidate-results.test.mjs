@@ -24,7 +24,9 @@ function makeMeta(overrides = {}) {
         commitDate: '2026-03-02',
         commitTime: '12-34-56-UTC',
         sdkVersion: '11.0.100-preview.3.26061.1',
-        gitHash: 'abc1234def5678abc1234def5678abc1234def567',
+        runtimeGitHash: 'abc1234def5678abc1234def5678abc1234def567',
+        sdkGitHash: '1111111222222233333334444444555555566666ab',
+        vmrGitHash: 'aaaa1111bbbb2222cccc3333dddd4444eeee555566',
         runtime: 'coreclr',
         preset: 'no-workload',
         engine: 'chrome',
@@ -94,8 +96,8 @@ describe('computeResultFilename', () => {
         );
     });
 
-    it('truncates git hash to 7 chars', () => {
-        const meta = makeMeta({ gitHash: '0123456789abcdef0123456789abcdef01234567' });
+    it('truncates runtime git hash to 7 chars', () => {
+        const meta = makeMeta({ runtimeGitHash: '0123456789abcdef0123456789abcdef01234567' });
         assert.ok(computeResultFilename(meta).includes('0123456'));
         assert.ok(!computeResultFilename(meta).includes('01234567'));
     });
@@ -164,7 +166,7 @@ describe('upsertResult', () => {
         const result = makeResult();
         upsertResult(mi, result);
         assert.equal(mi.commits.length, 1);
-        assert.equal(mi.commits[0].gitHash, result.meta.gitHash);
+        assert.equal(mi.commits[0].runtimeGitHash, result.meta.runtimeGitHash);
         assert.equal(mi.commits[0].results.length, 1);
     });
 
@@ -194,7 +196,7 @@ describe('upsertResult', () => {
         const mi = createEmptyMonthIndex('2026-03');
         const result1 = makeResult();
         const result2 = makeResult({
-            gitHash: 'def5678abc1234def5678abc1234def5678abc123',
+            runtimeGitHash: 'def5678abc1234def5678abc1234def5678abc123',
             commitDate: '2026-03-15',
             commitTime: '08-12-00-UTC',
         });
@@ -211,15 +213,15 @@ describe('sortMonthCommits', () => {
         const mi = {
             month: '2026-03',
             commits: [
-                { gitHash: 'b', date: '2026-03-15', time: '08-12-00-UTC', sdkVersion: '', results: [] },
-                { gitHash: 'a', date: '2026-03-02', time: '12-34-56-UTC', sdkVersion: '', results: [] },
-                { gitHash: 'c', date: '2026-03-02', time: '06-00-00-UTC', sdkVersion: '', results: [] },
+                { runtimeGitHash: 'b', date: '2026-03-15', time: '08-12-00-UTC', sdkVersion: '', results: [] },
+                { runtimeGitHash: 'a', date: '2026-03-02', time: '12-34-56-UTC', sdkVersion: '', results: [] },
+                { runtimeGitHash: 'c', date: '2026-03-02', time: '06-00-00-UTC', sdkVersion: '', results: [] },
             ],
         };
         sortMonthCommits(mi);
-        assert.equal(mi.commits[0].gitHash, 'c');
-        assert.equal(mi.commits[1].gitHash, 'a');
-        assert.equal(mi.commits[2].gitHash, 'b');
+        assert.equal(mi.commits[0].runtimeGitHash, 'c');
+        assert.equal(mi.commits[1].runtimeGitHash, 'a');
+        assert.equal(mi.commits[2].runtimeGitHash, 'b');
     });
 
     it('handles empty commits array', () => {
@@ -237,7 +239,7 @@ describe('rebuildTopLevelIndex', () => {
         const mi = {
             month: '2026-03',
             commits: [{
-                gitHash: 'abc', date: '2026-03-02', time: '12-34-56-UTC', sdkVersion: '11.0.0',
+                runtimeGitHash: 'abc', date: '2026-03-02', time: '12-34-56-UTC', sdkVersion: '11.0.0',
                 results: [
                     { runtime: 'coreclr', preset: 'no-workload', engine: 'chrome', app: 'empty-browser', file: '', metrics: [] },
                     { runtime: 'mono', preset: 'aot', engine: 'chrome', app: 'empty-browser', file: '', metrics: [] },
@@ -389,7 +391,7 @@ describe('consolidate', () => {
         const existingMi = {
             month: '2026-03',
             commits: [{
-                gitHash: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+                runtimeGitHash: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
                 date: '2026-03-01',
                 time: '00-00-00-UTC',
                 sdkVersion: '11.0.100-preview.3.26060.1',
@@ -444,7 +446,7 @@ describe('consolidate', () => {
         const result2 = makeResult({
             commitDate: '2026-04-15',
             commitTime: '08-00-00-UTC',
-            gitHash: 'def5678abc1234def5678abc1234def5678abc123',
+            runtimeGitHash: 'def5678abc1234def5678abc1234def5678abc123',
         });
 
         const dir1 = join(artifactsDir, 'r1');
@@ -483,7 +485,7 @@ describe('consolidate', () => {
         }));
         await writeFile(join(dataDir, '2026-01.json'), JSON.stringify({
             month: '2026-01', commits: [{
-                gitHash: 'aaa', date: '2026-01-10', time: '10-00-00-UTC', sdkVersion: '11.0.0',
+                runtimeGitHash: 'aaa', date: '2026-01-10', time: '10-00-00-UTC', sdkVersion: '11.0.0',
                 results: [{ runtime: 'coreclr', preset: 'no-workload', engine: 'chrome', app: 'empty-browser', file: '', metrics: [] }],
             }],
         }));

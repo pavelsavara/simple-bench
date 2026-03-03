@@ -43,9 +43,17 @@ export function parseResultJson(content) {
         return null;
     }
     if (!data.meta || !data.metrics) return null;
-    const { commitDate, commitTime, gitHash, runtime, preset, engine, app } = data.meta;
-    if (!commitDate || !commitTime || !gitHash || !runtime || !preset || !engine || !app) {
+    const { commitDate, commitTime, runtime, preset, engine, app } = data.meta;
+    // Support both new (runtimeGitHash) and legacy (gitHash) field names
+    const runtimeGitHash = data.meta.runtimeGitHash || data.meta.gitHash;
+    if (!commitDate || !commitTime || !runtimeGitHash || !runtime || !preset || !engine || !app) {
         return null;
+    }
+    // Normalize: ensure runtimeGitHash is always present in meta
+    if (!data.meta.runtimeGitHash && data.meta.gitHash) {
+        data.meta.runtimeGitHash = data.meta.gitHash;
+        data.meta.sdkGitHash = data.meta.sdkGitHash || data.meta.gitHash;
+        data.meta.vmrGitHash = data.meta.vmrGitHash || '';
     }
     return data;
 }
@@ -54,7 +62,7 @@ export function parseResultJson(content) {
  * Compute the canonical filename for a result.
  */
 export function computeResultFilename(meta) {
-    const hash7 = meta.gitHash.slice(0, 7);
+    const hash7 = (meta.runtimeGitHash || meta.gitHash).slice(0, 7);
     return `${meta.commitTime}_${hash7}_${meta.runtime}_${meta.preset}_${meta.engine}_${meta.app}.json`;
 }
 
@@ -106,11 +114,16 @@ export function buildMonthResultEntry(meta, metrics) {
 export function upsertResult(monthIndex, resultJson) {
     const { meta, metrics } = resultJson;
 
-    // Find or create commit entry
-    let commit = monthIndex.commits.find(c => c.gitHash === meta.gitHash);
+    // Find or create commit entry (keyed by runtimeGitHash)
+    const runtimeHash = meta.runtimeGitHash || meta.gitHash;
+    let commit = monthIndex.commits.find(c =>
+        (c.runtimeGitHash || c.gitHash) === runtimeHash
+    );
     if (!commit) {
         commit = {
-            gitHash: meta.gitHash,
+            runtimeGitHash: meta.runtimeGitHash || meta.gitHash,
+            sdkGitHash: meta.sdkGitHash || '',
+            vmrGitHash: meta.vmrGitHash || '',
             date: meta.commitDate,
             time: meta.commitTime,
             sdkVersion: meta.sdkVersion || '',
