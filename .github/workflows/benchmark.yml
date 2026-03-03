@@ -35,12 +35,15 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Resolve SDK
+        shell: bash
         run: ./scripts/resolve-sdk.sh "${{ inputs.sdk_channel || '11.0' }}" "${{ inputs.sdk_version }}"
 
       - name: Build app
+        shell: bash
         run: ./scripts/build-app.sh empty-browser ${{ matrix.runtime }} ${{ matrix.preset }}
 
       - name: Run benchmark
+        shell: bash
         run: |
           SDK_INFO_FILE="${ARTIFACTS_DIR:-artifacts}/sdk/sdk-info.json"
           GIT_HASH=$(jq -r .gitHash "$SDK_INFO_FILE")
