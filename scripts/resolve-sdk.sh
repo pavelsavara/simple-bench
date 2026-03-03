@@ -15,7 +15,7 @@ set -euo pipefail
 
 CHANNEL="${1:-11.0}"
 SDK_VERSION="${2:-}"
-INSTALL_DIR="${ARTIFACTS_DIR:-artifacts}/sdk"
+INSTALL_DIR="$(cd "${ARTIFACTS_DIR:-artifacts}" && pwd)/sdk"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 mkdir -p "$INSTALL_DIR"
@@ -36,6 +36,12 @@ fi
 
 export DOTNET_ROOT="$INSTALL_DIR"
 export PATH="$INSTALL_DIR:$PATH"
+
+# Persist for subsequent CI steps (GitHub Actions)
+if [ -n "${GITHUB_ENV:-}" ]; then
+    echo "DOTNET_ROOT=$INSTALL_DIR" >> "$GITHUB_ENV"
+    echo "PATH=$INSTALL_DIR:$PATH" >> "$GITHUB_ENV"
+fi
 
 # Extract version and commit info
 RESOLVED_VERSION=$("$INSTALL_DIR/dotnet" --version)
