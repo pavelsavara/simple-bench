@@ -25,16 +25,7 @@ jobs:
   bench:
     runs-on: ubuntu-latest
     container: ghcr.io/${{ github.repository }}/browser-bench:latest
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        runtime: [mono]
-        preset: [no-workload, aot, native-relink, no-jiterp, invariant, no-reflection-emit, debug]
-        exclude:
-          # AOT is Mono-only
-          - runtime: coreclr
-            preset: aot
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
 
@@ -42,41 +33,24 @@ jobs:
         shell: bash
         run: echo "ARTIFACTS_DIR=${ARTIFACTS_DIR:-artifacts}" >> "$GITHUB_ENV"
 
-      - name: Resolve SDK
-        shell: bash
-        run: ./scripts/resolve-sdk.sh "${{ inputs.sdk_channel || '11.0' }}" "${{ inputs.sdk_version }}"
-
-      - name: Build app
-        shell: bash
-        run: ./scripts/build-app.sh empty-browser ${{ matrix.runtime }} ${{ matrix.preset }}
-
-      - name: Run benchmark
+      - name: Run benchmark pipeline
         shell: bash
         run: |
-          SDK_INFO_FILE="${ARTIFACTS_DIR:-artifacts}/sdk/sdk-info.json"
-          RUNTIME_HASH=$(jq -r '.runtimeGitHash // .gitHash' "$SDK_INFO_FILE")
-          RUNTIME_HASH7=${RUNTIME_HASH:0:7}
-          COMMIT_TIME=$(jq -r .commitTime "$SDK_INFO_FILE")
-          FILENAME="${COMMIT_TIME}_${RUNTIME_HASH7}_${{ matrix.runtime }}_${{ matrix.preset }}_chrome_empty-browser.json"
-
-          node scripts/measure-external.mjs \
-            --app empty-browser \
-            --publish-dir "${ARTIFACTS_DIR:-artifacts}/publish/empty-browser/wwwroot" \
-            --sdk-info "${ARTIFACTS_DIR:-artifacts}/sdk/sdk-info.json" \
-            --compile-time-file "${ARTIFACTS_DIR:-artifacts}/results/compile-time.json" \
-            --runtime ${{ matrix.runtime }} \
-            --preset ${{ matrix.preset }} \
+          node scripts/run-pipeline.mjs \
+            --sdk-channel "${{ inputs.sdk_channel || '11.0' }}" \
+            ${{ inputs.sdk_version && format('--sdk-version "{0}"', inputs.sdk_version) || '' }} \
+            --runtime mono \
             --ci-run-id "${{ github.run_id }}" \
             --ci-run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
             --retries 3 \
             --timeout 300000 \
-            --output "${ARTIFACTS_DIR:-artifacts}/results/${FILENAME}"
+            ${{ inputs.dry_run && '--dry-run' || '' }}
 
-      - name: Upload result
+      - name: Upload results
         uses: actions/upload-artifact@v4
         if: ${{ always() && github.event_name != 'pull_request' && !inputs.dry_run }}
         with:
-          name: result_${{ matrix.runtime }}_${{ matrix.preset }}_chrome_empty-browser
+          name: benchmark-results
           path: ${{ env.ARTIFACTS_DIR || 'artifacts' }}/results/*.json
           if-no-files-found: ignore
           retention-days: 7

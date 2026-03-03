@@ -7,7 +7,10 @@ import {
     PRESET_MAP,
     validateCombination,
     getPublishArgs,
-    needsWorkload
+    needsWorkload,
+    WORKLOAD_PRESETS,
+    NON_WORKLOAD_PRESETS,
+    getPresetGroups
 } from '../../scripts/lib/build-config.mjs';
 
 describe('mapRuntimeFlavor', () => {
@@ -195,6 +198,65 @@ describe('needsWorkload', () => {
         const noWorkloadPresets = ['debug', 'no-workload'];
         for (const preset of noWorkloadPresets) {
             assert.equal(needsWorkload(preset), false, `Expected needsWorkload('${preset}') to be false`);
+        }
+    });
+});
+
+describe('NON_WORKLOAD_PRESETS', () => {
+    it('contains debug and no-workload', () => {
+        assert.ok(NON_WORKLOAD_PRESETS.has('debug'));
+        assert.ok(NON_WORKLOAD_PRESETS.has('no-workload'));
+    });
+
+    it('has exactly 2 entries', () => {
+        assert.equal(NON_WORKLOAD_PRESETS.size, 2);
+    });
+
+    it('does not overlap with WORKLOAD_PRESETS', () => {
+        for (const preset of NON_WORKLOAD_PRESETS) {
+            assert.ok(!WORKLOAD_PRESETS.has(preset), `${preset} should not be in WORKLOAD_PRESETS`);
+        }
+    });
+});
+
+describe('WORKLOAD_PRESETS', () => {
+    it('contains all 5 workload presets', () => {
+        assert.ok(WORKLOAD_PRESETS.has('native-relink'));
+        assert.ok(WORKLOAD_PRESETS.has('aot'));
+        assert.ok(WORKLOAD_PRESETS.has('no-jiterp'));
+        assert.ok(WORKLOAD_PRESETS.has('invariant'));
+        assert.ok(WORKLOAD_PRESETS.has('no-reflection-emit'));
+    });
+
+    it('has exactly 5 entries', () => {
+        assert.equal(WORKLOAD_PRESETS.size, 5);
+    });
+});
+
+describe('getPresetGroups', () => {
+    it('returns sorted non-workload presets', () => {
+        const { nonWorkload } = getPresetGroups();
+        assert.deepEqual(nonWorkload, ['debug', 'no-workload']);
+    });
+
+    it('returns sorted workload presets', () => {
+        const { workload } = getPresetGroups();
+        assert.deepEqual(workload, ['aot', 'invariant', 'native-relink', 'no-jiterp', 'no-reflection-emit']);
+    });
+
+    it('all presets from both groups are in PRESET_MAP', () => {
+        const { nonWorkload, workload } = getPresetGroups();
+        const allPresets = [...nonWorkload, ...workload];
+        for (const preset of allPresets) {
+            assert.ok(PRESET_MAP[preset], `Preset '${preset}' should be in PRESET_MAP`);
+        }
+    });
+
+    it('both groups together cover all PRESET_MAP keys', () => {
+        const { nonWorkload, workload } = getPresetGroups();
+        const allPresets = new Set([...nonWorkload, ...workload]);
+        for (const key of Object.keys(PRESET_MAP)) {
+            assert.ok(allPresets.has(key), `PRESET_MAP key '${key}' should be in a preset group`);
         }
     });
 });

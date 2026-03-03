@@ -4,12 +4,12 @@
 
 Three GitHub Actions workflows orchestrate the benchmarking:
 
-1. **benchmark.yml** — runs benchmark matrix daily (or on-demand)
+1. **benchmark.yml** — runs all benchmarks in a single container daily (or on-demand)
 2. **consolidate.yml** — merges results into gh-pages branch
 3. **docker-build.yml** — builds/publishes the Docker image
 4. **test.yml** — runs unit + E2E tests on PR/push
 
-All benchmark jobs run inside a Docker container with pre-installed engines (V8, Node, Chrome, Firefox). The .NET SDK is downloaded at runtime from the nightly feed.
+All benchmark steps run inside a **single Docker container** via `scripts/run-pipeline.mjs` to avoid redundant SDK/workload downloads. The pipeline installs the SDK once, builds all app×preset combinations, then runs all measurements sequentially.
 
 All build outputs and temp files go to `artifacts/` (gitignored):
 - `artifacts/sdk/` — downloaded .NET SDK
@@ -166,6 +166,20 @@ RESOLVED_VERSION=$("$INSTALL_DIR/dotnet" --version)
 # ... (hash resolution logic) ...
 echo '{"sdkVersion":"...","runtimeGitHash":"...","sdkGitHash":"...","vmrGitHash":"...","commitDate":"...","commitTime":"..."}' > /tmp/sdk-info.json
 cat /tmp/sdk-info.json
+```
+
+After the wasm-tools workload is installed (by `run-pipeline.mjs`), the `workloadVersion` field is added to `sdk-info.json`:
+
+```json
+{
+  "sdkVersion": "11.0.100-preview.3.26062.1",
+  "runtimeGitHash": "...",
+  "sdkGitHash": "...",
+  "vmrGitHash": "...",
+  "commitDate": "2026-03-03",
+  "commitTime": "04-00-00-UTC",
+  "workloadVersion": "11.0.0-preview.3.26062.1"
+}
 ```
 
 ---
@@ -363,115 +377,65 @@ const results = await page.evaluate(() => window.__benchResults);
 | `sdk_version` | string | `""` (latest nightly) | Specific SDK version or empty for latest |
 | `presets` | choice | `all` | `all`, `no-workload-only`, `aot-only`, `native-relink-only` |
 
-### Matrix strategy
+### Single-container pipeline (no matrix)
 
-```yaml
-strategy:
-  fail-fast: false
-  matrix:
-    app: [empty-browser, empty-blazor, blazing-pizza, microbenchmarks]
-    runtime: [coreclr, mono, naotllvm]
-    preset: [no-workload, aot, native-relink, invariant, no-reflection-emit, debug]
-    engine: [v8, node, chrome, firefox]
-    exclude:
-      # AOT is Mono-only
-      - runtime: coreclr
-        preset: aot
-      - runtime: naotllvm
-        preset: aot
-      # NativeAOT has limited preset set
-      - runtime: naotllvm
-        preset: native-relink
-      - runtime: naotllvm
-        preset: invariant
-      - runtime: naotllvm
-        preset: no-reflection-emit
-      - runtime: naotllvm
-        preset: debug
-      # External apps only measured on Chrome
-      - app: empty-browser
-        engine: v8
-      - app: empty-browser
-        engine: node
-      - app: empty-browser
-        engine: firefox
-      - app: empty-blazor
-        engine: v8
-      - app: empty-blazor
-        engine: node
-      - app: empty-blazor
-        engine: firefox
-      - app: blazing-pizza
-        engine: v8
-      - app: blazing-pizza
-        engine: node
-      - app: blazing-pizza
-        engine: firefox
-```
+Instead of a matrix strategy, the benchmark workflow runs a single job that
+executes `scripts/run-pipeline.mjs`. This orchestrator:
 
-### Job steps
+1. Installs the .NET SDK once
+2. Validates that wasm-tools workload is **not** pre-installed
+3. Builds all apps × non-workload presets (`debug`, `no-workload`)
+4. Installs the wasm-tools workload, captures its version in `sdk-info.json`
+5. Builds all apps × workload presets (`aot`, `invariant`, `native-relink`, `no-jiterp`, `no-reflection-emit`)
+6. Runs measurements for all engines × apps × presets
+
+Apps are auto-discovered from `apps/` (any directory containing a `.csproj`).
+
+### Job definition
 
 ```yaml
 jobs:
   bench:
     runs-on: ubuntu-latest
     container: ghcr.io/${{ github.repository }}/browser-bench:latest
-    timeout-minutes: 30
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
 
-      - name: Resolve SDK
-        id: sdk
+      - name: Export container env to GitHub Actions
+        run: echo "ARTIFACTS_DIR=${ARTIFACTS_DIR:-artifacts}" >> "$GITHUB_ENV"
+
+      - name: Run benchmark pipeline
         run: |
-          ./scripts/resolve-sdk.sh "${{ inputs.sdk_version }}"
-          echo "sdk_info=$(cat /tmp/sdk-info.json)" >> $GITHUB_OUTPUT
+          node scripts/run-pipeline.mjs \
+            --sdk-channel "${{ inputs.sdk_channel || '11.0' }}" \
+            ${{ inputs.sdk_version && format('--sdk-version "{0}"', inputs.sdk_version) || '' }} \
+            --runtime mono \
+            --ci-run-id "${{ github.run_id }}" \
+            --ci-run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --retries 3 \
+            --timeout 300000
 
-      - name: Build app
-        run: ./scripts/build-app.sh ${{ matrix.app }} ${{ matrix.runtime }} ${{ matrix.preset }}
-        # Compile time is recorded to artifacts/results/compile-time.json
-
-      - name: Run benchmark
-        run: |
-          SDK_INFO='${{ steps.sdk.outputs.sdk_info }}'
-          SDK_VERSION=$(echo "$SDK_INFO" | jq -r .sdkVersion)
-          RUNTIME_HASH=$(echo "$SDK_INFO" | jq -r '.runtimeGitHash // .gitHash')
-          RUNTIME_HASH7=${RUNTIME_HASH:0:7}
-          COMMIT_DATE=$(echo "$SDK_INFO" | jq -r .commitDate)   # YYYY-MM-DD
-          COMMIT_TIME=$(echo "$SDK_INFO" | jq -r .commitTime)   # HH-MM-SS-UTC
-          FILENAME="${COMMIT_TIME}_${RUNTIME_HASH7}_${{ matrix.runtime }}_${{ matrix.preset }}_${{ matrix.engine }}_${{ matrix.app }}.json"
-          
-          if [ "${{ matrix.app }}" = "microbenchmarks" ]; then
-            node scripts/measure-internal.mjs \
-              --engine ${{ matrix.engine }} \
-              --publish-dir artifacts/publish/${{ matrix.app }} \
-              --sdk-info /tmp/sdk-info.json \
-              --commit-date "$COMMIT_DATE" \
-              --commit-time "$COMMIT_TIME" \
-              --runtime ${{ matrix.runtime }} \
-              --preset ${{ matrix.preset }} \
-              --output "artifacts/results/${FILENAME}"
-          else
-            node scripts/measure-external.mjs \
-              --app ${{ matrix.app }} \
-              --publish-dir artifacts/publish/${{ matrix.app }} \
-              --sdk-info /tmp/sdk-info.json \
-              --commit-date "$COMMIT_DATE" \
-              --commit-time "$COMMIT_TIME" \
-              --runtime ${{ matrix.runtime }} \
-              --preset ${{ matrix.preset }} \
-              --compile-time-file artifacts/results/compile-time.json \
-              --retries 3 \
-              --timeout 300000 \
-              --output "artifacts/results/${FILENAME}"
-          fi
-
-      - name: Upload result
+      - name: Upload results
         uses: actions/upload-artifact@v4
+        if: ${{ always() && github.event_name != 'pull_request' && !inputs.dry_run }}
         with:
-          name: result_${{ matrix.runtime }}_${{ matrix.preset }}_${{ matrix.engine }}_${{ matrix.app }}
-          path: artifacts/results/*.json
+          name: benchmark-results
+          path: ${{ env.ARTIFACTS_DIR || 'artifacts' }}/results/*.json
+          if-no-files-found: ignore
           retention-days: 7
 ```
+
+### Pipeline orchestrator: `scripts/run-pipeline.mjs`
+
+The orchestrator handles sequencing and validates that workload-dependent builds
+only run after the workload is installed. Key features:
+
+- **Workload validation**: Before non-workload builds, asserts `dotnet workload list` does NOT show wasm-tools
+- **Workload version capture**: After installing wasm-tools, parses the version from `dotnet workload list` and writes it to `sdk-info.json` as `workloadVersion`
+- **App discovery**: Scans `apps/` directory for subdirectories containing `.csproj` files
+- **Preset grouping**: Uses `getPresetGroups()` from `build-config.mjs` to split presets into non-workload and workload groups
+- **Dry-run mode**: `--dry-run` flag skips measurement phase (useful for build-only CI validation)
 
 ---
 
@@ -673,22 +637,27 @@ This is used in E2E tests to verify the full pipeline works after deployment.
 
 ```
   ┌─────────────────────────────────────────────────────┐
-  │                  benchmark.yml                       │
+  │                  benchmark.yml                      │
+  │              (single container job)                 │
   │                                                     │
-  │  ┌──────────┐ ┌──────────┐ ┌──────────┐           │
-  │  │ coreclr  │ │  mono    │ │  mono    │  ...×26   │
-  │  │ no-wkld  │ │  no-wkld │ │  aot     │  matrix   │
-  │  │ chrome   │ │  chrome  │ │  v8      │  legs     │
-  │  │ empty-bw │ │ empty-bw │ │ micro    │           │
-  │  └────┬─────┘ └────┬─────┘ └────┬─────┘           │
-  │       │upload       │upload      │upload            │
-  │       ▼             ▼            ▼                  │
-  │  [artifacts] [artifacts]  [artifacts]               │
+  │  ┌─────────────────────────────────────────────┐    │
+  │  │  run-pipeline.mjs                           │    │
+  │  │                                             │    │
+  │  │  1. Install SDK                             │    │
+  │  │  2. Validate no wasm-tools workload         │    │
+  │  │  3. Build apps × non-workload presets       │    │
+  │  │  4. Install workload, capture version       │    │
+  │  │  5. Build apps × workload presets           │    │
+  │  │  6. Measure: engines × apps × presets       │    │
+  │  └─────────────────────────────────────────────┘    │
+  │       │ upload all results as single artifact       │
+  │       ▼                                             │
+  │  [benchmark-results]                                │
   └─────────────────────┬───────────────────────────────┘
                         │ workflow_run (on success)
                         ▼
   ┌─────────────────────────────────────────────────────┐
-  │               consolidate.yml                        │
+  │               consolidate.yml                       │
   │                                                     │
   │  1. Download all artifacts                          │
   │  2. Checkout gh-pages                               │
@@ -698,9 +667,9 @@ This is used in E2E tests to verify the full pipeline works after deployment.
                         │
                         ▼
   ┌─────────────────────────────────────────────────────┐
-  │              gh-pages branch                         │
+  │              gh-pages branch                        │
   │                                                     │
-  │  data/index.json          (updated)                │
+  │  data/index.json          (updated)                 │
   │  data/2026-03.json         (month index, updated)   │
   │  data/2026/2026-03-02/*.json (new results)          │
   │  index.html + app/   (dashboard)                    │
