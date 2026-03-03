@@ -1,21 +1,17 @@
 # Licensed to the .NET Foundation under one or more agreements.
 # The .NET Foundation licenses this file to you under the MIT license.
 
-FROM ubuntu:24.04
+# ═══════════════════════════════════════════════════════════════════════════════
+# Stage: base — shared foundation for both build and measure images
+# ═══════════════════════════════════════════════════════════════════════════════
+FROM ubuntu:24.04 AS base
 
 # Avoid interactive prompts during package install
 ENV DEBIAN_FRONTEND=noninteractive
 
-# System packages
+# Common system packages (curl, git, tar, unzip, jq used by both workloads)
 RUN apt-get update && apt-get install -y \
     curl git tar unzip jq python3 \
-    libicu-dev libssl-dev zlib1g-dev \
-    # Emscripten / wasm-tools workload dependencies
-    libatomic1 \
-    # Playwright system dependencies
-    libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 \
-    libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 \
-    libpango-1.0-0 libcairo2 libasound2t64 libxshmfence1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Node.js 24.x (Current) — pinned major; patch comes from NodeSource repo snapshot
@@ -23,21 +19,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# V8 d8 via jsvu — pinned version
-RUN npm install -g jsvu@3.0.3 \
-    && jsvu --os=linux64 --engines=v8 \
-    && ln -s /root/.jsvu/bin/v8 /usr/local/bin/d8
-
-# Playwright — pinned to match package.json (exact version controls browser builds)
-RUN npm install -g playwright@1.58.2 \
-    && npx playwright install --with-deps chromium firefox
-
-# Environment
-ENV PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
-ENV DOTNET_ROOT=/opt/dotnet
+# Common environment
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 ENV DOTNET_NOLOGO=1
-ENV PATH="${DOTNET_ROOT}:${PATH}"
 ENV ARTIFACTS_DIR=/bench/artifacts
 
 # Create working directories
@@ -45,6 +29,48 @@ RUN mkdir -p $ARTIFACTS_DIR/sdk $ARTIFACTS_DIR/publish $ARTIFACTS_DIR/results $A
 
 WORKDIR /bench
 
-# Pre-install npm dependencies so they're baked into the image
-COPY package.json package-lock.json ./
-RUN npm ci && rm -rf /root/.npm
+# ═══════════════════════════════════════════════════════════════════════════════
+# Stage: browser-bench-build — .NET SDK prerequisites for building WASM apps
+# ═══════════════════════════════════════════════════════════════════════════════
+FROM base AS browser-bench-build
+
+# .NET SDK native dependencies
+RUN apt-get update && apt-get install -y \
+    libicu-dev libssl-dev zlib1g-dev \
+    # Emscripten / wasm-tools workload dependencies
+    libatomic1 \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV DOTNET_ROOT=/opt/dotnet
+ENV PATH="${DOTNET_ROOT}:${PATH}"
+
+# Pre-install npm dependencies (build scripts need no npm packages, but
+# having node_modules present avoids errors if npm ci is run in CI)
+COPY docker/package-build.json ./package.json
+RUN npm install --omit=dev && rm -rf /root/.npm
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Stage: browser-bench-measure — JS engines + browsers for running benchmarks
+# ═══════════════════════════════════════════════════════════════════════════════
+FROM base AS browser-bench-measure
+
+# Playwright system dependencies (browsers need these libs)
+RUN apt-get update && apt-get install -y \
+    libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 \
+    libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 \
+    libpango-1.0-0 libcairo2 libasound2t64 libxshmfence1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# V8 d8 via jsvu — pinned version
+RUN npm install -g jsvu@3.0.3 \
+    && jsvu --os=linux64 --engines=v8 \
+    && ln -s /root/.jsvu/bin/v8 /usr/local/bin/d8
+
+# Pre-install npm dependencies (playwright is the key dependency)
+COPY docker/package-measure.json ./package.json
+RUN npm install --omit=dev && rm -rf /root/.npm
+
+# Playwright browsers — pinned to match package.json version
+RUN npx playwright install --with-deps chromium firefox
+
+ENV PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright

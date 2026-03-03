@@ -25,7 +25,9 @@ simple-bench/
 │       ├── docker-build.yml        # Build/push Docker image to ghcr.io
 │       └── test.yml                # Unit + E2E tests on PR and push
 ├── docker/
-│   └── Dockerfile                  # V8, Node, Chrome, Firefox, Playwright deps
+│   ├── Dockerfile                  # Multi-stage: base → browser-bench-build, base → browser-bench-measure
+│   ├── package-build.json          # Minimal npm deps for build image (none)
+│   └── package-measure.json        # Playwright dep for measure image
 ├── src/
 │   ├── microbenchmarks/            # C# JSExport benchmark project
 │   │   ├── MicroBenchmarks.csproj
@@ -106,7 +108,7 @@ Core infrastructure that everything else depends on.
 | Step | Task | Output | Status |
 |------|------|--------|--------|
 | 1.1 | Init repo: `package.json`, `.gitignore`, `NuGet.config`, folder structure | Repo skeleton | ✅ Done |
-| 1.2 | Create [Dockerfile](docker/Dockerfile) with V8 (`d8` via jsvu), Node 24, Chrome, Firefox, Playwright system deps | Docker image | ✅ Done |
+| 1.2 | Create [Dockerfile](docker/Dockerfile) with multi-stage build: `browser-bench-build` (Node + .NET prereqs) and `browser-bench-measure` (V8/d8, Chrome, Firefox, Playwright) | Docker images | ✅ Done |
 | 1.3 | Create [resolve-sdk.sh](scripts/resolve-sdk.sh) — uses official `dotnet-install.sh`, outputs version + git hash + build date JSON via [sdk-info.mjs](scripts/lib/sdk-info.mjs) | SDK resolver | ✅ Done |
 | 1.4 | Create [build-app.sh](scripts/build-app.sh) — build/publish sample app to `artifacts/publish/` with runtime/preset flags via [build-config.mjs](scripts/lib/build-config.mjs) | App builder | ✅ Done |
 | 1.5 | Create [init-gh-pages.sh](scripts/init-gh-pages.sh) — repeatable script to initialize `gh-pages` branch | Data branch | ✅ Done |

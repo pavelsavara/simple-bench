@@ -25,7 +25,7 @@ jobs:
   # ── Job 1: Build all apps ──────────────────────────────────────────────────
   build:
     runs-on: ubuntu-latest
-    container: ghcr.io/${{ github.repository }}/browser-bench:latest
+    container: ghcr.io/${{ github.repository }}/browser-bench-build:latest
     timeout-minutes: 60
     outputs:
       matrix: ${{ steps.build.outputs.matrix }}
@@ -60,21 +60,60 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Upload all builds
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: builds
-          path: ${{ env.ARTIFACTS_DIR || 'artifacts' }}/publish/
-          if-no-files-found: ignore
-          retention-days: 3
+      - name: Upload individual builds
+        if: always() && steps.build.outputs.matrix != ''
+        shell: bash
+        env:
+          BUILD_MATRIX: ${{ steps.build.outputs.matrix }}
+        run: |
+          npm install --no-save @actions/artifact 2>&1 | tail -1
+          node << 'UPLOAD_SCRIPT'
+          const { DefaultArtifactClient } = require('@actions/artifact');
+          const { readdirSync, statSync } = require('fs');
+          const { join } = require('path');
+
+          function getFilesRecursive(dir) {
+            const results = [];
+            for (const entry of readdirSync(dir, { withFileTypes: true })) {
+              const full = join(dir, entry.name);
+              if (entry.isDirectory()) results.push(...getFilesRecursive(full));
+              else results.push(full);
+            }
+            return results;
+          }
+
+          async function main() {
+            const matrix = JSON.parse(process.env.BUILD_MATRIX || '[]');
+            const artifactsDir = process.env.ARTIFACTS_DIR || 'artifacts';
+            const client = new DefaultArtifactClient();
+
+            for (const { app, preset } of matrix) {
+              const publishDir = join(artifactsDir, 'publish', app, preset);
+              const name = `build-${app}-${preset}`;
+              try {
+                const files = getFilesRecursive(publishDir);
+                if (files.length === 0) {
+                  console.log(`⚠ ${name}: no files, skipping`);
+                  continue;
+                }
+                console.log(`Uploading ${name} (${files.length} files)...`);
+                const { size } = await client.uploadArtifact(name, files, publishDir, { retentionDays: 3 });
+                console.log(`✓ ${name}: ${(size / 1024 / 1024).toFixed(1)} MB`);
+              } catch (err) {
+                console.error(`✗ ${name}: ${err.message}`);
+              }
+            }
+          }
+
+          main().catch(err => { console.error(err); process.exit(1); });
+          UPLOAD_SCRIPT
 
   # ── Job 2: Measure (matrix: app × preset, all engines per job) ─────────────
   measure:
     needs: build
     if: needs.build.outputs.matrix != '[]' && needs.build.outputs.matrix != ''
     runs-on: ubuntu-latest
-    container: ghcr.io/${{ github.repository }}/browser-bench:latest
+    container: ghcr.io/${{ github.repository }}/browser-bench-measure:latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -97,11 +136,11 @@ jobs:
           name: sdk-info
           path: artifacts/sdk
 
-      - name: Download builds
+      - name: Download build
         uses: actions/download-artifact@v4
         with:
-          name: builds
-          path: artifacts/publish
+          name: build-${{ matrix.app }}-${{ matrix.preset }}
+          path: artifacts/publish/${{ matrix.app }}/${{ matrix.preset }}
 
       - name: Run measurements
         shell: bash
