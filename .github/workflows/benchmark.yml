@@ -22,10 +22,13 @@ on:
         type: boolean
 
 jobs:
-  bench:
+  # ── Job 1: Build all apps ──────────────────────────────────────────────────
+  build:
     runs-on: ubuntu-latest
     container: ghcr.io/${{ github.repository }}/browser-bench:latest
-    timeout-minutes: 120
+    timeout-minutes: 60
+    outputs:
+      matrix: ${{ steps.build.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
 
@@ -36,33 +39,127 @@ jobs:
         shell: bash
         run: echo "ARTIFACTS_DIR=${ARTIFACTS_DIR:-artifacts}" >> "$GITHUB_ENV"
 
-      - name: Run benchmark pipeline
+      - name: Build all apps (continue on failure)
+        id: build
         shell: bash
         run: |
-          node scripts/run-pipeline.mjs \
+          MATRIX=$(node scripts/run-pipeline.mjs \
+            --build-only \
             --sdk-channel "${{ inputs.sdk_channel || '11.0' }}" \
             ${{ inputs.sdk_version && format('--sdk-version "{0}"', inputs.sdk_version) || '' }} \
+            --runtime mono)
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+          echo "Build matrix: $MATRIX" >&2
+
+      - name: Upload SDK info
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sdk-info
+          path: ${{ env.ARTIFACTS_DIR || 'artifacts' }}/sdk/sdk-info.json
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload all builds
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: builds
+          path: ${{ env.ARTIFACTS_DIR || 'artifacts' }}/publish/
+          if-no-files-found: ignore
+          retention-days: 3
+
+  # ── Job 2: Measure (matrix: app × preset, all engines per job) ─────────────
+  measure:
+    needs: build
+    if: needs.build.outputs.matrix != '[]' && needs.build.outputs.matrix != ''
+    runs-on: ubuntu-latest
+    container: ghcr.io/${{ github.repository }}/browser-bench:latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.build.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/
+            package.json
+            package-lock.json
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Download SDK info
+        uses: actions/download-artifact@v4
+        with:
+          name: sdk-info
+          path: artifacts/sdk
+
+      - name: Download builds
+        uses: actions/download-artifact@v4
+        with:
+          name: builds
+          path: artifacts/publish
+
+      - name: Run measurements
+        shell: bash
+        run: |
+          node scripts/run-measure-job.mjs \
+            --app "${{ matrix.app }}" \
+            --preset "${{ matrix.preset }}" \
+            --publish-dir "artifacts/publish/${{ matrix.app }}/${{ matrix.preset }}" \
+            --sdk-info artifacts/sdk/sdk-info.json \
+            --output-dir artifacts/results \
             --runtime mono \
-            --ci-run-id "${{ github.run_id }}" \
-            --ci-run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
             --retries 3 \
             --timeout 300000 \
-            ${{ inputs.dry_run && '--dry-run' || '' }}
+            --ci-run-id "${{ github.run_id }}" \
+            --ci-run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 
       - name: Upload results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: results-${{ matrix.app }}-${{ matrix.preset }}
+          path: artifacts/results/*.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # ── Job 3: Consolidate results ─────────────────────────────────────────────
+  consolidate:
+    needs: [build, measure]
+    if: always() && needs.build.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts/
+            package.json
+            package-lock.json
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Download all result artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: results-*
+          path: artifacts/all-results/
+          merge-multiple: true
+
+      - name: Upload consolidated results
         uses: actions/upload-artifact@v4
         if: ${{ always() && github.event_name != 'pull_request' && !inputs.dry_run }}
         with:
           name: benchmark-results
-          path: ${{ env.ARTIFACTS_DIR || 'artifacts' }}/results/*.json
+          path: artifacts/all-results/*.json
           if-no-files-found: ignore
           retention-days: 7
-
-      - name: Upload published apps
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: published-apps
-          path: ${{ env.ARTIFACTS_DIR || 'artifacts' }}/publish/*/wwwroot/
-          if-no-files-found: ignore
-          retention-days: 3

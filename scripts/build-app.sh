@@ -8,8 +8,8 @@
 #   ./scripts/build-app.sh empty-browser coreclr no-workload
 #   ./scripts/build-app.sh empty-blazor mono aot
 #
-# Output: published app in artifacts/publish/{app}/
-#         compile time in artifacts/results/compile-time.json
+# Output: published app in artifacts/publish/{app}/{preset}/
+#         compile time in artifacts/publish/{app}/{preset}/compile-time.json
 
 set -euo pipefail
 
@@ -21,7 +21,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 ARTIFACTS_DIR="${ARTIFACTS_DIR:-$REPO_DIR/artifacts}"
 APP_DIR="$REPO_DIR/src/$APP"
-PUBLISH_DIR="$ARTIFACTS_DIR/publish/$APP"
+PUBLISH_DIR="$ARTIFACTS_DIR/publish/$APP/$PRESET"
 
 # Validate app directory exists
 if [ ! -d "$APP_DIR" ]; then
@@ -62,7 +62,6 @@ PUBLISH_ARGS=$(node -e "
 # Clean previous publish output
 rm -rf "$PUBLISH_DIR"
 mkdir -p "$PUBLISH_DIR"
-mkdir -p "$ARTIFACTS_DIR/results"
 
 echo "Building $APP (runtime=$RUNTIME, preset=$PRESET)..." >&2
 echo "  dotnet $PUBLISH_ARGS" >&2
@@ -81,7 +80,7 @@ COMPILE_TIME_MS=$(( (END_TIME - START_TIME) / 1000000 ))
 echo "Build completed in ${COMPILE_TIME_MS}ms" >&2
 
 # Write compile time for downstream consumption
-cat <<EOF > "$ARTIFACTS_DIR/results/compile-time.json"
+cat <<EOF > "$PUBLISH_DIR/compile-time.json"
 {
   "compileTimeMs": $COMPILE_TIME_MS,
   "app": "$APP",

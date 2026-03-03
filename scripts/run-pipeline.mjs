@@ -29,7 +29,8 @@
  *   --ci-run-url <url>       GitHub Actions run URL (optional)
  *   --timeout <ms>           Measurement timeout in ms (default: 300000)
  *   --retries <n>            Measurement retries (default: 3)
- *   --dry-run                Skip measurement, only build
+ *   --dry-run                Restrict measurements to chrome only (fast PR validation)
+ *   --build-only             Build all apps, output matrix JSON, skip measurements
  */
 
 import { parseArgs } from 'node:util';
@@ -51,6 +52,7 @@ const { values: args } = parseArgs({
         'timeout': { type: 'string', default: '300000' },
         'retries': { type: 'string', default: '3' },
         'dry-run': { type: 'boolean', default: false },
+        'build-only': { type: 'boolean', default: false },
     },
     strict: true,
 });
@@ -217,7 +219,7 @@ function getEnginesForApp(app, isDryRun) {
     return [...ALL_BROWSER_ENGINES, ...ALL_CLI_ENGINES];
 }
 
-async function runMeasurements(apps, presets, isDryRun) {
+async function runMeasurements(builds, isDryRun) {
     console.error('\n═══ Phase 6: Run measurements ═══');
     const runtime = args.runtime;
     const sdkInfo = JSON.parse(await readFile(SDK_INFO_PATH, 'utf-8'));
@@ -225,57 +227,48 @@ async function runMeasurements(apps, presets, isDryRun) {
     const runtimeHash7 = runtimeHash.slice(0, 7);
     const commitTime = sdkInfo.commitTime;
 
-    for (const app of apps) {
+    for (const { app, preset } of builds) {
         const engines = getEnginesForApp(app, isDryRun);
 
         for (const engine of engines) {
-            for (const preset of presets) {
-                // Skip invalid combinations
-                try {
-                    validateCombination(runtime, preset);
-                } catch {
-                    continue;
-                }
+            const filename = `${commitTime}_${runtimeHash7}_${runtime}_${preset}_${engine}_${app}.json`;
+            const publishDir = join(ARTIFACTS_DIR, 'publish', app, preset, 'wwwroot');
+            const compileTimeFile = join(ARTIFACTS_DIR, 'publish', app, preset, 'compile-time.json');
+            const outputFile = join(ARTIFACTS_DIR, 'results', filename);
 
-                const filename = `${commitTime}_${runtimeHash7}_${runtime}_${preset}_${engine}_${app}.json`;
-                const publishDir = join(ARTIFACTS_DIR, 'publish', app, 'wwwroot');
-                const compileTimeFile = join(ARTIFACTS_DIR, 'results', 'compile-time.json');
-                const outputFile = join(ARTIFACTS_DIR, 'results', filename);
-
-                if (INTERNAL_APPS.has(app)) {
-                    // Microbenchmarks → measure-internal.mjs
-                    run('node', [
-                        join(SCRIPT_DIR, 'measure-internal.mjs'),
-                        '--publish-dir', publishDir,
-                        '--engine', engine,
-                        '--output', outputFile,
-                        '--runtime', runtime,
-                        '--preset', preset,
-                        '--sdk-info', SDK_INFO_PATH,
-                        '--compile-time-file', compileTimeFile,
-                        '--retries', args.retries,
-                        '--timeout', args.timeout,
-                        ...(args['ci-run-id'] ? ['--ci-run-id', args['ci-run-id']] : []),
-                        ...(args['ci-run-url'] ? ['--ci-run-url', args['ci-run-url']] : []),
-                    ], { label: `measure ${app} (${runtime}/${preset}/${engine})` });
-                } else {
-                    // Browser apps → measure-external.mjs
-                    run('node', [
-                        join(SCRIPT_DIR, 'measure-external.mjs'),
-                        '--app', app,
-                        '--publish-dir', publishDir,
-                        '--sdk-info', SDK_INFO_PATH,
-                        '--compile-time-file', compileTimeFile,
-                        '--engine', engine,
-                        '--runtime', runtime,
-                        '--preset', preset,
-                        '--retries', args.retries,
-                        '--timeout', args.timeout,
-                        ...(args['ci-run-id'] ? ['--ci-run-id', args['ci-run-id']] : []),
-                        ...(args['ci-run-url'] ? ['--ci-run-url', args['ci-run-url']] : []),
-                        '--output', outputFile,
-                    ], { label: `measure ${app} (${runtime}/${preset}/${engine})` });
-                }
+            if (INTERNAL_APPS.has(app)) {
+                // Microbenchmarks → measure-internal.mjs
+                run('node', [
+                    join(SCRIPT_DIR, 'measure-internal.mjs'),
+                    '--publish-dir', publishDir,
+                    '--engine', engine,
+                    '--output', outputFile,
+                    '--runtime', runtime,
+                    '--preset', preset,
+                    '--sdk-info', SDK_INFO_PATH,
+                    '--compile-time-file', compileTimeFile,
+                    '--retries', args.retries,
+                    '--timeout', args.timeout,
+                    ...(args['ci-run-id'] ? ['--ci-run-id', args['ci-run-id']] : []),
+                    ...(args['ci-run-url'] ? ['--ci-run-url', args['ci-run-url']] : []),
+                ], { label: `measure ${app} (${runtime}/${preset}/${engine})` });
+            } else {
+                // Browser apps → measure-external.mjs
+                run('node', [
+                    join(SCRIPT_DIR, 'measure-external.mjs'),
+                    '--app', app,
+                    '--publish-dir', publishDir,
+                    '--sdk-info', SDK_INFO_PATH,
+                    '--compile-time-file', compileTimeFile,
+                    '--engine', engine,
+                    '--runtime', runtime,
+                    '--preset', preset,
+                    '--retries', args.retries,
+                    '--timeout', args.timeout,
+                    ...(args['ci-run-id'] ? ['--ci-run-id', args['ci-run-id']] : []),
+                    ...(args['ci-run-url'] ? ['--ci-run-url', args['ci-run-url']] : []),
+                    '--output', outputFile,
+                ], { label: `measure ${app} (${runtime}/${preset}/${engine})` });
             }
         }
     }
@@ -289,7 +282,6 @@ async function main() {
     console.error('╚═══════════════════════════════════════════════╝');
 
     const { nonWorkload, workload } = getPresetGroups();
-    const allPresets = [...nonWorkload, ...workload];
 
     // Phase 1: Install SDK
     await resolveSDK();
@@ -302,17 +294,33 @@ async function main() {
     console.error(`\nDiscovered apps: ${apps.join(', ')}`);
 
     // Phase 3: Build non-workload presets (no wasm-tools needed)
-    await buildApps(apps, nonWorkload, 'Phase 3: Build non-workload presets');
+    const phase3 = await buildApps(apps, nonWorkload, 'Phase 3: Build non-workload presets');
 
     // Phase 4: Install workload + capture version
     await installWorkload();
 
     // Phase 5: Build workload/native presets (WasmBuildNative=true / AOT / etc.)
-    await buildApps(apps, workload, 'Phase 5: Build workload/native presets');
+    const phase5 = await buildApps(apps, workload, 'Phase 5: Build workload/native presets');
+
+    const allSucceeded = [...phase3, ...phase5];
+    console.error(`\n✓ ${allSucceeded.length} builds succeeded`);
+
+    // --build-only: output matrix JSON to stdout for CI, then exit
+    if (args['build-only']) {
+        const matrixJson = JSON.stringify(allSucceeded);
+        // Write to file for debugging
+        const { mkdir } = await import('node:fs/promises');
+        await mkdir(join(ARTIFACTS_DIR, 'results'), { recursive: true });
+        await writeFile(join(ARTIFACTS_DIR, 'results', 'build-matrix.json'), matrixJson + '\n');
+        // Output to stdout for GitHub Actions
+        console.log(matrixJson);
+        console.error('\n✓ Build-only complete');
+        return;
+    }
 
     // Phase 6: Run measurements
     //   --dry-run restricts to chrome-only (fast PR validation)
-    await runMeasurements(apps, allPresets, args['dry-run']);
+    await runMeasurements(allSucceeded, args['dry-run']);
 
     console.error('\n✓ Pipeline complete');
 }
