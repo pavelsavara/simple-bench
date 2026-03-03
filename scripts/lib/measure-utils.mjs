@@ -93,6 +93,8 @@ export function startStaticServer(rootDir, port = 0, options = {}) {
             // Cross-Origin-Isolation headers (required for SharedArrayBuffer / threading)
             res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
             res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+            // Allow high-resolution Resource Timing data
+            res.setHeader('Timing-Allow-Origin', '*');
 
             const urlPath = new URL(req.url, 'http://localhost').pathname;
             const filePath = normalize(join(resolvedRoot, urlPath === '/' ? 'index.html' : urlPath));

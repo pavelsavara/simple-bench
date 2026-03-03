@@ -18,5 +18,10 @@
     },
     "devDependencies": {
         "playwright": "1.58.2"
+    },
+    "dependencies": {
+        "chartjs-adapter-date-fns": "^3.0.0",
+        "chartjs-plugin-zoom": "^2.2.0",
+        "date-fns": "^3.6.0"
     }
 }

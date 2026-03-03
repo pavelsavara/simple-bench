@@ -1,0 +1,24 @@
+{
+    "month": "2026-02",
+    "commits": [
+        {
+            "gitHash": "aaa1111bbb2222ccc3333ddd4444eee5555fff666",
+            "date": "2026-02-15",
+            "time": "08-00-00-UTC",
+            "sdkVersion": "10.0.100-preview.2.25100.1",
+            "results": [
+                {
+                    "runtime": "coreclr",
+                    "preset": "no-workload",
+                    "engine": "chrome",
+                    "app": "empty-browser",
+                    "file": "2026/2026-02-15/08-00-00-UTC_aaa1111_coreclr_no-workload_chrome_empty-browser.json",
+                    "metrics": [
+                        "compile-time",
+                        "download-size-total"
+                    ]
+                }
+            ]
+        }
+    ]
+}
