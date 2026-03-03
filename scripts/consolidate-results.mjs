@@ -282,9 +282,17 @@ export async function consolidate(artifactsDir, dataDir) {
 
 // ── CLI entry point ─────────────────────────────────────────────────────────
 
-const [, , artifactsDir, dataDir] = process.argv;
+const isMain = process.argv[1] && (
+    process.argv[1].endsWith('consolidate-results.mjs') ||
+    process.argv[1].endsWith('consolidate-results')
+);
 
-if (artifactsDir && dataDir) {
+if (isMain) {
+    const [, , artifactsDir, dataDir] = process.argv;
+    if (!artifactsDir || !dataDir) {
+        console.error('Usage: node scripts/consolidate-results.mjs <artifacts-dir> <data-dir>');
+        process.exit(1);
+    }
     const { processed, skipped } = await consolidate(artifactsDir, dataDir);
     console.log(`Consolidation complete: ${processed} results processed, ${skipped} files skipped.`);
 }
