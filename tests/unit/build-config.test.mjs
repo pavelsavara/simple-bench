@@ -6,7 +6,8 @@ import {
     getPresetArgs,
     PRESET_MAP,
     validateCombination,
-    getPublishArgs
+    getPublishArgs,
+    needsWorkload
 } from '../../scripts/lib/build-config.mjs';
 
 describe('mapRuntimeFlavor', () => {
@@ -146,5 +147,54 @@ describe('getPublishArgs', () => {
             '/p:RuntimeFlavor=CoreCLR',
             '-o', '/out'
         ]);
+    });
+});
+
+describe('needsWorkload', () => {
+    it('returns true for native-relink', () => {
+        assert.equal(needsWorkload('native-relink'), true);
+    });
+
+    it('returns true for aot', () => {
+        assert.equal(needsWorkload('aot'), true);
+    });
+
+    it('returns true for no-jiterp', () => {
+        assert.equal(needsWorkload('no-jiterp'), true);
+    });
+
+    it('returns true for invariant', () => {
+        assert.equal(needsWorkload('invariant'), true);
+    });
+
+    it('returns true for no-reflection-emit', () => {
+        assert.equal(needsWorkload('no-reflection-emit'), true);
+    });
+
+    it('returns false for no-workload', () => {
+        assert.equal(needsWorkload('no-workload'), false);
+    });
+
+    it('returns false for debug', () => {
+        assert.equal(needsWorkload('debug'), false);
+    });
+
+    it('returns false for unknown preset', () => {
+        assert.equal(needsWorkload('unknown'), false);
+    });
+
+    it('all PRESET_MAP presets with WasmBuildNative=true need workload', () => {
+        // The five presets that set WasmBuildNative=true in the csproj
+        const workloadPresets = ['native-relink', 'aot', 'no-jiterp', 'invariant', 'no-reflection-emit'];
+        for (const preset of workloadPresets) {
+            assert.equal(needsWorkload(preset), true, `Expected needsWorkload('${preset}') to be true`);
+        }
+    });
+
+    it('presets without WasmBuildNative do not need workload', () => {
+        const noWorkloadPresets = ['debug', 'no-workload'];
+        for (const preset of noWorkloadPresets) {
+            assert.equal(needsWorkload(preset), false, `Expected needsWorkload('${preset}') to be false`);
+        }
     });
 });

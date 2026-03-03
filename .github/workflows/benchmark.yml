@@ -29,10 +29,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #runtime: [coreclr, mono]
-        #preset: [no-workload, aot, native-relink, invariant, no-reflection-emit, debug]
         runtime: [mono]
-        preset: [no-workload]
+        preset: [no-workload, aot, native-relink, no-jiterp, invariant, no-reflection-emit, debug]
         exclude:
           # AOT is Mono-only
           - runtime: coreclr

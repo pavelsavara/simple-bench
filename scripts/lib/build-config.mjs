@@ -28,6 +28,24 @@ const PRESET_MAP = {
 
 export { PRESET_MAP };
 
+/** Presets that require the wasm-tools workload to be installed before build/publish.
+ *  These presets set WasmBuildNative=true or RunAOTCompilation=true in the csproj,
+ *  which needs the wasm-tools workload (Emscripten, wasm-opt, AOT compiler, etc). */
+const WORKLOAD_PRESETS = new Set([
+    'native-relink',
+    'aot',
+    'no-jiterp',
+    'invariant',
+    'no-reflection-emit',
+]);
+
+/**
+ * Returns true if the given preset requires the wasm-tools workload.
+ */
+export function needsWorkload(preset) {
+    return WORKLOAD_PRESETS.has(preset);
+}
+
 /**
  * Get MSBuild publish arguments for a given preset.
  * Only passes /p:BenchmarkPreset — the csproj sets -c Release/Debug

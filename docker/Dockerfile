@@ -10,6 +10,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     curl git tar unzip jq python3 \
     libicu-dev libssl-dev zlib1g-dev \
+    # Emscripten / wasm-tools workload dependencies
+    libatomic1 \
     # Playwright system dependencies
     libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 \
     libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 \
