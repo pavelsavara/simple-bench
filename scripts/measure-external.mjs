@@ -17,6 +17,8 @@
 
 import { parseArgs } from 'node:util';
 import { writeFile } from 'node:fs/promises';
+import { readdir } from 'node:fs/promises';
+import { resolve, join } from 'node:path';
 import { chromium } from 'playwright';
 import {
     startStaticServer,
@@ -24,6 +26,7 @@ import {
     buildResultJson,
     readCompileTime,
     readSdkInfo,
+    loadEndpointsMap,
 } from './lib/measure-utils.mjs';
 
 // ── CLI args ────────────────────────────────────────────────────────────────
@@ -68,9 +71,23 @@ const compileTime = args['compile-time-file']
 // File-system sizes (uncompressed wasm + dlls)
 const fileSizes = await measureFileSizes(args['publish-dir']);
 
+// Load static web asset fingerprint map (for resolving #[.{fingerprint}] in HTML)
+const publishParentDir = resolve(args['publish-dir'], '..');
+let fingerprintMap;
+try {
+    const parentFiles = await readdir(publishParentDir);
+    const endpointsFile = parentFiles.find(f => f.endsWith('.staticwebassets.endpoints.json'));
+    if (endpointsFile) {
+        fingerprintMap = await loadEndpointsMap(join(publishParentDir, endpointsFile));
+        console.error(`Loaded ${fingerprintMap.size} fingerprint mappings from ${endpointsFile}`);
+    }
+} catch {
+    // No endpoints file — serve without fingerprint resolution
+}
+
 // ── Start server ────────────────────────────────────────────────────────────
 
-const srv = await startStaticServer(args['publish-dir']);
+const srv = await startStaticServer(args['publish-dir'], 0, { fingerprintMap });
 const pageUrl = `http://127.0.0.1:${srv.port}/`;
 console.error(`Serving ${args['publish-dir']} on ${pageUrl}`);
 

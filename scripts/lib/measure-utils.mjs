@@ -7,6 +7,52 @@ import { createServer } from 'node:http';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { join, extname, resolve, normalize } from 'node:path';
 
+// ── Endpoints / fingerprint resolution ───────────────────────────────────────
+
+/**
+ * Load and parse a staticwebassets.endpoints.json file.
+ * Returns a fingerprintMap: label (e.g. "main.js") → fingerprint (e.g. "gf82s7dqcs")
+ * used to resolve #[.{fingerprint}] patterns in served HTML.
+ * @param {string} endpointsJsonPath Absolute path to *.staticwebassets.endpoints.json
+ * @returns {Promise<Map<string,string>>} label → fingerprint
+ */
+export async function loadEndpointsMap(endpointsJsonPath) {
+    try {
+        const data = JSON.parse(await readFile(endpointsJsonPath, 'utf-8'));
+        const endpoints = data.Endpoints || [];
+        const fingerprintMap = new Map();
+        for (const ep of endpoints) {
+            const props = ep.EndpointProperties || [];
+            const fp = props.find(p => p.Name === 'fingerprint');
+            const label = props.find(p => p.Name === 'label');
+            if (fp && label) {
+                fingerprintMap.set(label.Value, fp.Value);
+            }
+        }
+        return fingerprintMap;
+    } catch {
+        return new Map();
+    }
+}
+
+/**
+ * Replace #[.{fingerprint}] patterns in HTML content using the fingerprint map.
+ * Pattern: name#[.{fingerprint}].ext → name.{fp}.ext
+ * @param {string} html HTML content
+ * @param {Map<string,string>} fingerprintMap label → fingerprint
+ * @returns {string} Resolved HTML
+ */
+export function resolveFingerprints(html, fingerprintMap) {
+    if (!fingerprintMap || fingerprintMap.size === 0) return html;
+    // Match patterns like: main#[.{fingerprint}].js  or  style#[.{fingerprint}].css
+    return html.replace(/([\w.-]+)#\[\.\{fingerprint\}\](\.[\w]+)/g, (match, base, ext) => {
+        const label = base + ext;
+        const fp = fingerprintMap.get(label);
+        if (fp) return `${base}.${fp}${ext}`;
+        return match; // no mapping found, leave unchanged
+    });
+}
+
 // ── MIME types ──────────────────────────────────────────────────────────────
 
 const MIME_TYPES = {
@@ -35,10 +81,13 @@ export function getMimeType(filePath) {
  * Start a static file server with COOP/COEP headers for SharedArrayBuffer support.
  * @param {string} rootDir Absolute path to the directory to serve
  * @param {number} port Port number (0 = auto-assign)
+ * @param {object} [options] Options
+ * @param {Map<string,string>} [options.fingerprintMap] label → fingerprint map from loadEndpointsMap()
  * @returns {Promise<{server: import('node:http').Server, port: number, close: () => Promise<void>}>}
  */
-export function startStaticServer(rootDir, port = 0) {
+export function startStaticServer(rootDir, port = 0, options = {}) {
     const resolvedRoot = resolve(rootDir);
+    const { fingerprintMap } = options;
     return new Promise((resolvePromise, reject) => {
         const server = createServer(async (req, res) => {
             // Cross-Origin-Isolation headers (required for SharedArrayBuffer / threading)
@@ -56,8 +105,13 @@ export function startStaticServer(rootDir, port = 0) {
             }
 
             try {
-                const data = await readFile(filePath);
-                res.writeHead(200, { 'Content-Type': getMimeType(filePath) });
+                let data = await readFile(filePath);
+                const mime = getMimeType(filePath);
+                // Resolve #[.{fingerprint}] patterns in HTML responses
+                if (fingerprintMap && mime === 'text/html') {
+                    data = Buffer.from(resolveFingerprints(data.toString('utf-8'), fingerprintMap));
+                }
+                res.writeHead(200, { 'Content-Type': mime });
                 res.end(data);
             } catch {
                 res.writeHead(404);
