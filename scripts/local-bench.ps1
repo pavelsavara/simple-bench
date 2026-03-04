@@ -79,14 +79,17 @@ function Err([string]$Text) {
 function Invoke-Docker {
     param([string[]]$Arguments)
     if ($IsWindows -or $env:OS -eq 'Windows_NT') {
-        $output = & wsl docker @Arguments 2>&1
+        & wsl docker @Arguments 2>&1 | ForEach-Object {
+            $line = $_.ToString()
+            Write-Host $line
+            Write-Log $line
+        }
     } else {
-        $output = & docker @Arguments 2>&1
-    }
-    $output | ForEach-Object {
-        $line = $_.ToString()
-        Write-Host $line
-        Write-Log $line
+        & docker @Arguments 2>&1 | ForEach-Object {
+            $line = $_.ToString()
+            Write-Host $line
+            Write-Log $line
+        }
     }
     if ($LASTEXITCODE -ne 0) {
         throw "Docker command failed with exit code $LASTEXITCODE"
@@ -96,14 +99,17 @@ function Invoke-Docker {
 function Invoke-DockerAllowFailure {
     param([string[]]$Arguments)
     if ($IsWindows -or $env:OS -eq 'Windows_NT') {
-        $output = & wsl docker @Arguments 2>&1
+        & wsl docker @Arguments 2>&1 | ForEach-Object {
+            $line = $_.ToString()
+            Write-Host $line
+            Write-Log $line
+        }
     } else {
-        $output = & docker @Arguments 2>&1
-    }
-    $output | ForEach-Object {
-        $line = $_.ToString()
-        Write-Host $line
-        Write-Log $line
+        & docker @Arguments 2>&1 | ForEach-Object {
+            $line = $_.ToString()
+            Write-Host $line
+            Write-Log $line
+        }
     }
     return $LASTEXITCODE
 }
