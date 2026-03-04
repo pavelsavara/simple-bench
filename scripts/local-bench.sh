@@ -81,17 +81,23 @@ banner() { echo -e "\n\033[1;36m═══ $1 ═══\033[0m"; }
 info()   { echo -e "\033[0;32m▶ $1\033[0m"; }
 err()    { echo -e "\033[0;31m✗ $1\033[0m" >&2; }
 
+# Fix ownership on artifacts so the host user can always read/delete them,
+# even when files were created by root inside Docker.
+fix_permissions() {
+    if [[ -d "$ARTIFACTS_DIR" ]]; then
+        docker run --rm -v "$ARTIFACTS_DIR:/a" "$BUILD_IMAGE" \
+            chmod -R a+rw /a 2>/dev/null || true
+    fi
+}
+
 # Clean artifacts subdirectories. Files may be owned by root (created inside
-# Docker), so use a throwaway container to rm them.
+# Docker), so fix permissions first.
 clean_artifacts() {
     local dirs=("$@")
-    local to_clean=()
+    fix_permissions
     for d in "${dirs[@]}"; do
-        [[ -e "$ARTIFACTS_DIR/$d" ]] && to_clean+=("/bench/artifacts/$d")
+        rm -rf "$ARTIFACTS_DIR/$d"
     done
-    if [[ ${#to_clean[@]} -eq 0 ]]; then return; fi
-    docker run --rm -v "$REPO_DIR:/bench" "$BUILD_IMAGE" \
-        rm -rf "${to_clean[@]}"
 }
 
 # ── Step 1: Build Docker images ──────────────────────────────────────────────
@@ -143,6 +149,8 @@ if [[ "$SKIP_BUILD" == false ]]; then
                 $SDK_VERSION_ARG \
                 --runtime mono
         "
+
+    fix_permissions
 
     if [[ ! -f "$MATRIX_FILE" ]]; then
         err "Build matrix not found at $MATRIX_FILE"
@@ -219,6 +227,7 @@ for entry in json.load(sys.stdin):
             err "Measurement failed for $APP / $PRESET (continuing...)"
             FAILED=$((FAILED + 1))
         fi
+        fix_permissions
     done
 
     banner "Results"
