@@ -1,7 +1,8 @@
 <Project>
 
   <PropertyGroup>
-    <BenchmarkTargetFramework Condition="'$(BenchmarkTargetFramework)' == ''">net11.0</BenchmarkTargetFramework>
+    <_SdkTfm>net$(NETCoreSdkVersion.Split('.')[0]).$(NETCoreSdkVersion.Split('.')[1])</_SdkTfm>
+    <BenchmarkTargetFramework Condition="'$(BenchmarkTargetFramework)' == ''">$(_SdkTfm)</BenchmarkTargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(BenchmarkTargetFramework)' == 'net11.0'">
