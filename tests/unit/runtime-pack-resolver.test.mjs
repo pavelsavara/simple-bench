@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 import {
     decodeBuildDate,
+    PACKAGE_ID,
 } from '../../scripts/lib/runtime-pack-resolver.mjs';
 
 // ── decodeBuildDate ─────────────────────────────────────────────────────────
@@ -45,6 +46,14 @@ describe('decodeBuildDate', () => {
     });
 });
 
+// ── PACKAGE_ID export ───────────────────────────────────────────────────────
+
+describe('PACKAGE_ID constant', () => {
+    it('is the browser-wasm mono runtime pack ID', () => {
+        assert.equal(PACKAGE_ID, 'microsoft.netcore.app.runtime.mono.browser-wasm');
+    });
+});
+
 // ── Integration-style tests (require network, skip in offline CI) ───────────
 // These tests are guarded by an environment variable.
 // Run with: RUNTIME_PACK_NETWORK_TESTS=1 node --test tests/unit/runtime-pack-resolver.test.mjs
@@ -75,5 +84,44 @@ describe('runtime-pack-resolver (network)', { skip: !NETWORK_TESTS }, () => {
             'e524be6928cdcd74bdbb79b389eeb31978b188ef'
         );
         assert.equal(result, 'ancestor');
+    });
+
+    it('getVmrCommitFromNuspec returns a commit hash', async () => {
+        const { getVmrCommitFromNuspec, getFlatBaseUrl } = await import('../../scripts/lib/runtime-pack-resolver.mjs');
+        const flatBaseUrl = await getFlatBaseUrl(11);
+        // Use a known version — the latest on the feed
+        const { listAvailablePackVersions } = await import('../../scripts/lib/runtime-pack-resolver.mjs');
+        const { versions } = await listAvailablePackVersions(11);
+        assert.ok(versions.length > 0);
+        const vmrCommit = await getVmrCommitFromNuspec(flatBaseUrl, versions[versions.length - 1]);
+        assert.ok(vmrCommit, 'Should return a VMR commit hash');
+        assert.match(vmrCommit, /^[a-f0-9]{7,40}$/, 'Should be a valid hex hash');
+    });
+
+    it('getRepoCommitsFromVMR returns runtime and sdk commits', async () => {
+        const { getRepoCommitsFromVMR } = await import('../../scripts/lib/runtime-pack-resolver.mjs');
+        // Use the known VMR commit 15ac4103
+        const result = await getRepoCommitsFromVMR('15ac4103422d47f7c8f14fa98e813f315432d03b');
+        assert.ok(result, 'Should return a result');
+        assert.ok(result.runtimeCommit, 'Should have runtimeCommit');
+        assert.ok(result.sdkCommit, 'Should have sdkCommit');
+        assert.equal(result.runtimeCommit, '9b46e58206b2695ad7089ceea0db93cad22abbd7');
+        assert.match(result.sdkCommit, /^[a-f0-9]{7,40}$/);
+    });
+
+    it('getPackCommitInfo resolves full info for a version', async () => {
+        const { getPackCommitInfo, getFlatBaseUrl, listAvailablePackVersions } =
+            await import('../../scripts/lib/runtime-pack-resolver.mjs');
+        const flatBaseUrl = await getFlatBaseUrl(11);
+        const { versions } = await listAvailablePackVersions(11);
+        const latest = versions[versions.length - 1];
+        const info = await getPackCommitInfo(flatBaseUrl, latest);
+        assert.equal(info.version, latest);
+        assert.ok(info.buildDate, 'Should have buildDate');
+        assert.ok(info.nupkgUrl.includes(latest), 'nupkgUrl should include version');
+        // vmrCommit and runtimeGitHash may be null if resolution fails,
+        // but for the latest version they should succeed
+        assert.ok(info.vmrCommit, 'Should have vmrCommit');
+        assert.ok(info.runtimeGitHash, 'Should have runtimeGitHash');
     });
 });

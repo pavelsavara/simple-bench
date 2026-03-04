@@ -38,6 +38,7 @@ const { values: args } = parseArgs({
         'sdk-channel': { type: 'string', default: '11.0' },
         'sdk-version': { type: 'string', default: '' },
         'runtime': { type: 'string', default: 'mono' },
+        'runtime-commit': { type: 'string', default: '' },
     },
     strict: true,
 });

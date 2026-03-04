@@ -30,7 +30,7 @@ import { join } from 'node:path';
 
 // ── Constants ───────────────────────────────────────────────────────────────
 
-const PACKAGE_ID = 'microsoft.netcore.app.runtime.mono.browser-wasm';
+export const PACKAGE_ID = 'microsoft.netcore.app.runtime.mono.browser-wasm';
 
 const FEED_URLS = {
     11: 'https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet11/nuget/v3/index.json',
@@ -133,32 +133,62 @@ export function decodeBuildDate(version) {
  * Returns: { vmrCommit, runtimeCommit, version, buildDate }
  */
 export async function getPackCommitInfo(flatBaseUrl, version) {
-    // The .nupkg is a zip file. We need the versions.txt from inside it.
-    // Approach: download the .nuspec (small XML) — but it doesn't contain commit info.
-    // Instead, we'll use the VMR source-manifest approach:
-    //   1. Download the small versions.txt from the package
-    //   For nupkg access, we actually need to download the full package or use a
-    //   catalog entry. Let's use the catalog / registration API instead.
-
-    // Actually, the simplest approach for the public feed is:
-    // Download the nupkg, extract just the versions.txt (small file at known path).
-    // But nupkgs can be 50MB+. Instead, use HTTP range requests or just accept the overhead
-    // for the initial scan.
-
-    // Optimization: We'll build a cache of version→commit mappings.
-    // For now, use a lighter approach: try to find the VMR commit via the
-    // dotnet/dotnet repo's git history search pattern.
-
-    // Most pragmatic approach: download versions.txt from an already-extracted pack
-    // or use the NuGet catalog metadata.
-
-    // Let's try the NuGet registration API which may have repository metadata
     const buildDate = decodeBuildDate(version);
-
+    const vmrCommit = await getVmrCommitFromNuspec(flatBaseUrl, version);
+    let runtimeGitHash = null;
+    let sdkGitHash = null;
+    if (vmrCommit) {
+        const commits = await getRepoCommitsFromVMR(vmrCommit);
+        runtimeGitHash = commits?.runtimeCommit || null;
+        sdkGitHash = commits?.sdkCommit || null;
+    }
     return {
         version,
         buildDate,
-        flatBaseUrl,
+        vmrCommit,
+        runtimeGitHash,
+        sdkGitHash,
+        nupkgUrl: `${flatBaseUrl}${PACKAGE_ID}/${version}/${PACKAGE_ID}.${version}.nupkg`,
+    };
+}
+
+/**
+ * Get the VMR commit hash from a NuGet package nuspec (small XML).
+ * The nuspec contains a <repository> tag with the VMR commit:
+ *   <repository type="git" url="..." commit="abc123..." />
+ *
+ * @param {string} flatBaseUrl - The NuGet flat container base URL
+ * @param {string} version - Package version
+ * @returns {string|null} VMR commit hash or null
+ */
+export async function getVmrCommitFromNuspec(flatBaseUrl, version) {
+    const url = `${flatBaseUrl}${PACKAGE_ID}/${version}/${PACKAGE_ID}.nuspec`;
+    try {
+        const text = await fetchText(url);
+        const m = text.match(/repository[^>]*commit=["']([a-f0-9]{7,40})/);
+        return m?.[1] || null;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Get repository commit hashes from a VMR (dotnet/dotnet) commit.
+ * Reads src/source-manifest.json and returns both runtime and sdk commits.
+ *
+ * @param {string} vmrCommit - The VMR commit hash
+ * @returns {{ runtimeCommit: string|null, sdkCommit: string|null }}
+ */
+export async function getRepoCommitsFromVMR(vmrCommit) {
+    const url = `https://raw.githubusercontent.com/dotnet/dotnet/${vmrCommit}/src/source-manifest.json`;
+    const manifest = await tryFetchJSON(url);
+    if (!manifest) return null;
+    const repos = manifest.repositories || [];
+    const runtimeEntry = repos.find(r => r.path === 'runtime' || r.path === 'src/runtime');
+    const sdkEntry = repos.find(r => r.path === 'sdk' || r.path === 'src/sdk');
+    return {
+        runtimeCommit: runtimeEntry?.commitSha || null,
+        sdkCommit: sdkEntry?.commitSha || null,
     };
 }
 

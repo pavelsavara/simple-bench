@@ -15,6 +15,11 @@ on:
         required: false
         default: '11.0'
         type: string
+      runtime_commit:
+        description: 'Specific dotnet/runtime commit hash to benchmark (patches SDK with matching runtime pack)'
+        required: false
+        default: ''
+        type: string
       dry_run:
         description: 'Dry run (run benchmarks but do not publish results)'
         required: false
@@ -45,6 +50,7 @@ jobs:
           node scripts/run-pipeline.mjs \
             --sdk-channel "${{ inputs.sdk_channel || '11.0' }}" \
             ${{ inputs.sdk_version && format('--sdk-version "{0}"', inputs.sdk_version) || '' }} \
+            ${{ inputs.runtime_commit && format('--runtime-commit "{0}"', inputs.runtime_commit) || '' }} \
             --runtime mono
 
       - name: Set matrix output

@@ -43,6 +43,8 @@ Test files:
 - `filters.test.mjs` — filter state, URL hash parsing
 - `measure-internal.test.mjs` — internal benchmark measurement
 - `migrate-old-data.test.mjs` — old schema migration
+- `runtime-pack-resolver.test.mjs` — runtime pack resolution, date decoding, VMR commit mapping
+- `schedule-benchmarks.test.mjs` — gap detection for benchmark scheduling
 
 ### B) With Docker (full CI pipeline simulation)
 
