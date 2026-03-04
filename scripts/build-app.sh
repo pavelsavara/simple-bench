@@ -8,8 +8,8 @@
 #   ./scripts/build-app.sh empty-browser coreclr no-workload
 #   ./scripts/build-app.sh empty-blazor mono aot
 #
-# Output: published app in artifacts/publish/{app}/
-#         compile time in artifacts/results/compile-time.json
+# Output: published app in artifacts/publish/{app}/{preset}/
+#         compile time in artifacts/publish/{app}/{preset}/compile-time.json
 
 set -euo pipefail
 
@@ -20,20 +20,36 @@ PRESET="${3:?Usage: build-app.sh <app> <runtime> <preset>}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 ARTIFACTS_DIR="${ARTIFACTS_DIR:-$REPO_DIR/artifacts}"
-APP_DIR="$REPO_DIR/apps/$APP"
-PUBLISH_DIR="$ARTIFACTS_DIR/publish/$APP"
-
-# Validate app directory exists
-if [ ! -d "$APP_DIR" ]; then
-    echo "Error: App directory not found: $APP_DIR" >&2
-    exit 1
-fi
+APP_DIR="$REPO_DIR/src/$APP"
+PUBLISH_DIR="$ARTIFACTS_DIR/publish/$APP/$PRESET"
 
 # Ensure dotnet is available
 DOTNET="${DOTNET_ROOT:-}/dotnet"
 if [ ! -x "$DOTNET" ]; then
     DOTNET="dotnet"
 fi
+
+# Detect SDK major version for project selection
+SDK_VERSION=$("$DOTNET" --version 2>/dev/null || echo "0.0.0")
+SDK_MAJOR=$(echo "$SDK_VERSION" | cut -d. -f1)
+
+# Microsoft.NET.Sdk.WebAssembly was introduced in .NET 8.
+# For .NET 6 and 7, empty-browser and microbenchmarks need the
+# BlazorWebAssembly-based variant projects.
+if [ "$SDK_MAJOR" -lt 8 ] 2>/dev/null; then
+    case "$APP" in
+        empty-browser)
+            APP_DIR="$REPO_DIR/src/empty-browser-v6v7"
+            echo "SDK $SDK_VERSION: using BlazorWebAssembly variant for $APP" >&2
+            ;;
+        microbenchmarks)
+            APP_DIR="$REPO_DIR/src/microbenchmarks-v6v7"
+            echo "SDK $SDK_VERSION: using BlazorWebAssembly variant for $APP" >&2
+            ;;
+    esac
+fi
+
+# Validate app directory exists
 
 # Get publish arguments from JS utility
 PUBLISH_ARGS=$(node -e "
@@ -45,7 +61,13 @@ PUBLISH_ARGS=$(node -e "
 # Clean previous publish output
 rm -rf "$PUBLISH_DIR"
 mkdir -p "$PUBLISH_DIR"
-mkdir -p "$ARTIFACTS_DIR/results"
+
+# If CUSTOM_RUNTIME_PACK_DIR is set, pass it to MSBuild
+if [ -n "${CUSTOM_RUNTIME_PACK_DIR:-}" ]; then
+    PUBLISH_ARGS="$PUBLISH_ARGS
+/p:CustomRuntimePackDir=$CUSTOM_RUNTIME_PACK_DIR"
+    echo "Using custom runtime pack: $CUSTOM_RUNTIME_PACK_DIR" >&2
+fi
 
 echo "Building $APP (runtime=$RUNTIME, preset=$PRESET)..." >&2
 echo "  dotnet $PUBLISH_ARGS" >&2
@@ -64,7 +86,7 @@ COMPILE_TIME_MS=$(( (END_TIME - START_TIME) / 1000000 ))
 echo "Build completed in ${COMPILE_TIME_MS}ms" >&2
 
 # Write compile time for downstream consumption
-cat <<EOF > "$ARTIFACTS_DIR/results/compile-time.json"
+cat <<EOF > "$PUBLISH_DIR/compile-time.json"
 {
   "compileTimeMs": $COMPILE_TIME_MS,
   "app": "$APP",

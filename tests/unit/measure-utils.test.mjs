@@ -189,6 +189,18 @@ describe('buildResultJson', () => {
         const result = buildResultJson(meta, metrics);
         assert.deepEqual(result.metrics, { 'disk-size-total': 500 });
     });
+
+    it('rounds fractional values to integers', () => {
+        const meta = {};
+        const metrics = { 'time-to-reach-managed': 100.315, 'memory-peak': 6777276.8, 'disk-size-total': 22930236 };
+
+        const result = buildResultJson(meta, metrics);
+        assert.deepEqual(result.metrics, {
+            'time-to-reach-managed': 100,
+            'memory-peak': 6777277,
+            'disk-size-total': 22930236,
+        });
+    });
 });
 
 // ── readCompileTime ─────────────────────────────────────────────────────────

@@ -61,13 +61,39 @@ export function parseSdkVersion(dotnetVersionOutput) {
 /**
  * Build the SDK info JSON object from parsed components.
  */
-export function buildSdkInfo(sdkVersion, runtimeGitHash, sdkGitHash, vmrGitHash, commitDate, commitTime) {
+export function buildSdkInfo(sdkVersion, runtimeGitHash, sdkGitHash, vmrGitHash, commitDate, commitTime, workloadVersion) {
     return {
         sdkVersion,
         runtimeGitHash,
         sdkGitHash,
         vmrGitHash,
         commitDate,   // "YYYY-MM-DD"
-        commitTime    // "HH-MM-SS-UTC"
+        commitTime,   // "HH-MM-SS-UTC"
+        ...(workloadVersion ? { workloadVersion } : {}),
     };
+}
+
+/**
+ * Parse the wasm-tools workload version from `dotnet workload list` output.
+ * The output typically contains a table like:
+ *   Installed Workload Id    Manifest Version          Installation Source
+ *   ----------------------------------------------------------------
+ *   wasm-tools               9.0.0-preview.1.24080.9   SDK 11.0.100-preview.3, ...
+ *
+ * Returns the manifest version string, or null if wasm-tools is not found.
+ */
+export function parseWorkloadVersion(workloadListOutput) {
+    // Match line starting with wasm-tools (possibly with leading whitespace),
+    // followed by whitespace and a version string.
+    const match = workloadListOutput.match(/^\s*wasm-tools\s+([\w.\-]+)/m);
+    return match ? match[1] : null;
+}
+
+/**
+ * Check whether `dotnet workload list` output indicates wasm-tools is installed.
+ * @param {string} workloadListOutput Output of `dotnet workload list`
+ * @returns {boolean}
+ */
+export function isWorkloadInstalled(workloadListOutput) {
+    return parseWorkloadVersion(workloadListOutput) !== null;
 }

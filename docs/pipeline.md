@@ -4,12 +4,12 @@
 
 Three GitHub Actions workflows orchestrate the benchmarking:
 
-1. **benchmark.yml** — runs benchmark matrix daily (or on-demand)
+1. **benchmark.yml** — builds apps (build job) then measures them (matrix measure jobs) daily (or on-demand)
 2. **consolidate.yml** — merges results into gh-pages branch
 3. **docker-build.yml** — builds/publishes the Docker image
 4. **test.yml** — runs unit + E2E tests on PR/push
 
-All benchmark jobs run inside a Docker container with pre-installed engines (V8, Node, Chrome, Firefox). The .NET SDK is downloaded at runtime from the nightly feed.
+All benchmark steps run inside Docker containers. The **build** job uses `browser-bench-build` (contains .NET SDK prerequisites). The **measure** matrix jobs use `browser-bench-measure` (contains browsers, V8, Playwright). Build artifacts are passed between jobs via GitHub Actions artifact upload/download.
 
 All build outputs and temp files go to `artifacts/` (gitignored):
 - `artifacts/sdk/` — downloaded .NET SDK
@@ -19,76 +19,91 @@ All build outputs and temp files go to `artifacts/` (gitignored):
 
 ---
 
-## Docker Image
+## Docker Images
 
-### Image: `ghcr.io/<org>/browser-bench:latest`
+The pipeline uses two separate Docker images built from a single multi-stage `docker/Dockerfile`. This keeps image sizes small and separates build-time concerns (.NET SDK prerequisites) from measurement-time concerns (browsers, JS engines).
 
 ### Dockerfile location: `docker/Dockerfile`
 
-### Base image
-`ubuntu:24.04`
+### Base stage: `base`
+Shared foundation for both images: `ubuntu:24.04` + Node.js 24.x + common system utilities (curl, git, tar, unzip, jq, python3).
 
-### Installed components
+### Image 1: `ghcr.io/<org>/browser-bench-build:latest`
+Used by the **build** job. Contains .NET SDK native prerequisites for compiling WASM apps.
 
 | Component | Version strategy | Install method |
 |-----------|-----------------|----------------|
-| **Ubuntu** | Pinned digest | `ubuntu:24.04@sha256:...` |
-| **V8 (`d8`)** | Pinned jsvu version | `npm install -g jsvu@2.2.1` |
-| **Node.js** | Pinned major (24.x) | NodeSource apt repo |
+| **Ubuntu** | `24.04` | Base stage |
+| **Node.js** | Pinned major (24.x) | Base stage (NodeSource apt repo) |
+| **jq, curl, git, tar, unzip** | System | Base stage |
+| **.NET prerequisites** | System | `apt install libicu-dev libssl-dev zlib1g-dev libatomic1` |
+
+npm dependencies: none (build scripts use only Node.js built-ins + local modules).
+
+### Image 2: `ghcr.io/<org>/browser-bench-measure:latest`
+Used by the **measure** matrix jobs. Contains JS engines and browsers for running benchmarks.
+
+| Component | Version strategy | Install method |
+|-----------|-----------------|----------------|
+| **Ubuntu** | `24.04` | Base stage |
+| **Node.js** | Pinned major (24.x) | Base stage (NodeSource apt repo) |
+| **jq, curl, git, tar, unzip** | System | Base stage |
+| **V8 (`d8`)** | Pinned jsvu version | `npm install -g jsvu@3.0.3` |
+| **Playwright** | Exact version (matches `docker/package-measure.json`) | `npm install playwright@1.58.2` |
 | **Chrome** | Pinned via Playwright version | `npx playwright install --with-deps chromium` |
 | **Firefox** | Pinned via Playwright version | `npx playwright install --with-deps firefox` |
-| **Playwright** | Exact version (matches `package.json`) | `npm install -g playwright@1.50.0` |
-| **jq** | System | `apt install jq` |
-| **.NET prerequisites** | System | `apt install libicu-dev libssl-dev zlib1g-dev` |
-| **curl, git, tar, unzip** | System | `apt install` |
+
+npm dependencies: `playwright` (from `docker/package-measure.json`).
 
 > **Version pinning policy**: All tool versions that can influence benchmark measurements are pinned to exact versions. Playwright pins the exact Chromium/Firefox builds, so updating Playwright is the single control point for browser engine changes. Bumps should be done intentionally via PR with the expectation that timing metrics may shift.
 
-### What is NOT in the image
+### What is NOT in the images
 - **.NET SDK**: Downloaded at benchmark runtime from nightly feed. Different runs may test different SDK versions.
 - **Sample apps**: Checked out from the repo at runtime.
+- **Browsers/V8**: Not in the build image (not needed for compilation).
+- **.NET native libs**: Not in the measure image (not needed for running benchmarks).
 
-### Dockerfile outline
+### Dockerfile outline (multi-stage)
 
 ```dockerfile
-FROM ubuntu:24.04@sha256:...   # pinned digest — update intentionally
-
-# System packages
+# ── Shared base ──────────────────────────────────────────
+FROM ubuntu:24.04 AS base
 RUN apt-get update && apt-get install -y \
     curl git tar unzip jq python3 \
-    libicu-dev libssl-dev zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
+    && apt-get install -y nodejs && rm -rf /var/lib/apt/lists/*
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1 DOTNET_NOLOGO=1 ARTIFACTS_DIR=/bench/artifacts
+RUN mkdir -p $ARTIFACTS_DIR/sdk $ARTIFACTS_DIR/publish $ARTIFACTS_DIR/results $ARTIFACTS_DIR/logs
+WORKDIR /bench
+
+# ── Build image ──────────────────────────────────────────
+FROM base AS browser-bench-build
+RUN apt-get update && apt-get install -y \
+    libicu-dev libssl-dev zlib1g-dev libatomic1 \
+    && rm -rf /var/lib/apt/lists/*
+ENV DOTNET_ROOT=/opt/dotnet PATH="/opt/dotnet:${PATH}"
+COPY docker/package-build.json ./package.json
+RUN npm install --omit=dev && rm -rf /root/.npm
+
+# ── Measure image ────────────────────────────────────────
+FROM base AS browser-bench-measure
+RUN apt-get update && apt-get install -y \
     libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libdrm2 \
     libxkbcommon0 libxcomposite1 libxdamage1 libxrandr2 libgbm1 \
     libpango-1.0-0 libcairo2 libasound2t64 libxshmfence1 \
     && rm -rf /var/lib/apt/lists/*
-
-# Node.js 24.x (Current) — pinned major
-RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
-    && apt-get install -y nodejs \
-    && rm -rf /var/lib/apt/lists/*
-
-# V8 d8 via jsvu — pinned jsvu version
-RUN npm install -g jsvu@2.2.1 \
-    && jsvu --os=linux64 --engines=v8 \
+RUN npm install -g jsvu@3.0.3 && jsvu --os=linux64 --engines=v8 \
     && ln -s /root/.jsvu/bin/v8 /usr/local/bin/d8
-
-# Playwright — pinned to match package.json
-RUN npm install -g playwright@1.50.0 \
-    && npx playwright install --with-deps chromium firefox
-
+COPY docker/package-measure.json ./package.json
+RUN npm install --omit=dev && rm -rf /root/.npm
+RUN npx playwright install --with-deps chromium firefox
 ENV PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
-ENV DOTNET_ROOT=/opt/dotnet
-ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
-ENV DOTNET_NOLOGO=1
-ENV PATH="${DOTNET_ROOT}:${PATH}"
-ENV ARTIFACTS_DIR=/bench/artifacts
-
-RUN mkdir -p $ARTIFACTS_DIR/sdk $ARTIFACTS_DIR/publish $ARTIFACTS_DIR/results $ARTIFACTS_DIR/logs
-
-WORKDIR /bench
 ```
 
 ### Image rebuild workflow: `docker-build.yml`
+
+Builds both images in **parallel jobs**, each with registry-based layer caching.
 
 ```yaml
 name: Docker Image
@@ -100,22 +115,41 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build-image:
     runs-on: ubuntu-latest
-    permissions:
-      packages: write
+    permissions: { packages: write }
     steps:
       - uses: actions/checkout@v4
       - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+        with: { registry: ghcr.io, username: '${{ github.actor }}', password: '${{ secrets.GITHUB_TOKEN }}' }
+      - uses: docker/setup-buildx-action@v3
       - uses: docker/build-push-action@v6
         with:
-          context: docker/
+          context: .
+          file: docker/Dockerfile
+          target: browser-bench-build
           push: true
-          tags: ghcr.io/${{ github.repository }}/browser-bench:latest
+          tags: ghcr.io/${{ github.repository }}/browser-bench-build:latest
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/browser-bench-build:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository }}/browser-bench-build:cache,mode=max
+
+  measure-image:
+    runs-on: ubuntu-latest
+    permissions: { packages: write }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with: { registry: ghcr.io, username: '${{ github.actor }}', password: '${{ secrets.GITHUB_TOKEN }}' }
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          target: browser-bench-measure
+          push: true
+          tags: ghcr.io/${{ github.repository }}/browser-bench-measure:latest
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/browser-bench-measure:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository }}/browser-bench-measure:cache,mode=max
 ```
 
 ---
@@ -166,6 +200,20 @@ RESOLVED_VERSION=$("$INSTALL_DIR/dotnet" --version)
 # ... (hash resolution logic) ...
 echo '{"sdkVersion":"...","runtimeGitHash":"...","sdkGitHash":"...","vmrGitHash":"...","commitDate":"...","commitTime":"..."}' > /tmp/sdk-info.json
 cat /tmp/sdk-info.json
+```
+
+After the wasm-tools workload is installed (by `run-pipeline.mjs`), the `workloadVersion` field is added to `sdk-info.json`:
+
+```json
+{
+  "sdkVersion": "11.0.100-preview.3.26062.1",
+  "runtimeGitHash": "...",
+  "sdkGitHash": "...",
+  "vmrGitHash": "...",
+  "commitDate": "2026-03-03",
+  "commitTime": "04-00-00-UTC",
+  "workloadVersion": "11.0.0-preview.3.26062.1"
+}
 ```
 
 ---
@@ -363,115 +411,75 @@ const results = await page.evaluate(() => window.__benchResults);
 | `sdk_version` | string | `""` (latest nightly) | Specific SDK version or empty for latest |
 | `presets` | choice | `all` | `all`, `no-workload-only`, `aot-only`, `native-relink-only` |
 
-### Matrix strategy
+### Two-job pipeline (build + measure matrix)
 
-```yaml
-strategy:
-  fail-fast: false
-  matrix:
-    app: [empty-browser, empty-blazor, blazing-pizza, microbenchmarks]
-    runtime: [coreclr, mono, naotllvm]
-    preset: [no-workload, aot, native-relink, invariant, no-reflection-emit, debug]
-    engine: [v8, node, chrome, firefox]
-    exclude:
-      # AOT is Mono-only
-      - runtime: coreclr
-        preset: aot
-      - runtime: naotllvm
-        preset: aot
-      # NativeAOT has limited preset set
-      - runtime: naotllvm
-        preset: native-relink
-      - runtime: naotllvm
-        preset: invariant
-      - runtime: naotllvm
-        preset: no-reflection-emit
-      - runtime: naotllvm
-        preset: debug
-      # External apps only measured on Chrome
-      - app: empty-browser
-        engine: v8
-      - app: empty-browser
-        engine: node
-      - app: empty-browser
-        engine: firefox
-      - app: empty-blazor
-        engine: v8
-      - app: empty-blazor
-        engine: node
-      - app: empty-blazor
-        engine: firefox
-      - app: blazing-pizza
-        engine: v8
-      - app: blazing-pizza
-        engine: node
-      - app: blazing-pizza
-        engine: firefox
-```
+The benchmark workflow uses two separate jobs with distinct Docker images:
 
-### Job steps
+**Job 1 — `build`** (container: `browser-bench-build`):  
+Executes `scripts/run-pipeline.mjs --build-only` which:
+1. Installs the .NET SDK once
+2. Validates that wasm-tools workload is **not** pre-installed
+3. Builds all apps × non-workload presets (`debug`, `no-workload`)
+4. Installs the wasm-tools workload, captures its version in `sdk-info.json`
+5. Builds all apps × workload presets (`aot`, `invariant`, `native-relink`, `no-jiterp`, `no-reflection-emit`)
+6. Outputs a matrix JSON and uploads build artifacts
+
+**Job 2 — `measure`** (container: `browser-bench-measure`):  
+Runs as a matrix strategy over app × preset combinations. Each job:
+1. Downloads the published binaries + sdk-info from Job 1
+2. Runs `scripts/run-measure-job.mjs` for all applicable engines
+3. Uploads result JSONs
+
+Apps are auto-discovered from `src/` (any directory containing a `.csproj`).
+
+### Job definitions
 
 ```yaml
 jobs:
-  bench:
+  # Job 1: Build all apps (browser-bench-build image)
+  build:
     runs-on: ubuntu-latest
-    container: ghcr.io/${{ github.repository }}/browser-bench:latest
-    timeout-minutes: 30
+    container: ghcr.io/${{ github.repository }}/browser-bench-build:latest
+    timeout-minutes: 60
+    outputs:
+      matrix: ${{ steps.build.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Resolve SDK
-        id: sdk
+      - name: Build all apps (continue on failure)
+        id: build
         run: |
-          ./scripts/resolve-sdk.sh "${{ inputs.sdk_version }}"
-          echo "sdk_info=$(cat /tmp/sdk-info.json)" >> $GITHUB_OUTPUT
+          MATRIX=$(node scripts/run-pipeline.mjs --build-only ...)
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4  # sdk-info
+      - uses: actions/upload-artifact@v4  # builds
 
-      - name: Build app
-        run: ./scripts/build-app.sh ${{ matrix.app }} ${{ matrix.runtime }} ${{ matrix.preset }}
-        # Compile time is recorded to artifacts/results/compile-time.json
-
-      - name: Run benchmark
-        run: |
-          SDK_INFO='${{ steps.sdk.outputs.sdk_info }}'
-          SDK_VERSION=$(echo "$SDK_INFO" | jq -r .sdkVersion)
-          RUNTIME_HASH=$(echo "$SDK_INFO" | jq -r '.runtimeGitHash // .gitHash')
-          RUNTIME_HASH7=${RUNTIME_HASH:0:7}
-          COMMIT_DATE=$(echo "$SDK_INFO" | jq -r .commitDate)   # YYYY-MM-DD
-          COMMIT_TIME=$(echo "$SDK_INFO" | jq -r .commitTime)   # HH-MM-SS-UTC
-          FILENAME="${COMMIT_TIME}_${RUNTIME_HASH7}_${{ matrix.runtime }}_${{ matrix.preset }}_${{ matrix.engine }}_${{ matrix.app }}.json"
-          
-          if [ "${{ matrix.app }}" = "microbenchmarks" ]; then
-            node scripts/measure-internal.mjs \
-              --engine ${{ matrix.engine }} \
-              --publish-dir artifacts/publish/${{ matrix.app }} \
-              --sdk-info /tmp/sdk-info.json \
-              --commit-date "$COMMIT_DATE" \
-              --commit-time "$COMMIT_TIME" \
-              --runtime ${{ matrix.runtime }} \
-              --preset ${{ matrix.preset }} \
-              --output "artifacts/results/${FILENAME}"
-          else
-            node scripts/measure-external.mjs \
-              --app ${{ matrix.app }} \
-              --publish-dir artifacts/publish/${{ matrix.app }} \
-              --sdk-info /tmp/sdk-info.json \
-              --commit-date "$COMMIT_DATE" \
-              --commit-time "$COMMIT_TIME" \
-              --runtime ${{ matrix.runtime }} \
-              --preset ${{ matrix.preset }} \
-              --compile-time-file artifacts/results/compile-time.json \
-              --retries 3 \
-              --timeout 300000 \
-              --output "artifacts/results/${FILENAME}"
-          fi
-
-      - name: Upload result
-        uses: actions/upload-artifact@v4
-        with:
-          name: result_${{ matrix.runtime }}_${{ matrix.preset }}_${{ matrix.engine }}_${{ matrix.app }}
-          path: artifacts/results/*.json
-          retention-days: 7
+  # Job 2: Measure (browser-bench-measure image, matrix strategy)
+  measure:
+    needs: build
+    runs-on: ubuntu-latest
+    container: ghcr.io/${{ github.repository }}/browser-bench-measure:latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.build.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4  # sparse: scripts/ + package.json
+      - uses: actions/download-artifact@v4  # sdk-info + builds
+      - run: node scripts/run-measure-job.mjs --app ... --preset ...
+      - uses: actions/upload-artifact@v4  # results
 ```
+
+### Pipeline orchestrator: `scripts/run-pipeline.mjs`
+
+The orchestrator handles sequencing and validates that workload-dependent builds
+only run after the workload is installed. Key features:
+
+- **Workload validation**: Before non-workload builds, asserts `dotnet workload list` does NOT show wasm-tools
+- **Workload version capture**: After installing wasm-tools, parses the version from `dotnet workload list` and writes it to `sdk-info.json` as `workloadVersion`
+- **App discovery**: Scans `apps/` directory for subdirectories containing `.csproj` files
+- **Preset grouping**: Uses `getPresetGroups()` from `build-config.mjs` to split presets into non-workload and workload groups
+- **Dry-run mode**: `--dry-run` flag skips measurement phase (useful for build-only CI validation)
 
 ---
 
@@ -673,24 +681,33 @@ This is used in E2E tests to verify the full pipeline works after deployment.
 
 ```
   ┌─────────────────────────────────────────────────────┐
-  │                  benchmark.yml                       │
+  │           benchmark.yml — Job 1: build              │
+  │     container: browser-bench-build:latest            │
   │                                                     │
-  │  ┌──────────┐ ┌──────────┐ ┌──────────┐           │
-  │  │ coreclr  │ │  mono    │ │  mono    │  ...×26   │
-  │  │ no-wkld  │ │  no-wkld │ │  aot     │  matrix   │
-  │  │ chrome   │ │  chrome  │ │  v8      │  legs     │
-  │  │ empty-bw │ │ empty-bw │ │ micro    │           │
-  │  └────┬─────┘ └────┬─────┘ └────┬─────┘           │
-  │       │upload       │upload      │upload            │
-  │       ▼             ▼            ▼                  │
-  │  [artifacts] [artifacts]  [artifacts]               │
+  │  1. Install SDK + workload                          │
+  │  2. Build all apps × presets                         │
+  │  3. Upload sdk-info + publish artifacts              │
+  └─────────────────────────┬───────────────────────────┘
+                        │ artifacts: sdk-info + builds
+                        ▼
+  ┌─────────────────────────────────────────────────────┐
+  │      benchmark.yml — Job 2: measure (matrix)        │
+  │     container: browser-bench-measure:latest          │
+  │                                                     │
+  │  For each app × preset:                              │
+  │    1. Download sdk-info + published app              │
+  │    2. Run measurements (all engines)                 │
+  │    3. Upload result JSONs                            │
   └─────────────────────┬───────────────────────────────┘
+                        │ upload all results
+                        ▼
+  [results-{app}-{preset}]
                         │ workflow_run (on success)
                         ▼
   ┌─────────────────────────────────────────────────────┐
-  │               consolidate.yml                        │
+  │               consolidate.yml                       │
   │                                                     │
-  │  1. Download all artifacts                          │
+  │  1. Download all result artifacts                   │
   │  2. Checkout gh-pages                               │
   │  3. Run consolidate-results.mjs                     │
   │  4. git commit + push                               │
@@ -698,9 +715,9 @@ This is used in E2E tests to verify the full pipeline works after deployment.
                         │
                         ▼
   ┌─────────────────────────────────────────────────────┐
-  │              gh-pages branch                         │
+  │              gh-pages branch                        │
   │                                                     │
-  │  data/index.json          (updated)                │
+  │  data/index.json          (updated)                 │
   │  data/2026-03.json         (month index, updated)   │
   │  data/2026/2026-03-02/*.json (new results)          │
   │  index.html + app/   (dashboard)                    │

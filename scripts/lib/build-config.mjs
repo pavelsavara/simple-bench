@@ -28,9 +28,47 @@ const PRESET_MAP = {
 
 export { PRESET_MAP };
 
+/** Presets that require the wasm-tools workload to be installed before build/publish.
+ *  These presets set WasmBuildNative=true or RunAOTCompilation=true in the csproj,
+ *  which needs the wasm-tools workload (Emscripten, wasm-opt, AOT compiler, etc). */
+const WORKLOAD_PRESETS = new Set([
+    'native-relink',
+    'aot',
+    'no-jiterp',
+    'invariant',
+    'no-reflection-emit',
+]);
+
+/** Presets that do NOT require the wasm-tools workload.
+ *  These can be compiled with a bare SDK (no workload installed). */
+const NON_WORKLOAD_PRESETS = new Set([
+    'debug',
+    'no-workload',
+]);
+
+export { WORKLOAD_PRESETS, NON_WORKLOAD_PRESETS };
+
+/**
+ * Returns true if the given preset requires the wasm-tools workload.
+ */
+export function needsWorkload(preset) {
+    return WORKLOAD_PRESETS.has(preset);
+}
+
+/**
+ * Return sorted arrays of preset names split by workload requirement.
+ * @returns {{ nonWorkload: string[], workload: string[] }}
+ */
+export function getPresetGroups() {
+    return {
+        nonWorkload: [...NON_WORKLOAD_PRESETS].sort(),
+        workload: [...WORKLOAD_PRESETS].sort(),
+    };
+}
+
 /**
  * Get MSBuild publish arguments for a given preset.
- * Only passes /p:BenchmarkPreset — the csproj sets -c Release/Debug
+ * Passes /p:BenchmarkPreset — the csproj sets -c Release/Debug
  * and feature flags based on the BenchmarkPreset value.
  */
 export function getPresetArgs(preset) {

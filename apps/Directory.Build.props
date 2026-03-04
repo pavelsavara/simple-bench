@@ -1,6 +1,0 @@
-<Project>
-  <PropertyGroup>
-    <ArtifactsPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'artifacts', '$(BenchmarkPreset)'))</ArtifactsPath>
-    <BaseIntermediateOutputPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'artifacts', '$(BenchmarkPreset)', 'obj', '$(MSBuildProjectName)'))</BaseIntermediateOutputPath>
-  </PropertyGroup>
-</Project>

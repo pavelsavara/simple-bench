@@ -9,7 +9,9 @@ import {
     parseCommitHash,
     parseHostCommitHash,
     parseSdkVersion,
-    buildSdkInfo
+    buildSdkInfo,
+    parseWorkloadVersion,
+    isWorkloadInstalled
 } from '../../scripts/lib/sdk-info.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -128,5 +130,92 @@ describe('buildSdkInfo', () => {
             commitDate: '2026-03-03',
             commitTime: '14-30-00-UTC'
         });
+    });
+
+    it('includes workloadVersion when provided', () => {
+        const info = buildSdkInfo(
+            '11.0.100-preview.3.26062.1',
+            'runtime_hash_abc',
+            'sdk_hash_def',
+            'vmr_hash_ghi',
+            '2026-03-03',
+            '14-30-00-UTC',
+            '11.0.0-preview.3.26062.1'
+        );
+        assert.deepEqual(info, {
+            sdkVersion: '11.0.100-preview.3.26062.1',
+            runtimeGitHash: 'runtime_hash_abc',
+            sdkGitHash: 'sdk_hash_def',
+            vmrGitHash: 'vmr_hash_ghi',
+            commitDate: '2026-03-03',
+            commitTime: '14-30-00-UTC',
+            workloadVersion: '11.0.0-preview.3.26062.1'
+        });
+    });
+
+    it('omits workloadVersion when not provided', () => {
+        const info = buildSdkInfo(
+            '11.0.100-preview.3.26062.1',
+            'runtime_hash_abc',
+            'sdk_hash_def',
+            'vmr_hash_ghi',
+            '2026-03-03',
+            '14-30-00-UTC'
+        );
+        assert.ok(!('workloadVersion' in info));
+    });
+});
+
+describe('parseWorkloadVersion', () => {
+    it('parses wasm-tools version from dotnet workload list output', () => {
+        const output = `Installed Workload Id    Manifest Version                     Installation Source
+----------------------------------------------------------------
+wasm-tools               11.0.0-preview.3.26062.1             SDK 11.0.100-preview.3
+
+Use \`dotnet workload search\` to find additional workloads to install.`;
+        assert.equal(parseWorkloadVersion(output), '11.0.0-preview.3.26062.1');
+    });
+
+    it('returns null when wasm-tools is not installed', () => {
+        const output = `Installed Workload Id    Manifest Version                     Installation Source
+----------------------------------------------------------------
+
+Use \`dotnet workload search\` to find additional workloads to install.`;
+        assert.equal(parseWorkloadVersion(output), null);
+    });
+
+    it('returns null for empty output', () => {
+        assert.equal(parseWorkloadVersion(''), null);
+    });
+
+    it('handles leading whitespace on wasm-tools line', () => {
+        const output = '  wasm-tools               9.0.0-preview.1.24080.9   SDK 11.0';
+        assert.equal(parseWorkloadVersion(output), '9.0.0-preview.1.24080.9');
+    });
+
+    it('ignores other workloads', () => {
+        const output = `Installed Workload Id    Manifest Version
+----------------------------------------------------------------
+maui                     11.0.0-preview.3.26062.1
+android                  11.0.0-preview.3.26062.1`;
+        assert.equal(parseWorkloadVersion(output), null);
+    });
+});
+
+describe('isWorkloadInstalled', () => {
+    it('returns true when wasm-tools is present', () => {
+        const output = 'wasm-tools               11.0.0-preview.3.26062.1   SDK 11.0';
+        assert.equal(isWorkloadInstalled(output), true);
+    });
+
+    it('returns false when wasm-tools is not present', () => {
+        const output = `Installed Workload Id    Manifest Version
+----------------------------------------------------------------
+`;
+        assert.equal(isWorkloadInstalled(output), false);
+    });
+
+    it('returns false for empty output', () => {
+        assert.equal(isWorkloadInstalled(''), false);
     });
 });

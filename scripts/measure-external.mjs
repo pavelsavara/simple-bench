@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 /**
- * measure-external.mjs — Measure external metrics via Playwright + CDP.
+ * measure-external.mjs — Measure external metrics for browser-wasm apps.
+ *
+ * Supports four JS engines:
+ *   chrome   — Playwright Chromium + CDP (full metrics)
+ *   firefox  — Playwright Firefox (timing only, no CDP)
+ *   v8       — d8 --module (timing only)
+ *   node     — node (timing only)
  *
  * Collects: compile-time, disk-size-total/wasm/dlls, download-size-total,
  *           time-to-reach-managed (warm), time-to-reach-managed-cold, memory-peak
@@ -8,18 +14,18 @@
  * Usage:
  *   node scripts/measure-external.mjs \
  *     --app empty-browser \
- *     --publish-dir artifacts/publish/empty-browser \
+ *     --publish-dir artifacts/publish/empty-browser/wwwroot \
  *     --output artifacts/results/result.json \
+ *     --engine chrome \
  *     --runtime coreclr --preset no-workload \
  *     --sdk-info artifacts/sdk/sdk-info.json \
  *     --compile-time-file artifacts/results/compile-time.json
  */
 
 import { parseArgs } from 'node:util';
-import { writeFile } from 'node:fs/promises';
-import { readdir } from 'node:fs/promises';
+import { writeFile, readdir } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
-import { chromium } from 'playwright';
+import { execFileSync } from 'node:child_process';
 import {
     startStaticServer,
     measureFileSizes,
@@ -28,6 +34,10 @@ import {
     readSdkInfo,
     loadEndpointsMap,
 } from './lib/measure-utils.mjs';
+import { getEngineCommand } from './lib/internal-utils.mjs';
+
+const BROWSER_ENGINES = new Set(['chrome', 'firefox']);
+const CLI_ENGINES = new Set(['v8', 'node']);
 
 // ── CLI args ────────────────────────────────────────────────────────────────
 
@@ -40,6 +50,7 @@ const { values: args } = parseArgs({
         'preset': { type: 'string' },
         'sdk-info': { type: 'string' },
         'compile-time-file': { type: 'string' },
+        'engine': { type: 'string', default: 'chrome' },
         'timeout': { type: 'string', default: '60000' },
         'warm-runs': { type: 'string', default: '3' },
         'retries': { type: 'string', default: '2' },
@@ -55,6 +66,12 @@ for (const name of requiredArgs) {
         console.error(`Missing required argument: --${name}`);
         process.exit(1);
     }
+}
+
+const engine = args.engine;
+if (!BROWSER_ENGINES.has(engine) && !CLI_ENGINES.has(engine)) {
+    console.error(`Unknown engine: ${engine}. Expected: chrome, firefox, v8, node`);
+    process.exit(1);
 }
 
 const timeout = parseInt(args.timeout, 10);
@@ -85,39 +102,14 @@ try {
     // No endpoints file — serve without fingerprint resolution
 }
 
-// ── Start server & measure ──────────────────────────────────────────────────
+// ── Run measurement ─────────────────────────────────────────────────────────
 
 let result;
-let srv;
 
-srv = await startStaticServer(args['publish-dir'], 0, { fingerprintMap });
-const pageUrl = `http://127.0.0.1:${srv.port}/`;
-console.error(`Serving ${args['publish-dir']} on ${pageUrl}`);
-
-{
-    let lastError;
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-        if (attempt > 0) {
-            console.error(`Retry ${attempt}/${maxRetries}...`);
-        }
-        try {
-            result = await runMeasurement(pageUrl, timeout, warmRuns);
-            break;
-        } catch (err) {
-            lastError = err;
-            // Only retry on timeout errors
-            if (!isTimeoutError(err)) {
-                throw err;
-            }
-            console.error(`Timeout: ${err.message}`);
-        }
-    }
-
-    if (!result) {
-        console.error(`All ${maxRetries + 1} attempts failed. Last error: ${lastError?.message}`);
-        await srv.close();
-        process.exit(1);
-    }
+if (BROWSER_ENGINES.has(engine)) {
+    result = await runBrowserMeasurement(engine, args.app, args['publish-dir'], fingerprintMap, timeout, warmRuns, maxRetries);
+} else {
+    result = await runCliMeasurement(engine, args['publish-dir'], timeout);
 }
 
 // ── Assemble output ─────────────────────────────────────────────────────────
@@ -131,7 +123,7 @@ const meta = {
     vmrGitHash: sdkInfo.vmrGitHash,
     runtime: args.runtime,
     preset: args.preset,
-    engine: 'chrome',
+    engine,
     app: args.app,
     ...(args['ci-run-id'] && { ciRunId: args['ci-run-id'] }),
     ...(args['ci-run-url'] && { ciRunUrl: args['ci-run-url'] }),
@@ -146,102 +138,246 @@ const metrics = {
     'time-to-reach-managed': result.timeToReachManaged,
     'time-to-reach-managed-cold': result.timeToReachManagedCold,
     'memory-peak': result.memoryPeak,
+    'pizza-walkthru': result.pizzaWalkthru,
 };
 
 const output = buildResultJson(meta, metrics);
 await writeFile(args.output, JSON.stringify(output, null, 2) + '\n');
 console.error(`Result written to ${args.output}`);
 
-await srv.close();
+// ── Browser measurement (chrome / firefox) ─────────────────────────────────
 
-// ── Measurement core ────────────────────────────────────────────────────────
+async function runBrowserMeasurement(browserEngine, app, publishDirPath, fpMap, timeoutMs, warmRunCount, maxRetries) {
+    const pw = await import('playwright');
+    const browserType = browserEngine === 'firefox' ? pw.firefox : pw.chromium;
+    const useCDP = browserEngine !== 'firefox'; // CDP is Chromium-only
 
-async function runMeasurement(url, timeoutMs, warmRunCount) {
-    const browser = await chromium.launch();
-    try {
-        const context = await browser.newContext();
-        const page = await context.newPage();
-        const client = await context.newCDPSession(page);
+    const srv = await startStaticServer(publishDirPath, 0, { fingerprintMap: fpMap });
+    const pageUrl = `http://127.0.0.1:${srv.port}/`;
+    console.error(`Serving ${publishDirPath} on ${pageUrl}`);
 
-        await client.send('Network.enable');
-        await client.send('Performance.enable');
+    let lastError;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        if (attempt > 0) console.error(`Retry ${attempt}/${maxRetries}...`);
+        try {
+            const browser = await browserType.launch();
+            try {
+                const context = await browser.newContext();
+                const page = await context.newPage();
 
-        // Track compressed download sizes via CDP
-        let downloadSizeTotal = 0;
-        const networkResponses = new Map(); // requestId → url for logging
-        client.on('Network.requestWillBeSent', (evt) => {
-            networkResponses.set(evt.requestId, evt.request.url);
-        });
-        client.on('Network.loadingFinished', (evt) => {
-            downloadSizeTotal += evt.encodedDataLength;
-        });
+                // ── CDP setup (Chromium only) ───────────────────────────
+                let client, downloadSizeTotal = 0, memoryPeak = 0;
+                let memorySampling = false;
+                let memoryPoller;
 
-        // Periodic memory sampling — track JSHeapUsedSize peak
-        let memoryPeak = 0;
-        let memorySampling = true;
-        const memoryPoller = (async () => {
-            while (memorySampling) {
-                try {
-                    const perfMetrics = await client.send('Performance.getMetrics');
-                    const heapUsed = perfMetrics.metrics.find(m => m.name === 'JSHeapUsedSize');
-                    if (heapUsed && heapUsed.value > memoryPeak) {
-                        memoryPeak = heapUsed.value;
-                    }
-                } catch {
-                    // CDP session may be closing — stop polling
-                    break;
+                if (useCDP) {
+                    client = await context.newCDPSession(page);
+                    await client.send('Network.enable');
+                    await client.send('Performance.enable');
+
+                    client.on('Network.loadingFinished', (evt) => {
+                        downloadSizeTotal += evt.encodedDataLength;
+                    });
+
+                    memorySampling = true;
+                    memoryPoller = (async () => {
+                        while (memorySampling) {
+                            try {
+                                const perfMetrics = await client.send('Performance.getMetrics');
+                                const heapUsed = perfMetrics.metrics.find(m => m.name === 'JSHeapUsedSize');
+                                if (heapUsed && heapUsed.value > memoryPeak) {
+                                    memoryPeak = heapUsed.value;
+                                }
+                            } catch { break; }
+                            await sleep(100);
+                        }
+                    })();
                 }
-                await sleep(100);
+
+                // Log errors for debugging
+                page.on('console', msg => {
+                    if (msg.type() === 'error') console.error(`  [page] ${msg.text()}`);
+                });
+                page.on('pageerror', err => console.error(`  [page error] ${err.message}`));
+
+                // ── Cold load ───────────────────────────────────────────
+                await page.goto(pageUrl, { timeout: timeoutMs, waitUntil: 'load' });
+                await page.waitForFunction(
+                    () => globalThis.dotnet_managed_ready !== undefined,
+                    null, { timeout: timeoutMs }
+                );
+
+                const coldMetrics = await page.evaluate(() => ({
+                    dotnetReady: globalThis.dotnet_ready,
+                    dotnetManagedReady: globalThis.dotnet_managed_ready,
+                }));
+                const timeToReachManagedCold = coldMetrics.dotnetManagedReady;
+
+                // ── Warm loads (reloads, take minimum) ──────────────────
+                let warmMin = Infinity;
+                for (let i = 0; i < warmRunCount; i++) {
+                    await page.reload({ timeout: timeoutMs, waitUntil: 'load' });
+                    await page.waitForFunction(
+                        () => globalThis.dotnet_managed_ready !== undefined,
+                        null, { timeout: timeoutMs }
+                    );
+                    const warm = await page.evaluate(() => globalThis.dotnet_managed_ready);
+                    if (warm < warmMin) warmMin = warm;
+                }
+                const timeToReachManaged = Number.isFinite(warmMin) ? warmMin : null;
+
+                // ── App-specific walkthrough (blazing-pizza only) ───────
+                let pizzaWalkthru = null;
+                if (app === 'blazing-pizza') {
+                    console.error('  Running pizza walkthrough...');
+                    pizzaWalkthru = await runPizzaWalkthrough(page, pageUrl, timeoutMs);
+                    console.error(`  Pizza walkthrough: ${pizzaWalkthru?.toFixed(0)} ms`);
+                }
+
+                // ── Cleanup CDP ─────────────────────────────────────────
+                if (useCDP) {
+                    await sleep(2000); // let memory settle
+                    memorySampling = false;
+                    await memoryPoller;
+                    await client.send('Performance.disable');
+                    await client.send('Network.disable');
+                }
+
+                await page.close();
+                await context.close();
+                await srv.close();
+                return {
+                    downloadSizeTotal: useCDP ? downloadSizeTotal : null,
+                    timeToReachManagedCold,
+                    timeToReachManaged,
+                    memoryPeak: useCDP ? (memoryPeak || null) : null,
+                    pizzaWalkthru,
+                };
+            } finally {
+                await browser.close();
             }
-        })();
-
-        // ── Cold load ───────────────────────────────────────────────────
-        await page.goto(url, { timeout: timeoutMs, waitUntil: 'load' });
-        await page.waitForFunction(
-            () => globalThis.dotnet_managed_ready !== undefined,
-            { timeout: timeoutMs }
-        );
-
-        const coldMetrics = await page.evaluate(() => ({
-            dotnetReady: globalThis.dotnet_ready,
-            dotnetManagedReady: globalThis.dotnet_managed_ready,
-        }));
-        const timeToReachManagedCold = coldMetrics.dotnetManagedReady;
-
-        // ── Warm loads (3 reloads, take minimum) ────────────────────────
-        let warmMin = Infinity;
-        for (let i = 0; i < warmRunCount; i++) {
-            await page.reload({ timeout: timeoutMs, waitUntil: 'load' });
-            await page.waitForFunction(
-                () => globalThis.dotnet_managed_ready !== undefined,
-                { timeout: timeoutMs }
-            );
-            const warm = await page.evaluate(() => globalThis.dotnet_managed_ready);
-            if (warm < warmMin) warmMin = warm;
+        } catch (err) {
+            lastError = err;
+            if (!isTimeoutError(err)) { await srv.close(); throw err; }
+            console.error(`Timeout: ${err.message}`);
         }
-        const timeToReachManaged = Number.isFinite(warmMin) ? warmMin : null;
-
-        // Let memory settle after warm loads
-        await sleep(2000);
-
-        // Stop memory sampling
-        memorySampling = false;
-        await memoryPoller;
-
-        await client.send('Performance.disable');
-        await client.send('Network.disable');
-        await page.close();
-        await context.close();
-
-        return {
-            downloadSizeTotal,
-            timeToReachManagedCold,
-            timeToReachManaged,
-            memoryPeak: memoryPeak || null,
-        };
-    } finally {
-        await browser.close();
     }
+
+    await srv.close();
+    throw lastError || new Error('All attempts failed');
+}
+
+// ── CLI measurement (v8 / node) ─────────────────────────────────────────────
+
+async function runCliMeasurement(cliEngine, publishDirPath, timeoutMs) {
+    const { cmd, args: engineArgs } = getEngineCommand(cliEngine);
+
+    // Find the entry script (may be fingerprinted, e.g. main.abc123.js)
+    const files = await readdir(publishDirPath);
+    const entryFile = files.find(f => f.startsWith('main') && f.endsWith('.js'));
+    if (!entryFile) {
+        throw new Error(`main.js not found in ${publishDirPath}. Files: ${files.join(', ')}`);
+    }
+
+    console.error(`Running: ${cmd} ${engineArgs.join(' ')} ${entryFile}`);
+    console.error(`  cwd: ${publishDirPath}`);
+
+    const startTime = performance.now();
+    const stdout = execFileSync(cmd, [...engineArgs, entryFile], {
+        encoding: 'utf-8',
+        cwd: publishDirPath,
+        timeout: timeoutMs,
+        env: { ...process.env },
+    });
+    const wallTimeMs = performance.now() - startTime;
+
+    // Parse JSON timing output from main.js
+    let timeToReachManaged = null;
+    for (const line of stdout.split('\n')) {
+        const trimmed = line.trim();
+        if (!trimmed.startsWith('{')) continue;
+        try {
+            const parsed = JSON.parse(trimmed);
+            if (parsed['time-to-reach-managed'] != null) {
+                timeToReachManaged = parsed['time-to-reach-managed'];
+            }
+        } catch { /* not JSON */ }
+    }
+
+    return {
+        downloadSizeTotal: null,
+        timeToReachManagedCold: timeToReachManaged ?? wallTimeMs,
+        timeToReachManaged: timeToReachManaged ?? wallTimeMs,
+        memoryPeak: null,
+        pizzaWalkthru: null,
+    };
+}
+
+// ── Pizza walkthrough (blazing-pizza only) ──────────────────────────────────
+
+/**
+ * Runs an automated smoke-test walkthrough of the Blazing Pizza app.
+ * Measures total wall-clock time from fresh navigation to order tracking page.
+ *
+ * Steps: load home → pick pizza → configure (resize + topping) → add to cart
+ *      → checkout → fill address → place order → verify tracking page.
+ */
+async function runPizzaWalkthrough(page, baseUrl, timeoutMs) {
+    const sel = (id) => `[data-testid="${id}"]`;
+    const t = timeoutMs;
+
+    const startTime = await page.evaluate(() => performance.now());
+
+    // Fresh navigation for walkthrough
+    await page.goto(baseUrl, { timeout: t, waitUntil: 'load' });
+    await page.waitForFunction(
+        () => globalThis.dotnet_managed_ready !== undefined,
+        null, { timeout: t }
+    );
+
+    // Wait for pizza specials to render
+    await page.waitForSelector(sel('pizza-cards'), { timeout: t });
+    await page.waitForSelector(sel('pizza-special-1'), { timeout: t });
+
+    // Click first pizza (Basic Cheese Pizza)
+    await page.click(sel('pizza-special-1'));
+    await page.waitForSelector(sel('dialog-container'), { state: 'visible', timeout: t });
+
+    // Adjust size slider to 15
+    await page.fill(sel('size-slider'), '15');
+    await page.dispatchEvent(sel('size-slider'), 'input');
+
+    // Add a topping
+    await page.waitForSelector(sel('topping-select'), { timeout: t });
+    await page.selectOption(sel('topping-select'), { index: 1 });
+
+    // Confirm pizza → add to cart
+    await page.click(sel('confirm-pizza-button'));
+    await page.waitForSelector(sel('dialog-container'), { state: 'hidden', timeout: t });
+
+    // Verify cart has item
+    await page.waitForSelector(sel('cart-item'), { timeout: t });
+
+    // Click "Order >" to go to checkout
+    await page.click(sel('order-button'));
+    await page.waitForSelector(sel('checkout-main'), { timeout: t });
+
+    // Fill delivery address
+    await page.fill(sel('address-name'), 'Test User');
+    await page.fill(sel('address-line1'), '123 Pizza Street');
+    await page.fill(sel('address-city'), 'London');
+    await page.fill(sel('address-region'), 'Greater London');
+    await page.fill(sel('address-postalcode'), 'EC1A 1BB');
+
+    // Place order
+    await page.click(sel('place-order-button'));
+
+    // Wait for order tracking page
+    await page.waitForSelector(sel('track-order'), { timeout: t });
+    await page.waitForSelector(sel('order-status'), { timeout: t });
+
+    const endTime = await page.evaluate(() => performance.now());
+    return endTime - startTime;
 }
 
 function isTimeoutError(err) {

@@ -1,0 +1,13 @@
+<Project>
+  <Import Project="versions.props" />
+
+  <Import Project="presets.props" />
+
+  <!-- bin/obj location -->
+
+  <PropertyGroup>
+    <ArtifactsPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'artifacts', '$(BenchmarkPreset)'))</ArtifactsPath>
+    <BaseIntermediateOutputPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'artifacts', '$(BenchmarkPreset)', 'obj', '$(MSBuildProjectName)'))</BaseIntermediateOutputPath>
+  </PropertyGroup>
+
+</Project>

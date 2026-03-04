@@ -6,7 +6,11 @@ import {
     getPresetArgs,
     PRESET_MAP,
     validateCombination,
-    getPublishArgs
+    getPublishArgs,
+    needsWorkload,
+    WORKLOAD_PRESETS,
+    NON_WORKLOAD_PRESETS,
+    getPresetGroups
 } from '../../scripts/lib/build-config.mjs';
 
 describe('mapRuntimeFlavor', () => {
@@ -109,10 +113,10 @@ describe('validateCombination', () => {
 
 describe('getPublishArgs', () => {
     it('builds full publish args for coreclr + no-workload', () => {
-        const args = getPublishArgs('coreclr', 'no-workload', '/bench/apps/empty-browser', '/bench/artifacts/publish/empty-browser');
+        const args = getPublishArgs('coreclr', 'no-workload', '/bench/src/empty-browser', '/bench/artifacts/publish/empty-browser');
         assert.deepEqual(args, [
             'publish',
-            '/bench/apps/empty-browser',
+            '/bench/src/empty-browser',
             '/p:BenchmarkPreset=NoWorkload',
             '/p:RuntimeFlavor=CoreCLR',
             '-o', '/bench/artifacts/publish/empty-browser'
@@ -120,10 +124,10 @@ describe('getPublishArgs', () => {
     });
 
     it('builds full publish args for mono + aot', () => {
-        const args = getPublishArgs('mono', 'aot', '/bench/apps/empty-browser', '/out');
+        const args = getPublishArgs('mono', 'aot', '/bench/src/empty-browser', '/out');
         assert.deepEqual(args, [
             'publish',
-            '/bench/apps/empty-browser',
+            '/bench/src/empty-browser',
             '/p:BenchmarkPreset=Aot',
             '/p:RuntimeFlavor=Mono',
             '-o', '/out'
@@ -146,5 +150,113 @@ describe('getPublishArgs', () => {
             '/p:RuntimeFlavor=CoreCLR',
             '-o', '/out'
         ]);
+    });
+});
+
+describe('needsWorkload', () => {
+    it('returns true for native-relink', () => {
+        assert.equal(needsWorkload('native-relink'), true);
+    });
+
+    it('returns true for aot', () => {
+        assert.equal(needsWorkload('aot'), true);
+    });
+
+    it('returns true for no-jiterp', () => {
+        assert.equal(needsWorkload('no-jiterp'), true);
+    });
+
+    it('returns true for invariant', () => {
+        assert.equal(needsWorkload('invariant'), true);
+    });
+
+    it('returns true for no-reflection-emit', () => {
+        assert.equal(needsWorkload('no-reflection-emit'), true);
+    });
+
+    it('returns false for no-workload', () => {
+        assert.equal(needsWorkload('no-workload'), false);
+    });
+
+    it('returns false for debug', () => {
+        assert.equal(needsWorkload('debug'), false);
+    });
+
+    it('returns false for unknown preset', () => {
+        assert.equal(needsWorkload('unknown'), false);
+    });
+
+    it('all PRESET_MAP presets with WasmBuildNative=true need workload', () => {
+        // The five presets that set WasmBuildNative=true in the csproj
+        const workloadPresets = ['native-relink', 'aot', 'no-jiterp', 'invariant', 'no-reflection-emit'];
+        for (const preset of workloadPresets) {
+            assert.equal(needsWorkload(preset), true, `Expected needsWorkload('${preset}') to be true`);
+        }
+    });
+
+    it('presets without WasmBuildNative do not need workload', () => {
+        const noWorkloadPresets = ['debug', 'no-workload'];
+        for (const preset of noWorkloadPresets) {
+            assert.equal(needsWorkload(preset), false, `Expected needsWorkload('${preset}') to be false`);
+        }
+    });
+});
+
+describe('NON_WORKLOAD_PRESETS', () => {
+    it('contains debug and no-workload', () => {
+        assert.ok(NON_WORKLOAD_PRESETS.has('debug'));
+        assert.ok(NON_WORKLOAD_PRESETS.has('no-workload'));
+    });
+
+    it('has exactly 2 entries', () => {
+        assert.equal(NON_WORKLOAD_PRESETS.size, 2);
+    });
+
+    it('does not overlap with WORKLOAD_PRESETS', () => {
+        for (const preset of NON_WORKLOAD_PRESETS) {
+            assert.ok(!WORKLOAD_PRESETS.has(preset), `${preset} should not be in WORKLOAD_PRESETS`);
+        }
+    });
+});
+
+describe('WORKLOAD_PRESETS', () => {
+    it('contains all 5 workload presets', () => {
+        assert.ok(WORKLOAD_PRESETS.has('native-relink'));
+        assert.ok(WORKLOAD_PRESETS.has('aot'));
+        assert.ok(WORKLOAD_PRESETS.has('no-jiterp'));
+        assert.ok(WORKLOAD_PRESETS.has('invariant'));
+        assert.ok(WORKLOAD_PRESETS.has('no-reflection-emit'));
+    });
+
+    it('has exactly 5 entries', () => {
+        assert.equal(WORKLOAD_PRESETS.size, 5);
+    });
+});
+
+describe('getPresetGroups', () => {
+    it('returns sorted non-workload presets', () => {
+        const { nonWorkload } = getPresetGroups();
+        assert.deepEqual(nonWorkload, ['debug', 'no-workload']);
+    });
+
+    it('returns sorted workload presets', () => {
+        const { workload } = getPresetGroups();
+        assert.deepEqual(workload, ['aot', 'invariant', 'native-relink', 'no-jiterp', 'no-reflection-emit']);
+    });
+
+    it('all presets from both groups are in PRESET_MAP', () => {
+        const { nonWorkload, workload } = getPresetGroups();
+        const allPresets = [...nonWorkload, ...workload];
+        for (const preset of allPresets) {
+            assert.ok(PRESET_MAP[preset], `Preset '${preset}' should be in PRESET_MAP`);
+        }
+    });
+
+    it('both groups together cover all PRESET_MAP keys', () => {
+        const { nonWorkload, workload } = getPresetGroups();
+        const allPresets = new Set([...nonWorkload, ...workload]);
+        for (const key of Object.keys(PRESET_MAP)) {
+            assert.ok(allPresets.has(key), `PRESET_MAP key '${key}' should be in a preset group`);
+        }
     });
 });

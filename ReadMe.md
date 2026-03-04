@@ -1,1 +1,0 @@
-https://pavelsavara.github.io/simple-bench/

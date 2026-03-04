@@ -12,6 +12,7 @@ export const METRICS = {
     'time-to-reach-managed': { displayName: 'Time to Reach Managed', unit: 'ms', category: 'external' },
     'time-to-reach-managed-cold': { displayName: 'Time to Reach Managed (Cold)', unit: 'ms', category: 'external' },
     'memory-peak': { displayName: 'Memory Peak', unit: 'bytes', category: 'external' },
+    'pizza-walkthru': { displayName: 'Pizza Walkthrough', unit: 'ms', category: 'external' },
     'js-interop-ops': { displayName: 'JS Interop', unit: 'ops/sec', category: 'internal' },
     'json-parse-ops': { displayName: 'JSON Parsing', unit: 'ops/sec', category: 'internal' },
     'exception-ops': { displayName: 'Exception Handling', unit: 'ops/sec', category: 'internal' },
