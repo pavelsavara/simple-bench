@@ -15,7 +15,7 @@ import { execFileSync } from 'node:child_process';
 import { writeFile, rm, mkdir, readdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
-import { getPublishArgs, validateCombination } from './build-config.mjs';
+import { getPublishArgs, validateCombination, PRESET_MAP } from './build-config.mjs';
 
 const SCRIPT_DIR = new URL('.', import.meta.url).pathname;
 const REPO_DIR = resolve(SCRIPT_DIR, '..', '..');
@@ -102,9 +102,14 @@ export async function buildApp({ app, runtime, preset, artifactsDir, customRunti
         console.error(`Using custom runtime pack: ${packDir}`);
     }
 
-    // Clean and create publish directory
+    // Clean publish, bin, and obj directories for this combination
+    const benchPreset = PRESET_MAP[preset];
     await rm(publishDir, { recursive: true, force: true });
     await mkdir(publishDir, { recursive: true });
+    if (benchPreset) {
+        const presetArtifacts = join(effectiveArtifactsDir, benchPreset);
+        await rm(presetArtifacts, { recursive: true, force: true });
+    }
 
     console.error(`Building ${app} (runtime=${runtime}, preset=${preset})...`);
     console.error(`  dotnet ${publishArgs.join(' ')}`);

@@ -91,6 +91,23 @@ function parseManifest(manifestJson) {
 export async function resolveSDK({ channel, sdkVersion, installDir }) {
     await mkdir(installDir, { recursive: true });
 
+    // ── Skip download if SDK is already installed ────────────────────────
+    const sdkInfoPath = join(installDir, 'sdk-info.json');
+    try {
+        const existing = JSON.parse(await readFile(sdkInfoPath, 'utf-8'));
+        if (existing.sdkVersion) {
+            console.error(`SDK already installed at ${installDir} (${existing.sdkVersion}), skipping download.`);
+            // Still set env vars so subsequent steps find the SDK
+            process.env.DOTNET_ROOT = installDir;
+            process.env.PATH = `${installDir}:${process.env.PATH}`;
+            process.env.DOTNET_NOLOGO = 'true';
+            const nugetDir = join(installDir, '..', 'nuget-packages');
+            await mkdir(nugetDir, { recursive: true });
+            process.env.NUGET_PACKAGES = resolve(nugetDir);
+            return existing;
+        }
+    } catch { /* sdk-info.json missing or invalid — proceed with install */ }
+
     // ── Download and run dotnet-install.sh ───────────────────────────────
     const installScript = join(installDir, 'dotnet-install.sh');
     console.error('Downloading dotnet-install.sh...');
@@ -114,6 +131,12 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
     // Update env for subsequent calls
     process.env.DOTNET_ROOT = installDir;
     process.env.PATH = `${installDir}:${process.env.PATH}`;
+    process.env.DOTNET_NOLOGO = 'true';
+
+    // Place NuGet cache inside artifacts so it's isolated and reproducible
+    const nugetDir = join(installDir, '..', 'nuget-packages');
+    await mkdir(nugetDir, { recursive: true });
+    process.env.NUGET_PACKAGES = resolve(nugetDir);
 
     // Persist for GitHub Actions
     if (process.env.GITHUB_ENV) {
@@ -204,7 +227,9 @@ if (isMain) {
         strict: true,
     });
     const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR || join(resolve('.'), 'artifacts');
-    const installDir = values['install-dir'] || join(ARTIFACTS_DIR, 'sdk');
+    const osPrefix = process.platform === 'win32' ? 'windows' : 'linux';
+    const sdkDir = `${osPrefix}.sdk${values['sdk-version'] || ''}`;
+    const installDir = values['install-dir'] || join(ARTIFACTS_DIR, sdkDir);
     await resolveSDK({
         channel: values.channel,
         sdkVersion: values['sdk-version'],

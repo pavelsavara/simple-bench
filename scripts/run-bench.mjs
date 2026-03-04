@@ -84,13 +84,16 @@ const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_DIR = resolve(SCRIPT_DIR, '..');
 const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR || join(REPO_DIR, 'artifacts');
 const MANIFEST_PATH = join(ARTIFACTS_DIR, 'results', 'build-manifest.json');
-const SDK_INFO_PATH = join(ARTIFACTS_DIR, 'sdk', 'sdk-info.json');
 
 const BUILD_IMAGE = 'browser-bench-build:latest';
 const MEASURE_IMAGE = 'browser-bench-measure:latest';
 
 const isDocker = args.mode === 'docker';
 const IS_WINDOWS = process.platform === 'win32';
+const OS_PREFIX = isDocker ? 'linux' : (IS_WINDOWS ? 'windows' : 'linux');
+const runtimeSuffix = args['runtime-commit'] ? `.${args['runtime-commit'].substring(0, 12)}` : '';
+const SDK_DIR = `${OS_PREFIX}.sdk${args['sdk-version'] || ''}${runtimeSuffix}`;
+const SDK_INFO_PATH = join(ARTIFACTS_DIR, SDK_DIR, 'sdk-info.json');
 
 /** Convert a Windows path to WSL /mnt/... path. No-op on non-Windows. */
 function toWslPath(winPath) {
@@ -135,6 +138,9 @@ function dockerRun(image, bashCommand, opts = {}) {
         '-v', `${repoMount}:/bench`,
         '-w', '/bench',
         '-e', 'ARTIFACTS_DIR=/bench/artifacts',
+        '-e', `DOTNET_ROOT=/bench/artifacts/${SDK_DIR}`,
+        '-e', 'NUGET_PACKAGES=/bench/artifacts/nuget-packages',
+        '-e', 'DOTNET_NOLOGO=true',
         ...(opts.extraArgs || []),
         image,
         'bash', '-c', bashCommand,
@@ -215,13 +221,6 @@ async function stepDockerBuild() {
 async function stepBuild() {
     banner('Build all apps');
 
-    // Clean previous SDK and publish
-    if (isDocker) {
-        fixPermissions('sdk', 'publish');
-    }
-    const { rm } = await import('node:fs/promises');
-    await rm(join(ARTIFACTS_DIR, 'sdk'), { recursive: true, force: true });
-    await rm(join(ARTIFACTS_DIR, 'publish'), { recursive: true, force: true });
     await mkdir(ARTIFACTS_DIR, { recursive: true });
 
     const pArgs = buildPipelineArgs();
@@ -230,10 +229,16 @@ async function stepBuild() {
     if (isDocker) {
         const cmd = `node scripts/run-pipeline.mjs ${pArgs.map(a => `'${a}'`).join(' ')}`;
         dockerRun(BUILD_IMAGE, cmd);
-        fixPermissions('sdk', 'publish', 'results');
+        fixPermissions(SDK_DIR, 'publish', 'results');
     } else {
         execInherit('node', [join(SCRIPT_DIR, 'run-pipeline.mjs'), ...pArgs], {
-            env: { ...process.env, ARTIFACTS_DIR },
+            env: {
+                ...process.env,
+                ARTIFACTS_DIR,
+                DOTNET_ROOT: join(ARTIFACTS_DIR, SDK_DIR),
+                NUGET_PACKAGES: join(ARTIFACTS_DIR, 'nuget-packages'),
+                DOTNET_NOLOGO: 'true',
+            },
         });
     }
 
@@ -298,7 +303,7 @@ async function stepMeasure() {
         const { app, preset } = entries[i];
         const prefix = isDocker ? '/bench/artifacts' : ARTIFACTS_DIR;
         const publishDir = `${prefix}/publish/${app}/${preset}`;
-        const sdkInfo = isDocker ? '/bench/artifacts/sdk/sdk-info.json' : SDK_INFO_PATH;
+        const sdkInfo = isDocker ? `/bench/artifacts/${SDK_DIR}/sdk-info.json` : SDK_INFO_PATH;
         const manifestArg = isDocker
             ? '/bench/artifacts/results/build-manifest.json'
             : MANIFEST_PATH;
@@ -315,7 +320,13 @@ async function stepMeasure() {
                 fixPermissions('results');
             } else {
                 execInherit('node', [join(SCRIPT_DIR, 'run-measure-job.mjs'), ...mArgs], {
-                    env: { ...process.env, ARTIFACTS_DIR },
+                    env: {
+                        ...process.env,
+                        ARTIFACTS_DIR,
+                        DOTNET_ROOT: join(ARTIFACTS_DIR, SDK_DIR),
+                        NUGET_PACKAGES: join(ARTIFACTS_DIR, 'nuget-packages'),
+                        DOTNET_NOLOGO: 'true',
+                    },
                 });
             }
         } catch {

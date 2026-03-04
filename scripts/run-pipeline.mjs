@@ -55,7 +55,10 @@ const SCRIPT_DIR = new URL('.', import.meta.url).pathname;
 const REPO_DIR = resolve(SCRIPT_DIR, '..');
 const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR || join(REPO_DIR, 'artifacts');
 const APPS_DIR = join(REPO_DIR, 'src');
-const SDK_INFO_PATH = join(ARTIFACTS_DIR, 'sdk', 'sdk-info.json');
+const OS_PREFIX = process.platform === 'win32' ? 'windows' : 'linux';
+const runtimeSuffix = args['runtime-commit'] ? `.${args['runtime-commit'].substring(0, 12)}` : '';
+const SDK_DIR = `${OS_PREFIX}.sdk${args['sdk-version'] || ''}${runtimeSuffix}`;
+const SDK_INFO_PATH = join(ARTIFACTS_DIR, SDK_DIR, 'sdk-info.json');
 
 // Parse comma-separated filters into sets (empty = no filter)
 const appFilter = args.app ? new Set(args.app.split(',').map(s => s.trim())) : null;
@@ -87,7 +90,7 @@ function run(cmd, cmdArgs, { label, env: extraEnv } = {}) {
 }
 
 function dotnet() {
-    const p = join(ARTIFACTS_DIR, 'sdk', 'dotnet');
+    const p = join(ARTIFACTS_DIR, SDK_DIR, 'dotnet');
     try {
         execFileSync(p, ['--version'], { stdio: 'ignore' });
         return p;
@@ -121,7 +124,7 @@ async function resolveSDKPhase() {
     await resolveSDK({
         channel: args['sdk-channel'],
         sdkVersion: args['sdk-version'],
-        installDir: join(ARTIFACTS_DIR, 'sdk'),
+        installDir: join(ARTIFACTS_DIR, SDK_DIR),
     });
 }
 

@@ -27,10 +27,26 @@ set -euo pipefail
 
 CHANNEL="${1:-11.0}"
 SDK_VERSION="${2:-}"
-INSTALL_DIR="$(cd "${ARTIFACTS_DIR:-artifacts}" && pwd)/sdk"
+INSTALL_DIR="$(cd "${ARTIFACTS_DIR:-artifacts}" && pwd)/linux.sdk${SDK_VERSION}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 mkdir -p "$INSTALL_DIR"
+
+# Skip download if SDK is already installed
+if [ -f "$INSTALL_DIR/sdk-info.json" ]; then
+    EXISTING_VERSION=$(jq -r '.sdkVersion // empty' "$INSTALL_DIR/sdk-info.json" 2>/dev/null)
+    if [ -n "$EXISTING_VERSION" ]; then
+        echo "SDK already installed at $INSTALL_DIR ($EXISTING_VERSION), skipping download." >&2
+        export DOTNET_ROOT="$INSTALL_DIR"
+        export PATH="$INSTALL_DIR:$PATH"
+        export DOTNET_NOLOGO=true
+        NUGET_DIR="$(cd "$INSTALL_DIR/.." && pwd)/nuget-packages"
+        mkdir -p "$NUGET_DIR"
+        export NUGET_PACKAGES="$NUGET_DIR"
+        cat "$INSTALL_DIR/sdk-info.json"
+        exit 0
+    fi
+fi
 
 # Download official install script
 echo "Downloading dotnet-install.sh..." >&2
@@ -48,11 +64,19 @@ fi
 
 export DOTNET_ROOT="$INSTALL_DIR"
 export PATH="$INSTALL_DIR:$PATH"
+export DOTNET_NOLOGO=true
+
+# Place NuGet cache inside artifacts so it's isolated and reproducible
+NUGET_DIR="$(cd "$INSTALL_DIR/.." && pwd)/nuget-packages"
+mkdir -p "$NUGET_DIR"
+export NUGET_PACKAGES="$NUGET_DIR"
 
 # Persist for subsequent CI steps (GitHub Actions)
 if [ -n "${GITHUB_ENV:-}" ]; then
     echo "DOTNET_ROOT=$INSTALL_DIR" >> "$GITHUB_ENV"
     echo "PATH=$INSTALL_DIR:$PATH" >> "$GITHUB_ENV"
+    echo "NUGET_PACKAGES=$NUGET_DIR" >> "$GITHUB_ENV"
+    echo "DOTNET_NOLOGO=true" >> "$GITHUB_ENV"
 fi
 
 # Extract version and commit info
