@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 import {
     decodeBuildDate,
+    deriveSdkVersion,
     PACKAGE_ID,
 } from '../../scripts/lib/runtime-pack-resolver.mjs';
 
@@ -51,6 +52,30 @@ describe('decodeBuildDate', () => {
 describe('PACKAGE_ID constant', () => {
     it('is the browser-wasm mono runtime pack ID', () => {
         assert.equal(PACKAGE_ID, 'microsoft.netcore.app.runtime.mono.browser-wasm');
+    });
+});
+
+// ── deriveSdkVersion ────────────────────────────────────────────────────────
+
+describe('deriveSdkVersion', () => {
+    it('derives 1xx band SDK version from preview pack version', () => {
+        assert.equal(deriveSdkVersion('11.0.0-preview.3.26127.120'), '11.0.100-preview.3.26127.120');
+    });
+
+    it('derives 1xx band SDK version from alpha pack version', () => {
+        assert.equal(deriveSdkVersion('11.0.0-alpha.1.25613.101'), '11.0.100-alpha.1.25613.101');
+    });
+
+    it('derives 2xx band SDK version when band=2', () => {
+        assert.equal(deriveSdkVersion('11.0.0-preview.3.26127.120', 2), '11.0.200-preview.3.26127.120');
+    });
+
+    it('returns null for malformed version', () => {
+        assert.equal(deriveSdkVersion('foo'), null);
+    });
+
+    it('returns null for version without prerelease', () => {
+        assert.equal(deriveSdkVersion('11.0.0'), null);
     });
 });
 

@@ -17,7 +17,7 @@
  */
 
 import { execFileSync } from 'node:child_process';
-import { writeFile, mkdir, chmod } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, chmod } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import {

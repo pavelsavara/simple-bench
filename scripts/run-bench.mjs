@@ -92,8 +92,8 @@ const isDocker = args.mode === 'docker';
 const IS_WINDOWS = process.platform === 'win32';
 const OS_PREFIX = isDocker ? 'linux' : (IS_WINDOWS ? 'windows' : 'linux');
 const runtimeSuffix = args['runtime-commit'] ? `.${args['runtime-commit'].substring(0, 12)}` : '';
-const SDK_DIR = `${OS_PREFIX}.sdk${args['sdk-version'] || ''}${runtimeSuffix}`;
-const SDK_INFO_PATH = join(ARTIFACTS_DIR, SDK_DIR, 'sdk-info.json');
+let SDK_DIR = `${OS_PREFIX}.sdk${args['sdk-version'] || ''}${runtimeSuffix}`;
+const SDK_INFO_PATH = join(ARTIFACTS_DIR, 'results', 'sdk-info.json');
 
 /** Convert a Windows path to WSL /mnt/... path. No-op on non-Windows. */
 function toWslPath(winPath) {
@@ -230,7 +230,6 @@ async function stepBuild() {
     if (isDocker) {
         const cmd = `node scripts/run-pipeline.mjs ${pArgs.map(a => `'${a}'`).join(' ')}`;
         dockerRun(BUILD_IMAGE, cmd);
-        fixPermissions(SDK_DIR, 'publish', 'results');
     } else {
         execInherit('node', [join(SCRIPT_DIR, 'run-pipeline.mjs'), ...pArgs], {
             env: {
@@ -242,6 +241,16 @@ async function stepBuild() {
             },
         });
     }
+
+    // Update SDK_DIR from pipeline output (run-pipeline writes results/sdk-info.json)
+    try {
+        const sdkInfo = JSON.parse(await readFile(SDK_INFO_PATH, 'utf-8'));
+        if (sdkInfo.sdkVersion) {
+            SDK_DIR = `${OS_PREFIX}.sdk${sdkInfo.sdkVersion}${runtimeSuffix}`;
+        }
+    } catch {}
+
+    if (isDocker) fixPermissions(SDK_DIR, 'publish', 'results');
 
     const elapsed = Math.round((Date.now() - startTime) / 1000);
 
@@ -306,7 +315,7 @@ async function stepMeasure() {
         const { app, preset } = entries[i];
         const prefix = isDocker ? '/bench/artifacts' : ARTIFACTS_DIR;
         const publishDir = `${prefix}/publish/${app}/${preset}`;
-        const sdkInfo = isDocker ? `/bench/artifacts/${SDK_DIR}/sdk-info.json` : SDK_INFO_PATH;
+        const sdkInfo = isDocker ? '/bench/artifacts/results/sdk-info.json' : SDK_INFO_PATH;
         const manifestArg = isDocker
             ? '/bench/artifacts/results/build-manifest.json'
             : MANIFEST_PATH;
@@ -394,6 +403,13 @@ async function main() {
             err('No build manifest found. Run the build step first.');
             process.exit(1);
         }
+        // Update SDK_DIR from previous build output
+        try {
+            const sdkInfo = JSON.parse(await readFile(SDK_INFO_PATH, 'utf-8'));
+            if (sdkInfo.sdkVersion) {
+                SDK_DIR = `${OS_PREFIX}.sdk${sdkInfo.sdkVersion}${runtimeSuffix}`;
+            }
+        } catch {}
     }
 
     // Measure step

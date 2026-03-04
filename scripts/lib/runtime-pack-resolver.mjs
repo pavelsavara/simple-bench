@@ -32,6 +32,17 @@ import { join } from 'node:path';
 
 export const PACKAGE_ID = 'microsoft.netcore.app.runtime.mono.browser-wasm';
 
+/**
+ * Derive the corresponding SDK version from a runtime pack version.
+ * Runtime pack: 11.0.0-preview.3.26127.120
+ * SDK (1xx band): 11.0.100-preview.3.26127.120
+ */
+export function deriveSdkVersion(packVersion, band = 1) {
+    const m = packVersion.match(/^(\d+\.\d+)\.\d+(-.+)$/);
+    if (!m) return null;
+    return `${m[1]}.${band}00${m[2]}`;
+}
+
 const FEED_URLS = {
     11: 'https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet11/nuget/v3/index.json',
     10: 'https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet10/nuget/v3/index.json',
@@ -369,6 +380,8 @@ export async function readPackVersionInfo(packDir) {
  *   - 'closest-after': First pack whose runtime commit includes the target (default)
  *   - 'closest-before': Last pack before the target commit
  *   - 'exact': Only match if the pack was built from exactly this commit
+ * @param {string} [options.knownVersion] - If set, download this specific version directly
+ *   (skip candidate search). Used when the pack version is already known from runtime-packs.json.
  * @returns {{ packDir, version, runtimeCommit, vmrCommit, strategy }}
  */
 export async function resolveRuntimePack(runtimeCommit, options = {}) {
@@ -376,9 +389,30 @@ export async function resolveRuntimePack(runtimeCommit, options = {}) {
         major = DEFAULT_MAJOR,
         destDir = join(process.cwd(), 'artifacts', 'runtime-packs'),
         strategy = 'closest-after',
+        knownVersion = null,
     } = options;
 
     console.error(`\nResolving runtime pack for commit ${runtimeCommit.substring(0, 12)}...`);
+
+    // Fast path: download a specific known version directly
+    if (knownVersion) {
+        console.error(`  Using known pack version: ${knownVersion}`);
+        const { flatBaseUrl } = await listAvailablePackVersions(major);
+        const packDir = await downloadAndExtractPack(flatBaseUrl, knownVersion, destDir);
+        const { vmrCommit } = await readPackVersionInfo(packDir);
+        let packRuntimeCommit = null;
+        if (vmrCommit) {
+            packRuntimeCommit = await getRuntimeCommitFromVMR(vmrCommit);
+        }
+        return {
+            packDir,
+            version: knownVersion,
+            runtimeCommit: packRuntimeCommit || runtimeCommit,
+            vmrCommit,
+            match: 'exact-version',
+        };
+    }
+
     console.error(`  Strategy: ${strategy}, .NET ${major}`);
 
     // Step 1: List available versions

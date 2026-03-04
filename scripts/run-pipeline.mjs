@@ -32,7 +32,7 @@ import { resolve, join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { getPresetGroups, validateCombination } from './lib/build-config.mjs';
 import { parseWorkloadVersion, isWorkloadInstalled } from './lib/sdk-info.mjs';
-import { resolveRuntimePack } from './lib/runtime-pack-resolver.mjs';
+import { resolveRuntimePack, deriveSdkVersion } from './lib/runtime-pack-resolver.mjs';
 import { resolveSDK } from './lib/resolve-sdk.mjs';
 import { buildApp } from './lib/build-app.mjs';
 
@@ -57,8 +57,8 @@ const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR || join(REPO_DIR, 'artifacts');
 const APPS_DIR = join(REPO_DIR, 'src');
 const OS_PREFIX = process.platform === 'win32' ? 'windows' : 'linux';
 const runtimeSuffix = args['runtime-commit'] ? `.${args['runtime-commit'].substring(0, 12)}` : '';
-const SDK_DIR = `${OS_PREFIX}.sdk${args['sdk-version'] || ''}${runtimeSuffix}`;
-const SDK_INFO_PATH = join(ARTIFACTS_DIR, SDK_DIR, 'sdk-info.json');
+let SDK_DIR = `${OS_PREFIX}.sdk${args['sdk-version'] || ''}${runtimeSuffix}`;
+let SDK_INFO_PATH = join(ARTIFACTS_DIR, SDK_DIR, 'sdk-info.json');
 
 // Parse comma-separated filters into sets (empty = no filter)
 const appFilter = args.app ? new Set(args.app.split(',').map(s => s.trim())) : null;
@@ -270,28 +270,57 @@ async function main() {
 
     const { nonWorkload, workload } = getPresetGroups();
 
-    // Phase 1: Install SDK
-    await resolveSDKPhase();
-
-    // Phase 1b: Resolve custom runtime pack (if --runtime-commit specified)
+    // Phase 0: Resolve runtime pack first to determine matching SDK version
+    let packResult = null;
     if (args['runtime-commit']) {
-        console.error('\n═══ Phase 1b: Resolve custom runtime pack ═══');
-        const result = await resolveRuntimePack(args['runtime-commit'], {
+        console.error('\n═══ Phase 0: Resolve runtime pack ═══');
+
+        // Look up exact pack version from runtime-packs.json
+        let knownVersion = null;
+        try {
+            const packsData = JSON.parse(await readFile(join(REPO_DIR, 'runtime-packs.json'), 'utf-8'));
+            const entry = (packsData.versions || []).find(e =>
+                e.runtimeGitHash?.startsWith(args['runtime-commit'])
+            );
+            if (entry) {
+                knownVersion = entry.version;
+                console.error(`  Found exact pack in runtime-packs.json: ${entry.version}`);
+            }
+        } catch {}
+
+        packResult = await resolveRuntimePack(args['runtime-commit'], {
             destDir: join(ARTIFACTS_DIR, 'runtime-packs'),
             strategy: 'closest-after',
+            knownVersion,
         });
-        console.error(`✓ Runtime pack resolved: ${result.version} (match: ${result.match})`);
-        console.error(`  Pack runtime commit: ${result.runtimeCommit?.substring(0, 12)}`);
+        console.error(`✓ Runtime pack resolved: ${packResult.version} (match: ${packResult.match})`);
+        console.error(`  Pack runtime commit: ${packResult.runtimeCommit?.substring(0, 12)}`);
 
-        // Update sdk-info.json with runtime pack info
+        // Derive the matching SDK version from the pack version
+        if (!args['sdk-version']) {
+            const derived = deriveSdkVersion(packResult.version);
+            if (derived) {
+                console.error(`  Derived SDK version: ${derived}`);
+                args['sdk-version'] = derived;
+                SDK_DIR = `${OS_PREFIX}.sdk${derived}${runtimeSuffix}`;
+                SDK_INFO_PATH = join(ARTIFACTS_DIR, SDK_DIR, 'sdk-info.json');
+            }
+        }
+    }
+
+    // Phase 1: Install SDK (using pack-derived version when applicable)
+    await resolveSDKPhase();
+
+    // Phase 1b: Apply runtime pack info to sdk-info.json
+    if (packResult) {
         const sdkInfo = JSON.parse(await readFile(SDK_INFO_PATH, 'utf-8'));
-        sdkInfo.runtimeGitHash = result.runtimeCommit || sdkInfo.runtimeGitHash;
-        sdkInfo.customRuntimePackVersion = result.version;
-        sdkInfo.customRuntimePackMatch = result.match;
+        sdkInfo.runtimeGitHash = packResult.runtimeCommit || sdkInfo.runtimeGitHash;
+        sdkInfo.customRuntimePackVersion = packResult.version;
+        sdkInfo.customRuntimePackMatch = packResult.match;
         await writeFile(SDK_INFO_PATH, JSON.stringify(sdkInfo, null, 2) + '\n');
 
         // Set env var for build-app.mjs
-        process.env.CUSTOM_RUNTIME_PACK_DIR = result.packDir;
+        process.env.CUSTOM_RUNTIME_PACK_DIR = packResult.packDir;
     }
 
     // Phase 2: Validate no workload pre-installed
@@ -331,6 +360,10 @@ async function main() {
 
     // Phase 6: Write build manifest
     await writeBuildManifest(allSucceeded);
+
+    // Copy sdk-info.json to results/ for run-bench.mjs discovery
+    const finalSdkInfo = await readFile(SDK_INFO_PATH, 'utf-8');
+    await writeFile(join(ARTIFACTS_DIR, 'results', 'sdk-info.json'), finalSdkInfo);
 
     console.error('\n✓ Build pipeline complete');
 }
