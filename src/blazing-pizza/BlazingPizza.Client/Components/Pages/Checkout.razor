@@ -1,7 +1,5 @@
 ﻿@page "/checkout"
 @using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
-@rendermode InteractiveWebAssembly
 @attribute [Authorize]
 @inject OrderState OrderState
 @inject IJSRuntime JSRuntime
@@ -76,14 +74,7 @@
 		var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
 		if (subscription is not null)
 		{
-			try
-			{
-				await Repository.SubscribeToNotifications(subscription);
-			}
-			catch (AccessTokenNotAvailableException ex)
-			{
-				ex.Redirect();
-			}
+			await Repository.SubscribeToNotifications(subscription);
 		}
 	}
 }

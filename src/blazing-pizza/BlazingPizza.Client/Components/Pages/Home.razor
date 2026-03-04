@@ -1,5 +1,4 @@
 ﻿@page "/"
-@rendermode InteractiveWebAssembly
 @inject IRepository PizzaStore
 @inject IJSRuntime JSRuntime
 @inject OrderState OrderState
@@ -52,11 +51,11 @@
 	</div>
 </div>
 
-<BlazingPizza.ComponentsLibrary.TemplatedDialog Show="OrderState.ShowingConfigureDialog">
+<TemplatedDialog Show="OrderState.ShowingConfigureDialog">
 	<ConfigurePizzaDialog Pizza="OrderState.ConfiguringPizza"
-												OnCancel="OrderState.CancelConfigurePizzaDialog"
-												OnConfirm="OrderState.ConfirmConfigurePizzaDialog" />
-</BlazingPizza.ComponentsLibrary.TemplatedDialog>
+										OnCancel="OrderState.CancelConfigurePizzaDialog"
+										OnConfirm="OrderState.ConfirmConfigurePizzaDialog" />
+</TemplatedDialog>
 
 @code {
 	List<PizzaSpecial>? specials;

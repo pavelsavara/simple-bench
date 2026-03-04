@@ -13,9 +13,4 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="$(MicrosoftAspNetCoreVersion)" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\BlazingPizza.ComponentsLibrary\BlazingPizza.ComponentsLibrary.csproj" />
-    <ProjectReference Include="..\BlazingPizza.Shared\BlazingPizza.Shared.csproj" />
-  </ItemGroup>
-
 </Project>
