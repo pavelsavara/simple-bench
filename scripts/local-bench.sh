@@ -99,17 +99,22 @@ err()    { echo -e "\033[0;31m✗ $1\033[0m" >&2; }
 # Fix ownership on artifacts so the host user can always read/delete them,
 # even when files were created by root inside Docker.
 fix_permissions() {
-    if [[ -d "$ARTIFACTS_DIR" ]]; then
-        docker run --rm -v "$ARTIFACTS_DIR:/a" "$BUILD_IMAGE" \
-            chmod -R a+rw /a 2>/dev/null || true
-    fi
+    local dirs=("${@:-results}")
+    for d in "${dirs[@]}"; do
+        local target="$ARTIFACTS_DIR/$d"
+        if [[ -d "$target" ]]; then
+            info "Fixing permissions on artifacts/$d..."
+            docker run --rm -v "$target:/a" "$BUILD_IMAGE" \
+                chmod -R a+rw /a 2>/dev/null || true
+        fi
+    done
 }
 
 # Clean artifacts subdirectories. Files may be owned by root (created inside
 # Docker), so fix permissions first.
 clean_artifacts() {
     local dirs=("$@")
-    fix_permissions
+    fix_permissions "${dirs[@]}"
     for d in "${dirs[@]}"; do
         rm -rf "$ARTIFACTS_DIR/$d"
     done
@@ -142,6 +147,7 @@ if [[ "$SKIP_BUILD" == false ]]; then
 
     # Clean previous artifacts (SDK must be fresh — leftover workload breaks validation)
     info "Cleaning artifacts/sdk and artifacts/publish..."
+    fix_permissions sdk publish
     clean_artifacts sdk publish
     mkdir -p "$ARTIFACTS_DIR"
 
@@ -171,7 +177,7 @@ if [[ "$SKIP_BUILD" == false ]]; then
         "
     BUILD_END=$(date +%s)
 
-    fix_permissions
+    fix_permissions sdk publish results
 
     if [[ ! -f "$MANIFEST_FILE" ]]; then
         err "Build manifest not found at $MANIFEST_FILE"
@@ -188,7 +194,7 @@ else
         err "No build manifest found. Run the build step first."
         exit 1
     fi
-    info "Reusing manifest: $(cat "$MANIFEST_FILE")"
+    info "Reusing manifest: $MANIFEST_FILE"
 fi
 
 # ── Step 3: Measure ──────────────────────────────────────────────────────────
@@ -257,7 +263,7 @@ for entry in json.load(sys.stdin):
         fi
         STEP_END=$(date +%s)
         info "[$CURRENT/$ENTRY_COUNT] $APP / $PRESET completed in $((STEP_END - STEP_START))s"
-        fix_permissions
+        fix_permissions results
     done
 
     MEASURE_TOTAL_END=$(date +%s)
