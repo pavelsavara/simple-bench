@@ -12,7 +12,7 @@
  * Output: runtime-packs.json in repo root
  *
  * Usage:
- *   node scripts/enumerate-runtime-packs.mjs [--major 11] [--force]
+ *   node scripts/enumerate-runtime-packs.mjs [--major 11] [--months 3] [--force]
  */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
@@ -35,10 +35,12 @@ const DEFAULT_MAJOR = 11;
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 function parseCliArgs() {
-    const args = { major: DEFAULT_MAJOR, force: false };
+    const args = { major: DEFAULT_MAJOR, months: 3, force: false };
     for (let i = 2; i < process.argv.length; i++) {
         if (process.argv[i] === '--major' && process.argv[i + 1]) {
             args.major = parseInt(process.argv[++i], 10);
+        } else if (process.argv[i] === '--months' && process.argv[i + 1]) {
+            args.months = parseInt(process.argv[++i], 10);
         } else if (process.argv[i] === '--force') {
             args.force = true;
         }
@@ -88,8 +90,14 @@ async function main() {
     const args = parseCliArgs();
     const major = args.major;
     const force = args.force;
+    const months = args.months;
 
-    console.log(`Enumerating runtime packs for .NET ${major}...`);
+    // Compute cutoff date for filtering
+    const cutoff = new Date();
+    cutoff.setMonth(cutoff.getMonth() - months);
+    const cutoffDate = cutoff.toISOString().slice(0, 10);
+
+    console.log(`Enumerating runtime packs for .NET ${major} (last ${months} months, since ${cutoffDate})...`);
 
     // Step 1: Load existing data for incremental resolution
     const existing = force ? new Map() : loadExisting();
@@ -97,9 +105,13 @@ async function main() {
         console.log(`  Loaded ${existing.size} previously resolved versions`);
     }
 
-    // Step 2: List all versions from the NuGet feed
-    const { flatBaseUrl, versions } = await listAvailablePackVersions(major);
-    console.log(`  Feed has ${versions.length} versions`);
+    // Step 2: List all versions from the NuGet feed, filtered to last N months
+    const { flatBaseUrl, versions: allVersions } = await listAvailablePackVersions(major);
+    const versions = allVersions.filter(v => {
+        const d = decodeBuildDate(v);
+        return d && d >= cutoffDate;
+    });
+    console.log(`  Feed has ${allVersions.length} versions, ${versions.length} within last ${months} months`);
 
     // Step 3: Identify new versions that need resolution
     const newVersions = versions.filter(v => !existing.has(v));

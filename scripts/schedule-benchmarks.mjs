@@ -198,7 +198,18 @@ function findMissingCommits(packs, existingHashes, sdkList, maxRecent) {
         return true;
     });
 
-    return missing;
+    // Deduplicate by runtimeGitHash (multiple pack versions can share the same commit).
+    // Keep the most recent pack (first in the already-sorted list) for each commit.
+    const seen = new Set();
+    const deduped = [];
+    for (const entry of missing) {
+        if (!seen.has(entry.runtimeGitHash)) {
+            seen.add(entry.runtimeGitHash);
+            deduped.push(entry);
+        }
+    }
+
+    return deduped;
 }
 
 // ── Step 5: Dispatch workflows ──────────────────────────────────────────────
