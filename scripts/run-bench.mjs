@@ -248,7 +248,7 @@ async function stepBuild() {
         if (sdkInfo.sdkVersion) {
             SDK_DIR = `${OS_PREFIX}.sdk${sdkInfo.sdkVersion}${runtimeSuffix}`;
         }
-    } catch {}
+    } catch { }
 
     if (isDocker) fixPermissions(SDK_DIR, 'publish', 'results');
 
@@ -409,7 +409,7 @@ async function main() {
             if (sdkInfo.sdkVersion) {
                 SDK_DIR = `${OS_PREFIX}.sdk${sdkInfo.sdkVersion}${runtimeSuffix}`;
             }
-        } catch {}
+        } catch { }
     }
 
     // Measure step

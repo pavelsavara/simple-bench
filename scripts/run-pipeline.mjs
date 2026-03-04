@@ -286,7 +286,7 @@ async function main() {
                 knownVersion = entry.version;
                 console.error(`  Found exact pack in runtime-packs.json: ${entry.version}`);
             }
-        } catch {}
+        } catch { }
 
         packResult = await resolveRuntimePack(args['runtime-commit'], {
             destDir: join(ARTIFACTS_DIR, 'runtime-packs'),
