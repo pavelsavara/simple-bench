@@ -44,10 +44,9 @@ RUN apt-get update && apt-get install -y \
 ENV DOTNET_ROOT=/opt/dotnet
 ENV PATH="${DOTNET_ROOT}:${PATH}"
 
-# Pre-install npm dependencies (build scripts need no npm packages, but
-# having node_modules present avoids errors if npm ci is run in CI)
-COPY docker/package-build.json ./package.json
-RUN npm install --omit=dev && rm -rf /root/.npm
+# Pre-install npm dependencies so CI and local-bench don't need npm ci
+COPY package.json package-lock.json ./
+RUN npm ci && rm -rf /root/.npm
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Stage: browser-bench-measure — JS engines + browsers for running benchmarks
@@ -67,8 +66,8 @@ RUN npm install -g jsvu@3.0.3 \
     && ln -s /root/.jsvu/bin/v8 /usr/local/bin/d8
 
 # Pre-install npm dependencies (playwright is the key dependency)
-COPY docker/package-measure.json ./package.json
-RUN npm install --omit=dev && rm -rf /root/.npm
+COPY package.json package-lock.json ./
+RUN npm ci && rm -rf /root/.npm
 
 # Playwright browsers — pinned to match package.json version
 RUN npx playwright install --with-deps chromium firefox

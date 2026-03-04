@@ -83,6 +83,13 @@ fi
 BUILD_IMAGE="browser-bench-build:latest"
 MEASURE_IMAGE="browser-bench-measure:latest"
 
+# ── Prerequisites ────────────────────────────────────────────────────────────
+
+if [[ ! -d "$REPO_DIR/node_modules" ]]; then
+    err "node_modules not found. Run 'npm ci' first."
+    exit 1
+fi
+
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
 banner() { echo -e "\n\033[1;36m═══ $1 ═══\033[0m"; }
@@ -156,7 +163,6 @@ if [[ "$SKIP_BUILD" == false ]]; then
         -e ARTIFACTS_DIR=/bench/artifacts \
         "$BUILD_IMAGE" \
         bash -c "
-            npm ci --ignore-scripts 2>&1 | tail -3
             node scripts/run-pipeline.mjs \
                 --sdk-channel '$SDK_CHANNEL' \
                 $SDK_VERSION_ARG \
@@ -234,7 +240,6 @@ for entry in json.load(sys.stdin):
             -e ARTIFACTS_DIR=/bench/artifacts \
             "$MEASURE_IMAGE" \
             bash -c "
-                npm ci 2>&1 | tail -3
                 node scripts/run-measure-job.mjs \
                     --app '$APP' \
                     --preset '$PRESET' \

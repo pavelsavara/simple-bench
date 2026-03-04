@@ -36,9 +36,8 @@ jobs:
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install npm dependencies
-        run: npm ci
+        with:
+          clean: false
 
       - name: Export container env to GitHub Actions
         shell: bash
@@ -95,7 +94,7 @@ jobs:
         if: always() && steps.matrix.outputs.matrix != '[]'
         shell: bash
         run: |
-          npm install --no-save @actions/artifact 2>&1 | tail -1
+          npm install --no-save @actions/artifact
           node --input-type=module << 'UPLOAD_SCRIPT'
           import { DefaultArtifactClient } from '@actions/artifact';
           import { readFileSync, readdirSync } from 'node:fs';
@@ -116,6 +115,7 @@ jobs:
             const manifestPath = join(artifactsDir, 'results', 'build-manifest.json');
             const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
             const client = new DefaultArtifactClient();
+            const failures = [];
 
             for (const { app, preset } of manifest) {
               const publishDir = join(artifactsDir, 'publish', app, preset);
@@ -124,6 +124,7 @@ jobs:
                 const files = getFilesRecursive(publishDir);
                 if (files.length === 0) {
                   console.log(`⚠ ${name}: no files, skipping`);
+                  failures.push(name);
                   continue;
                 }
                 console.log(`Uploading ${name} (${files.length} files)...`);
@@ -131,7 +132,13 @@ jobs:
                 console.log(`✓ ${name}: ${(size / 1024 / 1024).toFixed(1)} MB`);
               } catch (err) {
                 console.error(`✗ ${name}: ${err.message}`);
+                failures.push(name);
               }
+            }
+
+            if (failures.length > 0) {
+              console.error(`\n✗ ${failures.length} upload(s) failed: ${failures.join(', ')}`);
+              process.exit(1);
             }
           }
 
@@ -152,13 +159,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          clean: false
           sparse-checkout: |
             scripts/
             package.json
             package-lock.json
-
-      - name: Install npm dependencies
-        run: npm ci
 
       - name: Download SDK info
         uses: actions/download-artifact@v4
@@ -173,12 +178,15 @@ jobs:
           path: artifacts/results
 
       - name: Download build
+        id: download-build
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: build-${{ matrix.app }}-${{ matrix.preset }}
           path: artifacts/publish/${{ matrix.app }}/${{ matrix.preset }}
 
       - name: Run measurements
+        if: steps.download-build.outcome == 'success'
         shell: bash
         run: |
           node scripts/run-measure-job.mjs \
@@ -197,7 +205,7 @@ jobs:
 
       - name: Upload results
         uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && steps.download-build.outcome == 'success'
         with:
           name: results-${{ matrix.app }}-${{ matrix.preset }}
           path: artifacts/results/*.json
