@@ -1,5 +1,6 @@
 ﻿namespace Try.Core
 {
+    using System;
     using System.Collections.Generic;
     using Microsoft.AspNetCore.Razor.Language;
 
@@ -11,6 +12,6 @@
 
         public string FilePath { get; set; }
 
-        public IEnumerable<CompilationDiagnostic> Diagnostics { get; set; } = [];
+        public IEnumerable<CompilationDiagnostic> Diagnostics { get; set; } = Array.Empty<CompilationDiagnostic>();
     }
 }

@@ -55,4 +55,24 @@
     <FluentValidationVersion>12.1.1</FluentValidationVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(BenchmarkTargetFramework)' == 'net7.0'">
+    <WebPushVersion>1.0.12</WebPushVersion>
+    <MudBlazorVersion>6.21.0</MudBlazorVersion>
+    <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
+    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.24555.4</MicrosoftNetCompilersRazorToolsetVersion>
+    <MicrosoftAspNetCoreWebUtilitiesVersion>2.2.0</MicrosoftAspNetCoreWebUtilitiesVersion>
+    <BlazoredLocalStorageVersion>4.5.0</BlazoredLocalStorageVersion>
+    <FluentValidationVersion>11.11.0</FluentValidationVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(BenchmarkTargetFramework)' == 'net6.0'">
+    <WebPushVersion>1.0.12</WebPushVersion>
+    <MudBlazorVersion>6.21.0</MudBlazorVersion>
+    <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
+    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.24555.4</MicrosoftNetCompilersRazorToolsetVersion>
+    <MicrosoftAspNetCoreWebUtilitiesVersion>2.2.0</MicrosoftAspNetCoreWebUtilitiesVersion>
+    <BlazoredLocalStorageVersion>4.5.0</BlazoredLocalStorageVersion>
+    <FluentValidationVersion>11.11.0</FluentValidationVersion>
+  </PropertyGroup>
+
 </Project>

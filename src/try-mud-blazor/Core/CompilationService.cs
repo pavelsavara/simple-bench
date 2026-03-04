@@ -25,8 +25,8 @@
         public const string DefaultRootNamespace = "Try.UserComponents";
 
         private const string WorkingDirectory = "/TryMudBlazor/";
-        private static readonly string[] DefaultImports =
-        [
+        private static readonly string[] DefaultImports = new string[]
+        {
             "@using System.ComponentModel.DataAnnotations",
             "@using System.Linq",
             "@using System.Net.Http",
@@ -36,7 +36,7 @@
             "@using Microsoft.AspNetCore.Components.Web",
             "@using Microsoft.JSInterop",
             "@using MudBlazor"
-        ];
+        };
 
         private const string MudBlazorServices = @"
 <MudDialogProvider FullWidth=""true"" MaxWidth=""MaxWidth.ExtraSmall"" />
@@ -81,7 +81,7 @@
             };
 
             var assemblyNames = basicReferenceAssemblyRoots
-                .SelectMany(assembly => assembly.GetReferencedAssemblies().Concat([assembly.GetName()]))
+                .SelectMany(assembly => assembly.GetReferencedAssemblies().Concat(new[] { assembly.GetName() }))
                 .Select(assemblyName => assemblyName.Name!)
                 .ToHashSet();
 
@@ -290,7 +290,7 @@
             var (tempErrors, tempRef) = CompileToMetadataReference(declarations);
             if (tempErrors != null)
             {
-                return [tempErrors];
+                return new[] { tempErrors };
             }
 
             // Add the 'temp' compilation as a metadata reference

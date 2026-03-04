@@ -34,7 +34,11 @@
 
         private async Task ApplyUserPreferences()
         {
+#if NET8_0_OR_GREATER
             var defaultDarkMode = await _mudThemeProvider.GetSystemDarkModeAsync();
+#else
+            var defaultDarkMode = await _mudThemeProvider.GetSystemPreference();
+#endif
             await LayoutService.ApplyUserPreferences(defaultDarkMode);
         }
 
