@@ -4,6 +4,10 @@ on:
     workflows: ["Benchmark"]
     types: [completed]
 
+concurrency:
+  group: gh-pages-publish
+  cancel-in-progress: false
+
 jobs:
   consolidate:
     runs-on: ubuntu-latest
@@ -28,7 +32,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
       - name: Install dependencies
         run: cd repo && npm ci

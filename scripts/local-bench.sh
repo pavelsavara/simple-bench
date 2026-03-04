@@ -28,6 +28,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 ARTIFACTS_DIR="$REPO_DIR/artifacts"
 
+# ── Log file setup ───────────────────────────────────────────────────────────
+# Tee all output (stdout + stderr) to a log file for easier debugging.
+mkdir -p "$ARTIFACTS_DIR"
+LOG_FILE="$ARTIFACTS_DIR/local-bench.log"
+exec > >(tee -a "$LOG_FILE") 2>&1
+echo "" >> "$LOG_FILE"
+echo "═══ local-bench.sh started at $(date -u +%Y-%m-%dT%H:%M:%SZ) ═══" >> "$LOG_FILE"
+
 # ── Defaults ─────────────────────────────────────────────────────────────────
 
 SKIP_DOCKER=false
@@ -120,7 +128,7 @@ fi
 
 # ── Step 2: Build apps ───────────────────────────────────────────────────────
 
-MATRIX_FILE="$ARTIFACTS_DIR/results/build-matrix.json"
+MANIFEST_FILE="$ARTIFACTS_DIR/results/build-manifest.json"
 
 if [[ "$SKIP_BUILD" == false ]]; then
     banner "Step 2: Build all apps"
@@ -135,6 +143,7 @@ if [[ "$SKIP_BUILD" == false ]]; then
         SDK_VERSION_ARG="--sdk-version $SDK_VERSION"
     fi
 
+    BUILD_START=$(date +%s)
     info "Running build inside $BUILD_IMAGE..."
     docker run --rm \
         -v "$REPO_DIR:/bench" \
@@ -144,27 +153,30 @@ if [[ "$SKIP_BUILD" == false ]]; then
         bash -c "
             npm ci --ignore-scripts 2>&1 | tail -3
             node scripts/run-pipeline.mjs \
-                --build-only \
                 --sdk-channel '$SDK_CHANNEL' \
                 $SDK_VERSION_ARG \
                 --runtime mono
         "
+    BUILD_END=$(date +%s)
 
     fix_permissions
 
-    if [[ ! -f "$MATRIX_FILE" ]]; then
-        err "Build matrix not found at $MATRIX_FILE"
+    if [[ ! -f "$MANIFEST_FILE" ]]; then
+        err "Build manifest not found at $MANIFEST_FILE"
         exit 1
     fi
 
-    info "Build matrix: $(cat "$MATRIX_FILE")"
+    info "Build completed in $((BUILD_END - BUILD_START))s"
+    info "Build manifest: $(cat "$MANIFEST_FILE")"
     info "Build artifacts in $ARTIFACTS_DIR/publish/"
+    info "SDK info: $(cat "$ARTIFACTS_DIR/sdk/sdk-info.json" 2>/dev/null || echo 'not found')"
 else
     info "Skipping build (reusing $ARTIFACTS_DIR/publish/)"
-    if [[ ! -f "$MATRIX_FILE" ]]; then
-        err "No build matrix found. Run the build step first."
+    if [[ ! -f "$MANIFEST_FILE" ]]; then
+        err "No build manifest found. Run the build step first."
         exit 1
     fi
+    info "Reusing manifest: $(cat "$MANIFEST_FILE")"
 fi
 
 # ── Step 3: Measure ──────────────────────────────────────────────────────────
@@ -172,7 +184,7 @@ fi
 if [[ "$SKIP_MEASURE" == false ]]; then
     banner "Step 3: Run measurements"
 
-    MATRIX=$(cat "$MATRIX_FILE")
+    MATRIX=$(cat "$MANIFEST_FILE")
     SDK_INFO="$ARTIFACTS_DIR/sdk/sdk-info.json"
 
     if [[ ! -f "$SDK_INFO" ]]; then
@@ -180,7 +192,7 @@ if [[ "$SKIP_MEASURE" == false ]]; then
         exit 1
     fi
 
-    # Clear previous results
+    # Clear previous results (but keep build-manifest.json)
     mkdir -p "$ARTIFACTS_DIR/results"
 
     DRY_RUN_FLAG=""
@@ -191,6 +203,9 @@ if [[ "$SKIP_MEASURE" == false ]]; then
     ENTRY_COUNT=$(echo "$MATRIX" | python3 -c "import sys,json; print(len(json.load(sys.stdin)))")
     CURRENT=0
     FAILED=0
+    MEASURE_TOTAL_START=$(date +%s)
+
+    info "Measuring $ENTRY_COUNT app/preset combinations..."
 
     echo "$MATRIX" | python3 -c "
 import sys, json
@@ -205,6 +220,7 @@ for entry in json.load(sys.stdin):
         PUBLISH_DIR="/bench/artifacts/publish/$APP/$PRESET"
 
         info "[$CURRENT/$ENTRY_COUNT] Measuring $APP / $PRESET..."
+        STEP_START=$(date +%s)
 
         if ! docker run --rm \
             -v "$REPO_DIR:/bench" \
@@ -218,6 +234,7 @@ for entry in json.load(sys.stdin):
                     --preset '$PRESET' \
                     --publish-dir '$PUBLISH_DIR' \
                     --sdk-info /bench/artifacts/sdk/sdk-info.json \
+                    --build-manifest /bench/artifacts/results/build-manifest.json \
                     --output-dir /bench/artifacts/results \
                     --runtime mono \
                     --retries 3 \
@@ -227,10 +244,14 @@ for entry in json.load(sys.stdin):
             err "Measurement failed for $APP / $PRESET (continuing...)"
             FAILED=$((FAILED + 1))
         fi
+        STEP_END=$(date +%s)
+        info "[$CURRENT/$ENTRY_COUNT] $APP / $PRESET completed in $((STEP_END - STEP_START))s"
         fix_permissions
     done
 
+    MEASURE_TOTAL_END=$(date +%s)
     banner "Results"
+    info "Total measurement time: $((MEASURE_TOTAL_END - MEASURE_TOTAL_START))s"
     if ls "$ARTIFACTS_DIR/results/"*.json 1>/dev/null 2>&1; then
         echo "Result files:"
         ls -lh "$ARTIFACTS_DIR/results/"*.json
