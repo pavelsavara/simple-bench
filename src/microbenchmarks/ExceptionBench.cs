@@ -12,7 +12,7 @@ using System.Runtime.InteropServices.JavaScript;
 /// </summary>
 public static partial class ExceptionBench
 {
-    private const int Depth = 20;
+    private const int Depth = 10;
     private const int Iterations = 100;
 
     [JSExport]
@@ -34,16 +34,23 @@ public static partial class ExceptionBench
     }
 
     /// <summary>
-    /// Linear recursion to depth 20, then throws.
-    /// This creates a 20-frame managed stack for the exception to unwind through,
+    /// Linear recursion to depth 10, then throws.
+    /// This creates a 10-frame managed stack for the exception to unwind through,
     /// without the exponential blowup of tree-recursive Fibonacci.
     /// </summary>
     private static int Fib(int value, int depth)
     {
-        if (depth <= 0)
+        try
         {
-            throw new InvalidOperationException("bench: reached bottom of recursion");
+            if (depth <= 0)
+            {
+                throw new InvalidOperationException("bench: reached bottom of recursion");
+            }
+            return Fib(value, depth - 1) + depth;
         }
-        return Fib(value + 1, depth - 1) + depth;
+        catch (InvalidOperationException ex)
+        {
+            throw new InvalidOperationException($"bench: unwinding depth {depth}", ex);
+        }
     }
 }

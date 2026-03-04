@@ -151,6 +151,7 @@ async function validateNoWorkload() {
 async function buildApps(apps, presets, phaseLabel) {
     console.error(`\n═══ ${phaseLabel} ═══`);
     const runtime = args.runtime;
+    const succeeded = [];
     for (const app of apps) {
         for (const preset of presets) {
             // Skip invalid combinations
@@ -166,8 +167,10 @@ async function buildApps(apps, presets, phaseLabel) {
                 runtime,
                 preset,
             ], { label: `build ${app} (${runtime}/${preset})` });
+            succeeded.push({ app, preset });
         }
     }
+    return succeeded;
 }
 
 // ── Phase 4: Install workload & capture version ─────────────────────────────
