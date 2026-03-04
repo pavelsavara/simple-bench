@@ -37,7 +37,8 @@
 
 import { parseArgs } from 'node:util';
 import { readFile, mkdir } from 'node:fs/promises';
-import { resolve, join } from 'node:path';
+import { resolve, join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 
 // ── CLI args ────────────────────────────────────────────────────────────────
@@ -79,7 +80,7 @@ if (args.step) {
     }
 }
 
-const SCRIPT_DIR = new URL('.', import.meta.url).pathname;
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_DIR = resolve(SCRIPT_DIR, '..');
 const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR || join(REPO_DIR, 'artifacts');
 const MANIFEST_PATH = join(ARTIFACTS_DIR, 'results', 'build-manifest.json');
@@ -89,6 +90,28 @@ const BUILD_IMAGE = 'browser-bench-build:latest';
 const MEASURE_IMAGE = 'browser-bench-measure:latest';
 
 const isDocker = args.mode === 'docker';
+const IS_WINDOWS = process.platform === 'win32';
+
+/** Convert a Windows path to WSL /mnt/... path. No-op on non-Windows. */
+function toWslPath(winPath) {
+    if (!IS_WINDOWS) return winPath;
+    const resolved = resolve(winPath);
+    const match = resolved.match(/^([A-Za-z]):\\(.*)/);
+    if (!match) return resolved.replace(/\\/g, '/');
+    const drive = match[1].toLowerCase();
+    const rest = match[2].replace(/\\/g, '/');
+    return `/mnt/${drive}/${rest}`;
+}
+
+/** Execute a docker command, routing through WSL on Windows. */
+function dockerExec(dockerArgs, opts = {}) {
+    const execOpts = { stdio: 'inherit', cwd: REPO_DIR, ...opts };
+    if (IS_WINDOWS) {
+        execFileSync('wsl.exe', ['docker', ...dockerArgs], execOpts);
+    } else {
+        execFileSync('docker', dockerArgs, execOpts);
+    }
+}
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -105,16 +128,17 @@ function dockerRun(image, bashCommand, opts = {}) {
     const userArgs = image === MEASURE_IMAGE
         ? ['--user', `${process.getuid?.() ?? 1001}:${process.getgid?.() ?? 1001}`]
         : [];
-    execFileSync('docker', [
+    const repoMount = toWslPath(REPO_DIR);
+    dockerExec([
         'run', '--rm',
         ...userArgs,
-        '-v', `${REPO_DIR}:/bench`,
+        '-v', `${repoMount}:/bench`,
         '-w', '/bench',
         '-e', 'ARTIFACTS_DIR=/bench/artifacts',
         ...(opts.extraArgs || []),
         image,
         'bash', '-c', bashCommand,
-    ], { stdio: 'inherit', cwd: REPO_DIR });
+    ]);
 }
 
 /** Fix ownership on Docker-created artifacts so host user can access them. */
@@ -122,9 +146,10 @@ function fixPermissions(...dirs) {
     if (!isDocker) return;
     for (const d of dirs) {
         const target = join(ARTIFACTS_DIR, d);
+        const mountPath = toWslPath(target);
         try {
-            execFileSync('docker', [
-                'run', '--rm', '-v', `${target}:/a`, BUILD_IMAGE,
+            dockerExec([
+                'run', '--rm', '-v', `${mountPath}:/a`, BUILD_IMAGE,
                 'chmod', '-R', 'a+rw', '/a',
             ], { stdio: 'pipe' });
         } catch { /* ignore */ }
@@ -171,15 +196,17 @@ function measureJobArgs(app, preset, publishDir, sdkInfoPath, manifestPath) {
 
 async function stepDockerBuild() {
     banner('Docker image build');
+    const dockerfilePath = toWslPath(join(REPO_DIR, 'docker/Dockerfile'));
+    const contextPath = toWslPath(REPO_DIR);
     info(`Building ${BUILD_IMAGE}...`);
-    execInherit('docker', [
+    dockerExec([
         'build', '--target', 'browser-bench-build',
-        '-t', BUILD_IMAGE, '-f', join(REPO_DIR, 'docker/Dockerfile'), REPO_DIR,
+        '-t', BUILD_IMAGE, '-f', dockerfilePath, contextPath,
     ]);
     info(`Building ${MEASURE_IMAGE}...`);
-    execInherit('docker', [
+    dockerExec([
         'build', '--target', 'browser-bench-measure',
-        '-t', MEASURE_IMAGE, '-f', join(REPO_DIR, 'docker/Dockerfile'), REPO_DIR,
+        '-t', MEASURE_IMAGE, '-f', dockerfilePath, contextPath,
     ]);
     info('Docker images ready');
 }

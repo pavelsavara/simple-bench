@@ -39,7 +39,18 @@ if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
 }
 Info "Node.js $(node -v)"
 
-if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
+if ($IsWindows -or $env:OS -eq 'Windows_NT') {
+    if (-not (Get-Command wsl -ErrorAction SilentlyContinue)) {
+        Err 'WSL not found. Install WSL with Docker to use Docker mode on Windows.'
+        exit 1
+    }
+    $wslDocker = wsl docker --version 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        Err 'Docker not found inside WSL. Install Docker in your WSL distribution.'
+        exit 1
+    }
+    Info "WSL Docker: $wslDocker"
+} elseif (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
     Err 'Docker not found. Install Docker to use Docker mode.'
     exit 1
 }
