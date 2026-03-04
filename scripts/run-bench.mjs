@@ -83,7 +83,6 @@ if (args.step) {
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_DIR = resolve(SCRIPT_DIR, '..');
 const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR || join(REPO_DIR, 'artifacts');
-const MANIFEST_PATH = join(ARTIFACTS_DIR, 'results', 'build-manifest.json');
 
 const BUILD_IMAGE = 'browser-bench-build:latest';
 const MEASURE_IMAGE = 'browser-bench-measure:latest';
@@ -94,7 +93,20 @@ const OS_PREFIX = isDocker ? 'linux' : (IS_WINDOWS ? 'windows' : 'linux');
 const runtimeSuffix = args['runtime-commit'] ? `.${args['runtime-commit'].substring(0, 12)}` : '';
 const channelSuffix = args['sdk-version'] ? '' : `.${args['sdk-channel']}`;
 let SDK_DIR = `${OS_PREFIX}.sdk${args['sdk-version'] || ''}${channelSuffix}${runtimeSuffix}`;
-const SDK_INFO_PATH = join(ARTIFACTS_DIR, 'results', 'sdk-info.json');
+
+// Paths into the timestamped results run directory (set by discoverRunPaths)
+let RESULTS_RUN_DIR;
+let MANIFEST_PATH;
+let SDK_INFO_PATH;
+
+/** Read .run-id marker to discover the timestamped results directory. */
+async function discoverRunPaths() {
+    const runId = (await readFile(join(ARTIFACTS_DIR, 'results', '.run-id'), 'utf-8')).trim();
+    RESULTS_RUN_DIR = join(ARTIFACTS_DIR, 'results', runId);
+    MANIFEST_PATH = join(RESULTS_RUN_DIR, 'build-manifest.json');
+    SDK_INFO_PATH = join(RESULTS_RUN_DIR, 'sdk-info.json');
+    return runId;
+}
 
 /** Convert a Windows path to WSL /mnt/... path. No-op on non-Windows. */
 function toWslPath(winPath) {
@@ -243,7 +255,10 @@ async function stepBuild() {
         });
     }
 
-    // Update SDK_DIR from pipeline output (run-pipeline writes results/sdk-info.json)
+    // Discover the timestamped results directory written by run-pipeline
+    await discoverRunPaths();
+
+    // Update SDK_DIR from pipeline output
     try {
         const sdkInfo = JSON.parse(await readFile(SDK_INFO_PATH, 'utf-8'));
         if (sdkInfo.sdkVersion) {
@@ -259,7 +274,7 @@ async function stepBuild() {
     try {
         await readFile(MANIFEST_PATH);
     } catch {
-        err(`Build manifest not found at ${MANIFEST_PATH}`);
+        err(`Build manifest not found (looked in ${RESULTS_RUN_DIR})`);
         process.exit(1);
     }
 
@@ -278,6 +293,14 @@ async function stepMeasure() {
     banner('Run measurements');
 
     // Verify prerequisites
+    let runId;
+    try {
+        runId = await discoverRunPaths();
+    } catch {
+        err('.run-id not found — run the build step first.');
+        process.exit(1);
+    }
+
     try {
         await readFile(SDK_INFO_PATH);
     } catch {
@@ -316,9 +339,10 @@ async function stepMeasure() {
         const { app, preset } = entries[i];
         const prefix = isDocker ? '/bench/artifacts' : ARTIFACTS_DIR;
         const publishDir = `${prefix}/publish/${app}/${preset}`;
-        const sdkInfo = isDocker ? '/bench/artifacts/results/sdk-info.json' : SDK_INFO_PATH;
+        const dockerRunDir = `/bench/artifacts/results/${runId}`;
+        const sdkInfo = isDocker ? `${dockerRunDir}/sdk-info.json` : SDK_INFO_PATH;
         const manifestArg = isDocker
-            ? '/bench/artifacts/results/build-manifest.json'
+            ? `${dockerRunDir}/build-manifest.json`
             : MANIFEST_PATH;
 
         info(`[${i + 1}/${entries.length}] Measuring ${app} / ${preset}...`);
@@ -358,7 +382,7 @@ async function stepMeasure() {
     const { readdirSync } = await import('node:fs');
     try {
         const resultFiles = readdirSync(join(ARTIFACTS_DIR, 'results'))
-            .filter(f => f.endsWith('.json') && f !== 'build-manifest.json' && f !== 'build-matrix.json');
+            .filter(f => f.endsWith('.json'));
         if (resultFiles.length > 0) {
             console.error('Result files:');
             for (const f of resultFiles) console.error(`  ${f}`);
@@ -398,6 +422,12 @@ async function main() {
         await stepBuild();
     } else {
         info('Skipping build (reusing artifacts)');
+        try {
+            await discoverRunPaths();
+        } catch {
+            err('No .run-id found — run the build step first.');
+            process.exit(1);
+        }
         try {
             await readFile(MANIFEST_PATH);
         } catch {

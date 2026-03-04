@@ -47,13 +47,14 @@ $ArtifactsDir = Join-Path $RepoDir 'artifacts'
 if (-not (Test-Path $ArtifactsDir)) {
     New-Item -ItemType Directory -Path $ArtifactsDir -Force | Out-Null
 }
-$LogFile = Join-Path $ArtifactsDir 'local-bench.log'
-$LogTimestamp = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
+$LogTimestamp = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH-mm-ssZ')
+$LogFile = Join-Path $ArtifactsDir "local-bench.$LogTimestamp.log"
 Add-Content -Path $LogFile -Value "`n=== local-bench.ps1 started at $LogTimestamp ==="
 
 function Write-Log {
     param([string]$Message)
-    Add-Content -Path $LogFile -Value $Message
+    $ts = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
+    Add-Content -Path $LogFile -Value "$ts $Message"
 }
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
@@ -140,9 +141,13 @@ if (-not (Test-Path (Join-Path $RepoDir 'node_modules'))) {
 # ── Permission / cleanup helpers ─────────────────────────────────────────────
 
 function Fix-Permissions {
-    if (Test-Path $ArtifactsDir) {
-        $dockerPath = ConvertTo-DockerPath $ArtifactsDir
-        & docker run --rm -v "${dockerPath}:/a" $BuildImage chmod -R a+rw /a 2>$null
+    param([string[]]$Subdirs = @('publish', 'results'))
+    foreach ($sub in $Subdirs) {
+        $target = Join-Path $ArtifactsDir $sub
+        if (Test-Path $target) {
+            $dockerPath = ConvertTo-DockerPath $target
+            & docker run --rm -v "${dockerPath}:/a" $BuildImage chmod -R a+rw /a 2>$null
+        }
     }
 }
 
@@ -194,8 +199,6 @@ else {
 
 # ── Step 2: Build apps ───────────────────────────────────────────────────────
 
-$ManifestFile = Join-Path $ArtifactsDir 'results/build-manifest.json'
-
 if (-not $SkipBuild) {
     Banner 'Step 2: Build all apps'
 
@@ -232,6 +235,17 @@ if (-not $SkipBuild) {
     $buildEnd = Get-Date
     Fix-Permissions
 
+    # Discover timestamped results directory written by run-pipeline
+    $RunIdFile = Join-Path $ArtifactsDir 'results/.run-id'
+    if (-not (Test-Path $RunIdFile)) {
+        Err '.run-id not found — build pipeline did not complete successfully.'
+        exit 1
+    }
+    $RunId = (Get-Content $RunIdFile -Raw).Trim()
+    $ResultsRunDir = Join-Path $ArtifactsDir "results/$RunId"
+    $ManifestFile = Join-Path $ResultsRunDir 'build-manifest.json'
+    $sdkInfoPath = Join-Path $ResultsRunDir 'sdk-info.json'
+
     if (-not (Test-Path $ManifestFile)) {
         Err "Build manifest not found at $ManifestFile"
         exit 1
@@ -240,7 +254,6 @@ if (-not $SkipBuild) {
     $buildDuration = [int]($buildEnd - $buildStart).TotalSeconds
     Info "Build completed in ${buildDuration}s"
     Info "Build manifest: $(Get-Content $ManifestFile -Raw)"
-    $sdkInfoPath = Join-Path $ArtifactsDir 'results/sdk-info.json'
     if (Test-Path $sdkInfoPath) {
         Info "SDK info: $(Get-Content $sdkInfoPath -Raw)"
     }
@@ -250,6 +263,15 @@ if (-not $SkipBuild) {
 }
 else {
     Info "Skipping build (reusing $ArtifactsDir\publish\)"
+    $RunIdFile = Join-Path $ArtifactsDir 'results/.run-id'
+    if (-not (Test-Path $RunIdFile)) {
+        Err '.run-id not found — run the build step first.'
+        exit 1
+    }
+    $RunId = (Get-Content $RunIdFile -Raw).Trim()
+    $ResultsRunDir = Join-Path $ArtifactsDir "results/$RunId"
+    $ManifestFile = Join-Path $ResultsRunDir 'build-manifest.json'
+    $sdkInfoPath = Join-Path $ResultsRunDir 'sdk-info.json'
     if (-not (Test-Path $ManifestFile)) {
         Err 'No build manifest found. Run the build step first.'
         exit 1
@@ -263,10 +285,9 @@ if (-not $SkipMeasure) {
     Banner 'Step 3: Run measurements'
 
     $matrix = Get-Content $ManifestFile -Raw | ConvertFrom-Json
-    $sdkInfoFile = Join-Path $ArtifactsDir 'results/sdk-info.json'
 
-    if (-not (Test-Path $sdkInfoFile)) {
-        Err "sdk-info.json not found at $sdkInfoFile — run the build step first."
+    if (-not (Test-Path $sdkInfoPath)) {
+        Err "sdk-info.json not found at $sdkInfoPath — run the build step first."
         exit 1
     }
 
@@ -306,8 +327,8 @@ if (-not $SkipMeasure) {
             "--app '$appName'",
             "--preset '$presetName'",
             "--publish-dir '$publishDir'",
-            "--sdk-info /bench/artifacts/results/sdk-info.json",
-            "--build-manifest /bench/artifacts/results/build-manifest.json",
+            "--sdk-info /bench/artifacts/results/$RunId/sdk-info.json",
+            "--build-manifest /bench/artifacts/results/$RunId/build-manifest.json",
             "--output-dir /bench/artifacts/results",
             "--runtime mono",
             "--retries 3",

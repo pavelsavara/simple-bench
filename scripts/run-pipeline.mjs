@@ -61,6 +61,10 @@ const channelSuffix = args['sdk-version'] ? '' : `.${args['sdk-channel']}`;
 let SDK_DIR = `${OS_PREFIX}.sdk${args['sdk-version'] || ''}${channelSuffix}${runtimeSuffix}`;
 let SDK_INFO_PATH = join(ARTIFACTS_DIR, SDK_DIR, 'sdk-info.json');
 
+// Run ID = UTC timestamp used to namespace results for this pipeline run
+const RUN_TIMESTAMP = new Date().toISOString().replace(/:/g, '-').replace(/\.\d+Z$/, 'Z');
+const RESULTS_RUN_DIR = join(ARTIFACTS_DIR, 'results', RUN_TIMESTAMP);
+
 // Parse comma-separated filters into sets (empty = no filter)
 const appFilter = args.app ? new Set(args.app.split(',').map(s => s.trim())) : null;
 const presetFilter = args.preset ? new Set(args.preset.split(',').map(s => s.trim())) : null;
@@ -255,8 +259,8 @@ async function writeBuildManifest(builds) {
         manifest.push({ app, preset, compileTimeMs, integrity });
     }
 
-    await mkdir(join(ARTIFACTS_DIR, 'results'), { recursive: true });
-    const manifestPath = join(ARTIFACTS_DIR, 'results', 'build-manifest.json');
+    await mkdir(RESULTS_RUN_DIR, { recursive: true });
+    const manifestPath = join(RESULTS_RUN_DIR, 'build-manifest.json');
     await writeFile(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
     console.error(`\n✓ Build manifest written to ${manifestPath}`);
     return manifest;
@@ -362,11 +366,14 @@ async function main() {
     // Phase 6: Write build manifest
     await writeBuildManifest(allSucceeded);
 
-    // Copy sdk-info.json to results/ for run-bench.mjs discovery
+    // Copy sdk-info.json to results run dir for discovery
     const finalSdkInfo = await readFile(SDK_INFO_PATH, 'utf-8');
-    await writeFile(join(ARTIFACTS_DIR, 'results', 'sdk-info.json'), finalSdkInfo);
+    await writeFile(join(RESULTS_RUN_DIR, 'sdk-info.json'), finalSdkInfo);
 
-    console.error('\n✓ Build pipeline complete');
+    // Write run-id marker so callers can discover the timestamped dir
+    await writeFile(join(ARTIFACTS_DIR, 'results', '.run-id'), RUN_TIMESTAMP);
+
+    console.error(`\n✓ Build pipeline complete (run: ${RUN_TIMESTAMP})`);
 }
 
 main().catch(err => {
