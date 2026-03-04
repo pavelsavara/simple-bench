@@ -40,11 +40,11 @@ if [[ ! -d "$REPO_DIR/node_modules" ]]; then
     (cd "$REPO_DIR" && npm ci)
 fi
 
-# Install Playwright browsers if needed (check for headless shell directory)
+# Install Playwright browsers if needed
 PW_CACHE="${PLAYWRIGHT_BROWSERS_PATH:-$HOME/.cache/ms-playwright}"
-if [[ ! -d "$PW_CACHE"/chromium_headless_shell-* ]]; then
+if ! compgen -G "$PW_CACHE/chromium_headless_shell-*" &>/dev/null; then
     info "Playwright browsers not found — installing..."
-    npx playwright install --with-deps chromium firefox
+    npx playwright install chromium firefox
 fi
 
 # ── Delegate to JS orchestrator ──────────────────────────────────────────────

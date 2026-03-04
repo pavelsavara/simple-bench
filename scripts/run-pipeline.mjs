@@ -21,7 +21,7 @@
  *   --sdk-channel <ch>       SDK channel (default: 11.0)
  *   --sdk-version <ver>      Specific SDK version (default: latest from channel)
  *   --runtime <rt>           Runtime to benchmark (default: mono)
- *   --dry-run                Build only empty-browser app (fast validation)
+ *   --dry-run                Build only empty-browser app + debug preset (fast validation)
  *   --app <list>             Comma-separated app filter (e.g. empty-browser,try-mud-blazor)
  *   --preset <list>          Comma-separated preset filter (e.g. debug,aot)
  */
@@ -60,6 +60,9 @@ const SDK_INFO_PATH = join(ARTIFACTS_DIR, 'sdk', 'sdk-info.json');
 // Parse comma-separated filters into sets (empty = no filter)
 const appFilter = args.app ? new Set(args.app.split(',').map(s => s.trim())) : null;
 const presetFilter = args.preset ? new Set(args.preset.split(',').map(s => s.trim())) : null;
+// In dry-run mode, default to debug preset only (unless explicit --preset given)
+const effectivePresetFilter = presetFilter
+    || (args['dry-run'] ? new Set(['debug']) : null);
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -150,7 +153,7 @@ async function buildApps(apps, presets, phaseLabel) {
     for (const app of apps) {
         for (const preset of presets) {
             // Apply preset filter
-            if (presetFilter && !presetFilter.has(preset)) continue;
+            if (effectivePresetFilter && !effectivePresetFilter.has(preset)) continue;
 
             // Skip invalid combinations
             try {
@@ -308,7 +311,7 @@ async function main() {
 
     // Phase 4: Install workload + capture version
     // Skip workload install if preset filter excludes all workload presets
-    const needWorkload = !presetFilter || workload.some(p => presetFilter.has(p));
+    const needWorkload = !effectivePresetFilter || workload.some(p => effectivePresetFilter.has(p));
     if (needWorkload) {
         await installWorkload();
     } else {

@@ -30,7 +30,7 @@
  *   --skip-measure         Skip the measure step
  *   --skip-docker          Skip Docker image rebuild (docker mode only)
  *   --step <name>          Run only one step: build | measure | docker-build
- *   --dry-run              Chrome only for measure, empty-browser only for build (unless --app)
+ *   --dry-run              Chrome only, debug preset only (unless --app/--preset override)
  *   --retries <n>          Measurement retry count (default: 3)
  *   --timeout <ms>         Per-measurement timeout (default: 300000)
  */
@@ -142,6 +142,7 @@ function buildPipelineArgs() {
     if (args['runtime-commit']) pArgs.push('--runtime-commit', args['runtime-commit']);
     if (args.app) pArgs.push('--app', args.app);
     if (args.preset) pArgs.push('--preset', args.preset);
+    else if (args['dry-run']) pArgs.push('--preset', 'debug');
     // In dry-run mode without explicit --app filter, pass --dry-run to build
     if (args['dry-run'] && !args.app) pArgs.push('--dry-run');
     return pArgs;
@@ -254,7 +255,9 @@ async function stepMeasure() {
 
     // Parse comma-separated app/preset filters
     const appFilter = args.app ? new Set(args.app.split(',').map(s => s.trim())) : null;
-    const presetFilter = args.preset ? new Set(args.preset.split(',').map(s => s.trim())) : null;
+    const presetFilter = args.preset
+        ? new Set(args.preset.split(',').map(s => s.trim()))
+        : args['dry-run'] ? new Set(['debug']) : null;
 
     // Filter manifest entries
     const entries = manifest.filter(entry => {
@@ -335,7 +338,7 @@ async function main() {
     if (args.preset) info(`Preset filter: ${args.preset}`);
     if (args.engine) info(`Engine filter: ${args.engine}`);
     if (args.runtime !== 'mono') info(`Runtime: ${args.runtime}`);
-    if (args['dry-run']) info('Dry-run mode (chrome only)');
+    if (args['dry-run']) info('Dry-run mode (chrome only, debug preset only)');
 
     // Docker image build (docker mode only)
     if (isDocker && !args['skip-docker'] && (!args.step || args.step === 'docker-build')) {
