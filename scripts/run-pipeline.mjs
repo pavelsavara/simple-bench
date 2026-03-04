@@ -21,6 +21,7 @@
  *   --sdk-channel <ch>       SDK channel (default: 11.0)
  *   --sdk-version <ver>      Specific SDK version (default: latest from channel)
  *   --runtime <rt>           Runtime to benchmark (default: mono)
+ *   --dry-run                Build only empty-browser app (fast validation)
  */
 
 import { parseArgs } from 'node:util';
@@ -39,6 +40,7 @@ const { values: args } = parseArgs({
         'sdk-version': { type: 'string', default: '' },
         'runtime': { type: 'string', default: 'mono' },
         'runtime-commit': { type: 'string', default: '' },
+        'dry-run': { type: 'boolean', default: false },
     },
     strict: true,
 });
@@ -293,8 +295,13 @@ async function main() {
     await validateNoWorkload();
 
     // Discover apps
-    const apps = await discoverApps();
-    console.error(`\nDiscovered apps: ${apps.join(', ')}`);
+    let apps = await discoverApps();
+    if (args['dry-run']) {
+        apps = apps.filter(a => a === 'empty-browser');
+        console.error(`\nDry-run mode: building only ${apps.join(', ')}`);
+    } else {
+        console.error(`\nDiscovered apps: ${apps.join(', ')}`);
+    }
 
     // Phase 3: Build non-workload presets (no wasm-tools needed)
     const phase3 = await buildApps(apps, nonWorkload, 'Phase 3: Build non-workload presets');

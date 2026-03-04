@@ -51,7 +51,8 @@ jobs:
             --sdk-channel "${{ inputs.sdk_channel || '11.0' }}" \
             ${{ inputs.sdk_version && format('--sdk-version "{0}"', inputs.sdk_version) || '' }} \
             ${{ inputs.runtime_commit && format('--runtime-commit "{0}"', inputs.runtime_commit) || '' }} \
-            --runtime mono
+            --runtime mono \
+            ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 
       - name: Set matrix output
         id: matrix
