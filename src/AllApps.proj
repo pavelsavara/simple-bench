@@ -18,8 +18,8 @@
 
   <ItemGroup>
     <ProjectReference Include="blazing-pizza\BlazingPizza.Client.csproj" />
-    <ProjectReference Include="empty-blazor\empty-blazor.csproj" />
-    <ProjectReference Include="empty-browser\empty-browser.csproj" />
+    <ProjectReference Include="empty-blazor\EmptyBlazor.csproj" />
+    <ProjectReference Include="empty-browser\EmptyBrowser.csproj" />
     <ProjectReference Include="microbenchmarks\MicroBenchmarks.csproj" />
     <ProjectReference Include="try-mud-blazor\TryMudBlazor.Client.csproj" />
   </ItemGroup>
