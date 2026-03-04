@@ -1,10 +1,19 @@
 <Project>
 
   <PropertyGroup>
-    <DefaultTargetFramework>net11.0</DefaultTargetFramework>
+    <BenchmarkTargetFramework Condition="'$(BenchmarkTargetFramework)' == ''">net11.0</BenchmarkTargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(BenchmarkTargetFramework)' == 'net11.0'">
     <MicrosoftAspNetCoreVersion>11.0.0-alpha.1.26064.118</MicrosoftAspNetCoreVersion>
     <MicrosoftEntityFrameworkCoreVersion>11.0.0-alpha.1.26064.118</MicrosoftEntityFrameworkCoreVersion>
     <WebPushVersion>1.0.12</WebPushVersion>
+    <MudBlazorVersion>9.1.0</MudBlazorVersion>
+    <MicrosoftCodeAnalysisCSharpVersion>4.13.0-2.24555.1</MicrosoftCodeAnalysisCSharpVersion>
+    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.24555.4</MicrosoftNetCompilersRazorToolsetVersion>
+    <BlazoredLocalStorageVersion>4.5.0</BlazoredLocalStorageVersion>
+    <FluentValidationVersion>12.1.1</FluentValidationVersion>
+    <MicrosoftAspNetCoreWebUtilitiesVersion>10.0.3</MicrosoftAspNetCoreWebUtilitiesVersion>
   </PropertyGroup>
 
 </Project>

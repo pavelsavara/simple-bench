@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
-    <TargetFramework>$(DefaultTargetFramework)</TargetFramework>
+    <TargetFramework>$(BenchmarkTargetFramework)</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
@@ -12,12 +12,12 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="$(MicrosoftAspNetCoreVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="$(MicrosoftAspNetCoreVersion)" />
-    <PackageReference Include="MudBlazor" Version="*" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0-2.24555.1" />
-    <PackageReference Include="Microsoft.Net.Compilers.Razor.Toolset" Version="9.0.0-preview.24555.4" PrivateAssets="all" IncludeAssets="none" GeneratePathProperty="true" />
-    <PackageReference Include="Blazored.LocalStorage" Version="*" />
-    <PackageReference Include="FluentValidation" Version="*" />
-    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="*" />
+    <PackageReference Include="MudBlazor" Version="$(MudBlazorVersion)" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(MicrosoftCodeAnalysisCSharpVersion)" />
+    <PackageReference Include="Microsoft.Net.Compilers.Razor.Toolset" Version="$(MicrosoftNetCompilersRazorToolsetVersion)" PrivateAssets="all" IncludeAssets="none" GeneratePathProperty="true" />
+    <PackageReference Include="Blazored.LocalStorage" Version="$(BlazoredLocalStorageVersion)" />
+    <PackageReference Include="FluentValidation" Version="$(FluentValidationVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="$(MicrosoftAspNetCoreWebUtilitiesVersion)" />
   </ItemGroup>
 
   <ItemGroup>
