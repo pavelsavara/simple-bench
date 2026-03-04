@@ -156,7 +156,7 @@ async function validateNoWorkload() {
 
 // ── Phase 3 / 5: Build apps ─────────────────────────────────────────────────
 
-async function buildApps(apps, presets, phaseLabel) {
+async function buildApps(apps, presets, phaseLabel, commitDate) {
     console.error(`\n═══ ${phaseLabel} ═══`);
     const runtime = args.runtime;
     const succeeded = [];
@@ -177,6 +177,7 @@ async function buildApps(apps, presets, phaseLabel) {
                     app,
                     runtime,
                     preset,
+                    commitDate,
                     artifactsDir: ARTIFACTS_DIR,
                 });
                 succeeded.push({ app, preset });
@@ -239,12 +240,13 @@ async function computeIntegrity(dir) {
 
 // ── Build manifest ──────────────────────────────────────────────────────────
 
-async function writeBuildManifest(builds) {
+async function writeBuildManifest(builds, commitDate) {
     console.error('\n═══ Phase 6: Write build manifest ═══');
+    const dateSegment = commitDate || 'local';
     const manifest = [];
 
     for (const { app, preset } of builds) {
-        const publishDir = join(ARTIFACTS_DIR, 'publish', app, preset);
+        const publishDir = join(ARTIFACTS_DIR, 'publish', app, dateSegment, preset);
         const compileTimePath = join(publishDir, 'compile-time.json');
 
         let compileTimeMs = null;
@@ -345,8 +347,12 @@ async function main() {
         console.error(`\nDiscovered apps: ${apps.join(', ')}`);
     }
 
+    // Read commitDate from sdk-info.json for path hierarchy
+    const sdkInfoForDate = JSON.parse(await readFile(SDK_INFO_PATH, 'utf-8'));
+    const commitDate = sdkInfoForDate.commitDate || null;
+
     // Phase 3: Build non-workload presets
-    const phase3 = await buildApps(apps, nonWorkload, 'Phase 3: Build non-workload presets');
+    const phase3 = await buildApps(apps, nonWorkload, 'Phase 3: Build non-workload presets', commitDate);
 
     // Phase 4: Install workload + capture version
     // Skip workload install if preset filter excludes all workload presets
@@ -359,14 +365,14 @@ async function main() {
 
     // Phase 5: Build workload/native presets
     const phase5 = needWorkload
-        ? await buildApps(apps, workload, 'Phase 5: Build workload/native presets')
+        ? await buildApps(apps, workload, 'Phase 5: Build workload/native presets', commitDate)
         : [];
 
     const allSucceeded = [...phase3, ...phase5];
     console.error(`\n✓ ${allSucceeded.length} builds succeeded`);
 
     // Phase 6: Write build manifest
-    await writeBuildManifest(allSucceeded);
+    await writeBuildManifest(allSucceeded, commitDate);
 
     // Copy sdk-info.json to results run dir for discovery
     const finalSdkInfo = await readFile(SDK_INFO_PATH, 'utf-8');

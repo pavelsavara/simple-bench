@@ -4,8 +4,8 @@
  * JS port of build-app.sh. Can be imported as a library or run as a script.
  *
  * Output:
- *   - Published app in artifacts/publish/{app}/{preset}/
- *   - Compile time in artifacts/publish/{app}/{preset}/compile-time.json
+ *   - Published app in artifacts/publish/{app}/{commitDate}/{preset}/
+ *   - Compile time in artifacts/publish/{app}/{commitDate}/{preset}/compile-time.json
  *
  * Usage as script:
  *   node scripts/lib/build-app.mjs --app empty-browser --runtime mono --preset devloop
@@ -16,7 +16,7 @@ import { writeFile, rm, mkdir, readdir } from 'node:fs/promises';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
-import { getPublishArgs, validateCombination, PRESET_MAP } from './build-config.mjs';
+import { getPublishArgs, validateCombination } from './build-config.mjs';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_DIR = resolve(SCRIPT_DIR, '..', '..');
@@ -78,24 +78,29 @@ function resolveAppDir(app, sdkMajor) {
  * @param {string} options.app           App name (e.g. 'empty-browser')
  * @param {string} options.runtime       Runtime flavor ('mono' or 'coreclr')
  * @param {string} options.preset        Build preset name (e.g. 'devloop', 'aot')
+ * @param {string} [options.commitDate]  Commit date segment for artifact paths (e.g. '2026-06-02')
  * @param {string} [options.artifactsDir] Artifacts directory (default: env or ./artifacts)
  * @param {string} [options.customRuntimePackDir] Optional custom runtime pack directory
  * @returns {Promise<{compileTimeMs: number, publishDir: string}>}
  */
-export async function buildApp({ app, runtime, preset, artifactsDir, customRuntimePackDir }) {
+export async function buildApp({ app, runtime, preset, commitDate, artifactsDir, customRuntimePackDir }) {
     validateCombination(runtime, preset);
 
     const effectiveArtifactsDir = artifactsDir
         || process.env.ARTIFACTS_DIR
         || join(REPO_DIR, 'artifacts');
 
+    const dateSegment = commitDate || 'local';
     const dotnetBin = findDotnet();
     const sdkMajor = detectSdkMajor(dotnetBin);
     const appDir = resolveAppDir(app, sdkMajor);
-    const publishDir = join(effectiveArtifactsDir, 'publish', app, preset);
+    const publishDir = join(effectiveArtifactsDir, 'publish', app, dateSegment, preset);
 
     // Get publish arguments from build-config
     const publishArgs = getPublishArgs(runtime, preset, appDir, publishDir);
+
+    // Pass CommitDate to MSBuild so bin/obj paths match
+    publishArgs.push(`/p:CommitDate=${dateSegment}`);
 
     // Append custom runtime pack if specified
     if (customRuntimePackDir || process.env.CUSTOM_RUNTIME_PACK_DIR) {
@@ -104,14 +109,9 @@ export async function buildApp({ app, runtime, preset, artifactsDir, customRunti
         console.error(`Using custom runtime pack: ${packDir}`);
     }
 
-    // Clean publish, bin, and obj directories for this combination
-    const benchPreset = PRESET_MAP[preset];
+    // Clean publish directory for this combination
     await rm(publishDir, { recursive: true, force: true });
     await mkdir(publishDir, { recursive: true });
-    if (benchPreset) {
-        const presetArtifacts = join(effectiveArtifactsDir, benchPreset);
-        await rm(presetArtifacts, { recursive: true, force: true });
-    }
 
     console.error(`Building ${app} (runtime=${runtime}, preset=${preset})...`);
     console.error(`  dotnet ${publishArgs.join(' ')}`);

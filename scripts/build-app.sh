@@ -2,26 +2,27 @@
 # build-app.sh — Build and publish a sample app with MSBuild flags
 #
 # Usage:
-#   ./scripts/build-app.sh <app> <runtime> <preset>
+#   ./scripts/build-app.sh <app> <runtime> <preset> [commit-date]
 #
 # Examples:
 #   ./scripts/build-app.sh empty-browser coreclr no-workload
-#   ./scripts/build-app.sh empty-blazor mono aot
+#   ./scripts/build-app.sh empty-blazor mono aot 2026-06-02
 #
-# Output: published app in artifacts/publish/{app}/{preset}/
-#         compile time in artifacts/publish/{app}/{preset}/compile-time.json
+# Output: published app in artifacts/publish/{app}/{commit-date}/{preset}/
+#         compile time in artifacts/publish/{app}/{commit-date}/{preset}/compile-time.json
 
 set -euo pipefail
 
-APP="${1:?Usage: build-app.sh <app> <runtime> <preset>}"
-RUNTIME="${2:?Usage: build-app.sh <app> <runtime> <preset>}"
-PRESET="${3:?Usage: build-app.sh <app> <runtime> <preset>}"
+APP="${1:?Usage: build-app.sh <app> <runtime> <preset> [commit-date]}"
+RUNTIME="${2:?Usage: build-app.sh <app> <runtime> <preset> [commit-date]}"
+PRESET="${3:?Usage: build-app.sh <app> <runtime> <preset> [commit-date]}"
+COMMIT_DATE="${4:-local}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 ARTIFACTS_DIR="${ARTIFACTS_DIR:-$REPO_DIR/artifacts}"
 APP_DIR="$REPO_DIR/src/$APP"
-PUBLISH_DIR="$ARTIFACTS_DIR/publish/$APP/$PRESET"
+PUBLISH_DIR="$ARTIFACTS_DIR/publish/$APP/$COMMIT_DATE/$PRESET"
 
 # Ensure dotnet is available
 DOTNET="${DOTNET_ROOT:-}/dotnet"
