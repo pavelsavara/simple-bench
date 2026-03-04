@@ -25,7 +25,10 @@
         <a class="dismiss">🗙</a>
     </div>
 
-    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="_framework/blazor.webassembly.js" autostart="false"></script>
+    <script>
+        Blazor.start().then(() => { globalThis.dotnet_managed_ready = performance.now(); });
+    </script>
     <script src="localStorage.js"></script>
     <script src="pushNotifications.js"></script>
     <script src="deliveryMap.js"></script>

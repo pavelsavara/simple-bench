@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { METRICS, EXTERNAL_METRICS, INTERNAL_METRICS } from '../../scripts/lib/metrics.mjs';
 
 describe('METRICS registry', () => {
-    it('has 11 metric definitions', () => {
-        assert.equal(Object.keys(METRICS).length, 11);
+    it('has 12 metric definitions', () => {
+        assert.equal(Object.keys(METRICS).length, 12);
     });
 
     it('all entries have displayName, unit, and category', () => {
@@ -30,8 +30,8 @@ describe('METRICS registry', () => {
         }
     });
 
-    it('EXTERNAL_METRICS has 8 entries', () => {
-        assert.equal(EXTERNAL_METRICS.length, 8);
+    it('EXTERNAL_METRICS has 9 entries', () => {
+        assert.equal(EXTERNAL_METRICS.length, 9);
     });
 
     it('INTERNAL_METRICS has 3 entries', () => {
@@ -42,7 +42,7 @@ describe('METRICS registry', () => {
         const expected = [
             'compile-time', 'disk-size-total', 'disk-size-wasm',
             'disk-size-dlls', 'download-size-total', 'time-to-reach-managed', 'time-to-reach-managed-cold',
-            'memory-peak',
+            'memory-peak', 'pizza-walkthru',
         ];
         for (const key of expected) {
             assert.ok(EXTERNAL_METRICS.includes(key), `Missing external metric: ${key}`);

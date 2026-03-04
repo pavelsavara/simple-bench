@@ -1,27 +1,34 @@
 ﻿<!DOCTYPE html>
 <html class="mud-height-full">
+
 <head prefix="og: http://ogp.me/ns#">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>TryMudBlazor - A playground for testing MudBlazor components in the browser</title>
     <base href="/" />
 
-    <meta name="description" content="TryMudBlazor is a fiddle-like platform for writing, compiling, executing and sharing Blazor components entirely in the browser. Perfect for code playground and testing.">
-    <meta name="keywords" content="blazor, asp.net core, wasm, web assembly, browser, fiddle, online, compile, execute, share, component, write, front-end, playground, testing, code, single page application, dotnet, csharp, html, open-source, platform">
+    <meta name="description"
+        content="TryMudBlazor is a fiddle-like platform for writing, compiling, executing and sharing Blazor components entirely in the browser. Perfect for code playground and testing.">
+    <meta name="keywords"
+        content="blazor, asp.net core, wasm, web assembly, browser, fiddle, online, compile, execute, share, component, write, front-end, playground, testing, code, single page application, dotnet, csharp, html, open-source, platform">
     <meta name="author" content="MudBlazor">
 
-    <meta property="og:title" content="TryMudBlazor - Write, compile, execute and share Blazor components in the browser" />
+    <meta property="og:title"
+        content="TryMudBlazor - Write, compile, execute and share Blazor components in the browser" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://mudblazor.com/" />
     <meta property="og:image" content="https://mudblazor.com/_content/MudBlazor.Docs/images/logo.png" />
     <meta property="og:image:width" content="300" />
     <meta property="og:image:height" content="300" />
-    <meta property="og:description" content="TryMudBlazor is a fiddle-like platform for writing, compiling, executing and sharing Blazor components entirely in the browser. Perfect for code playground and testing." />
+    <meta property="og:description"
+        content="TryMudBlazor is a fiddle-like platform for writing, compiling, executing and sharing Blazor components entirely in the browser. Perfect for code playground and testing." />
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://mudblazor.com/">
-    <meta name="twitter:title" content="TryMudBlazor - Write, compile, execute and share Blazor components in the browser">
-    <meta name="twitter:description" content="TryMudBlazor is a fiddle-like platform for writing, compiling, executing and sharing Blazor components entirely in the browser. Perfect for code playground and testing.">
+    <meta name="twitter:title"
+        content="TryMudBlazor - Write, compile, execute and share Blazor components in the browser">
+    <meta name="twitter:description"
+        content="TryMudBlazor is a fiddle-like platform for writing, compiling, executing and sharing Blazor components entirely in the browser. Perfect for code playground and testing.">
     <meta name="twitter:image" content="https://mudblazor.com/_content/MudBlazor.Docs/images/logo.png">
 
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -89,7 +96,8 @@
                     }
                 }));
             }
-        }).catch(error => console.error(error));
+        }).then(() => { globalThis.dotnet_managed_ready = performance.now(); })
+            .catch(error => console.error(error));
 
         function updateIframeTheme() {
             const mudblazorTheme = parent.document.querySelector('.mud-theme-provider') || parent.document.getElementsByTagName('style')[3];
@@ -104,8 +112,8 @@
 
                     if (iFrameTheme) {
                         iFrameTheme.innerHTML = mudblazorTheme.innerHTML;
-                    } 
-                } 
+                    }
+                }
             } else {
                 console.error('Could not find the parent theme element.');
             }
