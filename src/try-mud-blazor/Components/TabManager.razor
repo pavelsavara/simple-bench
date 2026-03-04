@@ -15,7 +15,7 @@
                                 @tab
                                 @if (currentIndex != DefaultActiveIndex)
                                 {
-                                    <MudIconButton data-testid="close-tab-@tab" Icon="@Icons.Material.Filled.Close" Color="Color.Inherit" Size="Size.Small" OnClick="@(() => CloseTabAsync(currentIndex))" Class="ml-4 mr-n2" />
+                                    <MudIconButton data-testid="@($"close-tab-{tab}")" Icon="@Icons.Material.Filled.Close" Color="Color.Inherit" Size="Size.Small" OnClick="@(() => CloseTabAsync(currentIndex))" Class="ml-4 mr-n2" />
                                 }
                             </div>
                         }

@@ -37,7 +37,11 @@ const INTERNAL_APPS = new Set(['microbenchmarks']);
 const ALL_BROWSER_ENGINES = ['chrome', 'firefox'];
 const ALL_CLI_ENGINES = ['v8', 'node'];
 
-function getEnginesForApp(app, isDryRun) {
+function getEnginesForApp(app, isDryRun, engineFilter) {
+    // If explicit engine filter provided, use it (comma-separated)
+    if (engineFilter) {
+        return engineFilter.split(',').map(s => s.trim());
+    }
     if (isDryRun) return ['chrome'];
     if (BROWSER_ONLY_APPS.has(app)) return ALL_BROWSER_ENGINES;
     return [...ALL_BROWSER_ENGINES, ...ALL_CLI_ENGINES];
@@ -57,6 +61,7 @@ const { values: args } = parseArgs({
         'timeout': { type: 'string', default: '300000' },
         'retries': { type: 'string', default: '3' },
         'dry-run': { type: 'boolean', default: false },
+        'engine': { type: 'string', default: '' },
         'ci-run-id': { type: 'string', default: '' },
         'ci-run-url': { type: 'string', default: '' },
     },
@@ -142,7 +147,7 @@ await verifyIntegrity();
 
 // ── Determine engines and script ────────────────────────────────────────────
 
-const engines = getEnginesForApp(app, args['dry-run']);
+const engines = getEnginesForApp(app, args['dry-run'], args.engine);
 const isInternal = INTERNAL_APPS.has(app);
 const measureScript = isInternal ? 'measure-internal.mjs' : 'measure-external.mjs';
 

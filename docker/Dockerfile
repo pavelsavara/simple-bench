@@ -44,7 +44,7 @@ RUN apt-get update && apt-get install -y \
 ENV DOTNET_ROOT=/opt/dotnet
 ENV PATH="${DOTNET_ROOT}:${PATH}"
 
-# Pre-install npm dependencies so CI and local-bench don't need npm ci
+# Pre-install npm dependencies so CI and local-docker-bench don't need npm ci
 COPY package.json package-lock.json ./
 RUN npm ci && rm -rf /root/.npm
 

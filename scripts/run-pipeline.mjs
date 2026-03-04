@@ -22,6 +22,8 @@
  *   --sdk-version <ver>      Specific SDK version (default: latest from channel)
  *   --runtime <rt>           Runtime to benchmark (default: mono)
  *   --dry-run                Build only empty-browser app (fast validation)
+ *   --app <list>             Comma-separated app filter (e.g. empty-browser,try-mud-blazor)
+ *   --preset <list>          Comma-separated preset filter (e.g. debug,aot)
  */
 
 import { parseArgs } from 'node:util';
@@ -31,6 +33,8 @@ import { execFileSync } from 'node:child_process';
 import { getPresetGroups, validateCombination } from './lib/build-config.mjs';
 import { parseWorkloadVersion, isWorkloadInstalled } from './lib/sdk-info.mjs';
 import { resolveRuntimePack } from './lib/runtime-pack-resolver.mjs';
+import { resolveSDK } from './lib/resolve-sdk.mjs';
+import { buildApp } from './lib/build-app.mjs';
 
 // ── CLI args ────────────────────────────────────────────────────────────────
 
@@ -41,6 +45,8 @@ const { values: args } = parseArgs({
         'runtime': { type: 'string', default: 'mono' },
         'runtime-commit': { type: 'string', default: '' },
         'dry-run': { type: 'boolean', default: false },
+        'app': { type: 'string', default: '' },
+        'preset': { type: 'string', default: '' },
     },
     strict: true,
 });
@@ -51,7 +57,19 @@ const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR || join(REPO_DIR, 'artifacts');
 const APPS_DIR = join(REPO_DIR, 'src');
 const SDK_INFO_PATH = join(ARTIFACTS_DIR, 'sdk', 'sdk-info.json');
 
+// Parse comma-separated filters into sets (empty = no filter)
+const appFilter = args.app ? new Set(args.app.split(',').map(s => s.trim())) : null;
+const presetFilter = args.preset ? new Set(args.preset.split(',').map(s => s.trim())) : null;
+
 // ── Helpers ─────────────────────────────────────────────────────────────────
+
+function runCapture(cmd, cmdArgs) {
+    return execFileSync(cmd, cmdArgs, {
+        encoding: 'utf-8',
+        env: process.env,
+        cwd: REPO_DIR,
+    }).trim();
+}
 
 function run(cmd, cmdArgs, { label, env: extraEnv } = {}) {
     const displayCmd = `${cmd} ${cmdArgs.join(' ')}`;
@@ -66,14 +84,6 @@ function run(cmd, cmdArgs, { label, env: extraEnv } = {}) {
         console.error(`✗ Failed: ${label || displayCmd}`);
         throw err;
     }
-}
-
-function runCapture(cmd, cmdArgs) {
-    return execFileSync(cmd, cmdArgs, {
-        encoding: 'utf-8',
-        env: process.env,
-        cwd: REPO_DIR,
-    }).trim();
 }
 
 function dotnet() {
@@ -92,7 +102,7 @@ async function discoverApps() {
     const apps = [];
     for (const entry of entries) {
         if (!entry.isDirectory()) continue;
-        // Skip variant project directories (used as build-time redirects by build-app.sh)
+        // Skip variant project directories (used as build-time redirects)
         if (entry.name.endsWith('-v6v7')) continue;
         const appDir = join(APPS_DIR, entry.name);
         const files = await readdir(appDir);
@@ -106,18 +116,13 @@ async function discoverApps() {
 
 // ── Phase 1: Resolve SDK ────────────────────────────────────────────────────
 
-async function resolveSDK() {
+async function resolveSDKPhase() {
     console.error('\n═══ Phase 1: Resolve .NET SDK ═══');
-    run('bash', [
-        join(SCRIPT_DIR, 'resolve-sdk.sh'),
-        args['sdk-channel'],
-        args['sdk-version'],
-    ], { label: `resolve-sdk.sh ${args['sdk-channel']} ${args['sdk-version']}` });
-
-    // Update process.env so child processes (build-app.sh, dotnet) find the SDK
-    const sdkDir = join(ARTIFACTS_DIR, 'sdk');
-    process.env.DOTNET_ROOT = sdkDir;
-    process.env.PATH = `${sdkDir}:${process.env.PATH}`;
+    await resolveSDK({
+        channel: args['sdk-channel'],
+        sdkVersion: args['sdk-version'],
+        installDir: join(ARTIFACTS_DIR, 'sdk'),
+    });
 }
 
 // ── Phase 2: Validate no workload installed ─────────────────────────────────
@@ -144,6 +149,9 @@ async function buildApps(apps, presets, phaseLabel) {
     const succeeded = [];
     for (const app of apps) {
         for (const preset of presets) {
+            // Apply preset filter
+            if (presetFilter && !presetFilter.has(preset)) continue;
+
             // Skip invalid combinations
             try {
                 validateCombination(runtime, preset);
@@ -152,12 +160,12 @@ async function buildApps(apps, presets, phaseLabel) {
                 continue;
             }
             try {
-                run('bash', [
-                    join(SCRIPT_DIR, 'build-app.sh'),
+                await buildApp({
                     app,
                     runtime,
                     preset,
-                ], { label: `build ${app} (${runtime}/${preset})` });
+                    artifactsDir: ARTIFACTS_DIR,
+                });
                 succeeded.push({ app, preset });
             } catch {
                 console.error(`  ⚠ Build failed for ${app}/${preset}, skipping`);
@@ -197,11 +205,6 @@ async function installWorkload() {
 
 // ── Integrity computation ───────────────────────────────────────────────────
 
-/**
- * Walk a directory and compute file count + total byte size.
- * @param {string} dir Absolute path
- * @returns {Promise<{fileCount: number, totalBytes: number}>}
- */
 async function computeIntegrity(dir) {
     let fileCount = 0;
     let totalBytes = 0;
@@ -223,10 +226,6 @@ async function computeIntegrity(dir) {
 
 // ── Build manifest ──────────────────────────────────────────────────────────
 
-/**
- * Enrich build entries with compile-time and integrity data,
- * then write build-manifest.json.
- */
 async function writeBuildManifest(builds) {
     console.error('\n═══ Phase 6: Write build manifest ═══');
     const manifest = [];
@@ -235,7 +234,6 @@ async function writeBuildManifest(builds) {
         const publishDir = join(ARTIFACTS_DIR, 'publish', app, preset);
         const compileTimePath = join(publishDir, 'compile-time.json');
 
-        // Read compile time
         let compileTimeMs = null;
         try {
             const ct = JSON.parse(await readFile(compileTimePath, 'utf-8'));
@@ -244,7 +242,6 @@ async function writeBuildManifest(builds) {
             console.error(`  ⚠ Could not read compile-time.json for ${app}/${preset}`);
         }
 
-        // Compute integrity
         const integrity = await computeIntegrity(publishDir);
         console.error(`  ${app}/${preset}: ${integrity.fileCount} files, ${(integrity.totalBytes / 1024 / 1024).toFixed(1)} MB, compile ${compileTimeMs ?? '?'}ms`);
 
@@ -268,17 +265,15 @@ async function main() {
     const { nonWorkload, workload } = getPresetGroups();
 
     // Phase 1: Install SDK
-    await resolveSDK();
+    await resolveSDKPhase();
 
     // Phase 1b: Resolve custom runtime pack (if --runtime-commit specified)
-    let customRuntimePackDir = '';
     if (args['runtime-commit']) {
         console.error('\n═══ Phase 1b: Resolve custom runtime pack ═══');
         const result = await resolveRuntimePack(args['runtime-commit'], {
             destDir: join(ARTIFACTS_DIR, 'runtime-packs'),
             strategy: 'closest-after',
         });
-        customRuntimePackDir = result.packDir;
         console.error(`✓ Runtime pack resolved: ${result.version} (match: ${result.match})`);
         console.error(`  Pack runtime commit: ${result.runtimeCommit?.substring(0, 12)}`);
 
@@ -289,35 +284,46 @@ async function main() {
         sdkInfo.customRuntimePackMatch = result.match;
         await writeFile(SDK_INFO_PATH, JSON.stringify(sdkInfo, null, 2) + '\n');
 
-        // Set env var for build-app.sh
-        process.env.CUSTOM_RUNTIME_PACK_DIR = customRuntimePackDir;
+        // Set env var for build-app.mjs
+        process.env.CUSTOM_RUNTIME_PACK_DIR = result.packDir;
     }
 
-    // Phase 2: Validate no workload pre-installed (ensures clean SDK image)
+    // Phase 2: Validate no workload pre-installed
     await validateNoWorkload();
 
-    // Discover apps
+    // Discover apps (apply --app filter and --dry-run)
     let apps = await discoverApps();
-    if (args['dry-run']) {
+    if (appFilter) {
+        apps = apps.filter(a => appFilter.has(a));
+        console.error(`\nApp filter: building ${apps.join(', ')}`);
+    } else if (args['dry-run']) {
         apps = apps.filter(a => a === 'empty-browser');
         console.error(`\nDry-run mode: building only ${apps.join(', ')}`);
     } else {
         console.error(`\nDiscovered apps: ${apps.join(', ')}`);
     }
 
-    // Phase 3: Build non-workload presets (no wasm-tools needed)
+    // Phase 3: Build non-workload presets
     const phase3 = await buildApps(apps, nonWorkload, 'Phase 3: Build non-workload presets');
 
     // Phase 4: Install workload + capture version
-    await installWorkload();
+    // Skip workload install if preset filter excludes all workload presets
+    const needWorkload = !presetFilter || workload.some(p => presetFilter.has(p));
+    if (needWorkload) {
+        await installWorkload();
+    } else {
+        console.error('\n═══ Phase 4: Skipping workload install (filtered out) ═══');
+    }
 
-    // Phase 5: Build workload/native presets (WasmBuildNative=true / AOT / etc.)
-    const phase5 = await buildApps(apps, workload, 'Phase 5: Build workload/native presets');
+    // Phase 5: Build workload/native presets
+    const phase5 = needWorkload
+        ? await buildApps(apps, workload, 'Phase 5: Build workload/native presets')
+        : [];
 
     const allSucceeded = [...phase3, ...phase5];
     console.error(`\n✓ ${allSucceeded.length} builds succeeded`);
 
-    // Phase 6: Write build manifest with compile-time + integrity
+    // Phase 6: Write build manifest
     await writeBuildManifest(allSucceeded);
 
     console.error('\n✓ Build pipeline complete');

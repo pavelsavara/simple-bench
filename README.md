@@ -61,10 +61,10 @@ docs/                 Design documents (model, pipeline, views, UI)
 npm ci && npm test
 
 # Full pipeline simulation with Docker
-./scripts/local-bench.sh --dry-run    # chrome-only, like PR validation
+./scripts/local-docker-bench.sh --dry-run    # chrome-only, like PR validation
 
 # Re-measure only (skip rebuild)
-./scripts/local-bench.sh --skip-docker --skip-build --app empty-browser --preset debug
+./scripts/local-docker-bench.sh --skip-docker --skip-build --app empty-browser --preset debug
 ```
 
 See [agent.md](agent.md) for detailed instructions.
