@@ -2,15 +2,18 @@
 
 ## Feed
 
-Internal CI builds publish NuGet packages to Azure Artifacts transport feeds.
-For the `main` branch (currently .NET 11), the feed is:
+Internal CI builds publish NuGet packages to Azure Artifacts feeds.
+For the `main` branch (currently .NET 11), the feed with daily runtime pack builds is:
 
 ```
-https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet11-transport/nuget/v3/index.json
+https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet11/nuget/v3/index.json
 ```
 
-For .NET 10 (`release/10.0` branches), use `dotnet10-transport` instead.
+For .NET 10 (`release/10.0` branches), use `dotnet10` instead.
 These feeds are public (no auth required).
+
+> **Note:** There are also `dotnet11-transport` feeds, but these are used for
+> SDK-level dependency flow and may not contain runtime pack packages.
 
 ## Steps
 

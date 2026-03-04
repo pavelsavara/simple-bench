@@ -30,6 +30,7 @@ import { resolve, join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { getPresetGroups, validateCombination } from './lib/build-config.mjs';
 import { parseWorkloadVersion, isWorkloadInstalled } from './lib/sdk-info.mjs';
+import { resolveRuntimePack } from './lib/runtime-pack-resolver.mjs';
 
 // ── CLI args ────────────────────────────────────────────────────────────────
 
@@ -265,6 +266,29 @@ async function main() {
 
     // Phase 1: Install SDK
     await resolveSDK();
+
+    // Phase 1b: Resolve custom runtime pack (if --runtime-commit specified)
+    let customRuntimePackDir = '';
+    if (args['runtime-commit']) {
+        console.error('\n═══ Phase 1b: Resolve custom runtime pack ═══');
+        const result = await resolveRuntimePack(args['runtime-commit'], {
+            destDir: join(ARTIFACTS_DIR, 'runtime-packs'),
+            strategy: 'closest-after',
+        });
+        customRuntimePackDir = result.packDir;
+        console.error(`✓ Runtime pack resolved: ${result.version} (match: ${result.match})`);
+        console.error(`  Pack runtime commit: ${result.runtimeCommit?.substring(0, 12)}`);
+
+        // Update sdk-info.json with runtime pack info
+        const sdkInfo = JSON.parse(await readFile(SDK_INFO_PATH, 'utf-8'));
+        sdkInfo.runtimeGitHash = result.runtimeCommit || sdkInfo.runtimeGitHash;
+        sdkInfo.customRuntimePackVersion = result.version;
+        sdkInfo.customRuntimePackMatch = result.match;
+        await writeFile(SDK_INFO_PATH, JSON.stringify(sdkInfo, null, 2) + '\n');
+
+        // Set env var for build-app.sh
+        process.env.CUSTOM_RUNTIME_PACK_DIR = customRuntimePackDir;
+    }
 
     // Phase 2: Validate no workload pre-installed (ensures clean SDK image)
     await validateNoWorkload();
