@@ -23,7 +23,8 @@
 
 import { parseArgs } from 'node:util';
 import { readFile, readdir, stat, mkdir } from 'node:fs/promises';
-import { resolve, join } from 'node:path';
+import { resolve, join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 
 // ── Engine routing ──────────────────────────────────────────────────────────
@@ -76,7 +77,7 @@ for (const name of required) {
     }
 }
 
-const SCRIPT_DIR = new URL('.', import.meta.url).pathname;
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const app = args.app;
 const preset = args.preset;
 const runtime = args.runtime;

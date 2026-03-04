@@ -28,8 +28,9 @@
 
 import { parseArgs } from 'node:util';
 import { readdir, readFile, writeFile, stat, mkdir } from 'node:fs/promises';
-import { resolve, join } from 'node:path';
+import { resolve, join, dirname } from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { getPresetGroups, validateCombination } from './lib/build-config.mjs';
 import { parseWorkloadVersion, isWorkloadInstalled } from './lib/sdk-info.mjs';
 import { resolveRuntimePack, deriveSdkVersion } from './lib/runtime-pack-resolver.mjs';
@@ -51,7 +52,7 @@ const { values: args } = parseArgs({
     strict: true,
 });
 
-const SCRIPT_DIR = new URL('.', import.meta.url).pathname;
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_DIR = resolve(SCRIPT_DIR, '..');
 const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR || join(REPO_DIR, 'artifacts');
 const APPS_DIR = join(REPO_DIR, 'src');
@@ -98,7 +99,8 @@ function run(cmd, cmdArgs, { label, env: extraEnv } = {}) {
 }
 
 function dotnet() {
-    const p = join(ARTIFACTS_DIR, SDK_DIR, 'dotnet');
+    const exe = process.platform === 'win32' ? 'dotnet.exe' : 'dotnet';
+    const p = join(ARTIFACTS_DIR, SDK_DIR, exe);
     try {
         execFileSync(p, ['--version'], { stdio: 'ignore' });
         return p;

@@ -19,6 +19,7 @@
 import { execFileSync } from 'node:child_process';
 import { readFile, writeFile, mkdir, chmod } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import {
     parseBuildDate,
@@ -91,6 +92,9 @@ function parseManifest(manifestJson) {
 export async function resolveSDK({ channel, sdkVersion, installDir }) {
     await mkdir(installDir, { recursive: true });
 
+    const isWindows = process.platform === 'win32';
+    const pathSep = isWindows ? ';' : ':';
+
     // ── Skip download if SDK is already installed ────────────────────────
     const sdkInfoPath = join(installDir, 'sdk-info.json');
     try {
@@ -99,7 +103,7 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
             console.error(`SDK already installed at ${installDir} (${existing.sdkVersion}), skipping download.`);
             // Still set env vars so subsequent steps find the SDK
             process.env.DOTNET_ROOT = installDir;
-            process.env.PATH = `${installDir}:${process.env.PATH}`;
+            process.env.PATH = `${installDir}${pathSep}${process.env.PATH}`;
             process.env.DOTNET_NOLOGO = 'true';
             const nugetDir = join(installDir, '..', 'nuget-packages');
             await mkdir(nugetDir, { recursive: true });
@@ -108,29 +112,44 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
         }
     } catch { /* sdk-info.json missing or invalid — proceed with install */ }
 
-    // ── Download and run dotnet-install.sh ───────────────────────────────
-    const installScript = join(installDir, 'dotnet-install.sh');
-    console.error('Downloading dotnet-install.sh...');
-    await downloadToFile('https://dot.net/v1/dotnet-install.sh', installScript);
-    await chmod(installScript, 0o755);
+    // ── Download and run dotnet-install script ─────────────────────────
+    const installScript = join(installDir, isWindows ? 'dotnet-install.ps1' : 'dotnet-install.sh');
+    const installUrl = isWindows
+        ? 'https://dot.net/v1/dotnet-install.ps1'
+        : 'https://dot.net/v1/dotnet-install.sh';
+    console.error(`Downloading ${isWindows ? 'dotnet-install.ps1' : 'dotnet-install.sh'}...`);
+    await downloadToFile(installUrl, installScript);
+    if (!isWindows) await chmod(installScript, 0o755);
 
-    const installArgs = ['--install-dir', installDir];
+    const installArgs = isWindows
+        ? ['-InstallDir', installDir]
+        : ['--install-dir', installDir];
     if (sdkVersion) {
         console.error(`Installing .NET SDK ${sdkVersion}...`);
-        installArgs.push('--version', sdkVersion);
+        installArgs.push(isWindows ? '-Version' : '--version', sdkVersion);
     } else {
         console.error(`Installing latest .NET SDK from channel ${channel} (daily quality)...`);
-        installArgs.push('--channel', channel, '--quality', 'daily');
+        installArgs.push(
+            isWindows ? '-Channel' : '--channel', channel,
+            isWindows ? '-Quality' : '--quality', 'daily',
+        );
     }
 
-    execFileSync('bash', [installScript, ...installArgs], {
-        stdio: 'inherit',
-        env: { ...process.env, DOTNET_ROOT: installDir },
-    });
+    if (isWindows) {
+        execFileSync('powershell', ['-ExecutionPolicy', 'Bypass', '-File', installScript, ...installArgs], {
+            stdio: 'inherit',
+            env: { ...process.env, DOTNET_ROOT: installDir },
+        });
+    } else {
+        execFileSync('bash', [installScript, ...installArgs], {
+            stdio: 'inherit',
+            env: { ...process.env, DOTNET_ROOT: installDir },
+        });
+    }
 
     // Update env for subsequent calls
     process.env.DOTNET_ROOT = installDir;
-    process.env.PATH = `${installDir}:${process.env.PATH}`;
+    process.env.PATH = `${installDir}${pathSep}${process.env.PATH}`;
     process.env.DOTNET_NOLOGO = 'true';
 
     // Place NuGet cache inside artifacts so it's isolated and reproducible
@@ -146,7 +165,7 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
     }
 
     // ── Extract version and commit info ──────────────────────────────────
-    const dotnetBin = join(installDir, 'dotnet');
+    const dotnetBin = join(installDir, isWindows ? 'dotnet.exe' : 'dotnet');
     const resolvedVersion = runCapture(dotnetBin, ['--version']);
     const dotnetInfo = runCapture(dotnetBin, ['--info']);
 
@@ -216,7 +235,7 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
 // ── CLI entry point ─────────────────────────────────────────────────────────
 // Allow running directly: node scripts/lib/resolve-sdk.mjs --channel 11.0
 
-const isMain = process.argv[1] && resolve(process.argv[1]) === resolve(new URL(import.meta.url).pathname);
+const isMain = process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url));
 if (isMain) {
     const { values } = parseArgs({
         options: {

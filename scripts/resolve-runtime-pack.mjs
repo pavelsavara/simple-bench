@@ -24,7 +24,8 @@
  */
 
 import { parseArgs } from 'node:util';
-import { resolve, join } from 'node:path';
+import { resolve, join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { resolveRuntimePack } from './lib/runtime-pack-resolver.mjs';
 
 const { values: opts, positionals } = parseArgs({
@@ -44,7 +45,7 @@ if (!runtimeCommit) {
     process.exit(1);
 }
 
-const REPO_DIR = resolve(new URL('.', import.meta.url).pathname, '..');
+const REPO_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR || join(REPO_DIR, 'artifacts');
 
 const destDir = opts.dest || join(ARTIFACTS_DIR, 'runtime-packs');

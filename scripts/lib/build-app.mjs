@@ -13,11 +13,12 @@
 
 import { execFileSync } from 'node:child_process';
 import { writeFile, rm, mkdir, readdir } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { join, resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { getPublishArgs, validateCombination, PRESET_MAP } from './build-config.mjs';
 
-const SCRIPT_DIR = new URL('.', import.meta.url).pathname;
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_DIR = resolve(SCRIPT_DIR, '..', '..');
 
 /**
@@ -40,8 +41,9 @@ function detectSdkMajor(dotnetBin) {
  * Resolve the dotnet binary path.
  */
 function findDotnet() {
+    const exe = process.platform === 'win32' ? 'dotnet.exe' : 'dotnet';
     const fromEnv = process.env.DOTNET_ROOT
-        ? join(process.env.DOTNET_ROOT, 'dotnet')
+        ? join(process.env.DOTNET_ROOT, exe)
         : null;
     if (fromEnv) {
         try {
@@ -143,7 +145,7 @@ export async function buildApp({ app, runtime, preset, artifactsDir, customRunti
 
 // ── CLI entry point ─────────────────────────────────────────────────────────
 
-const isMain = process.argv[1] && resolve(process.argv[1]) === resolve(new URL(import.meta.url).pathname);
+const isMain = process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url));
 if (isMain) {
     const { values } = parseArgs({
         options: {
