@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>$(DefaultTargetFramework)</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
+    <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="$(MicrosoftAspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="$(MicrosoftAspNetCoreVersion)" />
+    <PackageReference Include="MudBlazor" Version="*" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0-2.24555.1" />
+    <PackageReference Include="Microsoft.Net.Compilers.Razor.Toolset" Version="9.0.0-preview.24555.4" PrivateAssets="all" IncludeAssets="none" GeneratePathProperty="true" />
+    <PackageReference Include="Blazored.LocalStorage" Version="*" />
+    <PackageReference Include="FluentValidation" Version="*" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="$(PkgMicrosoft_Net_Compilers_Razor_Toolset)\source-generators\Microsoft.CodeAnalysis.Razor.Compiler.dll" />
+  </ItemGroup>
+
+</Project>
