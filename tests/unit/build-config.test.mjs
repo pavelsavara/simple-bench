@@ -36,31 +36,31 @@ describe('mapRuntimeFlavor', () => {
 
 describe('getPresetArgs', () => {
     it('no-workload → /p:BenchmarkPreset=NoWorkload', () => {
-        assert.deepEqual(getPresetArgs('no-workload'), ['/p:BenchmarkPreset=NoWorkload']);
+        assert.deepEqual(getPresetArgs('no-workload'), ['/p:BenchmarkPreset=NoWorkload', '-c', 'Release']);
     });
 
     it('aot → /p:BenchmarkPreset=Aot', () => {
-        assert.deepEqual(getPresetArgs('aot'), ['/p:BenchmarkPreset=Aot']);
+        assert.deepEqual(getPresetArgs('aot'), ['/p:BenchmarkPreset=Aot', '-c', 'Release']);
     });
 
     it('native-relink → /p:BenchmarkPreset=NativeRelink', () => {
-        assert.deepEqual(getPresetArgs('native-relink'), ['/p:BenchmarkPreset=NativeRelink']);
+        assert.deepEqual(getPresetArgs('native-relink'), ['/p:BenchmarkPreset=NativeRelink', '-c', 'Release']);
     });
 
     it('invariant → /p:BenchmarkPreset=Invariant', () => {
-        assert.deepEqual(getPresetArgs('invariant'), ['/p:BenchmarkPreset=Invariant']);
+        assert.deepEqual(getPresetArgs('invariant'), ['/p:BenchmarkPreset=Invariant', '-c', 'Release']);
     });
 
     it('no-reflection-emit → /p:BenchmarkPreset=NoReflectionEmit', () => {
-        assert.deepEqual(getPresetArgs('no-reflection-emit'), ['/p:BenchmarkPreset=NoReflectionEmit']);
+        assert.deepEqual(getPresetArgs('no-reflection-emit'), ['/p:BenchmarkPreset=NoReflectionEmit', '-c', 'Release']);
     });
 
     it('no-jiterp → /p:BenchmarkPreset=NoJiterp', () => {
-        assert.deepEqual(getPresetArgs('no-jiterp'), ['/p:BenchmarkPreset=NoJiterp']);
+        assert.deepEqual(getPresetArgs('no-jiterp'), ['/p:BenchmarkPreset=NoJiterp', '-c', 'Release']);
     });
 
     it('debug → /p:BenchmarkPreset=Debug', () => {
-        assert.deepEqual(getPresetArgs('debug'), ['/p:BenchmarkPreset=Debug']);
+        assert.deepEqual(getPresetArgs('debug'), ['/p:BenchmarkPreset=Debug', '-c', 'Debug']);
     });
 
     it('throws on unknown preset', () => {
@@ -118,6 +118,7 @@ describe('getPublishArgs', () => {
             'publish',
             '/bench/src/empty-browser',
             '/p:BenchmarkPreset=NoWorkload',
+            '-c', 'Release',
             '/p:RuntimeFlavor=CoreCLR',
             '-o', '/bench/artifacts/publish/empty-browser'
         ]);
@@ -129,6 +130,7 @@ describe('getPublishArgs', () => {
             'publish',
             '/bench/src/empty-browser',
             '/p:BenchmarkPreset=Aot',
+            '-c', 'Release',
             '/p:RuntimeFlavor=Mono',
             '-o', '/out'
         ]);
@@ -147,6 +149,7 @@ describe('getPublishArgs', () => {
             'publish',
             '/app',
             '/p:BenchmarkPreset=Debug',
+            '-c', 'Debug',
             '/p:RuntimeFlavor=CoreCLR',
             '-o', '/out'
         ]);
