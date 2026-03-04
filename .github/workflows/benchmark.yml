@@ -137,6 +137,10 @@ jobs:
           name: all-builds
           path: artifacts/publish
 
+      - name: Link pre-installed dependencies
+        shell: bash
+        run: ln -s /bench/node_modules node_modules
+
       - name: Run measurements
         shell: bash
         run: |
