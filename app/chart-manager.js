@@ -15,7 +15,7 @@ const PRESET_DASHES = {
     'native-relink': [3, 3],
     invariant: [10, 3, 3, 3],
     'no-reflection-emit': [15, 5],
-    debug: [5, 5]
+    devloop: [5, 5]
 };
 
 const RUNTIME_MARKERS = {
