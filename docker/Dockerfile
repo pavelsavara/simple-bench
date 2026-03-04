@@ -60,16 +60,29 @@ RUN apt-get update && apt-get install -y \
     libpango-1.0-0 libcairo2 libasound2t64 libxshmfence1 \
     && rm -rf /var/lib/apt/lists/*
 
-# V8 d8 via jsvu — pinned version
+# Non-root user for running benchmarks.
+# Firefox refuses to launch as root when $HOME is owned by another uid — which
+# is exactly what GitHub Actions does (HOME=/github/home, owned by uid 1001).
+# Running as a regular user side-steps the check entirely.
+RUN useradd -u 1001 -m -s /bin/bash benchuser
+
+# V8 d8 via jsvu — install then relocate to /opt/jsvu so any user can access it
 RUN npm install -g jsvu@3.0.3 \
     && jsvu --os=linux64 --engines=v8 \
-    && ln -s /root/.jsvu/bin/v8 /usr/local/bin/d8
+    && mkdir -p /opt/jsvu \
+    && cp -a /root/.jsvu/. /opt/jsvu/ \
+    && rm -rf /root/.jsvu \
+    && ln -sf /opt/jsvu/bin/v8 /usr/local/bin/d8 \
+    && chmod -R a+rX /opt/jsvu
 
 # Pre-install npm dependencies (playwright is the key dependency)
 COPY package.json package-lock.json ./
-RUN npm ci && rm -rf /root/.npm
+RUN npm ci && rm -rf /root/.npm \
+    && chmod -R a+rX /bench/node_modules
 
-# Playwright browsers — pinned to match package.json version
-RUN npx playwright install --with-deps chromium firefox
+# Playwright browsers — install to /opt/pw-browsers so any user can access them
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers
+RUN npx playwright install --with-deps chromium firefox \
+    && chmod -R a+rX /opt/pw-browsers
 
-ENV PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
+USER benchuser

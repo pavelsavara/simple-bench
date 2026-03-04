@@ -104,7 +104,9 @@ jobs:
     needs: build
     if: needs.build.outputs.matrix != '[]' && needs.build.outputs.matrix != ''
     runs-on: ubuntu-latest
-    container: ghcr.io/${{ github.repository }}/browser-bench-measure:latest
+    container:
+      image: ghcr.io/${{ github.repository }}/browser-bench-measure:latest
+      options: --user 1001
     timeout-minutes: 30
     strategy:
       fail-fast: false

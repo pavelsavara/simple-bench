@@ -102,8 +102,12 @@ function execInherit(cmd, cmdArgs, opts = {}) {
 
 /** Run a command inside a Docker container with /bench volume. */
 function dockerRun(image, bashCommand, opts = {}) {
+    const userArgs = image === MEASURE_IMAGE
+        ? ['--user', `${process.getuid?.() ?? 1001}:${process.getgid?.() ?? 1001}`]
+        : [];
     execFileSync('docker', [
         'run', '--rm',
+        ...userArgs,
         '-v', `${REPO_DIR}:/bench`,
         '-w', '/bench',
         '-e', 'ARTIFACTS_DIR=/bench/artifacts',
