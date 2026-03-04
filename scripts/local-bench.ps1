@@ -46,42 +46,44 @@ $ArtifactsDir = Join-Path $RepoDir 'artifacts'
 if (-not (Test-Path $ArtifactsDir)) {
     New-Item -ItemType Directory -Path $ArtifactsDir -Force | Out-Null
 }
-$LogFile = Join-Path $ArtifactsDir 'local-bench.log'
-$LogTimestamp = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
-Add-Content -Path $LogFile -Value "`n=== local-bench.ps1 started at $LogTimestamp ==="
-
-function Write-Log {
-    param([string]$Message)
-    Add-Content -Path $LogFile -Value $Message
-}
+$LogTimestamp = (Get-Date).ToUniversalTime().ToString('yyyy-MM-dd_HH-mm-ss')
+$LogFile = Join-Path $ArtifactsDir "local-bench_$LogTimestamp.log"
+Add-Content -Path $LogFile -Value "=== local-bench.ps1 started at ${LogTimestamp}Z ==="
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
 
+function Get-LogTimestamp {
+    return (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
+}
+
 function Banner([string]$Text) {
+    $ts = Get-LogTimestamp
     $msg = "`n=== $Text ==="
     Write-Host $msg -ForegroundColor Cyan
-    Write-Log $msg
+    Add-Content -Path $LogFile -Value "[$ts] $msg"
 }
 
 function Info([string]$Text) {
+    $ts = Get-LogTimestamp
     $msg = "▶ $Text"
     Write-Host $msg -ForegroundColor Green
-    Write-Log $msg
+    Add-Content -Path $LogFile -Value "[$ts] $msg"
 }
 
 function Err([string]$Text) {
+    $ts = Get-LogTimestamp
     $msg = "✗ $Text"
     Write-Host $msg -ForegroundColor Red
-    Write-Log $msg
+    Add-Content -Path $LogFile -Value "[$ts] $msg"
 }
 
 function Invoke-Docker {
     param([string[]]$Arguments)
-    $output = & docker @Arguments 2>&1
-    $output | ForEach-Object {
+    & docker @Arguments 2>&1 | ForEach-Object {
         $line = $_.ToString()
+        $ts = Get-LogTimestamp
         Write-Host $line
-        Write-Log $line
+        Add-Content -Path $LogFile -Value "[$ts] $line"
     }
     if ($LASTEXITCODE -ne 0) {
         throw "Docker command failed with exit code $LASTEXITCODE"
@@ -90,11 +92,11 @@ function Invoke-Docker {
 
 function Invoke-DockerAllowFailure {
     param([string[]]$Arguments)
-    $output = & docker @Arguments 2>&1
-    $output | ForEach-Object {
+    & docker @Arguments 2>&1 | ForEach-Object {
         $line = $_.ToString()
+        $ts = Get-LogTimestamp
         Write-Host $line
-        Write-Log $line
+        Add-Content -Path $LogFile -Value "[$ts] $line"
     }
     return $LASTEXITCODE
 }
@@ -125,15 +127,20 @@ if (-not (Test-Path (Join-Path $RepoDir 'node_modules'))) {
 # ── Permission / cleanup helpers ─────────────────────────────────────────────
 
 function Fix-Permissions {
-    if (Test-Path $ArtifactsDir) {
-        $dockerPath = ConvertTo-DockerPath $ArtifactsDir
-        & docker run --rm -v "${dockerPath}:/a" $BuildImage chmod -R a+rw /a 2>$null
+    param([string[]]$Dirs = @('results'))
+    foreach ($d in $Dirs) {
+        $target = Join-Path $ArtifactsDir $d
+        if (Test-Path $target) {
+            Info "Fixing permissions on artifacts/$d..."
+            $dockerPath = ConvertTo-DockerPath $target
+            & docker run --rm -v "${dockerPath}:/a" $BuildImage chmod -R a+rw /a 2>$null
+        }
     }
 }
 
 function Clean-Artifacts {
     param([string[]]$Dirs)
-    Fix-Permissions
+    Fix-Permissions $Dirs
     foreach ($d in $Dirs) {
         $target = Join-Path $ArtifactsDir $d
         if (Test-Path $target) {
@@ -183,6 +190,7 @@ if (-not $SkipBuild) {
     Banner 'Step 2: Build all apps'
 
     Info 'Cleaning artifacts/sdk and artifacts/publish...'
+    Fix-Permissions @('sdk', 'publish')
     Clean-Artifacts @('sdk', 'publish')
     if (-not (Test-Path $ArtifactsDir)) {
         New-Item -ItemType Directory -Path $ArtifactsDir -Force | Out-Null
@@ -210,7 +218,7 @@ if (-not $SkipBuild) {
         'bash', '-c', $bashCmd)
 
     $buildEnd = Get-Date
-    Fix-Permissions
+    Fix-Permissions @('sdk', 'publish', 'results')
 
     if (-not (Test-Path $ManifestFile)) {
         Err "Build manifest not found at $ManifestFile"
@@ -219,7 +227,8 @@ if (-not $SkipBuild) {
 
     $buildDuration = [int]($buildEnd - $buildStart).TotalSeconds
     Info "Build completed in ${buildDuration}s"
-    Info "Build manifest: $(Get-Content $ManifestFile -Raw)"
+    $builtEntries = Get-Content $ManifestFile -Raw | ConvertFrom-Json
+    Info "Build manifest: $($builtEntries.Count) app/preset entries"
     $sdkInfoPath = Join-Path $ArtifactsDir 'sdk/sdk-info.json'
     if (Test-Path $sdkInfoPath) {
         Info "SDK info: $(Get-Content $sdkInfoPath -Raw)"
@@ -234,7 +243,8 @@ else {
         Err 'No build manifest found. Run the build step first.'
         exit 1
     }
-    Info "Reusing manifest: $(Get-Content $ManifestFile -Raw)"
+    $manifestEntries = Get-Content $ManifestFile -Raw | ConvertFrom-Json
+    Info "Reusing manifest with $($manifestEntries.Count) app/preset entries"
 }
 
 # ── Step 3: Measure ──────────────────────────────────────────────────────────
@@ -281,6 +291,9 @@ if (-not $SkipMeasure) {
         Info "[$current/$entryCount] Measuring $appName / $presetName..."
         $stepStart = Get-Date
 
+        $retries = if ($DryRun) { '1' } else { '3' }
+        $timeoutMs = if ($DryRun) { '120000' } else { '300000' }
+
         $bashCmd = @(
             "node scripts/run-measure-job.mjs",
             "--app '$appName'",
@@ -290,8 +303,8 @@ if (-not $SkipMeasure) {
             "--build-manifest /bench/artifacts/results/build-manifest.json",
             "--output-dir /bench/artifacts/results",
             "--runtime mono",
-            "--retries 3",
-            "--timeout 300000",
+            "--retries $retries",
+            "--timeout $timeoutMs",
             $dryRunFlag
         ) -join ' '
 
@@ -310,7 +323,7 @@ if (-not $SkipMeasure) {
         $stepEnd = Get-Date
         $stepDuration = [int]($stepEnd - $stepStart).TotalSeconds
         Info "[$current/$entryCount] $appName / $presetName completed in ${stepDuration}s"
-        Fix-Permissions
+        Fix-Permissions @('results')
     }
 
     $measureTotalEnd = Get-Date

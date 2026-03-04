@@ -159,6 +159,10 @@ for (const engine of engines) {
     const filename = `${commitTime}_${runtimeHash7}_${runtime}_${preset}_${engine}_${app}.json`;
     const outputFile = join(outputDir, filename);
 
+    const isDryRun = args['dry-run'];
+    const retries = isDryRun ? '1' : args.retries;
+    const timeoutVal = isDryRun ? String(Math.min(parseInt(args.timeout, 10), 120000)) : args.timeout;
+
     const scriptArgs = [
         join(SCRIPT_DIR, measureScript),
         '--publish-dir', wwwrootDir,
@@ -168,8 +172,9 @@ for (const engine of engines) {
         '--preset', preset,
         '--sdk-info', sdkInfoPath,
         '--compile-time-file', compileTimeFile,
-        '--retries', args.retries,
-        '--timeout', args.timeout,
+        '--retries', retries,
+        '--timeout', timeoutVal,
+        ...(isDryRun && !isInternal ? ['--warm-runs', '1'] : []),
         ...(args['ci-run-id'] ? ['--ci-run-id', args['ci-run-id']] : []),
         ...(args['ci-run-url'] ? ['--ci-run-url', args['ci-run-url']] : []),
     ];

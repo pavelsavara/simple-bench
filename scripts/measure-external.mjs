@@ -39,6 +39,12 @@ import { getEngineCommand } from './lib/internal-utils.mjs';
 const BROWSER_ENGINES = new Set(['chrome', 'firefox']);
 const CLI_ENGINES = new Set(['v8', 'node']);
 
+const measureStartTime = performance.now();
+function ts() {
+    const elapsed = ((performance.now() - measureStartTime) / 1000).toFixed(1);
+    return `[+${elapsed}s]`;
+}
+
 // ── CLI args ────────────────────────────────────────────────────────────────
 
 const { values: args } = parseArgs({
@@ -104,6 +110,8 @@ try {
 
 // ── Run measurement ─────────────────────────────────────────────────────────
 
+const benchmarkDateTime = new Date().toISOString();
+
 let result;
 
 if (BROWSER_ENGINES.has(engine)) {
@@ -125,6 +133,8 @@ const meta = {
     preset: args.preset,
     engine,
     app: args.app,
+    benchmarkDateTime,
+    warmRunCount: warmRuns,
     ...(args['ci-run-id'] && { ciRunId: args['ci-run-id'] }),
     ...(args['ci-run-url'] && { ciRunUrl: args['ci-run-url'] }),
 };
@@ -201,6 +211,7 @@ async function runBrowserMeasurement(browserEngine, app, publishDirPath, fpMap, 
                 page.on('pageerror', err => console.error(`  [page error] ${err.message}`));
 
                 // ── Cold load ───────────────────────────────────────────
+                console.error(`  ${ts()} Cold load starting...`);
                 await page.goto(pageUrl, { timeout: timeoutMs, waitUntil: 'load' });
                 await page.waitForFunction(
                     () => globalThis.dotnet_managed_ready !== undefined,
@@ -212,16 +223,19 @@ async function runBrowserMeasurement(browserEngine, app, publishDirPath, fpMap, 
                     dotnetManagedReady: globalThis.dotnet_managed_ready,
                 }));
                 const timeToReachManagedCold = coldMetrics.dotnetManagedReady;
+                console.error(`  ${ts()} Cold load done: ${timeToReachManagedCold?.toFixed(0)} ms`);
 
                 // ── Warm loads (reloads, take minimum) ──────────────────
                 let warmMin = Infinity;
                 for (let i = 0; i < warmRunCount; i++) {
+                    console.error(`  ${ts()} Warm load ${i + 1}/${warmRunCount} starting...`);
                     await page.reload({ timeout: timeoutMs, waitUntil: 'load' });
                     await page.waitForFunction(
                         () => globalThis.dotnet_managed_ready !== undefined,
                         null, { timeout: timeoutMs }
                     );
                     const warm = await page.evaluate(() => globalThis.dotnet_managed_ready);
+                    console.error(`  ${ts()} Warm load ${i + 1}/${warmRunCount} done: ${warm?.toFixed(0)} ms`);
                     if (warm < warmMin) warmMin = warm;
                 }
                 const timeToReachManaged = Number.isFinite(warmMin) ? warmMin : null;
@@ -255,11 +269,12 @@ async function runBrowserMeasurement(browserEngine, app, publishDirPath, fpMap, 
                 };
             } finally {
                 await browser.close();
+                console.error(`  ${ts()} Browser closed`);
             }
         } catch (err) {
             lastError = err;
             if (!isTimeoutError(err)) { await srv.close(); throw err; }
-            console.error(`Timeout: ${err.message}`);
+            console.error(`${ts()} Timeout: ${err.message}`);
         }
     }
 
@@ -279,9 +294,10 @@ async function runCliMeasurement(cliEngine, publishDirPath, timeoutMs) {
         throw new Error(`main.js not found in ${publishDirPath}. Files: ${files.join(', ')}`);
     }
 
-    console.error(`Running: ${cmd} ${engineArgs.join(' ')} ${entryFile}`);
+    console.error(`${ts()} Running: ${cmd} ${engineArgs.join(' ')} ${entryFile}`);
     console.error(`  cwd: ${publishDirPath}`);
 
+    console.error(`  ${ts()} CLI engine starting...`);
     const startTime = performance.now();
     const stdout = execFileSync(cmd, [...engineArgs, entryFile], {
         encoding: 'utf-8',
@@ -290,6 +306,7 @@ async function runCliMeasurement(cliEngine, publishDirPath, timeoutMs) {
         env: { ...process.env },
     });
     const wallTimeMs = performance.now() - startTime;
+    console.error(`  ${ts()} CLI engine finished in ${wallTimeMs.toFixed(0)} ms`);
 
     // Parse JSON timing output from main.js
     let timeToReachManaged = null;
@@ -303,6 +320,8 @@ async function runCliMeasurement(cliEngine, publishDirPath, timeoutMs) {
             }
         } catch { /* not JSON */ }
     }
+
+    console.error(`  ${ts()} time-to-reach-managed: ${timeToReachManaged?.toFixed(0) ?? 'N/A'} ms`);
 
     return {
         downloadSizeTotal: null,
@@ -329,19 +348,23 @@ async function runPizzaWalkthrough(page, baseUrl, timeoutMs) {
     const startTime = await page.evaluate(() => performance.now());
 
     // Fresh navigation for walkthrough
+    console.error(`  ${ts()} Pizza: navigating to home...`);
     await page.goto(baseUrl, { timeout: t, waitUntil: 'load' });
     await page.waitForFunction(
         () => globalThis.dotnet_managed_ready !== undefined,
         null, { timeout: t }
     );
+    console.error(`  ${ts()} Pizza: home loaded`);
 
     // Wait for pizza specials to render
     await page.waitForSelector(sel('pizza-cards'), { timeout: t });
     await page.waitForSelector(sel('pizza-special-1'), { timeout: t });
+    console.error(`  ${ts()} Pizza: specials rendered`);
 
     // Click first pizza (Basic Cheese Pizza)
     await page.click(sel('pizza-special-1'));
     await page.waitForSelector(sel('dialog-container'), { state: 'visible', timeout: t });
+    console.error(`  ${ts()} Pizza: dialog opened`);
 
     // Adjust size slider to 15
     await page.fill(sel('size-slider'), '15');
@@ -354,6 +377,7 @@ async function runPizzaWalkthrough(page, baseUrl, timeoutMs) {
     // Confirm pizza → add to cart
     await page.click(sel('confirm-pizza-button'));
     await page.waitForSelector(sel('dialog-container'), { state: 'hidden', timeout: t });
+    console.error(`  ${ts()} Pizza: pizza confirmed, added to cart`);
 
     // Verify cart has item
     await page.waitForSelector(sel('cart-item'), { timeout: t });
@@ -361,6 +385,7 @@ async function runPizzaWalkthrough(page, baseUrl, timeoutMs) {
     // Click "Order >" to go to checkout
     await page.click(sel('order-button'));
     await page.waitForSelector(sel('checkout-main'), { timeout: t });
+    console.error(`  ${ts()} Pizza: checkout loaded`);
 
     // Fill delivery address
     await page.fill(sel('address-name'), 'Test User');
@@ -371,10 +396,12 @@ async function runPizzaWalkthrough(page, baseUrl, timeoutMs) {
 
     // Place order
     await page.click(sel('place-order-button'));
+    console.error(`  ${ts()} Pizza: order placed`);
 
     // Wait for order tracking page
     await page.waitForSelector(sel('track-order'), { timeout: t });
     await page.waitForSelector(sel('order-status'), { timeout: t });
+    console.error(`  ${ts()} Pizza: tracking page loaded`);
 
     const endTime = await page.evaluate(() => performance.now());
     return endTime - startTime;
