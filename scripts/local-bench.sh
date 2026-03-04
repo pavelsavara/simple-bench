@@ -40,9 +40,10 @@ if [[ ! -d "$REPO_DIR/node_modules" ]]; then
     (cd "$REPO_DIR" && npm ci)
 fi
 
-# Install Playwright browsers if needed
-if ! npx playwright install --dry-run chromium &>/dev/null 2>&1; then
-    info "Installing Playwright browsers..."
+# Install Playwright browsers if needed (check for headless shell directory)
+PW_CACHE="${PLAYWRIGHT_BROWSERS_PATH:-$HOME/.cache/ms-playwright}"
+if [[ ! -d "$PW_CACHE"/chromium_headless_shell-* ]]; then
+    info "Playwright browsers not found — installing..."
     npx playwright install --with-deps chromium firefox
 fi
 
