@@ -57,7 +57,8 @@ const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR || join(REPO_DIR, 'artifacts');
 const APPS_DIR = join(REPO_DIR, 'src');
 const OS_PREFIX = process.platform === 'win32' ? 'windows' : 'linux';
 const runtimeSuffix = args['runtime-commit'] ? `.${args['runtime-commit'].substring(0, 12)}` : '';
-let SDK_DIR = `${OS_PREFIX}.sdk${args['sdk-version'] || ''}${runtimeSuffix}`;
+const channelSuffix = args['sdk-version'] ? '' : `.${args['sdk-channel']}`;
+let SDK_DIR = `${OS_PREFIX}.sdk${args['sdk-version'] || ''}${channelSuffix}${runtimeSuffix}`;
 let SDK_INFO_PATH = join(ARTIFACTS_DIR, SDK_DIR, 'sdk-info.json');
 
 // Parse comma-separated filters into sets (empty = no filter)

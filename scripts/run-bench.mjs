@@ -92,7 +92,8 @@ const isDocker = args.mode === 'docker';
 const IS_WINDOWS = process.platform === 'win32';
 const OS_PREFIX = isDocker ? 'linux' : (IS_WINDOWS ? 'windows' : 'linux');
 const runtimeSuffix = args['runtime-commit'] ? `.${args['runtime-commit'].substring(0, 12)}` : '';
-let SDK_DIR = `${OS_PREFIX}.sdk${args['sdk-version'] || ''}${runtimeSuffix}`;
+const channelSuffix = args['sdk-version'] ? '' : `.${args['sdk-channel']}`;
+let SDK_DIR = `${OS_PREFIX}.sdk${args['sdk-version'] || ''}${channelSuffix}${runtimeSuffix}`;
 const SDK_INFO_PATH = join(ARTIFACTS_DIR, 'results', 'sdk-info.json');
 
 /** Convert a Windows path to WSL /mnt/... path. No-op on non-Windows. */
