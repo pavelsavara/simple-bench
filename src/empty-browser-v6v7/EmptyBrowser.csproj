@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+  <PropertyGroup>
+    <TargetFramework>$(BenchmarkTargetFramework)</TargetFramework>
+  </PropertyGroup>
+
+  <!-- Link all source and content from the main empty-browser project -->
+  <ItemGroup>
+    <Compile Include="..\empty-browser\**\*.cs" Link="%(RecursiveDir)%(Filename)%(Extension)" />
+    <Content Include="..\empty-browser\wwwroot\**" Link="wwwroot\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>

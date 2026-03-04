@@ -6,12 +6,12 @@
 
 <PageTitle>Blazing Pizza - My Orders</PageTitle>
 
-<div class="main">
+<div class="main" data-testid="myorders-main">
 	<TemplatedList Loader="LoadOrders" ListGroupClass="orders-list">
 		<Loading>Loading...</Loading>
 		<Empty>
 			<h2>No orders placed</h2>
-			<a class="btn btn-success" href="">Order some pizza</a>
+			<a class="btn btn-success" href="" data-testid="order-some-pizza-link">Order some pizza</a>
 		</Empty>
 		<Item Context="item">
 			<div class="col">
@@ -25,7 +25,7 @@
 				Status: <strong>@item.StatusText</strong>
 			</div>
 			<div class="col flex-grow-0">
-				<a href="myorders/@item.Order.OrderId" class="btn btn-success">
+				<a href="myorders/@item.Order.OrderId" class="btn btn-success" data-testid="track-order-@item.Order.OrderId">
 					Track &gt;
 				</a>
 			</div>

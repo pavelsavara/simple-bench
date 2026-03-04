@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <BenchmarkPreset Condition="'$(BenchmarkPreset)' == ''">Debug</BenchmarkPreset>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
 <!-- TODO 
-<OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
 <TrimMode>link</TrimMode>
 -->
 

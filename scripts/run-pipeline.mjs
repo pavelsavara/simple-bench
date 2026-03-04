@@ -92,6 +92,8 @@ async function discoverApps() {
     const apps = [];
     for (const entry of entries) {
         if (!entry.isDirectory()) continue;
+        // Skip variant project directories (used as build-time redirects by build-app.sh)
+        if (entry.name.endsWith('-v6v7')) continue;
         const appDir = join(APPS_DIR, entry.name);
         const files = await readdir(appDir);
         if (files.some(f => f.endsWith('.csproj'))) {

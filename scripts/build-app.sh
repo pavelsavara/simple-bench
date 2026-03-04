@@ -23,17 +23,33 @@ ARTIFACTS_DIR="${ARTIFACTS_DIR:-$REPO_DIR/artifacts}"
 APP_DIR="$REPO_DIR/src/$APP"
 PUBLISH_DIR="$ARTIFACTS_DIR/publish/$APP/$PRESET"
 
-# Validate app directory exists
-if [ ! -d "$APP_DIR" ]; then
-    echo "Error: App directory not found: $APP_DIR" >&2
-    exit 1
-fi
-
 # Ensure dotnet is available
 DOTNET="${DOTNET_ROOT:-}/dotnet"
 if [ ! -x "$DOTNET" ]; then
     DOTNET="dotnet"
 fi
+
+# Detect SDK major version for project selection
+SDK_VERSION=$("$DOTNET" --version 2>/dev/null || echo "0.0.0")
+SDK_MAJOR=$(echo "$SDK_VERSION" | cut -d. -f1)
+
+# Microsoft.NET.Sdk.WebAssembly was introduced in .NET 8.
+# For .NET 6 and 7, empty-browser and microbenchmarks need the
+# BlazorWebAssembly-based variant projects.
+if [ "$SDK_MAJOR" -lt 8 ] 2>/dev/null; then
+    case "$APP" in
+        empty-browser)
+            APP_DIR="$REPO_DIR/src/empty-browser-v6v7"
+            echo "SDK $SDK_VERSION: using BlazorWebAssembly variant for $APP" >&2
+            ;;
+        microbenchmarks)
+            APP_DIR="$REPO_DIR/src/microbenchmarks-v6v7"
+            echo "SDK $SDK_VERSION: using BlazorWebAssembly variant for $APP" >&2
+            ;;
+    esac
+fi
+
+# Validate app directory exists
 
 # Get publish arguments from JS utility
 PUBLISH_ARGS=$(node -e "

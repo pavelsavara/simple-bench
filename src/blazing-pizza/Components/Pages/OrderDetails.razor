@@ -19,13 +19,13 @@
 	}
 	else
 	{
-		<div class="track-order">
-			<div class="track-order-title">
+		<div class="track-order" data-testid="track-order">
+			<div class="track-order-title" data-testid="track-order-title">
 				<h2>
 					Order placed @orderWithStatus.Order.CreatedTime.ToLongDateString()
 				</h2>
 				<p class="ml-auto mb-0">
-					Status: <strong>@orderWithStatus.StatusText</strong>
+					Status: <strong data-testid="order-status">@orderWithStatus.StatusText</strong>
 				</p>
 			</div>
 			<div class="track-order-body">
@@ -33,7 +33,7 @@
 					<OrderReview Order="orderWithStatus.Order" />
 				</div>
 
-				<div class="track-order-map">
+				<div class="track-order-map" data-testid="track-order-map">
 					 <Map Zoom="13" Markers="orderWithStatus?.MapMarkers" />
 				</div>
 
