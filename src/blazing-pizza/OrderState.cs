@@ -45,14 +45,14 @@ public class OrderState
 			ConfiguringPizza = null;
 		}
 
-		SaveStateToStorage(JSRuntime);
+		_ = SaveStateToStorage(JSRuntime);
 		ShowingConfigureDialog = false;
 	}
 
 	public void ResetOrder()
 	{
 		Order = new Order();
-		SaveStateToStorage(JSRuntime);
+		_ = SaveStateToStorage(JSRuntime);
 	}
 
 	public void RemoveConfiguredPizza(Pizza pizza)
