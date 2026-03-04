@@ -90,60 +90,14 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-      - name: Upload individual builds
+      - name: Upload all builds
+        uses: actions/upload-artifact@v4
         if: always() && steps.matrix.outputs.matrix != '[]'
-        shell: bash
-        run: |
-          npm install --no-save @actions/artifact
-          node --input-type=module << 'UPLOAD_SCRIPT'
-          import { DefaultArtifactClient } from '@actions/artifact';
-          import { readFileSync, readdirSync } from 'node:fs';
-          import { join } from 'node:path';
-
-          function getFilesRecursive(dir) {
-            const results = [];
-            for (const entry of readdirSync(dir, { withFileTypes: true })) {
-              const full = join(dir, entry.name);
-              if (entry.isDirectory()) results.push(...getFilesRecursive(full));
-              else results.push(full);
-            }
-            return results;
-          }
-
-          async function main() {
-            const artifactsDir = process.env.ARTIFACTS_DIR || 'artifacts';
-            const manifestPath = join(artifactsDir, 'results', 'build-manifest.json');
-            const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
-            const client = new DefaultArtifactClient();
-            const failures = [];
-
-            for (const { app, preset } of manifest) {
-              const publishDir = join(artifactsDir, 'publish', app, preset);
-              const name = `build-${app}-${preset}`;
-              try {
-                const files = getFilesRecursive(publishDir);
-                if (files.length === 0) {
-                  console.log(`⚠ ${name}: no files, skipping`);
-                  failures.push(name);
-                  continue;
-                }
-                console.log(`Uploading ${name} (${files.length} files)...`);
-                const { size } = await client.uploadArtifact(name, files, publishDir, { retentionDays: 3 });
-                console.log(`✓ ${name}: ${(size / 1024 / 1024).toFixed(1)} MB`);
-              } catch (err) {
-                console.error(`✗ ${name}: ${err.message}`);
-                failures.push(name);
-              }
-            }
-
-            if (failures.length > 0) {
-              console.error(`\n✗ ${failures.length} upload(s) failed: ${failures.join(', ')}`);
-              process.exit(1);
-            }
-          }
-
-          main().catch(err => { console.error(err); process.exit(1); });
-          UPLOAD_SCRIPT
+        with:
+          name: all-builds
+          path: ${{ env.ARTIFACTS_DIR || 'artifacts' }}/publish/
+          if-no-files-found: error
+          retention-days: 3
 
   # ── Job 2: Measure (matrix: app × preset, all engines per job) ─────────────
   measure:
@@ -177,16 +131,13 @@ jobs:
           name: build-manifest
           path: artifacts/results
 
-      - name: Download build
-        id: download-build
+      - name: Download builds
         uses: actions/download-artifact@v4
-        continue-on-error: true
         with:
-          name: build-${{ matrix.app }}-${{ matrix.preset }}
-          path: artifacts/publish/${{ matrix.app }}/${{ matrix.preset }}
+          name: all-builds
+          path: artifacts/publish
 
       - name: Run measurements
-        if: steps.download-build.outcome == 'success'
         shell: bash
         run: |
           node scripts/run-measure-job.mjs \
@@ -205,7 +156,7 @@ jobs:
 
       - name: Upload results
         uses: actions/upload-artifact@v4
-        if: always() && steps.download-build.outcome == 'success'
+        if: always()
         with:
           name: results-${{ matrix.app }}-${{ matrix.preset }}
           path: artifacts/results/*.json
