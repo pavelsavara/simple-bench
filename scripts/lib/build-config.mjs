@@ -15,7 +15,8 @@ export function mapRuntimeFlavor(runtime) {
 }
 
 /** Map our lowercase preset dimension to BenchmarkPreset property value.
- *  The csproj handles Configuration (Release/Debug) internally based on BenchmarkPreset. */
+ *  The csproj handles Configuration (Release/Debug) internally based on BenchmarkPreset.
+ *  We also pass -c explicitly to override dotnet publish's default of Release. */
 const PRESET_MAP = {
     'debug': 'Debug',
     'no-workload': 'NoWorkload',
@@ -24,6 +25,17 @@ const PRESET_MAP = {
     'no-jiterp': 'NoJiterp',
     'invariant': 'Invariant',
     'no-reflection-emit': 'NoReflectionEmit',
+};
+
+/** Map preset to MSBuild Configuration value. */
+const PRESET_CONFIG = {
+    'debug': 'Debug',
+    'no-workload': 'Release',
+    'aot': 'Release',
+    'native-relink': 'Release',
+    'no-jiterp': 'Release',
+    'invariant': 'Release',
+    'no-reflection-emit': 'Release',
 };
 
 export { PRESET_MAP };
@@ -76,7 +88,8 @@ export function getPresetArgs(preset) {
     if (!benchPreset) {
         throw new Error(`Unknown preset: ${preset}. Expected one of: ${Object.keys(PRESET_MAP).join(', ')}`);
     }
-    return [`/p:BenchmarkPreset=${benchPreset}`];
+    const config = PRESET_CONFIG[preset] || 'Release';
+    return [`/p:BenchmarkPreset=${benchPreset}`, '-c', config];
 }
 
 /**
