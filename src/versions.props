@@ -46,4 +46,13 @@
     <FluentValidationVersion>12.1.1</FluentValidationVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(BenchmarkTargetFramework)' == 'net8.0'">
+    <WebPushVersion>1.0.12</WebPushVersion>
+    <MudBlazorVersion>9.1.0</MudBlazorVersion>
+    <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
+    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.24555.4</MicrosoftNetCompilersRazorToolsetVersion>
+    <BlazoredLocalStorageVersion>4.5.0</BlazoredLocalStorageVersion>
+    <FluentValidationVersion>12.1.1</FluentValidationVersion>
+  </PropertyGroup>
+
 </Project>

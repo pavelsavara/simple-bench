@@ -45,7 +45,8 @@ jobs:
           node scripts/run-pipeline.mjs \
             --sdk-channel "${{ inputs.sdk_channel || '11.0' }}" \
             ${{ inputs.sdk_version && format('--sdk-version "{0}"', inputs.sdk_version) || '' }} \
-            --runtime mono
+            --runtime mono \
+            ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 
       - name: Set matrix output
         id: matrix

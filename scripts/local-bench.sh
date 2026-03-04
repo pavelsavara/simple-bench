@@ -143,6 +143,11 @@ if [[ "$SKIP_BUILD" == false ]]; then
         SDK_VERSION_ARG="--sdk-version $SDK_VERSION"
     fi
 
+    DRY_RUN_BUILD_FLAG=""
+    if [[ "$DRY_RUN" == true ]]; then
+        DRY_RUN_BUILD_FLAG="--dry-run"
+    fi
+
     BUILD_START=$(date +%s)
     info "Running build inside $BUILD_IMAGE..."
     docker run --rm \
@@ -155,7 +160,8 @@ if [[ "$SKIP_BUILD" == false ]]; then
             node scripts/run-pipeline.mjs \
                 --sdk-channel '$SDK_CHANNEL' \
                 $SDK_VERSION_ARG \
-                --runtime mono
+                --runtime mono \
+                $DRY_RUN_BUILD_FLAG
         "
     BUILD_END=$(date +%s)
 
