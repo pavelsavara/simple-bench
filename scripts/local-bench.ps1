@@ -31,6 +31,7 @@ param(
 
     [string]$SdkChannel = '11.0',
     [string]$SdkVersion,
+    [string]$RuntimeCommit,
     [switch]$DryRun,
     [string]$App,
     [string]$Preset
@@ -77,7 +78,11 @@ function Err([string]$Text) {
 
 function Invoke-Docker {
     param([string[]]$Arguments)
-    $output = & docker @Arguments 2>&1
+    if ($IsWindows -or $env:OS -eq 'Windows_NT') {
+        $output = & wsl docker @Arguments 2>&1
+    } else {
+        $output = & docker @Arguments 2>&1
+    }
     $output | ForEach-Object {
         $line = $_.ToString()
         Write-Host $line
@@ -90,7 +95,11 @@ function Invoke-Docker {
 
 function Invoke-DockerAllowFailure {
     param([string[]]$Arguments)
-    $output = & docker @Arguments 2>&1
+    if ($IsWindows -or $env:OS -eq 'Windows_NT') {
+        $output = & wsl docker @Arguments 2>&1
+    } else {
+        $output = & docker @Arguments 2>&1
+    }
     $output | ForEach-Object {
         $line = $_.ToString()
         Write-Host $line
@@ -162,12 +171,14 @@ if (-not $SkipDocker) {
     Banner 'Step 1: Build Docker images'
 
     Info "Building $BuildImage..."
+    $dockerfilePath = ConvertTo-DockerPath (Join-Path $RepoDir 'docker/Dockerfile')
+    $contextPath = ConvertTo-DockerPath $RepoDir
     Invoke-Docker @('build', '--target', 'browser-bench-build',
-        '-t', $BuildImage, '-f', (Join-Path $RepoDir 'docker/Dockerfile'), $RepoDir)
+        '-t', $BuildImage, '-f', $dockerfilePath, $contextPath)
 
     Info "Building $MeasureImage..."
     Invoke-Docker @('build', '--target', 'browser-bench-measure',
-        '-t', $MeasureImage, '-f', (Join-Path $RepoDir 'docker/Dockerfile'), $RepoDir)
+        '-t', $MeasureImage, '-f', $dockerfilePath, $contextPath)
 
     Info 'Docker images ready'
 }
@@ -182,8 +193,6 @@ $ManifestFile = Join-Path $ArtifactsDir 'results/build-manifest.json'
 if (-not $SkipBuild) {
     Banner 'Step 2: Build all apps'
 
-    Info 'Cleaning artifacts/sdk and artifacts/publish...'
-    Clean-Artifacts @('sdk', 'publish')
     if (-not (Test-Path $ArtifactsDir)) {
         New-Item -ItemType Directory -Path $ArtifactsDir -Force | Out-Null
     }
@@ -198,10 +207,15 @@ if (-not $SkipBuild) {
         $dryRunBuildFlag = '--dry-run'
     }
 
+    $runtimeCommitArg = ''
+    if ($RuntimeCommit) {
+        $runtimeCommitArg = "--runtime-commit '$RuntimeCommit'"
+    }
+
     $buildStart = Get-Date
 
     Info "Running build inside $BuildImage..."
-    $bashCmd = "node scripts/run-pipeline.mjs --sdk-channel '$SdkChannel' $sdkVersionArg --runtime mono $dryRunBuildFlag"
+    $bashCmd = "node scripts/run-pipeline.mjs --sdk-channel '$SdkChannel' $sdkVersionArg $runtimeCommitArg --runtime mono $dryRunBuildFlag"
     Invoke-Docker @('run', '--rm',
         '-v', "${DockerRepoDir}:/bench",
         '-w', '/bench',
@@ -220,7 +234,7 @@ if (-not $SkipBuild) {
     $buildDuration = [int]($buildEnd - $buildStart).TotalSeconds
     Info "Build completed in ${buildDuration}s"
     Info "Build manifest: $(Get-Content $ManifestFile -Raw)"
-    $sdkInfoPath = Join-Path $ArtifactsDir 'sdk/sdk-info.json'
+    $sdkInfoPath = Join-Path $ArtifactsDir 'results/sdk-info.json'
     if (Test-Path $sdkInfoPath) {
         Info "SDK info: $(Get-Content $sdkInfoPath -Raw)"
     }
@@ -243,7 +257,7 @@ if (-not $SkipMeasure) {
     Banner 'Step 3: Run measurements'
 
     $matrix = Get-Content $ManifestFile -Raw | ConvertFrom-Json
-    $sdkInfoFile = Join-Path $ArtifactsDir 'sdk/sdk-info.json'
+    $sdkInfoFile = Join-Path $ArtifactsDir 'results/sdk-info.json'
 
     if (-not (Test-Path $sdkInfoFile)) {
         Err "sdk-info.json not found at $sdkInfoFile — run the build step first."
@@ -286,7 +300,7 @@ if (-not $SkipMeasure) {
             "--app '$appName'",
             "--preset '$presetName'",
             "--publish-dir '$publishDir'",
-            "--sdk-info /bench/artifacts/sdk/sdk-info.json",
+            "--sdk-info /bench/artifacts/results/sdk-info.json",
             "--build-manifest /bench/artifacts/results/build-manifest.json",
             "--output-dir /bench/artifacts/results",
             "--runtime mono",
