@@ -14,7 +14,7 @@
  *   node scripts/run-bench.mjs --mode local
  *   node scripts/run-bench.mjs --mode local --app try-mud-blazor --engine chrome
  *   node scripts/run-bench.mjs --mode docker --dry-run
- *   node scripts/run-bench.mjs --mode local --skip-build --preset debug
+ *   node scripts/run-bench.mjs --mode local --skip-build --preset devloop
  *
  * Filtering (all comma-separated):
  *   --app <list>          Only build/measure these apps
@@ -30,7 +30,7 @@
  *   --skip-measure         Skip the measure step
  *   --skip-docker          Skip Docker image rebuild (docker mode only)
  *   --step <name>          Run only one step: build | measure | docker-build
- *   --dry-run              Chrome only, debug preset only (unless --app/--preset override)
+ *   --dry-run              Chrome only, devloop preset only (unless --app/--preset override)
  *   --retries <n>          Measurement retry count (default: 3)
  *   --timeout <ms>         Per-measurement timeout (default: 300000)
  */
@@ -174,7 +174,7 @@ function buildPipelineArgs() {
     if (args['runtime-commit']) pArgs.push('--runtime-commit', args['runtime-commit']);
     if (args.app) pArgs.push('--app', args.app);
     if (args.preset) pArgs.push('--preset', args.preset);
-    else if (args['dry-run']) pArgs.push('--preset', 'debug');
+    else if (args['dry-run']) pArgs.push('--preset', 'devloop');
     // In dry-run mode without explicit --app filter, pass --dry-run to build
     if (args['dry-run'] && !args.app) pArgs.push('--dry-run');
     return pArgs;
@@ -299,7 +299,7 @@ async function stepMeasure() {
     const appFilter = args.app ? new Set(args.app.split(',').map(s => s.trim())) : null;
     const presetFilter = args.preset
         ? new Set(args.preset.split(',').map(s => s.trim()))
-        : args['dry-run'] ? new Set(['debug']) : null;
+        : args['dry-run'] ? new Set(['devloop']) : null;
 
     // Filter manifest entries
     const entries = manifest.filter(entry => {
@@ -386,7 +386,7 @@ async function main() {
     if (args.preset) info(`Preset filter: ${args.preset}`);
     if (args.engine) info(`Engine filter: ${args.engine}`);
     if (args.runtime !== 'mono') info(`Runtime: ${args.runtime}`);
-    if (args['dry-run']) info('Dry-run mode (chrome only, debug preset only)');
+    if (args['dry-run']) info('Dry-run mode (chrome only, devloop preset only)');
 
     // Docker image build (docker mode only)
     if (isDocker && !args['skip-docker'] && (!args.step || args.step === 'docker-build')) {

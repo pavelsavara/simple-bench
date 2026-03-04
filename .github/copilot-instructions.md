@@ -73,7 +73,7 @@ The `scripts/local-docker-bench.sh` script simulates the CI benchmark pipeline l
 ./scripts/local-docker-bench.sh --dry-run
 
 # Measure only one app/preset combination
-./scripts/local-docker-bench.sh --skip-docker --skip-build --app empty-browser --preset debug
+./scripts/local-docker-bench.sh --skip-docker --skip-build --app empty-browser --preset devloop
 
 # Use a specific SDK version
 ./scripts/local-docker-bench.sh --sdk-version 11.0.100-preview.3.26062.1
@@ -112,11 +112,11 @@ The `scripts/local-docker-bench.sh` script simulates the CI benchmark pipeline l
 ```bash
 # With .NET SDK installed locally
 cd src/empty-browser
-dotnet publish /p:BenchmarkPreset=Debug
+dotnet publish /p:BenchmarkPreset=DevLoop
 
 # Inside the build container
 docker run --rm -v "$PWD:/bench" -w /bench browser-bench-build:latest \
-    bash scripts/build-app.sh empty-browser mono debug
+    bash scripts/build-app.sh empty-browser mono devloop
 ```
 
 ## CI Workflows

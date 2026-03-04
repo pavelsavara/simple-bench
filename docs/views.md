@@ -26,7 +26,7 @@ The dashboard is a static single-page application hosted on GitHub Pages. It pre
 │  ☑ Relink │  ├─────────────────────────────────────────────┤    │
 │  ☑ Invar  │  │                                             │    │
 │  ☑ NoRefEm│  │  Chart: Download Size — Total (bytes)       │    │
-│  ☑ Debug  │  │  ═══════════════════════════════════════     │    │
+│  ☑ DevLoop│  │  ═══════════════════════════════════════     │    │
 │           │  │   [time-series line chart]                  │    │
 │  ENGINE   │  │                                             │    │
 │  ☑ V8     │  ├─────────────────────────────────────────────┤    │
@@ -103,7 +103,7 @@ PRESET
 ☑ NativeRelink
 ☑ Invariant
 ☑ NoReflectionEmit
-☑ Debug
+☑ DevLoop
 ```
 - AOT checkbox is hidden/disabled when Mono is deselected (AOT is Mono-only).
 - NativeAOT runtime has its own set of applicable presets.
@@ -149,7 +149,7 @@ Each line represents one **engine × preset × runtime** combination. Lines are 
 | Visual | Maps to |
 |--------|--------|
 | **Color** | Engine (V8=blue, Node=green, Chrome=orange, Firefox=red) |
-| **Dash pattern** | Preset (NoWorkload=solid, AOT=dashed, NativeRelink=dotted, Invariant=dash-dot, NoReflectionEmit=long-dash, Debug=short-dash) |
+| **Dash pattern** | Preset (NoWorkload=solid, AOT=dashed, NativeRelink=dotted, Invariant=dash-dot, NoReflectionEmit=long-dash, DevLoop=short-dash) |
 | **Line thickness** | Runtime (CoreCLR=2px, Mono=1.5px, NativeAOT=1.5px) — or use shape markers instead |
 | **Point marker** | Runtime (CoreCLR=circle, Mono=triangle, NativeAOT=square) |
 
@@ -269,7 +269,7 @@ The entire view state is encoded in the URL hash. Changing tab or filters update
 | NativeRelink | Dotted | `[3, 3]` |
 | Invariant | Dash-dot | `[10, 3, 3, 3]` |
 | NoReflectionEmit | Long-dash | `[15, 5]` |
-| Debug | Short-dash | `[5, 5]` |
+| DevLoop | Short-dash | `[5, 5]` |
 
 | Runtime | Marker |
 |---------|--------|

@@ -13,7 +13,7 @@ node scripts/run-pipeline.mjs --runtime-commit <runtime-commit-hash>
 
 # Or manually set the env var for build-app.sh
 export CUSTOM_RUNTIME_PACK_DIR=/path/to/extracted/nupkg
-./scripts/build-app.sh empty-browser mono debug
+./scripts/build-app.sh empty-browser mono devloop
 ```
 
 ## Enumerating runtime packs

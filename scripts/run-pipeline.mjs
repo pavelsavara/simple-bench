@@ -21,9 +21,9 @@
  *   --sdk-channel <ch>       SDK channel (default: 11.0)
  *   --sdk-version <ver>      Specific SDK version (default: latest from channel)
  *   --runtime <rt>           Runtime to benchmark (default: mono)
- *   --dry-run                Build only empty-browser app + debug preset (fast validation)
+ *   --dry-run                Build only empty-browser app + devloop preset (fast validation)
  *   --app <list>             Comma-separated app filter (e.g. empty-browser,try-mud-blazor)
- *   --preset <list>          Comma-separated preset filter (e.g. debug,aot)
+ *   --preset <list>          Comma-separated preset filter (e.g. devloop,aot)
  */
 
 import { parseArgs } from 'node:util';
@@ -64,9 +64,9 @@ let SDK_INFO_PATH = join(ARTIFACTS_DIR, SDK_DIR, 'sdk-info.json');
 // Parse comma-separated filters into sets (empty = no filter)
 const appFilter = args.app ? new Set(args.app.split(',').map(s => s.trim())) : null;
 const presetFilter = args.preset ? new Set(args.preset.split(',').map(s => s.trim())) : null;
-// In dry-run mode, default to debug preset only (unless explicit --preset given)
+// In dry-run mode, default to devloop preset only (unless explicit --preset given)
 const effectivePresetFilter = presetFilter
-    || (args['dry-run'] ? new Set(['debug']) : null);
+    || (args['dry-run'] ? new Set(['devloop']) : null);
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 

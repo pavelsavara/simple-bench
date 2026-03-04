@@ -11,8 +11,8 @@
  *
  * Usage:
  *   node scripts/run-measure-job.mjs \
- *     --app empty-browser --preset debug \
- *     --publish-dir artifacts/publish/empty-browser/debug \
+ *     --app empty-browser --preset devloop \
+ *     --publish-dir artifacts/publish/empty-browser/devloop \
  *     --sdk-info artifacts/sdk/sdk-info.json \
  *     --build-manifest artifacts/results/build-manifest.json \
  *     --output-dir artifacts/results \

@@ -10,7 +10,7 @@
 #   ./scripts/local-bench.sh --app try-mud-blazor          # Single app
 #   ./scripts/local-bench.sh --engine chrome,firefox       # Specific engines
 #   ./scripts/local-bench.sh --dry-run                     # Chrome only (fast)
-#   ./scripts/local-bench.sh --preset debug,aot            # Specific presets
+#   ./scripts/local-bench.sh --preset devloop,aot            # Specific presets
 #   ./scripts/local-bench.sh --runtime mono                # Runtime flavor
 #   ./scripts/local-bench.sh --sdk-version 11.0.100-preview.3.26062.1
 #

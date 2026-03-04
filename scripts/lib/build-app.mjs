@@ -8,7 +8,7 @@
  *   - Compile time in artifacts/publish/{app}/{preset}/compile-time.json
  *
  * Usage as script:
- *   node scripts/lib/build-app.mjs --app empty-browser --runtime mono --preset debug
+ *   node scripts/lib/build-app.mjs --app empty-browser --runtime mono --preset devloop
  */
 
 import { execFileSync } from 'node:child_process';
@@ -75,7 +75,7 @@ function resolveAppDir(app, sdkMajor) {
  * @param {object} options
  * @param {string} options.app           App name (e.g. 'empty-browser')
  * @param {string} options.runtime       Runtime flavor ('mono' or 'coreclr')
- * @param {string} options.preset        Build preset name (e.g. 'debug', 'aot')
+ * @param {string} options.preset        Build preset name (e.g. 'devloop', 'aot')
  * @param {string} [options.artifactsDir] Artifacts directory (default: env or ./artifacts)
  * @param {string} [options.customRuntimePackDir] Optional custom runtime pack directory
  * @returns {Promise<{compileTimeMs: number, publishDir: string}>}

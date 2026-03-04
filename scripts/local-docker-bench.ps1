@@ -15,7 +15,7 @@
     ./local-docker-bench.ps1 --dry-run                      # Chrome only
     ./local-docker-bench.ps1 --app try-mud-blazor           # Single app
     ./local-docker-bench.ps1 --engine chrome                # Specific engine
-    ./local-docker-bench.ps1 --preset debug,aot             # Specific presets
+    ./local-docker-bench.ps1 --preset devloop,aot             # Specific presets
     ./local-docker-bench.ps1 --sdk-version 11.0.100-preview.3.26062.1
 
     All flags are forwarded to: node scripts/run-bench.mjs --mode docker ...

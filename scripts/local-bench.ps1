@@ -17,7 +17,7 @@
     ./local-bench.ps1 -Step build
     ./local-bench.ps1 -Step measure
     ./local-bench.ps1 -DryRun                        # Measure chrome only (like PR mode)
-    ./local-bench.ps1 -App empty-browser -Preset debug   # Measure one combo
+    ./local-bench.ps1 -App empty-browser -Preset devloop   # Measure one combo
     ./local-bench.ps1 -SdkVersion 11.0.100-preview.3.26062.1
 #>
 [CmdletBinding()]

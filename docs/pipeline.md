@@ -246,7 +246,7 @@ The csproj maps `BenchmarkPreset` to the standard `Configuration` (Release/Debug
 | `native-relink` | `NativeRelink` | `Release` | `WasmNativeRelink=true` |
 | `invariant` | `Invariant` | `Release` | `InvariantGlobalization=true` |
 | `no-reflection-emit` | `NoReflectionEmit` | `Release` | `_WasmNoReflectionEmit=true` |
-| `debug` | `Debug` | `Debug` | _(none)_ |
+| `devloop` | `DevLoop` | `Debug` | _(none)_ |
 
 The `obj/` and `bin/` directories are redirected to `artifacts/` via `<ArtifactsPath>` to keep the source tree clean.
 
@@ -419,7 +419,7 @@ The benchmark workflow uses two separate jobs with distinct Docker images:
 Executes `scripts/run-pipeline.mjs --build-only` which:
 1. Installs the .NET SDK once
 2. Validates that wasm-tools workload is **not** pre-installed
-3. Builds all apps × non-workload presets (`debug`, `no-workload`)
+3. Builds all apps × non-workload presets (`devloop`, `no-workload`)
 4. Installs the wasm-tools workload, captures its version in `sdk-info.json`
 5. Builds all apps × workload presets (`aot`, `invariant`, `native-relink`, `no-jiterp`, `no-reflection-emit`)
 6. Outputs a matrix JSON and uploads build artifacts

@@ -202,7 +202,7 @@ Add microbenchmark measurement support.
 | Docker registry | ghcr.io | Free for public repos, integrated with GH Actions |
 | Dependency pinning | All exact versions | Playwright version pins Chromium/Firefox builds; avoids silent measurement drift |
 | Runtime flavors | CoreCLR + Mono + LLVM NativeAOT | Compare all three runtimes on browser target |
-| Build presets | NoWorkload, AOT (Mono), NativeRelink, Invariant, NoReflectionEmit, Debug | Cover production + diagnostic scenarios |
+| Build presets | NoWorkload, AOT (Mono), NativeRelink, Invariant, NoReflectionEmit, DevLoop | Cover production + diagnostic scenarios |
 | SDK resolution | Latest nightly default, optional version param | Flexibility for regression investigation |
 | Browser versions | Latest Playwright-compatible | Consistent with Playwright's tested versions |
 

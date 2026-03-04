@@ -59,8 +59,8 @@ describe('getPresetArgs', () => {
         assert.deepEqual(getPresetArgs('no-jiterp'), ['/p:BenchmarkPreset=NoJiterp', '-c', 'Release']);
     });
 
-    it('debug → /p:BenchmarkPreset=Debug', () => {
-        assert.deepEqual(getPresetArgs('debug'), ['/p:BenchmarkPreset=Debug', '-c', 'Debug']);
+    it('devloop → /p:BenchmarkPreset=DevLoop', () => {
+        assert.deepEqual(getPresetArgs('devloop'), ['/p:BenchmarkPreset=DevLoop', '-c', 'Debug']);
     });
 
     it('throws on unknown preset', () => {
@@ -143,12 +143,12 @@ describe('getPublishArgs', () => {
         );
     });
 
-    it('builds publish args for debug preset (uses publish, not build)', () => {
-        const args = getPublishArgs('coreclr', 'debug', '/app', '/out');
+    it('builds publish args for devloop preset (uses publish, not build)', () => {
+        const args = getPublishArgs('coreclr', 'devloop', '/app', '/out');
         assert.deepEqual(args, [
             'publish',
             '/app',
-            '/p:BenchmarkPreset=Debug',
+            '/p:BenchmarkPreset=DevLoop',
             '-c', 'Debug',
             '/p:RuntimeFlavor=CoreCLR',
             '-o', '/out'
@@ -181,8 +181,8 @@ describe('needsWorkload', () => {
         assert.equal(needsWorkload('no-workload'), false);
     });
 
-    it('returns false for debug', () => {
-        assert.equal(needsWorkload('debug'), false);
+    it('returns false for devloop', () => {
+        assert.equal(needsWorkload('devloop'), false);
     });
 
     it('returns false for unknown preset', () => {
@@ -198,7 +198,7 @@ describe('needsWorkload', () => {
     });
 
     it('presets without WasmBuildNative do not need workload', () => {
-        const noWorkloadPresets = ['debug', 'no-workload'];
+        const noWorkloadPresets = ['devloop', 'no-workload'];
         for (const preset of noWorkloadPresets) {
             assert.equal(needsWorkload(preset), false, `Expected needsWorkload('${preset}') to be false`);
         }
@@ -206,8 +206,8 @@ describe('needsWorkload', () => {
 });
 
 describe('NON_WORKLOAD_PRESETS', () => {
-    it('contains debug and no-workload', () => {
-        assert.ok(NON_WORKLOAD_PRESETS.has('debug'));
+    it('contains devloop and no-workload', () => {
+        assert.ok(NON_WORKLOAD_PRESETS.has('devloop'));
         assert.ok(NON_WORKLOAD_PRESETS.has('no-workload'));
     });
 
@@ -239,7 +239,7 @@ describe('WORKLOAD_PRESETS', () => {
 describe('getPresetGroups', () => {
     it('returns sorted non-workload presets', () => {
         const { nonWorkload } = getPresetGroups();
-        assert.deepEqual(nonWorkload, ['debug', 'no-workload']);
+        assert.deepEqual(nonWorkload, ['devloop', 'no-workload']);
     });
 
     it('returns sorted workload presets', () => {

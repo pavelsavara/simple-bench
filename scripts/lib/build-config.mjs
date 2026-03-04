@@ -18,7 +18,7 @@ export function mapRuntimeFlavor(runtime) {
  *  The csproj handles Configuration (Release/Debug) internally based on BenchmarkPreset.
  *  We also pass -c explicitly to override dotnet publish's default of Release. */
 const PRESET_MAP = {
-    'debug': 'Debug',
+    'devloop': 'DevLoop',
     'no-workload': 'NoWorkload',
     'aot': 'Aot',
     'native-relink': 'NativeRelink',
@@ -29,7 +29,7 @@ const PRESET_MAP = {
 
 /** Map preset to MSBuild Configuration value. */
 const PRESET_CONFIG = {
-    'debug': 'Debug',
+    'devloop': 'Debug',
     'no-workload': 'Release',
     'aot': 'Release',
     'native-relink': 'Release',
@@ -54,7 +54,7 @@ const WORKLOAD_PRESETS = new Set([
 /** Presets that do NOT require the wasm-tools workload.
  *  These can be compiled with a bare SDK (no workload installed). */
 const NON_WORKLOAD_PRESETS = new Set([
-    'debug',
+    'devloop',
     'no-workload',
 ]);
 

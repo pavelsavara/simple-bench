@@ -1,7 +1,7 @@
 <Project>
 
   <PropertyGroup>
-    <BenchmarkPreset Condition="'$(BenchmarkPreset)' == ''">Debug</BenchmarkPreset>
+    <BenchmarkPreset Condition="'$(BenchmarkPreset)' == ''">DevLoop</BenchmarkPreset>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
@@ -10,7 +10,7 @@
 -->
 
   <!-- Presets -->
-  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'Debug'">
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'DevLoop'">
     <Configuration>Debug</Configuration>
     <WasmBuildNative>false</WasmBuildNative>
 

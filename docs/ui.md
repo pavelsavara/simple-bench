@@ -470,7 +470,7 @@ const PRESET_DASHES = {
     'native-relink':      [3, 3],         // dotted
     invariant:            [10, 3, 3, 3],  // dash-dot
     'no-reflection-emit': [15, 5],        // long-dash
-    debug:                [5, 5]          // short-dash
+    devloop:              [5, 5]          // short-dash
 };
 
 const RUNTIME_MARKERS = {

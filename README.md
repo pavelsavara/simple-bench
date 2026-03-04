@@ -11,7 +11,7 @@ Daily performance tracking for .NET WebAssembly in browsers. Automatically build
 | **Memory** | Peak JS heap during load |
 | **Throughput** | JS interop, JSON parsing, exception handling (ops/sec) |
 
-Across dimensions: **runtime** (CoreCLR, Mono) × **preset** (Release, AOT, NativeRelink, Invariant, Debug, …) × **engine** (Chrome, Firefox, V8, Node) × **app** (empty-browser, empty-blazor, blazing-pizza, microbenchmarks).
+Across dimensions: **runtime** (CoreCLR, Mono) × **preset** (Release, AOT, NativeRelink, Invariant, DevLoop, …) × **engine** (Chrome, Firefox, V8, Node) × **app** (empty-browser, empty-blazor, blazing-pizza, microbenchmarks).
 
 ## Pipeline flow
 
@@ -64,7 +64,7 @@ npm ci && npm test
 ./scripts/local-docker-bench.sh --dry-run    # chrome-only, like PR validation
 
 # Re-measure only (skip rebuild)
-./scripts/local-docker-bench.sh --skip-docker --skip-build --app empty-browser --preset debug
+./scripts/local-docker-bench.sh --skip-docker --skip-build --app empty-browser --preset devloop
 ```
 
 See [agent.md](agent.md) for detailed instructions.
