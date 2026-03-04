@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 /**
- * run-pipeline.mjs — Single-container benchmark orchestrator.
+ * run-pipeline.mjs — Build orchestrator for benchmark pipeline.
  *
- * Runs all build + measurement steps in one container to avoid redundant
- * SDK/workload downloads across matrix jobs.
+ * Builds all sample apps inside a single container to avoid redundant
+ * SDK/workload downloads. Produces a build-manifest.json with the matrix
+ * of successful builds, compile times, and integrity checksums.
  *
  * Pipeline phases:
  *   1. Resolve / install .NET SDK
@@ -11,12 +12,7 @@
  *   3. For all apps × non-workload presets → build
  *   4. Install wasm-tools workload, capture version in sdk-info.json
  *   5. For all apps × workload presets → build
- *   6. For all engines × apps × presets → run measurements
- *
- * Engine mapping:
- *   empty-blazor: chrome, firefox  (needs browser DOM)
- *   empty-browser, microbenchmarks: chrome, firefox, v8, node
- *   --dry-run / PR: chrome only
+ *   6. Write build-manifest.json (matrix + compile-time + integrity)
  *
  * Usage:
  *   node scripts/run-pipeline.mjs [options]
@@ -25,16 +21,10 @@
  *   --sdk-channel <ch>       SDK channel (default: 11.0)
  *   --sdk-version <ver>      Specific SDK version (default: latest from channel)
  *   --runtime <rt>           Runtime to benchmark (default: mono)
- *   --ci-run-id <id>         GitHub Actions run ID (optional)
- *   --ci-run-url <url>       GitHub Actions run URL (optional)
- *   --timeout <ms>           Measurement timeout in ms (default: 300000)
- *   --retries <n>            Measurement retries (default: 3)
- *   --dry-run                Restrict measurements to chrome only (fast PR validation)
- *   --build-only             Build all apps, output matrix JSON, skip measurements
  */
 
 import { parseArgs } from 'node:util';
-import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { readdir, readFile, writeFile, stat, mkdir } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { getPresetGroups, validateCombination } from './lib/build-config.mjs';
@@ -48,13 +38,6 @@ const { values: args } = parseArgs({
         'sdk-channel': { type: 'string', default: '11.0' },
         'sdk-version': { type: 'string', default: '' },
         'runtime': { type: 'string', default: 'mono' },
-        'ci-run-id': { type: 'string', default: '' },
-        'ci-run-url': { type: 'string', default: '' },
-        'timeout': { type: 'string', default: '300000' },
-        'retries': { type: 'string', default: '3' },
-        'dry-run': { type: 'boolean', default: false },
-        'build-only': { type: 'boolean', default: false },
-        'runtime-commit': { type: 'string', default: '' },
     },
     strict: true,
 });
@@ -72,7 +55,7 @@ function run(cmd, cmdArgs, { label, env: extraEnv } = {}) {
     console.error(`\n▶ ${label || displayCmd}`);
     try {
         execFileSync(cmd, cmdArgs, {
-            stdio: 'inherit',
+            stdio: ['inherit', process.stderr, 'inherit'],
             env: { ...process.env, ...extraEnv },
             cwd: REPO_DIR,
         });
@@ -163,13 +146,17 @@ async function buildApps(apps, presets, phaseLabel) {
                 console.error(`  Skipping invalid combination: ${runtime} + ${preset}`);
                 continue;
             }
-            run('bash', [
-                join(SCRIPT_DIR, 'build-app.sh'),
-                app,
-                runtime,
-                preset,
-            ], { label: `build ${app} (${runtime}/${preset})` });
-            succeeded.push({ app, preset });
+            try {
+                run('bash', [
+                    join(SCRIPT_DIR, 'build-app.sh'),
+                    app,
+                    runtime,
+                    preset,
+                ], { label: `build ${app} (${runtime}/${preset})` });
+                succeeded.push({ app, preset });
+            } catch {
+                console.error(`  ⚠ Build failed for ${app}/${preset}, skipping`);
+            }
         }
     }
     return succeeded;
@@ -203,87 +190,74 @@ async function installWorkload() {
     console.error(`✓ Updated sdk-info.json with workloadVersion: ${workloadVersion}`);
 }
 
-// ── Phase 6: Run measurements ───────────────────────────────────────────────
-
-/** Apps that require a browser (DOM, fetch, service workers). */
-const BROWSER_ONLY_APPS = new Set(['empty-blazor']);
-
-/** Apps measured with measure-internal.mjs (microbenchmarks). */
-const INTERNAL_APPS = new Set(['microbenchmarks']);
-
-const ALL_BROWSER_ENGINES = ['chrome', 'firefox'];
-const ALL_CLI_ENGINES = ['v8', 'node'];
+// ── Integrity computation ───────────────────────────────────────────────────
 
 /**
- * Return the list of engines to test for a given app.
- * --dry-run restricts to chrome only for fast PR validation.
+ * Walk a directory and compute file count + total byte size.
+ * @param {string} dir Absolute path
+ * @returns {Promise<{fileCount: number, totalBytes: number}>}
  */
-function getEnginesForApp(app, isDryRun) {
-    if (isDryRun) return ['chrome'];
-    if (BROWSER_ONLY_APPS.has(app)) return ALL_BROWSER_ENGINES;
-    return [...ALL_BROWSER_ENGINES, ...ALL_CLI_ENGINES];
+async function computeIntegrity(dir) {
+    let fileCount = 0;
+    let totalBytes = 0;
+    try {
+        const entries = await readdir(dir, { recursive: true, withFileTypes: true });
+        for (const entry of entries) {
+            if (!entry.isFile()) continue;
+            const parentPath = entry.parentPath || entry.path;
+            const fullPath = join(parentPath, entry.name);
+            const fileStat = await stat(fullPath);
+            fileCount++;
+            totalBytes += fileStat.size;
+        }
+    } catch {
+        // directory doesn't exist
+    }
+    return { fileCount, totalBytes };
 }
 
-async function runMeasurements(builds, isDryRun) {
-    console.error('\n═══ Phase 6: Run measurements ═══');
-    const runtime = args.runtime;
-    const sdkInfo = JSON.parse(await readFile(SDK_INFO_PATH, 'utf-8'));
-    const runtimeHash = sdkInfo.runtimeGitHash || sdkInfo.gitHash || '';
-    const runtimeHash7 = runtimeHash.slice(0, 7);
-    const commitTime = sdkInfo.commitTime;
+// ── Build manifest ──────────────────────────────────────────────────────────
+
+/**
+ * Enrich build entries with compile-time and integrity data,
+ * then write build-manifest.json.
+ */
+async function writeBuildManifest(builds) {
+    console.error('\n═══ Phase 6: Write build manifest ═══');
+    const manifest = [];
 
     for (const { app, preset } of builds) {
-        const engines = getEnginesForApp(app, isDryRun);
+        const publishDir = join(ARTIFACTS_DIR, 'publish', app, preset);
+        const compileTimePath = join(publishDir, 'compile-time.json');
 
-        for (const engine of engines) {
-            const filename = `${commitTime}_${runtimeHash7}_${runtime}_${preset}_${engine}_${app}.json`;
-            const publishDir = join(ARTIFACTS_DIR, 'publish', app, preset, 'wwwroot');
-            const compileTimeFile = join(ARTIFACTS_DIR, 'publish', app, preset, 'compile-time.json');
-            const outputFile = join(ARTIFACTS_DIR, 'results', filename);
-
-            if (INTERNAL_APPS.has(app)) {
-                // Microbenchmarks → measure-internal.mjs
-                run('node', [
-                    join(SCRIPT_DIR, 'measure-internal.mjs'),
-                    '--publish-dir', publishDir,
-                    '--engine', engine,
-                    '--output', outputFile,
-                    '--runtime', runtime,
-                    '--preset', preset,
-                    '--sdk-info', SDK_INFO_PATH,
-                    '--compile-time-file', compileTimeFile,
-                    '--retries', args.retries,
-                    '--timeout', args.timeout,
-                    ...(args['ci-run-id'] ? ['--ci-run-id', args['ci-run-id']] : []),
-                    ...(args['ci-run-url'] ? ['--ci-run-url', args['ci-run-url']] : []),
-                ], { label: `measure ${app} (${runtime}/${preset}/${engine})` });
-            } else {
-                // Browser apps → measure-external.mjs
-                run('node', [
-                    join(SCRIPT_DIR, 'measure-external.mjs'),
-                    '--app', app,
-                    '--publish-dir', publishDir,
-                    '--sdk-info', SDK_INFO_PATH,
-                    '--compile-time-file', compileTimeFile,
-                    '--engine', engine,
-                    '--runtime', runtime,
-                    '--preset', preset,
-                    '--retries', args.retries,
-                    '--timeout', args.timeout,
-                    ...(args['ci-run-id'] ? ['--ci-run-id', args['ci-run-id']] : []),
-                    ...(args['ci-run-url'] ? ['--ci-run-url', args['ci-run-url']] : []),
-                    '--output', outputFile,
-                ], { label: `measure ${app} (${runtime}/${preset}/${engine})` });
-            }
+        // Read compile time
+        let compileTimeMs = null;
+        try {
+            const ct = JSON.parse(await readFile(compileTimePath, 'utf-8'));
+            compileTimeMs = typeof ct.compileTimeMs === 'number' ? ct.compileTimeMs : null;
+        } catch {
+            console.error(`  ⚠ Could not read compile-time.json for ${app}/${preset}`);
         }
+
+        // Compute integrity
+        const integrity = await computeIntegrity(publishDir);
+        console.error(`  ${app}/${preset}: ${integrity.fileCount} files, ${(integrity.totalBytes / 1024 / 1024).toFixed(1)} MB, compile ${compileTimeMs ?? '?'}ms`);
+
+        manifest.push({ app, preset, compileTimeMs, integrity });
     }
+
+    await mkdir(join(ARTIFACTS_DIR, 'results'), { recursive: true });
+    const manifestPath = join(ARTIFACTS_DIR, 'results', 'build-manifest.json');
+    await writeFile(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+    console.error(`\n✓ Build manifest written to ${manifestPath}`);
+    return manifest;
 }
 
 // ── Main ────────────────────────────────────────────────────────────────────
 
 async function main() {
     console.error('╔═══════════════════════════════════════════════╗');
-    console.error('║       Benchmark Pipeline — Single Container  ║');
+    console.error('║       Benchmark Pipeline — Build              ║');
     console.error('╚═══════════════════════════════════════════════╝');
 
     const { nonWorkload, workload } = getPresetGroups();
@@ -333,24 +307,10 @@ async function main() {
     const allSucceeded = [...phase3, ...phase5];
     console.error(`\n✓ ${allSucceeded.length} builds succeeded`);
 
-    // --build-only: output matrix JSON to stdout for CI, then exit
-    if (args['build-only']) {
-        const matrixJson = JSON.stringify(allSucceeded);
-        // Write to file for debugging
-        const { mkdir } = await import('node:fs/promises');
-        await mkdir(join(ARTIFACTS_DIR, 'results'), { recursive: true });
-        await writeFile(join(ARTIFACTS_DIR, 'results', 'build-matrix.json'), matrixJson + '\n');
-        // Output to stdout for GitHub Actions
-        console.log(matrixJson);
-        console.error('\n✓ Build-only complete');
-        return;
-    }
+    // Phase 6: Write build manifest with compile-time + integrity
+    await writeBuildManifest(allSucceeded);
 
-    // Phase 6: Run measurements
-    //   --dry-run restricts to chrome-only (fast PR validation)
-    await runMeasurements(allSucceeded, args['dry-run']);
-
-    console.error('\n✓ Pipeline complete');
+    console.error('\n✓ Build pipeline complete');
 }
 
 main().catch(err => {

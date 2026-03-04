@@ -28,7 +28,7 @@ jobs:
     container: ghcr.io/${{ github.repository }}/browser-bench-build:latest
     timeout-minutes: 60
     outputs:
-      matrix: ${{ steps.build.outputs.matrix }}
+      matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
 
@@ -39,15 +39,30 @@ jobs:
         shell: bash
         run: echo "ARTIFACTS_DIR=${ARTIFACTS_DIR:-artifacts}" >> "$GITHUB_ENV"
 
-      - name: Build all apps (continue on failure)
-        id: build
+      - name: Build all apps
         shell: bash
         run: |
-          MATRIX=$(node scripts/run-pipeline.mjs \
-            --build-only \
+          node scripts/run-pipeline.mjs \
             --sdk-channel "${{ inputs.sdk_channel || '11.0' }}" \
             ${{ inputs.sdk_version && format('--sdk-version "{0}"', inputs.sdk_version) || '' }} \
-            --runtime mono)
+            --runtime mono
+
+      - name: Set matrix output
+        id: matrix
+        shell: bash
+        run: |
+          MANIFEST="${ARTIFACTS_DIR:-artifacts}/results/build-manifest.json"
+          if [ ! -f "$MANIFEST" ]; then
+            echo "matrix=[]" >> "$GITHUB_OUTPUT"
+            echo "⚠ No build manifest found" >&2
+            exit 0
+          fi
+          # Extract just {app, preset} for the GHA matrix
+          MATRIX=$(node --input-type=module -e "
+            import { readFileSync } from 'node:fs';
+            const m = JSON.parse(readFileSync('$MANIFEST', 'utf-8'));
+            console.log(JSON.stringify(m.map(e => ({ app: e.app, preset: e.preset }))));
+          ")
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
           echo "Build matrix: $MATRIX" >&2
 
@@ -60,17 +75,24 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+      - name: Upload build manifest
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-manifest
+          path: ${{ env.ARTIFACTS_DIR || 'artifacts' }}/results/build-manifest.json
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Upload individual builds
-        if: always() && steps.build.outputs.matrix != ''
+        if: always() && steps.matrix.outputs.matrix != '[]'
         shell: bash
-        env:
-          BUILD_MATRIX: ${{ steps.build.outputs.matrix }}
         run: |
           npm install --no-save @actions/artifact 2>&1 | tail -1
-          node << 'UPLOAD_SCRIPT'
-          const { DefaultArtifactClient } = require('@actions/artifact');
-          const { readdirSync, statSync } = require('fs');
-          const { join } = require('path');
+          node --input-type=module << 'UPLOAD_SCRIPT'
+          import { DefaultArtifactClient } from '@actions/artifact';
+          import { readFileSync, readdirSync } from 'node:fs';
+          import { join } from 'node:path';
 
           function getFilesRecursive(dir) {
             const results = [];
@@ -83,11 +105,12 @@ jobs:
           }
 
           async function main() {
-            const matrix = JSON.parse(process.env.BUILD_MATRIX || '[]');
             const artifactsDir = process.env.ARTIFACTS_DIR || 'artifacts';
+            const manifestPath = join(artifactsDir, 'results', 'build-manifest.json');
+            const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
             const client = new DefaultArtifactClient();
 
-            for (const { app, preset } of matrix) {
+            for (const { app, preset } of manifest) {
               const publishDir = join(artifactsDir, 'publish', app, preset);
               const name = `build-${app}-${preset}`;
               try {
@@ -136,6 +159,12 @@ jobs:
           name: sdk-info
           path: artifacts/sdk
 
+      - name: Download build manifest
+        uses: actions/download-artifact@v4
+        with:
+          name: build-manifest
+          path: artifacts/results
+
       - name: Download build
         uses: actions/download-artifact@v4
         with:
@@ -150,6 +179,7 @@ jobs:
             --preset "${{ matrix.preset }}" \
             --publish-dir "artifacts/publish/${{ matrix.app }}/${{ matrix.preset }}" \
             --sdk-info artifacts/sdk/sdk-info.json \
+            --build-manifest artifacts/results/build-manifest.json \
             --output-dir artifacts/results \
             --runtime mono \
             --retries 3 \
@@ -164,41 +194,5 @@ jobs:
         with:
           name: results-${{ matrix.app }}-${{ matrix.preset }}
           path: artifacts/results/*.json
-          if-no-files-found: ignore
-          retention-days: 7
-
-  # ── Job 3: Consolidate results ─────────────────────────────────────────────
-  consolidate:
-    needs: [build, measure]
-    if: always() && needs.build.result == 'success'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            scripts/
-            package.json
-            package-lock.json
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install npm dependencies
-        run: npm ci
-
-      - name: Download all result artifacts
-        uses: actions/download-artifact@v4
-        with:
-          pattern: results-*
-          path: artifacts/all-results/
-          merge-multiple: true
-
-      - name: Upload consolidated results
-        uses: actions/upload-artifact@v4
-        if: ${{ always() && github.event_name != 'pull_request' && !inputs.dry_run }}
-        with:
-          name: benchmark-results
-          path: artifacts/all-results/*.json
           if-no-files-found: ignore
           retention-days: 7

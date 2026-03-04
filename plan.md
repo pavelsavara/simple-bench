@@ -1,5 +1,17 @@
 # Plan: .NET Browser WASM Benchmark Suite
 
+## Current: CI Fix (2026-03-04)
+
+### Issues from run [#22669524404](https://github.com/pavelsavara/simple-bench/actions/runs/22669524404/job/65709714125)
+
+1. **dotnet-install stdout polluting `$GITHUB_OUTPUT`** — `run()` in `run-pipeline.mjs` used `stdio: 'inherit'`, so child processes sent `dotnet-install:` messages to stdout, captured in `$MATRIX`. Fixed by redirecting child stdout to stderr: `stdio: ['inherit', process.stderr, 'inherit']`.
+
+2. **`ERR_PACKAGE_PATH_NOT_EXPORTED` for `@actions/artifact`** — `@actions/artifact` v2+ is ESM-only; `require()` fails on Node 24. Fixed by converting heredoc to `node --input-type=module` with ESM `import` statements.
+
+Status: ✅ Complete — all 241 unit tests pass
+
+---
+
 ## Overview
 
 A benchmarking solution that measures .NET Browser/WASM performance (CoreCLR + Mono) across multiple sample apps, engines, and build configurations. Results stored as daily-sharded JSON on `gh-pages` (organized by commit date, indexed by month), visualized with a Chart.js dashboard, collected via GitHub Actions.

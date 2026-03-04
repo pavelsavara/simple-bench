@@ -35,23 +35,6 @@ if [ ! -x "$DOTNET" ]; then
     DOTNET="dotnet"
 fi
 
-# Check if this preset needs the wasm-tools workload
-NEEDS_WORKLOAD=$(node -e "
-    import { needsWorkload } from '$SCRIPT_DIR/lib/build-config.mjs';
-    process.stdout.write(needsWorkload('$PRESET') ? 'true' : 'false');
-")
-
-if [ "$NEEDS_WORKLOAD" = "true" ]; then
-    echo "Restoring wasm-tools workload for preset '$PRESET'..." >&2
-    # Find the .csproj in the app directory (workload restore needs explicit project path)
-    CSPROJ=$(find "$APP_DIR" -maxdepth 1 -name '*.csproj' | head -1)
-    if [ -z "$CSPROJ" ]; then
-        echo "Error: No .csproj found in $APP_DIR" >&2
-        exit 1
-    fi
-    "$DOTNET" workload restore "$CSPROJ"
-fi
-
 # Get publish arguments from JS utility
 PUBLISH_ARGS=$(node -e "
     import { getPublishArgs } from '$SCRIPT_DIR/lib/build-config.mjs';

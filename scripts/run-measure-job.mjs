@@ -6,11 +6,15 @@
  * applicable engines and runs measure-external.mjs or measure-internal.mjs
  * for each. No .NET SDK required — only the published binaries.
  *
+ * When --build-manifest is provided, verifies the integrity of the downloaded
+ * build artifacts (file count + total size) before measuring.
+ *
  * Usage:
  *   node scripts/run-measure-job.mjs \
  *     --app empty-browser --preset debug \
  *     --publish-dir artifacts/publish/empty-browser/debug \
  *     --sdk-info artifacts/sdk/sdk-info.json \
+ *     --build-manifest artifacts/results/build-manifest.json \
  *     --output-dir artifacts/results \
  *     --runtime mono \
  *     [--dry-run] [--timeout 300000] [--retries 3] \
@@ -18,7 +22,7 @@
  */
 
 import { parseArgs } from 'node:util';
-import { readFile, mkdir } from 'node:fs/promises';
+import { readFile, readdir, stat, mkdir } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 
@@ -47,6 +51,7 @@ const { values: args } = parseArgs({
         'preset': { type: 'string' },
         'publish-dir': { type: 'string' },
         'sdk-info': { type: 'string' },
+        'build-manifest': { type: 'string', default: '' },
         'output-dir': { type: 'string' },
         'runtime': { type: 'string', default: 'mono' },
         'timeout': { type: 'string', default: '300000' },
@@ -74,6 +79,55 @@ const publishDir = resolve(args['publish-dir']);
 const sdkInfoPath = resolve(args['sdk-info']);
 const outputDir = resolve(args['output-dir']);
 
+// ── Integrity verification ──────────────────────────────────────────────────
+
+async function computeIntegrity(dir) {
+    let fileCount = 0;
+    let totalBytes = 0;
+    const entries = await readdir(dir, { recursive: true, withFileTypes: true });
+    for (const entry of entries) {
+        if (!entry.isFile()) continue;
+        const parentPath = entry.parentPath || entry.path;
+        const fullPath = join(parentPath, entry.name);
+        const fileStat = await stat(fullPath);
+        fileCount++;
+        totalBytes += fileStat.size;
+    }
+    return { fileCount, totalBytes };
+}
+
+async function verifyIntegrity() {
+    if (!args['build-manifest']) return;
+
+    let manifest;
+    try {
+        manifest = JSON.parse(await readFile(resolve(args['build-manifest']), 'utf-8'));
+    } catch (err) {
+        console.error(`⚠ Could not read build manifest: ${err.message}`);
+        return;
+    }
+
+    const entry = manifest.find(e => e.app === app && e.preset === preset);
+    if (!entry || !entry.integrity) {
+        console.error(`⚠ No integrity data in manifest for ${app}/${preset}`);
+        return;
+    }
+
+    const expected = entry.integrity;
+    const actual = await computeIntegrity(publishDir);
+
+    console.error(`Integrity check: expected ${expected.fileCount} files / ${expected.totalBytes} bytes`);
+    console.error(`Integrity check: actual   ${actual.fileCount} files / ${actual.totalBytes} bytes`);
+
+    if (actual.fileCount !== expected.fileCount || actual.totalBytes !== expected.totalBytes) {
+        console.error(`✗ INTEGRITY MISMATCH for ${app}/${preset}!`);
+        console.error(`  File count: expected=${expected.fileCount} actual=${actual.fileCount}`);
+        console.error(`  Total bytes: expected=${expected.totalBytes} actual=${actual.totalBytes}`);
+        process.exit(1);
+    }
+    console.error(`✓ Integrity verified for ${app}/${preset}`);
+}
+
 // ── Read SDK info for result filenames ──────────────────────────────────────
 
 const sdkInfo = JSON.parse(await readFile(sdkInfoPath, 'utf-8'));
@@ -81,6 +135,10 @@ const runtimeHash7 = (sdkInfo.runtimeGitHash || sdkInfo.gitHash || '').slice(0, 
 const commitTime = sdkInfo.commitTime;
 
 await mkdir(outputDir, { recursive: true });
+
+// ── Verify build artifact integrity ─────────────────────────────────────────
+
+await verifyIntegrity();
 
 // ── Determine engines and script ────────────────────────────────────────────
 
