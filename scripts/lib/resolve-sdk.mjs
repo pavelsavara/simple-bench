@@ -31,6 +31,7 @@ import {
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_DIR = resolve(SCRIPT_DIR, '..', '..');
+const CATALOG_DIR = process.env.ARTIFACTS_DIR || join(REPO_DIR, 'artifacts');
 
 /**
  * Download a URL and return the body as a string.
@@ -196,12 +197,12 @@ async function refreshSdkList(channel) {
 async function resolveFromCatalog({ channel, sdkVersion }) {
     let sdkListData, runtimePacksData;
     try {
-        sdkListData = JSON.parse(await readFile(join(REPO_DIR, 'artifacts', 'sdk-list.json'), 'utf-8'));
+        sdkListData = JSON.parse(await readFile(join(CATALOG_DIR, 'sdk-list.json'), 'utf-8'));
     } catch {
         sdkListData = { versions: [] };
     }
     try {
-        runtimePacksData = JSON.parse(await readFile(join(REPO_DIR, 'artifacts', 'runtime-packs.json'), 'utf-8'));
+        runtimePacksData = JSON.parse(await readFile(join(CATALOG_DIR, 'runtime-packs.json'), 'utf-8'));
     } catch {
         runtimePacksData = { versions: [] };
     }

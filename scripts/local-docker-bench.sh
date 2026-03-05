@@ -16,6 +16,10 @@
 #   ./scripts/local-docker-bench.sh --app try-mud-blazor   # Single app
 #   ./scripts/local-docker-bench.sh --engine chrome        # Specific engine
 #   ./scripts/local-docker-bench.sh --preset devloop,aot     # Specific presets
+#   ./scripts/local-docker-bench.sh --sdk-channel 10.0
+#   ./scripts/local-docker-bench.sh --sdk-version 11.0.100-preview.3.26062.1
+#   ./scripts/local-docker-bench.sh --runtime-pack 11.0.0-preview.3.26153.109
+#   ./scripts/local-docker-bench.sh --runtime-commit b37f7ad8869bde05cc0e1f6e0faba2245006a0a0
 #
 # All flags are forwarded to: node scripts/run-bench.mjs --mode docker ...
 

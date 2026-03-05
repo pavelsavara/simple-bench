@@ -12,7 +12,10 @@
 #   ./scripts/local-bench.sh --dry-run                     # Chrome only (fast)
 #   ./scripts/local-bench.sh --preset devloop,aot            # Specific presets
 #   ./scripts/local-bench.sh --runtime mono                # Runtime flavor
+#   ./scripts/local-bench.sh --sdk-channel 10.0
 #   ./scripts/local-bench.sh --sdk-version 11.0.100-preview.3.26062.1
+#   ./scripts/local-bench.sh --runtime-pack 11.0.0-preview.3.26153.109
+#   ./scripts/local-bench.sh --runtime-commit b37f7ad8869bde05cc0e1f6e0faba2245006a0a0
 #
 # All flags are forwarded to: node scripts/run-bench.mjs --mode local ...
 

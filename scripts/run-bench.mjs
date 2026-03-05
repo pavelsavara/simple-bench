@@ -24,6 +24,7 @@
  *   --sdk-channel <ch>    SDK channel (default: 11.0)
  *   --sdk-version <ver>   Specific SDK version
  *   --runtime-pack <ver>  Specific runtime pack version
+ *   --runtime-commit <hash> Specific dotnet/runtime commit hash
  *
  * Flow control:
  *   --skip-build           Skip the build step (reuse artifacts)
