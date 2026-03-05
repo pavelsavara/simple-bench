@@ -103,7 +103,7 @@ The `scripts/local-docker-bench.sh` script simulates the CI benchmark pipeline l
 
 #### Outputs
 
-- `artifacts/sdk/sdk-info.json` — resolved SDK version and git hashes
+- `artifacts/sdks/sdk-info.json` — resolved SDK version and git hashes
 - `artifacts/publish/{app}/{preset}/` — published app binaries
 - `artifacts/results/*.json` — benchmark result JSONs
 

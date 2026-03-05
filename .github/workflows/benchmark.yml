@@ -143,7 +143,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: sdk-info
-          path: artifacts/sdk
+          path: artifacts/results
 
       - name: Download build manifest
         uses: actions/download-artifact@v4
@@ -168,7 +168,7 @@ jobs:
             --app "${{ matrix.app }}" \
             --preset "${{ matrix.preset }}" \
             --publish-dir "artifacts/publish/${{ matrix.app }}/${{ matrix.commitDate }}/${{ matrix.preset }}" \
-            --sdk-info artifacts/sdk/sdk-info.json \
+            --sdk-info artifacts/results/sdk-info.json \
             --build-manifest artifacts/results/build-manifest.json \
             --output-dir artifacts/results \
             --runtime mono \

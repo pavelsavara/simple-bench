@@ -3,13 +3,13 @@
  * enumerate-runtime-packs.mjs — Enumerate runtime pack versions from the
  * Azure Artifacts NuGet feed and resolve VMR → runtime + SDK commit hashes.
  *
- * Incremental: loads existing runtime-packs.json and only resolves new versions.
+ * Incremental: loads existing artifacts/runtime-packs.json and only resolves new versions.
  *
  * Sources:
  *   - NuGet flat container on dotnet{major} feed (public, no auth)
  *   - GitHub raw URLs for VMR source-manifest.json
  *
- * Output: runtime-packs.json in repo root
+ * Output: artifacts/runtime-packs.json
  *
  * Usage:
  *   node scripts/enumerate-runtime-packs.mjs [--major 11] [--months 3] [--force]
@@ -29,7 +29,7 @@ import {
 } from './lib/runtime-pack-resolver.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const OUTPUT = resolve(__dirname, '..', 'runtime-packs.json');
+const OUTPUT = resolve(__dirname, '..', 'artifacts', 'runtime-packs.json');
 
 const DEFAULT_MAJOR = 11;
 
@@ -68,7 +68,7 @@ async function mapConcurrent(items, fn, concurrency = 5) {
 }
 
 /**
- * Load existing runtime-packs.json (for incremental mode).
+ * Load existing artifacts/runtime-packs.json (for incremental mode).
  * Returns Map<version, entry> for already-resolved versions.
  */
 function loadExisting() {

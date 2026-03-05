@@ -2,15 +2,15 @@
  * resolve-sdk.mjs — Download .NET SDK and resolve version + git hashes.
  *
  * Resolution algorithm:
- *   1. Look up exact SDK version from sdk-list.json (channel → latest valid build)
- *   2. Cross-reference with runtime-packs.json for git hashes (vmr, sdk, runtime)
+ *   1. Look up exact SDK version from artifacts/sdk-list.json (channel → latest valid build)
+ *   2. Cross-reference with artifacts/runtime-packs.json for git hashes (vmr, sdk, runtime)
  *   3. Install exact version via dotnet-install script (never channel-based guess)
  *   4. Fallback: if catalog lookup fails, install via channel and resolve
  *      hashes from dotnet --info + VMR source-manifest.json
  *   5. Write sdk-info.json
  *
  * Usage as script:
- *   node scripts/lib/resolve-sdk.mjs --channel 11.0 --install-dir artifacts/sdk
+ *   node scripts/lib/resolve-sdk.mjs --channel 11.0 --install-dir artifacts/sdks/sdk
  *   node scripts/lib/resolve-sdk.mjs --sdk-version 11.0.100-preview.3.25130.1
  */
 
@@ -82,12 +82,12 @@ function deriveRuntimeVersion(sdkVersion) {
 }
 
 /**
- * Refresh sdk-list.json by checking the latest daily SDK from the CDN.
+ * Refresh artifacts/sdk-list.json by checking the latest daily SDK from the CDN.
  * Fetches the productCommit endpoint with an ETag for conditional checks.
  * On 304 (unchanged) this is a single cheap HTTP round-trip.
  */
 async function refreshSdkList(channel) {
-    const sdkListPath = join(REPO_DIR, 'sdk-list.json');
+    const sdkListPath = join(REPO_DIR, 'artifacts', 'sdk-list.json');
     let sdkListData;
     try {
         sdkListData = JSON.parse(await readFile(sdkListPath, 'utf-8'));
@@ -187,21 +187,21 @@ async function refreshSdkList(channel) {
  * Look up SDK version + git hashes from pre-computed catalog files.
  *
  * When channel is given (no explicit version), finds the latest valid SDK
- * from sdk-list.json. When a specific version is given, looks it up directly.
+ * from artifacts/sdk-list.json. When a specific version is given, looks it up directly.
  *
- * Cross-references runtime-packs.json for vmrCommit and sdkGitHash.
+ * Cross-references artifacts/runtime-packs.json for vmrCommit and sdkGitHash.
  *
  * @returns {{ sdkVersion, runtimeGitHash, sdkGitHash, vmrGitHash, buildDate } | null}
  */
 async function resolveFromCatalog({ channel, sdkVersion }) {
     let sdkListData, runtimePacksData;
     try {
-        sdkListData = JSON.parse(await readFile(join(REPO_DIR, 'sdk-list.json'), 'utf-8'));
+        sdkListData = JSON.parse(await readFile(join(REPO_DIR, 'artifacts', 'sdk-list.json'), 'utf-8'));
     } catch {
         sdkListData = { versions: [] };
     }
     try {
-        runtimePacksData = JSON.parse(await readFile(join(REPO_DIR, 'runtime-packs.json'), 'utf-8'));
+        runtimePacksData = JSON.parse(await readFile(join(REPO_DIR, 'artifacts', 'runtime-packs.json'), 'utf-8'));
     } catch {
         runtimePacksData = { versions: [] };
     }
@@ -213,14 +213,14 @@ async function resolveFromCatalog({ channel, sdkVersion }) {
         // Look up specific version
         entry = sdkEntries.find(e => e.sdkVersion === sdkVersion);
         if (!entry) {
-            console.error(`  SDK ${sdkVersion} not found in sdk-list.json`);
+            console.error(`  SDK ${sdkVersion} not found in artifacts/sdk-list.json`);
             return null;
         }
     } else {
         // Find latest valid SDK for the channel
         const channelEntries = sdkEntries.filter(e => e.channel === channel);
         if (channelEntries.length === 0) {
-            console.error(`  No valid SDKs found for channel ${channel} in sdk-list.json`);
+            console.error(`  No valid SDKs found for channel ${channel} in artifacts/sdk-list.json`);
             return null;
         }
         // Sort descending by version string — daily builds sort correctly since
@@ -230,7 +230,7 @@ async function resolveFromCatalog({ channel, sdkVersion }) {
         entry = channelEntries[0];
     }
 
-    // Cross-reference with runtime-packs.json using the derived runtime version
+    // Cross-reference with artifacts/runtime-packs.json using the derived runtime version
     const runtimeVersion = entry.runtimeVersion || deriveRuntimeVersion(entry.sdkVersion);
     const packEntry = (runtimePacksData.versions || []).find(e => e.runtimePackVersion === runtimeVersion);
 
@@ -364,7 +364,7 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
             process.env.DOTNET_ROOT = installDir;
             process.env.PATH = `${installDir}${pathSep}${process.env.PATH}`;
             process.env.DOTNET_NOLOGO = 'true';
-            const nugetDir = join(installDir, '..', 'nuget-packages');
+            const nugetDir = join(installDir, '..', '..', 'nuget-packages');
             await mkdir(nugetDir, { recursive: true });
             process.env.NUGET_PACKAGES = resolve(nugetDir);
             return existing;
@@ -394,7 +394,7 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
     process.env.PATH = `${installDir}${pathSep}${process.env.PATH}`;
     process.env.DOTNET_NOLOGO = 'true';
 
-    const nugetDir = join(installDir, '..', 'nuget-packages');
+    const nugetDir = join(installDir, '..', '..', 'nuget-packages');
     await mkdir(nugetDir, { recursive: true });
     process.env.NUGET_PACKAGES = resolve(nugetDir);
 
@@ -474,7 +474,7 @@ if (isMain) {
     const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR || join(resolve('.'), 'artifacts');
     const osPrefix = process.platform === 'win32' ? 'windows' : 'linux';
     const sdkDir = `${osPrefix}.sdk${values['sdk-version'] || ''}`;
-    const installDir = values['install-dir'] || join(ARTIFACTS_DIR, sdkDir);
+    const installDir = values['install-dir'] || join(ARTIFACTS_DIR, 'sdks', sdkDir);
     await resolveSDK({
         channel: values.channel,
         sdkVersion: values['sdk-version'],

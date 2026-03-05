@@ -80,10 +80,10 @@ function resolveAppDir(app, sdkMajor) {
  * @param {string} options.preset        Build preset name (e.g. 'devloop', 'aot')
  * @param {string} [options.commitDate]  Commit date segment for artifact paths (e.g. '2026-06-02')
  * @param {string} [options.artifactsDir] Artifacts directory (default: env or ./artifacts)
- * @param {string} [options.customRuntimePackDir] Optional custom runtime pack directory
+ * @param {string} [options.runtimePackDir] Optional runtime pack directory override
  * @returns {Promise<{compileTimeMs: number, publishDir: string}>}
  */
-export async function buildApp({ app, runtime, preset, commitDate, artifactsDir, customRuntimePackDir }) {
+export async function buildApp({ app, runtime, preset, commitDate, artifactsDir, runtimePackDir }) {
     validateCombination(runtime, preset);
 
     const effectiveArtifactsDir = artifactsDir
@@ -103,10 +103,10 @@ export async function buildApp({ app, runtime, preset, commitDate, artifactsDir,
     publishArgs.push(`/p:CommitDate=${dateSegment}`);
 
     // Append custom runtime pack if specified
-    if (customRuntimePackDir || process.env.CUSTOM_RUNTIME_PACK_DIR) {
-        const packDir = customRuntimePackDir || process.env.CUSTOM_RUNTIME_PACK_DIR;
-        publishArgs.push(`/p:CustomRuntimePackDir=${packDir}`);
-        console.error(`Using custom runtime pack: ${packDir}`);
+    if (runtimePackDir || process.env.RUNTIME_PACK_DIR) {
+        const packDir = runtimePackDir || process.env.RUNTIME_PACK_DIR;
+        publishArgs.push(`/p:RuntimePackDir=${packDir}`);
+        console.error(`Using runtime pack: ${packDir}`);
     }
 
     // Clean publish directory for this combination

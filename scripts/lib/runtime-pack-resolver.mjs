@@ -2,33 +2,18 @@
  * runtime-pack-resolver.mjs — Resolve and download a runtime pack for a specific
  * dotnet/runtime commit from the Azure Artifacts "dotnet11" NuGet feed.
  *
- * Strategy:
- *   1. List all available `Microsoft.NETCore.App.Runtime.Mono.browser-wasm` package versions
- *      from the public dotnet{major} feed.
- *   2. For each version, fetch the `.nuspec` metadata to find the VMR commit hash
- *      (stored in Microsoft.NETCore.App.versions.txt inside the package).
- *   3. For the VMR commit, read `src/source-manifest.json` to get the runtime commit.
- *   4. Select the closest package whose runtime commit is an ancestor of (or equal to)
- *      the target commit.
- *   5. Download and extract the `.nupkg` to a local directory.
- *
- * The extracted pack can be referenced via the UpdateRuntimePack MSBuild target:
- *   <ResolvedRuntimePack PackageDirectory="<extracted-path>"
- *                        Condition="'%(ResolvedRuntimePack.FrameworkName)' == 'Microsoft.NETCore.App'" />
- *
  * Public API:
  *   - listAvailablePackVersions(major)  — list all versions from the feed
  *   - getPackCommitInfo(flatBaseUrl, version)  — get VMR + runtime commit for a pack version
- *   - findBestPackForCommit(runtimeCommit, options)  — find the closest matching pack
- *   - downloadAndExtractPack(flatBaseUrl, version, destDir)  — download & unzip a nupkg
- *   - resolveRuntimePack(runtimeCommit, options)  — full end-to-end resolution
+ *   - restoreRuntimePack(dotnetPath, version, nugetPackagesDir)  — download via dotnet restore
+ *   - refreshRuntimePacks(major)  — update artifacts/runtime-packs.json catalog
  */
 
-import { mkdir, rm, writeFile, readFile } from 'node:fs/promises';
+import { writeFile, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_DIR = resolve(SCRIPT_DIR, '..', '..');
@@ -67,12 +52,6 @@ async function fetchText(url) {
     const resp = await fetch(url);
     if (!resp.ok) throw new Error(`HTTP ${resp.status} fetching ${url}`);
     return resp.text();
-}
-
-async function fetchBuffer(url) {
-    const resp = await fetch(url);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status} fetching ${url}`);
-    return Buffer.from(await resp.arrayBuffer());
 }
 
 /**
@@ -242,193 +221,45 @@ export async function getRuntimeCommitFromVMR(vmrCommit) {
     return runtimeEntry?.commitSha || null;
 }
 
-/**
- * Find VMR commits that sync from dotnet/runtime.
- * Scans recent VMR commits on main branch looking for runtime sync commits.
- * Returns array of { vmrCommit, date, runtimeCommit }.
- */
-export async function findRecentVMRRuntimeSyncs(count = 100) {
-    // Fetch recent VMR commits and look for runtime sync messages
-    const url = `https://api.github.com/repos/dotnet/dotnet/commits?sha=main&per_page=${count}`;
-    const commits = await fetchJSON(url);
 
-    const results = [];
-    for (const c of commits) {
-        const msg = c.commit?.message?.split('\n')[0] || '';
-        // VMR runtime syncs have messages like "[main] Source code updates from dotnet/runtime"
-        // But we also need to check ALL commits since the runtime entry changes with each push
-        results.push({
-            vmrCommit: c.sha,
-            date: c.commit?.committer?.date || '',
-            message: msg,
-            isRuntimeSync: msg.includes('dotnet/runtime'),
-        });
-    }
-    return results;
-}
+
+// ── Runtime pack restore via dotnet ─────────────────────────────────────────
 
 /**
- * Build a mapping of runtime commits to VMR commits by scanning recent VMR history.
- * Only resolves commits from runtime-sync VMR commits for efficiency.
+ * Restore a specific runtime pack version into the NuGet packages cache using
+ * `dotnet restore` with src/restore/restore-runtime-pack.proj.
  *
- * Returns Map<runtimeCommit, { vmrCommit, date }>
+ * @param {string} dotnetPath - Path to the dotnet executable
+ * @param {string} version - Runtime pack version to download
+ * @param {string} nugetPackagesDir - NuGet packages directory (NUGET_PACKAGES)
+ * @returns {string} Path to the restored pack root
  */
-export async function buildRuntimeToVMRMap(count = 50) {
-    const syncs = await findRecentVMRRuntimeSyncs(count);
-    const runtimeSyncs = syncs.filter(s => s.isRuntimeSync);
-
-    const map = new Map();
-    // Process in parallel (batches of 5 to avoid rate limiting)
-    for (let i = 0; i < runtimeSyncs.length; i += 5) {
-        const batch = runtimeSyncs.slice(i, i + 5);
-        const results = await Promise.all(
-            batch.map(async (sync) => {
-                const runtimeCommit = await getRuntimeCommitFromVMR(sync.vmrCommit);
-                return { ...sync, runtimeCommit };
-            })
-        );
-        for (const r of results) {
-            if (r.runtimeCommit) {
-                map.set(r.runtimeCommit, {
-                    vmrCommit: r.vmrCommit,
-                    date: r.date,
-                });
-            }
-        }
-    }
-    return map;
-}
-
-// ── GitHub ancestry check ───────────────────────────────────────────────────
-
-/**
- * Check if `commit` is an ancestor of `descendant` in the runtime repo.
- * Uses GitHub compare API: if base...head returns status "ahead" or "identical" 
- * with behind_by=0, then base is an ancestor of head.
- *
- * Returns: 'ancestor' | 'descendant' | 'diverged' | 'identical'
- */
-export async function checkAncestry(commit, descendant) {
-    const url = `https://api.github.com/repos/dotnet/runtime/compare/${commit}...${descendant}`;
-    const data = await fetchJSON(url);
-    if (data.status === 'identical') return 'identical';
-    if (data.status === 'ahead' && data.behind_by === 0) return 'ancestor';
-    if (data.status === 'behind' && data.ahead_by === 0) return 'descendant';
-    return 'diverged';
-}
-
-// ── Package download & extraction ───────────────────────────────────────────
-
-/**
- * Download a .nupkg and extract it to the NuGet global packages cache layout.
- * Layout: {destDir}/{PACKAGE_ID}/{version}/
- *
- * @param {string} flatBaseUrl - The NuGet flat container base URL
- * @param {string} version - Package version to download
- * @param {string} destDir - NuGet packages directory (e.g. artifacts/nuget-packages)
- * @returns {string} Path to the extracted pack root
- */
-export async function downloadAndExtractPack(flatBaseUrl, version, destDir) {
-    const packDir = join(destDir, PACKAGE_ID, version);
-
+export function restoreRuntimePack(dotnetPath, version, nugetPackagesDir) {
+    const packDir = join(nugetPackagesDir, PACKAGE_ID, version);
     if (existsSync(packDir)) {
-        console.error(`  Pack already extracted at ${packDir}, skipping download`);
+        console.error(`  Pack already restored at ${packDir}, skipping`);
         return packDir;
     }
 
-    const nupkgUrl = `${flatBaseUrl}${PACKAGE_ID}/${version}/${PACKAGE_ID}.${version}.nupkg`;
-    console.error(`  Downloading ${PACKAGE_ID} v${version}...`);
-    const buffer = await fetchBuffer(nupkgUrl);
-
-    console.error(`  Downloaded ${(buffer.length / 1024 / 1024).toFixed(1)} MB`);
-
-    // Extract into NuGet cache layout: {id}/{version}/
-    await mkdir(packDir, { recursive: true });
-    const nupkgPath = join(packDir, `${PACKAGE_ID}.${version}.nupkg`);
-    await writeFile(nupkgPath, buffer);
-
-    const { execFileSync } = await import('node:child_process');
-    if (process.platform === 'win32') {
-        execFileSync('powershell', ['-NoProfile', '-Command',
-            `Expand-Archive -Force -Path '${nupkgPath}' -DestinationPath '${packDir}'`
-        ], { stdio: 'pipe' });
-    } else {
-        execFileSync('unzip', ['-o', '-q', nupkgPath, '-d', packDir], { stdio: 'pipe' });
-    }
-
-    // Clean up zip artifacts that NuGet cache doesn't keep
-    for (const junk of ['[Content_Types].xml', '_rels']) {
-        await rm(join(packDir, junk), { recursive: true, force: true });
-    }
-
-    // Write NuGet cache metadata files
-    const sha512 = createHash('sha512').update(buffer).digest('base64');
-    await writeFile(join(packDir, `${PACKAGE_ID}.${version}.nupkg.sha512`), sha512);
-    await writeFile(join(packDir, '.nupkg.metadata'), JSON.stringify({
-        contentHash: sha512,
-        source: flatBaseUrl,
-    }) + '\n');
-
-    // Read the versions.txt to report what we got
-    const versionsTxt = join(packDir, 'Microsoft.NETCore.App.versions.txt');
-    try {
-        const content = await readFile(versionsTxt, 'utf-8');
-        const lines = content.trim().split('\n');
-        console.error(`  Extracted pack: VMR commit ${lines[0]?.substring(0, 12)}, version ${lines[1]}`);
-    } catch {
-        console.error(`  Extracted pack (no versions.txt found)`);
-    }
-
+    const projPath = join(REPO_DIR, 'src', 'restore', 'restore-runtime-pack.proj');
+    console.error(`  Restoring ${PACKAGE_ID} v${version} via dotnet restore...`);
+    execFileSync(dotnetPath, [
+        'restore', projPath,
+        `/p:RuntimePackVersion=${version}`,
+    ], {
+        stdio: ['inherit', process.stderr, 'inherit'],
+        env: { ...process.env, NUGET_PACKAGES: nugetPackagesDir },
+        cwd: REPO_DIR,
+    });
+    console.error(`  Restored pack to ${packDir}`);
     return packDir;
 }
-
 /**
- * Read the VMR commit and version from an extracted pack's versions.txt.
- */
-export async function readPackVersionInfo(packDir) {
-    const versionsTxt = join(packDir, 'Microsoft.NETCore.App.versions.txt');
-    try {
-        const content = await readFile(versionsTxt, 'utf-8');
-        const lines = content.trim().split('\n');
-        return {
-            vmrCommit: lines[0]?.trim() || '',
-            packVersion: lines[1]?.trim() || '',
-        };
-    } catch {
-        return { vmrCommit: '', packVersion: '' };
-    }
-}
-
-// ── End-to-end resolver ─────────────────────────────────────────────────────
-
-/**
- * Resolve and download the best matching runtime pack for a given runtime commit.
- *
- * Algorithm:
- *   1. List available package versions from the NuGet feed
- *   2. Pick recent versions (by build date) as candidates
- *   3. For each candidate, download and check the VMR commit → runtime commit
- *   4. Use GitHub compare API to check if the target commit is included
- *   5. Download the best match
- *
- * @param {string} runtimeCommit - The dotnet/runtime commit hash to resolve
- * @param {object} options
- * @param {number} [options.major=11] - .NET major version
- * @param {string} [options.destDir] - Directory for extracted packs
- * @param {string} [options.strategy='closest-after'] - Resolution strategy:
- *   - 'closest-after': First pack whose runtime commit includes the target (default)
- *   - 'closest-before': Last pack before the target commit
- *   - 'exact': Only match if the pack was built from exactly this commit
- * @param {string} [options.knownVersion] - If set, download this specific version directly
- *   (skip candidate search). Used when the pack version is already known from runtime-packs.json.
- * @returns {{ packDir, version, runtimeCommit, vmrCommit, strategy }}
- */
-/**
- * Refresh runtime-packs.json by fetching the NuGet feed index and checking
+ * Refresh artifacts/runtime-packs.json by fetching the NuGet feed index and checking
  * if the newest version is already cached. If not, resolves new versions.
  */
 export async function refreshRuntimePacks(major = DEFAULT_MAJOR) {
-    const packsPath = join(REPO_DIR, 'runtime-packs.json');
+    const packsPath = join(REPO_DIR, 'artifacts', 'runtime-packs.json');
     let packsData;
     try {
         packsData = JSON.parse(await readFile(packsPath, 'utf-8'));
@@ -495,126 +326,4 @@ export async function refreshRuntimePacks(major = DEFAULT_MAJOR) {
     console.error(`  Runtime packs updated (${packsData.versions.length} total, ${newVersions.length} new)`);
 }
 
-export async function resolveRuntimePack(runtimeCommit, options = {}) {
-    const {
-        major = DEFAULT_MAJOR,
-        destDir = join(process.cwd(), 'artifacts', 'nuget-packages'),
-        strategy = 'closest-after',
-        knownVersion = null,
-    } = options;
 
-    // Refresh cache before resolving
-    try {
-        await refreshRuntimePacks(major);
-    } catch (e) {
-        console.error(`  Runtime packs refresh warning: ${e.message}`);
-    }
-
-    console.error(`\nResolving runtime pack for commit ${runtimeCommit.substring(0, 12)}...`);
-
-    // Fast path: download a specific known version directly
-    if (knownVersion) {
-        console.error(`  Using known pack version: ${knownVersion}`);
-        const { flatBaseUrl } = await listAvailablePackVersions(major);
-        const packDir = await downloadAndExtractPack(flatBaseUrl, knownVersion, destDir);
-        const { vmrCommit } = await readPackVersionInfo(packDir);
-        let packRuntimeCommit = null;
-        if (vmrCommit) {
-            packRuntimeCommit = await getRuntimeCommitFromVMR(vmrCommit);
-        }
-        return {
-            packDir,
-            runtimePackVersion: knownVersion,
-            runtimeCommit: packRuntimeCommit || runtimeCommit,
-            vmrCommit,
-            match: 'exact-version',
-        };
-    }
-
-    console.error(`  Strategy: ${strategy}, .NET ${major}`);
-
-    // Step 1: List available versions
-    const { flatBaseUrl, versions } = await listAvailablePackVersions(major);
-    console.error(`  Found ${versions.length} package versions on dotnet${major} feed`);
-
-    if (versions.length === 0) {
-        throw new Error(`No package versions found for .NET ${major}`);
-    }
-
-    // Step 2: Sort by build date descending and take recent candidates
-    const candidates = versions
-        .map(v => ({ version: v, buildDate: decodeBuildDate(v) }))
-        .filter(c => c.buildDate)
-        .sort((a, b) => b.buildDate.localeCompare(a.buildDate));
-
-    // Step 3: Download recent candidates and check their runtime commits
-    // Start with the most recent and work backwards
-    const MAX_CANDIDATES = 10;
-    const recentCandidates = candidates.slice(0, MAX_CANDIDATES);
-
-    console.error(`  Checking ${recentCandidates.length} recent candidates...`);
-
-    await mkdir(destDir, { recursive: true });
-
-    for (const candidate of recentCandidates) {
-        // Download the pack to check its commit info
-        const packDir = await downloadAndExtractPack(flatBaseUrl, candidate.version, destDir);
-        const { vmrCommit } = await readPackVersionInfo(packDir);
-
-        if (!vmrCommit) {
-            console.error(`  ${candidate.version}: no VMR commit info, skipping`);
-            continue;
-        }
-
-        // Get the runtime commit from the VMR
-        const packRuntimeCommit = await getRuntimeCommitFromVMR(vmrCommit);
-        if (!packRuntimeCommit) {
-            console.error(`  ${candidate.version}: could not resolve runtime commit from VMR ${vmrCommit.substring(0, 12)}`);
-            continue;
-        }
-
-        // Check if target commit is included in this pack's runtime commit
-        if (packRuntimeCommit === runtimeCommit) {
-            console.error(`  ${candidate.version}: EXACT MATCH`);
-            return {
-                packDir,
-                runtimePackVersion: candidate.version,
-                runtimeCommit: packRuntimeCommit,
-                vmrCommit,
-                match: 'exact',
-            };
-        }
-
-        const ancestry = await checkAncestry(runtimeCommit, packRuntimeCommit);
-        console.error(`  ${candidate.version}: runtime=${packRuntimeCommit.substring(0, 12)} ancestry=${ancestry}`);
-
-        if (strategy === 'exact') continue;
-
-        if (strategy === 'closest-after' && (ancestry === 'ancestor' || ancestry === 'identical')) {
-            // This pack includes our target commit (pack is same or ahead)
-            return {
-                packDir,
-                runtimePackVersion: candidate.version,
-                runtimeCommit: packRuntimeCommit,
-                vmrCommit,
-                match: 'closest-after',
-            };
-        }
-
-        if (strategy === 'closest-before' && (ancestry === 'descendant' || ancestry === 'identical')) {
-            // This pack is before our target commit
-            return {
-                packDir,
-                runtimePackVersion: candidate.version,
-                runtimeCommit: packRuntimeCommit,
-                vmrCommit,
-                match: 'closest-before',
-            };
-        }
-    }
-
-    throw new Error(
-        `Could not find a matching runtime pack for commit ${runtimeCommit.substring(0, 12)} `
-        + `(strategy=${strategy}, checked ${recentCandidates.length} candidates)`
-    );
-}

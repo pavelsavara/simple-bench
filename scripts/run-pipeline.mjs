@@ -33,7 +33,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { getPresetGroups, validateCombination } from './lib/build-config.mjs';
 import { parseWorkloadVersion, isWorkloadInstalled } from './lib/sdk-info.mjs';
-import { resolveRuntimePack } from './lib/runtime-pack-resolver.mjs';
+import { refreshRuntimePacks, restoreRuntimePack, PACKAGE_ID } from './lib/runtime-pack-resolver.mjs';
 import { resolveSDK } from './lib/resolve-sdk.mjs';
 import { buildApp } from './lib/build-app.mjs';
 
@@ -60,7 +60,7 @@ const APPS_DIR = join(REPO_DIR, 'src');
 const OS_PREFIX = process.platform === 'win32' ? 'windows' : 'linux';
 const channelSuffix = args['sdk-version'] ? '' : `.${args['sdk-channel']}`;
 let SDK_DIR = `${OS_PREFIX}.sdk${args['sdk-version'] || ''}${channelSuffix}`;
-let SDK_INFO_PATH = join(ARTIFACTS_DIR, SDK_DIR, 'sdk-info.json');
+let SDK_INFO_PATH = join(ARTIFACTS_DIR, 'sdks', SDK_DIR, 'sdk-info.json');
 
 // Run ID = UTC timestamp used to namespace results for this pipeline run
 const RUN_TIMESTAMP = new Date().toISOString().replace(/:/g, '-').replace(/\.\d+Z$/, 'Z');
@@ -100,7 +100,7 @@ function run(cmd, cmdArgs, { label, env: extraEnv } = {}) {
 
 function dotnet() {
     const exe = process.platform === 'win32' ? 'dotnet.exe' : 'dotnet';
-    const p = join(ARTIFACTS_DIR, SDK_DIR, exe);
+    const p = join(ARTIFACTS_DIR, 'sdks', SDK_DIR, exe);
     try {
         execFileSync(p, ['--version'], { stdio: 'ignore' });
         return p;
@@ -134,7 +134,7 @@ async function resolveSDKPhase() {
     await resolveSDK({
         channel: args['sdk-channel'],
         sdkVersion: args['sdk-version'],
-        installDir: join(ARTIFACTS_DIR, SDK_DIR),
+        installDir: join(ARTIFACTS_DIR, 'sdks', SDK_DIR),
     });
 }
 
@@ -284,69 +284,80 @@ async function main() {
 
     const { nonWorkload, workload } = getPresetGroups();
 
-    // Phase 0: Resolve runtime pack first to determine matching SDK version
-    let packResult = null;
+    // Phase 0: Resolve runtime pack version and matching SDK (catalog lookup only, no download)
+    let runtimePackVersion = null;
+    let runtimeGitHash = null;
     if (args['runtime-pack'] || args['runtime-commit']) {
-        console.error('\n═══ Phase 0: Resolve runtime pack ═══');
+        console.error('\n═══ Phase 0: Resolve runtime pack version ═══');
 
-        // Determine exact pack version: explicit --runtime-pack takes priority
-        let knownVersion = args['runtime-pack'] || null;
-        if (!knownVersion) {
-            try {
-                const packsData = JSON.parse(await readFile(join(REPO_DIR, 'runtime-packs.json'), 'utf-8'));
-                const entry = (packsData.versions || []).find(e =>
-                    e.runtimeGitHash?.startsWith(args['runtime-commit'])
-                );
-                if (entry) {
-                    knownVersion = entry.runtimePackVersion;
-                    console.error(`  Found exact pack in runtime-packs.json: ${entry.runtimePackVersion}`);
-                }
-            } catch { }
-        } else {
-            console.error(`  Using explicit runtime pack: ${knownVersion}`);
+        // Refresh artifacts/runtime-packs.json catalog
+        try { await refreshRuntimePacks(); } catch (e) {
+            console.error(`  Warning: runtime packs refresh failed: ${e.message}`);
         }
 
-        packResult = await resolveRuntimePack(args['runtime-commit'] || 'unknown', {
-            destDir: join(ARTIFACTS_DIR, 'nuget-packages'),
-            strategy: 'closest-after',
-            knownVersion,
-        });
-        console.error(`✓ Runtime pack resolved: ${packResult.runtimePackVersion} (match: ${packResult.match})`);
-        console.error(`  Pack runtime commit: ${packResult.runtimeCommit?.substring(0, 12)}`);
+        const packsData = JSON.parse(await readFile(join(ARTIFACTS_DIR, 'runtime-packs.json'), 'utf-8'));
+        const versions = packsData.versions || [];
 
-        // Look up matching SDK version from runtime-packs.json by runtimePackVersion or runtimeGitHash
-        if (!args['sdk-version']) {
-            try {
-                const packsData = JSON.parse(await readFile(join(REPO_DIR, 'runtime-packs.json'), 'utf-8'));
-                const versions = packsData.versions || [];
-                const packEntry = versions.find(e =>
-                    e.runtimePackVersion === packResult.runtimePackVersion
-                ) || versions.find(e =>
-                    packResult.runtimeCommit && e.runtimeGitHash === packResult.runtimeCommit
+        if (args['runtime-pack']) {
+            // Explicit --runtime-pack: look up by version
+            runtimePackVersion = args['runtime-pack'];
+            const entry = versions.find(e => e.runtimePackVersion === runtimePackVersion);
+            if (entry) {
+                runtimeGitHash = entry.runtimeGitHash || null;
+                console.error(`  Using explicit runtime pack: ${runtimePackVersion}`);
+                if (runtimeGitHash) console.error(`  Runtime commit: ${runtimeGitHash.substring(0, 12)}`);
+            } else {
+                console.error(`  ⚠ Pack ${runtimePackVersion} not in catalog (will attempt restore anyway)`);
+            }
+        } else {
+            // --runtime-commit: look up by runtimeGitHash
+            runtimeGitHash = args['runtime-commit'];
+            const entry = versions.find(e => e.runtimeGitHash?.startsWith(runtimeGitHash));
+            if (!entry) {
+                throw new Error(
+                    `Runtime commit ${runtimeGitHash.substring(0, 12)} not found in artifacts/runtime-packs.json. `
+                    + `Run: node scripts/enumerate-runtime-packs.mjs`
                 );
-                if (packEntry?.sdkVersionOfTheRuntimeBuild) {
-                    console.error(`  Matched SDK version (from runtime-packs.json): ${packEntry.sdkVersionOfTheRuntimeBuild}`);
-                    args['sdk-version'] = packEntry.sdkVersionOfTheRuntimeBuild;
-                    SDK_DIR = `${OS_PREFIX}.sdk${packEntry.sdkVersionOfTheRuntimeBuild}`;
-                    SDK_INFO_PATH = join(ARTIFACTS_DIR, SDK_DIR, 'sdk-info.json');
-                }
-            } catch { }
+            }
+            runtimePackVersion = entry.runtimePackVersion;
+            console.error(`  Found pack for commit ${runtimeGitHash.substring(0, 12)}: ${runtimePackVersion}`);
+        }
+
+        // Look up matching SDK version
+        if (!args['sdk-version']) {
+            const packEntry = versions.find(e => e.runtimePackVersion === runtimePackVersion)
+                || versions.find(e => runtimeGitHash && e.runtimeGitHash === runtimeGitHash);
+            if (!packEntry?.sdkVersionOfTheRuntimeBuild) {
+                throw new Error(
+                    `Could not resolve SDK version for runtime pack ${runtimePackVersion}. `
+                    + `No matching entry with sdkVersionOfTheRuntimeBuild found in artifacts/runtime-packs.json.`
+                );
+            }
+            console.error(`  Matched SDK version: ${packEntry.sdkVersionOfTheRuntimeBuild}`);
+            args['sdk-version'] = packEntry.sdkVersionOfTheRuntimeBuild;
+            SDK_DIR = `${OS_PREFIX}.sdk${packEntry.sdkVersionOfTheRuntimeBuild}`;
+            SDK_INFO_PATH = join(ARTIFACTS_DIR, 'sdks', SDK_DIR, 'sdk-info.json');
         }
     }
 
     // Phase 1: Install SDK (using pack-derived version when applicable)
     await resolveSDKPhase();
 
-    // Phase 1b: Apply runtime pack info to sdk-info.json
-    if (packResult) {
+    // Phase 1b: Restore runtime pack via dotnet restore (requires SDK)
+    if (runtimePackVersion) {
+        console.error('\n═══ Phase 1b: Restore runtime pack ═══');
+        const dotnetPath = dotnet();
+        const nugetPkgsDir = join(ARTIFACTS_DIR, 'nuget-packages');
+        const packDir = restoreRuntimePack(dotnetPath, runtimePackVersion, nugetPkgsDir);
+
+        // Update sdk-info.json with runtime pack info
         const sdkInfo = JSON.parse(await readFile(SDK_INFO_PATH, 'utf-8'));
-        sdkInfo.runtimeGitHash = packResult.runtimeCommit || sdkInfo.runtimeGitHash;
-        sdkInfo.customRuntimePackVersion = packResult.runtimePackVersion;
-        sdkInfo.customRuntimePackMatch = packResult.match;
+        if (runtimeGitHash) sdkInfo.runtimeGitHash = runtimeGitHash;
+        sdkInfo.runtimePackVersion = runtimePackVersion;
         await writeFile(SDK_INFO_PATH, JSON.stringify(sdkInfo, null, 2) + '\n');
 
         // Set env var for build-app.mjs
-        process.env.CUSTOM_RUNTIME_PACK_DIR = packResult.packDir;
+        process.env.RUNTIME_PACK_DIR = packDir;
     }
 
     // Phase 2: Validate no workload pre-installed

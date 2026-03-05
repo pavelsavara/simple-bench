@@ -5,14 +5,14 @@
 //   - Released SDKs (.NET 6–10): releases-index.json → per-channel releases.json
 //   - Daily SDKs (.NET 11):      HEAD-probe ci.dot.net/public blob storage
 //
-// Output: sdk-list.json in repo root
+// Output: artifacts/sdk-list.json
 
 import { writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const OUTPUT = resolve(__dirname, '..', 'sdk-list.json');
+const OUTPUT = resolve(__dirname, '..', 'artifacts', 'sdk-list.json');
 
 const PLATFORM = 'linux-x64';
 const CDN = 'https://dotnetcli.azureedge.net/dotnet';

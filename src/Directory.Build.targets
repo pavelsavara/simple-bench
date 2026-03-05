@@ -1,21 +1,21 @@
 <Project>
     <Target Name="SetBenchmarkPreset" BeforeTargets="Build">
         <Message Text="Using BenchmarkPreset: '$(BenchmarkPreset)'" Importance="High" />
-        <Message Text="Using CustomRuntimePackDir: '$(CustomRuntimePackDir)'" Importance="High"
-                 Condition="'$(CustomRuntimePackDir)' != ''" />
+        <Message Text="Using RuntimePackDir: '$(RuntimePackDir)'" Importance="High"
+                 Condition="'$(RuntimePackDir)' != ''" />
     </Target>
 
     <!--
       Override the resolved runtime pack with a custom-built or downloaded one.
-      Set /p:CustomRuntimePackDir=<path-to-extracted-nupkg> on the dotnet publish command.
+      Set /p:RuntimePackDir=<path-to-extracted-nupkg> on the dotnet publish command.
       See docs/runtime-pack.md for details.
     -->
     <Target Name="UpdateRuntimePack" AfterTargets="ResolveFrameworkReferences"
-            Condition="'$(CustomRuntimePackDir)' != ''">
+            Condition="'$(RuntimePackDir)' != ''">
         <ItemGroup>
-            <ResolvedRuntimePack PackageDirectory="$(CustomRuntimePackDir)"
+            <ResolvedRuntimePack PackageDirectory="$(RuntimePackDir)"
                                  Condition="'%(ResolvedRuntimePack.FrameworkName)' == 'Microsoft.NETCore.App'" />
         </ItemGroup>
-        <Message Text="Overriding runtime pack with: $(CustomRuntimePackDir)" Importance="High" />
+        <Message Text="Overriding runtime pack with: $(RuntimePackDir)" Importance="High" />
     </Target>
 </Project>

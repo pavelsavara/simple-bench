@@ -25,7 +25,7 @@ ENV DOTNET_NOLOGO=1
 ENV ARTIFACTS_DIR=/bench/artifacts
 
 # Create working directories
-RUN mkdir -p $ARTIFACTS_DIR/sdk $ARTIFACTS_DIR/publish $ARTIFACTS_DIR/results $ARTIFACTS_DIR/logs
+RUN mkdir -p $ARTIFACTS_DIR/sdks $ARTIFACTS_DIR/publish $ARTIFACTS_DIR/results $ARTIFACTS_DIR/logs
 
 WORKDIR /bench
 

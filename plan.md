@@ -107,7 +107,7 @@ simple-bench/
 ```
 
 The `artifacts/` directory is gitignored. All build scripts write outputs there:
-- `scripts/resolve-sdk.sh` → `artifacts/sdk/`
+- `scripts/resolve-sdk.sh` → `artifacts/sdks/`
 - `scripts/build-app.sh` → `artifacts/publish/{app}/`
 - `scripts/measure-*.mjs` → `artifacts/results/`
 - Build logs → `artifacts/logs/`

@@ -40,19 +40,6 @@ import { readFile, mkdir } from 'node:fs/promises';
 import { resolve, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
-import { refreshRuntimePacks } from './lib/runtime-pack-resolver.mjs';
-
-/** Look up SDK version from runtime-packs.json by matching runtimeGitHash. */
-async function lookupSdkByRuntimeHash(runtimeGitHash) {
-    try {
-        const packsData = JSON.parse(await readFile(join(REPO_DIR, 'runtime-packs.json'), 'utf-8'));
-        const entry = (packsData.versions || []).find(e =>
-            e.runtimeGitHash === runtimeGitHash
-        );
-        return entry?.sdkVersionOfTheRuntimeBuild || null;
-    } catch { return null; }
-}
-
 
 // ── CLI args ────────────────────────────────────────────────────────────────
 
@@ -163,7 +150,7 @@ function dockerRun(image, bashCommand, opts = {}) {
         '-v', `${repoMount}:/bench`,
         '-w', '/bench',
         '-e', 'ARTIFACTS_DIR=/bench/artifacts',
-        '-e', `DOTNET_ROOT=/bench/artifacts/${SDK_DIR}`,
+        '-e', `DOTNET_ROOT=/bench/artifacts/sdks/${SDK_DIR}`,
         '-e', 'NUGET_PACKAGES=/bench/artifacts/nuget-packages',
         '-e', 'DOTNET_NOLOGO=true',
         ...(opts.extraArgs || []),
@@ -261,7 +248,7 @@ async function stepBuild() {
             env: {
                 ...process.env,
                 ARTIFACTS_DIR,
-                DOTNET_ROOT: join(ARTIFACTS_DIR, SDK_DIR),
+                DOTNET_ROOT: join(ARTIFACTS_DIR, 'sdks', SDK_DIR),
                 NUGET_PACKAGES: join(ARTIFACTS_DIR, 'nuget-packages'),
                 DOTNET_NOLOGO: 'true',
             },
@@ -279,7 +266,7 @@ async function stepBuild() {
         }
     } catch { }
 
-    if (isDocker) fixPermissions(SDK_DIR, 'publish', 'results');
+    if (isDocker) fixPermissions(join('sdks', SDK_DIR), 'publish', 'results');
 
     const elapsed = Math.round((Date.now() - startTime) / 1000);
 
@@ -375,7 +362,7 @@ async function stepMeasure() {
                     env: {
                         ...process.env,
                         ARTIFACTS_DIR,
-                        DOTNET_ROOT: join(ARTIFACTS_DIR, SDK_DIR),
+                        DOTNET_ROOT: join(ARTIFACTS_DIR, 'sdks', SDK_DIR),
                         NUGET_PACKAGES: join(ARTIFACTS_DIR, 'nuget-packages'),
                         DOTNET_NOLOGO: 'true',
                     },
@@ -416,45 +403,6 @@ async function stepMeasure() {
 // ── Main ────────────────────────────────────────────────────────────────────
 
 async function main() {
-    // Resolve --runtime-pack: look up runtime commit + matching SDK version
-    if (args['runtime-pack']) {
-        const packVersion = args['runtime-pack'];
-        // Refresh runtime-packs.json catalog
-        try { await refreshRuntimePacks(); } catch (e) {
-            console.error(`Warning: runtime packs refresh failed: ${e.message}`);
-        }
-        // Look up runtimeGitHash from runtime-packs.json
-        if (!args['runtime-commit']) {
-            try {
-                const packsData = JSON.parse(await readFile(join(REPO_DIR, 'runtime-packs.json'), 'utf-8'));
-                const entry = (packsData.versions || []).find(e => e.runtimePackVersion === packVersion);
-                if (entry?.runtimeGitHash) {
-                    args['runtime-commit'] = entry.runtimeGitHash;
-                    console.error(`Resolved runtime commit from pack ${packVersion}: ${entry.runtimeGitHash.substring(0, 12)}`);
-                    // Use sdkVersionOfTheRuntimeBuild from runtime-packs.json
-                    if (!args['sdk-version'] && entry.sdkVersionOfTheRuntimeBuild) {
-                        args['sdk-version'] = entry.sdkVersionOfTheRuntimeBuild;
-                        SDK_DIR = `${OS_PREFIX}.sdk${entry.sdkVersionOfTheRuntimeBuild}`;
-                        console.error(`Matched SDK version: ${entry.sdkVersionOfTheRuntimeBuild}`);
-                    }
-                } else {
-                    console.error(`Warning: pack ${packVersion} not found in runtime-packs.json`);
-                }
-            } catch {
-                console.error(`Warning: could not read runtime-packs.json for pack ${packVersion}`);
-            }
-        }
-    }
-    // --runtime-commit without --runtime-pack: look up matching SDK by runtimeGitHash
-    else if (args['runtime-commit'] && !args['sdk-version']) {
-        const sdkVer = await lookupSdkByRuntimeHash(args['runtime-commit']);
-        if (sdkVer) {
-            args['sdk-version'] = sdkVer;
-            SDK_DIR = `${OS_PREFIX}.sdk${sdkVer}`;
-            console.error(`Matched SDK version by runtime commit: ${sdkVer}`);
-        }
-    }
-
     console.error(`╔═══════════════════════════════════════════════╗`);
     console.error(`║  Benchmark Pipeline — ${isDocker ? 'Docker' : 'Local '}               ║`);
     console.error(`╚═══════════════════════════════════════════════╝`);

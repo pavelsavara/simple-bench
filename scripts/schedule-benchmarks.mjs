@@ -4,7 +4,7 @@
  * without benchmark results and triggers CI workflow runs.
  *
  * Flow:
- *   1. Optionally refresh runtime-packs.json and sdk-list.json
+ *   1. Optionally refresh artifacts/runtime-packs.json and artifacts/sdk-list.json
  *   2. Fetch gh-pages index + month data via GitHub raw URLs
  *   3. Identify runtime commits from packs that have no results
  *   4. Trigger benchmark.yml workflow_dispatch for each missing commit
@@ -28,8 +28,8 @@ import { dirname, resolve } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
-const RUNTIME_PACKS_PATH = resolve(REPO_ROOT, 'runtime-packs.json');
-const SDK_LIST_PATH = resolve(REPO_ROOT, 'sdk-list.json');
+const RUNTIME_PACKS_PATH = resolve(REPO_ROOT, 'artifacts', 'runtime-packs.json');
+const SDK_LIST_PATH = resolve(REPO_ROOT, 'artifacts', 'sdk-list.json');
 
 // ── CLI argument parsing ────────────────────────────────────────────────────
 
@@ -90,7 +90,7 @@ function ghCliAvailable() {
 
 async function loadRuntimePacks(refresh) {
     if (refresh) {
-        console.log('Refreshing runtime-packs.json...');
+        console.log('Refreshing artifacts/runtime-packs.json...');
         execFileSync('node', [resolve(__dirname, 'enumerate-runtime-packs.mjs')], {
             stdio: 'inherit',
             cwd: REPO_ROOT,
@@ -99,7 +99,7 @@ async function loadRuntimePacks(refresh) {
 
     if (!existsSync(RUNTIME_PACKS_PATH)) {
         throw new Error(
-            'runtime-packs.json not found. Run: node scripts/enumerate-runtime-packs.mjs'
+            'artifacts/runtime-packs.json not found. Run: node scripts/enumerate-runtime-packs.mjs'
         );
     }
 
@@ -177,7 +177,7 @@ function findMissingCommits(packs, existingHashes, sdkList, maxRecent) {
     // Take only the N most recent
     const recent = resolved.slice(0, maxRecent);
 
-    // Also collect SDK-based runtimeGitHash values from sdk-list.json
+    // Also collect SDK-based runtimeGitHash values from artifacts/sdk-list.json
     const sdkHashes = new Set();
     if (sdkList?.versions) {
         for (const entry of sdkList.versions) {

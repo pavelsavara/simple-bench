@@ -101,16 +101,6 @@ describe('runtime-pack-resolver (network)', { skip: !NETWORK_TESTS }, () => {
         assert.equal(runtimeCommit, '9b46e58206b2695ad7089ceea0db93cad22abbd7');
     });
 
-    it('checkAncestry detects ancestor relationship', async () => {
-        const { checkAncestry } = await import('../../scripts/lib/runtime-pack-resolver.mjs');
-        // 17b089f9 is an ancestor of e524be69 (25 commits ahead)
-        const result = await checkAncestry(
-            '17b089f9dea34dff21e3417ab7ed53ef30a4f6b0',
-            'e524be6928cdcd74bdbb79b389eeb31978b188ef'
-        );
-        assert.equal(result, 'ancestor');
-    });
-
     it('getVmrCommitFromNuspec returns a commit hash', async () => {
         const { getVmrCommitFromNuspec, getFlatBaseUrl } = await import('../../scripts/lib/runtime-pack-resolver.mjs');
         const flatBaseUrl = await getFlatBaseUrl(11);

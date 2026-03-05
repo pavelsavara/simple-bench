@@ -63,11 +63,11 @@ PUBLISH_ARGS=$(node -e "
 rm -rf "$PUBLISH_DIR"
 mkdir -p "$PUBLISH_DIR"
 
-# If CUSTOM_RUNTIME_PACK_DIR is set, pass it to MSBuild
-if [ -n "${CUSTOM_RUNTIME_PACK_DIR:-}" ]; then
+# If RUNTIME_PACK_DIR is set, pass it to MSBuild
+if [ -n "${RUNTIME_PACK_DIR:-}" ]; then
     PUBLISH_ARGS="$PUBLISH_ARGS
-/p:CustomRuntimePackDir=$CUSTOM_RUNTIME_PACK_DIR"
-    echo "Using custom runtime pack: $CUSTOM_RUNTIME_PACK_DIR" >&2
+/p:RuntimePackDir=$RUNTIME_PACK_DIR"
+    echo "Using runtime pack: $RUNTIME_PACK_DIR" >&2
 fi
 
 echo "Building $APP (runtime=$RUNTIME, preset=$PRESET)..." >&2

@@ -18,7 +18,7 @@
  *     --output artifacts/results/result.json \
  *     --engine chrome \
  *     --runtime coreclr --preset no-workload \
- *     --sdk-info artifacts/sdk/sdk-info.json \
+ *     --sdk-info artifacts/sdks/sdk-info.json \
  *     --compile-time-file artifacts/results/compile-time.json
  */
 
