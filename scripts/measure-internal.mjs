@@ -249,11 +249,13 @@ async function measureCli(cliEngine, publishDirPath, timeoutMs) {
     console.error(`Running: ${cmd} ${engineArgs.join(' ')} ${driverFile}`);
     console.error(`  cwd: ${publishDirPath}`);
 
+    const useShell = process.platform === 'win32' && /\.(cmd|bat)$/i.test(cmd);
     const stdout = execFileSync(cmd, [...engineArgs, driverFile], {
         encoding: 'utf-8',
         cwd: publishDirPath,
         timeout: timeoutMs,
         env: { ...process.env },
+        ...(useShell && { shell: true }),
     });
 
     return parseCliOutput(stdout);
