@@ -116,6 +116,7 @@ const meta = {
 
 const metrics = {
     'compile-time': compileTime,
+    'memory-peak': benchResults['memory-peak'] ?? null,
     'js-interop-ops': benchResults['js-interop-ops'],
     'json-parse-ops': benchResults['json-parse-ops'],
     'exception-ops': benchResults['exception-ops'],
@@ -130,6 +131,7 @@ console.error(`Result written to ${args.output}`);
 async function measureBrowser(browserEngine, publishDirPath, timeoutMs, retries) {
     const pw = await import('playwright');
     const browserType = browserEngine === 'firefox' ? pw.firefox : pw.chromium;
+    const useCDP = browserEngine !== 'firefox'; // CDP is Chromium-only
 
     // Load fingerprint map for resolving #[.{fingerprint}] in HTML
     const { readdir } = await import('node:fs/promises');
@@ -158,6 +160,30 @@ async function measureBrowser(browserEngine, publishDirPath, timeoutMs, retries)
                 const context = await browser.newContext();
                 const page = await context.newPage();
 
+                // ── CDP setup (Chromium only) ───────────────────────────
+                let client, memoryPeak = 0;
+                let memorySampling = false;
+                let memoryPoller;
+
+                if (useCDP) {
+                    client = await context.newCDPSession(page);
+                    await client.send('Performance.enable');
+
+                    memorySampling = true;
+                    memoryPoller = (async () => {
+                        while (memorySampling) {
+                            try {
+                                const perfMetrics = await client.send('Performance.getMetrics');
+                                const heapUsed = perfMetrics.metrics.find(m => m.name === 'JSHeapUsedSize');
+                                if (heapUsed && heapUsed.value > memoryPeak) {
+                                    memoryPeak = heapUsed.value;
+                                }
+                            } catch { break; }
+                            await sleep(100);
+                        }
+                    })();
+                }
+
                 // Log console messages for debugging
                 page.on('console', msg => {
                     if (msg.type() === 'error') console.error(`  [page] ${msg.text()}`);
@@ -175,9 +201,19 @@ async function measureBrowser(browserEngine, publishDirPath, timeoutMs, retries)
                 );
 
                 const results = await page.evaluate(() => globalThis.bench_results);
+
+                // ── Cleanup CDP ─────────────────────────────────────────
+                if (useCDP) {
+                    await sleep(2000); // let memory settle
+                    memorySampling = false;
+                    await memoryPoller;
+                    await client.send('Performance.disable');
+                }
+
                 await page.close();
                 await context.close();
                 await srv.close();
+                results['memory-peak'] = useCDP ? (memoryPeak || null) : null;
                 return results;
             } finally {
                 await browser.close();
@@ -226,4 +262,8 @@ function isTimeoutError(err) {
     return err?.name === 'TimeoutError'
         || err?.message?.includes('Timeout')
         || err?.message?.includes('timeout');
+}
+
+function sleep(ms) {
+    return new Promise(r => setTimeout(r, ms));
 }

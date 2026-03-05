@@ -399,7 +399,10 @@ async function stepMeasure() {
         console.error('No result files produced.');
     }
 
-    if (failed > 0) {
+    if (failed === entries.length) {
+        err('All measurements failed');
+        process.exit(1);
+    } else if (failed > 0) {
         err(`${failed} measurement(s) failed`);
     }
 }

@@ -34,7 +34,7 @@ export function parseCliOutput(stdout) {
  */
 export function getEngineCommand(engine) {
     switch (engine) {
-        case 'v8': return { cmd: 'd8', args: ['--module'] };
+        case 'v8': return { cmd: process.platform === 'win32' ? 'v8.cmd' : 'd8', args: ['--module'] };
         case 'node': return { cmd: 'node', args: [] };
         default: throw new Error(`CLI not supported for engine: ${engine}`);
     }

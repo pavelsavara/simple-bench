@@ -84,6 +84,11 @@ describe('parseResultJson', () => {
         const compileTime = { compileTimeMs: 45200, app: 'empty-browser', runtime: 'coreclr', preset: 'no-workload' };
         assert.equal(parseResultJson(JSON.stringify(compileTime)), null);
     });
+
+    it('returns null for non-hex runtimeGitHash like "unknown"', () => {
+        const bad = makeResult({ runtimeGitHash: 'unknown' });
+        assert.equal(parseResultJson(JSON.stringify(bad)), null);
+    });
 });
 
 // ── computeResultFilename ───────────────────────────────────────────────────

@@ -137,7 +137,8 @@ async function verifyIntegrity() {
 // ── Read SDK info for result filenames ──────────────────────────────────────
 
 const sdkInfo = JSON.parse(await readFile(sdkInfoPath, 'utf-8'));
-const runtimeHash7 = (sdkInfo.runtimeGitHash || sdkInfo.gitHash || '').slice(0, 7);
+const rawHash = sdkInfo.runtimeGitHash || sdkInfo.gitHash || '';
+const runtimeHash7 = /^[0-9a-f]+$/i.test(rawHash) ? rawHash.slice(0, 7) : '0000000';
 const commitTime = sdkInfo.commitTime;
 
 await mkdir(outputDir, { recursive: true });

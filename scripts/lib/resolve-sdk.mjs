@@ -361,6 +361,11 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
     try {
         const existing = JSON.parse(await readFile(sdkInfoPath, 'utf-8'));
         if (existing.sdkVersion) {
+            // Clear invalid runtimeGitHash (must be hex)
+            if (existing.runtimeGitHash && !/^[0-9a-f]+$/i.test(existing.runtimeGitHash)) {
+                existing.runtimeGitHash = '';
+            }
+            await writeFile(sdkInfoPath, JSON.stringify(existing, null, 2) + '\n');
             console.error(`SDK already installed at ${installDir} (${existing.sdkVersion}), skipping download.`);
             process.env.DOTNET_ROOT = installDir;
             process.env.PATH = `${installDir}${pathSep}${process.env.PATH}`;

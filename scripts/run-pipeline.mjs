@@ -404,6 +404,10 @@ async function main() {
     const allSucceeded = [...phase3, ...phase5];
     console.error(`\n✓ ${allSucceeded.length} builds succeeded`);
 
+    if (allSucceeded.length === 0) {
+        throw new Error('All builds failed — nothing to measure');
+    }
+
     // Phase 6: Write build manifest
     await writeBuildManifest(allSucceeded, buildLabel);
 
