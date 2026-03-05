@@ -4,8 +4,8 @@
  * JS port of build-app.sh. Can be imported as a library or run as a script.
  *
  * Output:
- *   - Published app in artifacts/publish/{app}/{commitDate}/{preset}/
- *   - Compile time in artifacts/publish/{app}/{commitDate}/{preset}/compile-time.json
+ *   - Published app in artifacts/publish/{app}/{buildLabel}/{preset}/
+ *   - Compile time in artifacts/publish/{app}/{buildLabel}/{preset}/compile-time.json
  *
  * Usage as script:
  *   node scripts/lib/build-app.mjs --app empty-browser --runtime mono --preset devloop
@@ -78,29 +78,29 @@ function resolveAppDir(app, sdkMajor) {
  * @param {string} options.app           App name (e.g. 'empty-browser')
  * @param {string} options.runtime       Runtime flavor ('mono' or 'coreclr')
  * @param {string} options.preset        Build preset name (e.g. 'devloop', 'aot')
- * @param {string} [options.commitDate]  Commit date segment for artifact paths (e.g. '2026-06-02')
+ * @param {string} [options.buildLabel]  Version label for artifact paths (e.g. '11.0.100-preview.3.26153.117_11.0.0-preview.3.26153.117')
  * @param {string} [options.artifactsDir] Artifacts directory (default: env or ./artifacts)
  * @param {string} [options.runtimePackDir] Optional runtime pack directory override
  * @returns {Promise<{compileTimeMs: number, publishDir: string}>}
  */
-export async function buildApp({ app, runtime, preset, commitDate, artifactsDir, runtimePackDir }) {
+export async function buildApp({ app, runtime, preset, buildLabel, artifactsDir, runtimePackDir }) {
     validateCombination(runtime, preset);
 
     const effectiveArtifactsDir = artifactsDir
         || process.env.ARTIFACTS_DIR
         || join(REPO_DIR, 'artifacts');
 
-    const dateSegment = commitDate || 'local';
+    const label = buildLabel || 'local';
     const dotnetBin = findDotnet();
     const sdkMajor = detectSdkMajor(dotnetBin);
     const appDir = resolveAppDir(app, sdkMajor);
-    const publishDir = join(effectiveArtifactsDir, 'publish', app, dateSegment, preset);
+    const publishDir = join(effectiveArtifactsDir, 'publish', app, label, preset);
 
     // Get publish arguments from build-config
     const publishArgs = getPublishArgs(runtime, preset, appDir, publishDir);
 
-    // Pass CommitDate to MSBuild so bin/obj paths match
-    publishArgs.push(`/p:CommitDate=${dateSegment}`);
+    // Pass BuildLabel to MSBuild so bin/obj paths match
+    publishArgs.push(`/p:BuildLabel=${label}`);
 
     // Append custom runtime pack if specified
     if (runtimePackDir || process.env.RUNTIME_PACK_DIR) {

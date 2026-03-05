@@ -49,7 +49,7 @@ const { values: args } = parseArgs({
         'preset': { type: 'string' },
         'sdk-info': { type: 'string' },
         'compile-time-file': { type: 'string', default: '' },
-        'timeout': { type: 'string', default: '120000' },
+        'timeout': { type: 'string', default: '55000' },
         'retries': { type: 'string', default: '2' },
         'ci-run-id': { type: 'string', default: '' },
         'ci-run-url': { type: 'string', default: '' },

@@ -71,21 +71,22 @@ jobs:
             echo "⚠ No build manifest found" >&2
             exit 0
           fi
-          # Read commitDate from sdk-info.json for the publish path hierarchy
+          # Compute buildLabel from sdk-info.json: {sdkVersion}_{runtimePackVersion}
           SDK_INFO="${ARTIFACTS_DIR:-artifacts}/results/${{ steps.run-id.outputs.run-id }}/sdk-info.json"
-          COMMIT_DATE="local"
+          BUILD_LABEL="local"
           if [ -f "$SDK_INFO" ]; then
-            COMMIT_DATE=$(node --input-type=module -e "
+            BUILD_LABEL=$(node --input-type=module -e "
               import { readFileSync } from 'node:fs';
               const info = JSON.parse(readFileSync('$SDK_INFO', 'utf-8'));
-              console.log(info.commitDate || 'local');
+              const sdk = info.sdkVersion || 'local';
+              console.log(info.runtimePackVersion ? sdk + '_' + info.runtimePackVersion : sdk);
             ")
           fi
-          # Extract {app, preset, commitDate} for the GHA matrix
+          # Extract {app, preset, buildLabel} for the GHA matrix
           MATRIX=$(node --input-type=module -e "
             import { readFileSync } from 'node:fs';
             const m = JSON.parse(readFileSync('$MANIFEST', 'utf-8'));
-            console.log(JSON.stringify(m.map(e => ({ app: e.app, preset: e.preset, commitDate: '$COMMIT_DATE' }))));
+            console.log(JSON.stringify(m.map(e => ({ app: e.app, preset: e.preset, buildLabel: '$BUILD_LABEL' }))));
           ")
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
           echo "Build matrix: $MATRIX" >&2
@@ -167,7 +168,7 @@ jobs:
           node scripts/run-measure-job.mjs \
             --app "${{ matrix.app }}" \
             --preset "${{ matrix.preset }}" \
-            --publish-dir "artifacts/publish/${{ matrix.app }}/${{ matrix.commitDate }}/${{ matrix.preset }}" \
+            --publish-dir "artifacts/publish/${{ matrix.app }}/${{ matrix.buildLabel }}/${{ matrix.preset }}" \
             --sdk-info artifacts/results/sdk-info.json \
             --build-manifest artifacts/results/build-manifest.json \
             --output-dir artifacts/results \

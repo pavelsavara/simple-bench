@@ -167,7 +167,7 @@ for (const engine of engines) {
 
     const isDryRun = args['dry-run'];
     const retries = isDryRun ? '1' : args.retries;
-    const timeoutVal = isDryRun ? String(Math.min(parseInt(args.timeout, 10), 120000)) : args.timeout;
+    const timeoutVal = isDryRun ? String(Math.min(parseInt(args.timeout, 10), 55000)) : args.timeout;
 
     const scriptArgs = [
         join(SCRIPT_DIR, measureScript),
