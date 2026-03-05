@@ -404,7 +404,7 @@ async function stepMeasure() {
 
 async function main() {
     console.error(`╔═══════════════════════════════════════════════╗`);
-    console.error(`║  Benchmark Pipeline — ${isDocker ? 'Docker' : 'Local '}               ║`);
+    console.error(`║  Benchmark Pipeline — ${isDocker ? 'Docker' : 'Local '}                  ║`);
     console.error(`╚═══════════════════════════════════════════════╝`);
 
     info(`Mode: ${args.mode}`);
