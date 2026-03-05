@@ -145,13 +145,18 @@ async function validateNoWorkload() {
     const dotnetPath = dotnet();
     const output = runCapture(dotnetPath, ['workload', 'list']);
     if (isWorkloadInstalled(output)) {
-        throw new Error(
-            'wasm-tools workload is already installed before non-workload builds. '
-            + 'The SDK should not have a workload pre-installed.\n'
-            + `dotnet workload list output:\n${output}`
-        );
+        if (process.env.CI || process.env.GITHUB_ACTIONS) {
+            throw new Error(
+                'wasm-tools workload is already installed before non-workload builds. '
+                + 'The SDK should not have a workload pre-installed.\n'
+                + `dotnet workload list output:\n${output}`
+            );
+        }
+        console.error('⚠ wasm-tools workload is already installed (cached SDK). '
+            + 'Non-workload build results may differ from CI.');
+    } else {
+        console.error('✓ Confirmed: wasm-tools workload is NOT installed');
     }
-    console.error('✓ Confirmed: wasm-tools workload is NOT installed');
 }
 
 // ── Phase 3 / 5: Build apps ─────────────────────────────────────────────────

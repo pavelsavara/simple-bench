@@ -26,7 +26,11 @@
 
 import { mkdir, rm, writeFile, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
+const REPO_DIR = resolve(SCRIPT_DIR, '..', '..');
 
 // ── Constants ───────────────────────────────────────────────────────────────
 
@@ -384,6 +388,74 @@ export async function readPackVersionInfo(packDir) {
  *   (skip candidate search). Used when the pack version is already known from runtime-packs.json.
  * @returns {{ packDir, version, runtimeCommit, vmrCommit, strategy }}
  */
+/**
+ * Refresh runtime-packs.json by fetching the NuGet feed index and checking
+ * if the newest version is already cached. If not, resolves new versions.
+ */
+export async function refreshRuntimePacks(major = DEFAULT_MAJOR) {
+    const packsPath = join(REPO_DIR, 'runtime-packs.json');
+    let packsData;
+    try {
+        packsData = JSON.parse(await readFile(packsPath, 'utf-8'));
+    } catch {
+        console.error('  runtime-packs.json not found, skipping refresh');
+        return;
+    }
+
+    let flatBaseUrl, allVersions;
+    try {
+        ({ flatBaseUrl, versions: allVersions } = await listAvailablePackVersions(major));
+    } catch (e) {
+        console.error(`  Runtime packs refresh failed (network): ${e.message}`);
+        return;
+    }
+
+    if (allVersions.length === 0) {
+        console.error('  Runtime packs feed returned no versions');
+        return;
+    }
+
+    // Check if the newest version on the feed is already in our cache
+    const newestFeedVersion = allVersions[0];
+    const existingVersions = new Set((packsData.versions || []).map(e => e.version));
+    if (existingVersions.has(newestFeedVersion)) {
+        console.error(`  Runtime packs catalog is up to date (newest: ${newestFeedVersion})`);
+        return;
+    }
+
+    // New versions found — resolve only those missing from cache
+    const newVersions = allVersions.filter(v => !existingVersions.has(v));
+    console.error(`  Runtime packs: ${newVersions.length} new versions (newest: ${newestFeedVersion})`);
+
+    for (const version of newVersions) {
+        const buildDate = decodeBuildDate(version);
+        const vmrCommit = await getVmrCommitFromNuspec(flatBaseUrl, version);
+        let runtimeGitHash = null;
+        let sdkGitHash = null;
+        if (vmrCommit) {
+            const commits = await getRepoCommitsFromVMR(vmrCommit);
+            runtimeGitHash = commits?.runtimeCommit || null;
+            sdkGitHash = commits?.sdkCommit || null;
+        }
+        packsData.versions.unshift({
+            version,
+            buildDate,
+            vmrCommit,
+            runtimeGitHash,
+            sdkGitHash,
+            nupkgUrl: `${flatBaseUrl}${PACKAGE_ID}/${version}/${PACKAGE_ID}.${version}.nupkg`,
+        });
+    }
+
+    packsData._lastRefreshed = new Date().toISOString();
+    packsData.totalVersions = packsData.versions.length;
+    packsData.resolvedVersions = packsData.versions.filter(e => e.runtimeGitHash).length;
+    packsData.generated = new Date().toISOString();
+
+    await writeFile(packsPath, JSON.stringify(packsData, null, 2) + '\n');
+    console.error(`  Runtime packs updated (${packsData.versions.length} total, ${newVersions.length} new)`);
+}
+
 export async function resolveRuntimePack(runtimeCommit, options = {}) {
     const {
         major = DEFAULT_MAJOR,
@@ -391,6 +463,13 @@ export async function resolveRuntimePack(runtimeCommit, options = {}) {
         strategy = 'closest-after',
         knownVersion = null,
     } = options;
+
+    // Refresh cache before resolving
+    try {
+        await refreshRuntimePacks(major);
+    } catch (e) {
+        console.error(`  Runtime packs refresh warning: ${e.message}`);
+    }
 
     console.error(`\nResolving runtime pack for commit ${runtimeCommit.substring(0, 12)}...`);
 

@@ -26,11 +26,7 @@ import {
     buildSdkInfo,
 } from './sdk-info.mjs';
 import {
-    PACKAGE_ID,
-    listAvailablePackVersions,
     decodeBuildDate as decodePackBuildDate,
-    getVmrCommitFromNuspec,
-    getRepoCommitsFromVMR,
 } from './runtime-pack-resolver.mjs';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
@@ -185,73 +181,6 @@ async function refreshSdkList(channel) {
 
     await writeFile(sdkListPath, JSON.stringify(sdkListData, null, 2) + '\n');
     console.error(`  Added SDK ${sdkVersion} to catalog (${versions.length} total)`);
-}
-
-/**
- * Refresh runtime-packs.json by checking for new versions on the NuGet feed.
- * Compares version count against stored _lastVersionCount for cheap staleness check.
- */
-async function refreshRuntimePacks(major) {
-    const packsPath = join(REPO_DIR, 'runtime-packs.json');
-    let packsData;
-    try {
-        packsData = JSON.parse(await readFile(packsPath, 'utf-8'));
-    } catch {
-        console.error('  runtime-packs.json not found, skipping refresh');
-        return;
-    }
-
-    let flatBaseUrl, allVersions;
-    try {
-        ({ flatBaseUrl, versions: allVersions } = await listAvailablePackVersions(major));
-    } catch (e) {
-        console.error(`  Runtime packs refresh failed (network): ${e.message}`);
-        return;
-    }
-
-    const storedCount = packsData._lastVersionCount || 0;
-    if (allVersions.length === storedCount) {
-        console.error(`  Runtime packs catalog is up to date (${storedCount} versions)`);
-        return;
-    }
-
-    console.error(`  Runtime packs: feed has ${allVersions.length} versions (was ${storedCount})`);
-
-    // Find versions not yet in catalog
-    const existingVersions = new Set((packsData.versions || []).map(e => e.version));
-    const newVersions = allVersions.filter(v => !existingVersions.has(v));
-
-    if (newVersions.length > 0) {
-        console.error(`  Resolving ${newVersions.length} new runtime pack versions...`);
-        for (const version of newVersions) {
-            const buildDate = decodePackBuildDate(version);
-            const vmrCommit = await getVmrCommitFromNuspec(flatBaseUrl, version);
-            let runtimeGitHash = null;
-            let sdkGitHash = null;
-            if (vmrCommit) {
-                const commits = await getRepoCommitsFromVMR(vmrCommit);
-                runtimeGitHash = commits?.runtimeCommit || null;
-                sdkGitHash = commits?.sdkCommit || null;
-            }
-            packsData.versions.unshift({
-                version,
-                buildDate,
-                vmrCommit,
-                runtimeGitHash,
-                sdkGitHash,
-                nupkgUrl: `${flatBaseUrl}${PACKAGE_ID}/${version}/${PACKAGE_ID}.${version}.nupkg`,
-            });
-        }
-    }
-
-    packsData._lastVersionCount = allVersions.length;
-    packsData._lastRefreshed = new Date().toISOString();
-    packsData.totalVersions = packsData.versions.length;
-    packsData.resolvedVersions = packsData.versions.filter(e => e.runtimeGitHash).length;
-    packsData.generated = new Date().toISOString();
-
-    await writeFile(packsPath, JSON.stringify(packsData, null, 2) + '\n');
-    console.error(`  Runtime packs updated (${packsData.versions.length} total, ${newVersions.length} new)`);
 }
 
 /**
@@ -450,12 +379,6 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
             await refreshSdkList(refreshChannel);
         } catch (e) {
             console.error(`  SDK catalog refresh warning: ${e.message}`);
-        }
-        try {
-            const major = parseInt(refreshChannel) || 11;
-            await refreshRuntimePacks(major);
-        } catch (e) {
-            console.error(`  Runtime packs refresh warning: ${e.message}`);
         }
     }
 
