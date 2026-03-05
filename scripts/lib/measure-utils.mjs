@@ -204,7 +204,7 @@ export function buildResultJson(meta, metrics) {
 // ── Compile time reader ─────────────────────────────────────────────────────
 
 /**
- * Read compile-time from the JSON produced by build-app.sh.
+ * Read compile-time from the JSON produced by build-app.mjs.
  * @param {string} filePath Path to compile-time.json
  * @returns {Promise<number|null>} Compile time in ms, or null if not found
  */

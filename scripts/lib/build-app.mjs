@@ -1,7 +1,7 @@
 /**
  * build-app.mjs — Build and publish a single sample app with MSBuild flags.
  *
- * JS port of build-app.sh. Can be imported as a library or run as a script.
+ * Can be imported as a library or run as a script.
  *
  * Output:
  *   - Published app in artifacts/publish/{app}/{buildLabel}/{preset}/
