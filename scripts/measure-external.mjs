@@ -62,6 +62,7 @@ const { values: args } = parseArgs({
         'timeout': { type: 'string', default: '55000' },
         'warm-runs': { type: 'string', default: '3' },
         'retries': { type: 'string', default: '2' },
+        'no-headless': { type: 'boolean', default: false },
         'ci-run-id': { type: 'string', default: '' },
         'ci-run-url': { type: 'string', default: '' },
     },
@@ -173,7 +174,7 @@ async function runBrowserMeasurement(browserEngine, app, publishDirPath, fpMap, 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
         if (attempt > 0) console.error(`Retry ${attempt}/${maxRetries}...`);
         try {
-            const browser = await browserType.launch();
+            const browser = await browserType.launch({ headless: !args['no-headless'] });
             try {
                 const context = await browser.newContext();
                 const page = await context.newPage();

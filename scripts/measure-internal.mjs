@@ -51,6 +51,7 @@ const { values: args } = parseArgs({
         'compile-time-file': { type: 'string', default: '' },
         'timeout': { type: 'string', default: '55000' },
         'retries': { type: 'string', default: '2' },
+        'no-headless': { type: 'boolean', default: false },
         'ci-run-id': { type: 'string', default: '' },
         'ci-run-url': { type: 'string', default: '' },
     },
@@ -155,7 +156,7 @@ async function measureBrowser(browserEngine, publishDirPath, timeoutMs, retries)
     for (let attempt = 0; attempt <= retries; attempt++) {
         if (attempt > 0) console.error(`Retry ${attempt}/${retries}...`);
         try {
-            const browser = await browserType.launch();
+            const browser = await browserType.launch({ headless: !args['no-headless'] });
             try {
                 const context = await browser.newContext();
                 const page = await context.newPage();

@@ -62,6 +62,7 @@ const { values: args } = parseArgs({
         'timeout': { type: 'string', default: '300000' },
         'retries': { type: 'string', default: '3' },
         'dry-run': { type: 'boolean', default: false },
+        'no-headless': { type: 'boolean', default: false },
         'engine': { type: 'string', default: '' },
         'ci-run-id': { type: 'string', default: '' },
         'ci-run-url': { type: 'string', default: '' },
@@ -182,6 +183,7 @@ for (const engine of engines) {
         '--retries', retries,
         '--timeout', timeoutVal,
         ...(isDryRun && !isInternal ? ['--warm-runs', '1'] : []),
+        ...(args['no-headless'] ? ['--no-headless'] : []),
         ...(args['ci-run-id'] ? ['--ci-run-id', args['ci-run-id']] : []),
         ...(args['ci-run-url'] ? ['--ci-run-url', args['ci-run-url']] : []),
     ];
