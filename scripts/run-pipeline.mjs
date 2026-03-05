@@ -307,7 +307,7 @@ async function main() {
         }
 
         packResult = await resolveRuntimePack(args['runtime-commit'] || 'unknown', {
-            destDir: join(ARTIFACTS_DIR, 'runtime-packs'),
+            destDir: join(ARTIFACTS_DIR, 'nuget-packages'),
             strategy: 'closest-after',
             knownVersion,
         });

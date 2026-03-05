@@ -10,7 +10,7 @@
  *   --major <n>          .NET major version (default: 11)
  *   --strategy <s>       'closest-after' (default), 'closest-before', 'exact'
  *   --dest <dir>         Destination directory for extracted packs
- *                        (default: artifacts/runtime-packs)
+ *                        (default: artifacts/nuget-packages)
  *   --output-json        Print result as JSON to stdout
  *
  * Examples:
@@ -48,7 +48,7 @@ if (!runtimeCommit) {
 const REPO_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR || join(REPO_DIR, 'artifacts');
 
-const destDir = opts.dest || join(ARTIFACTS_DIR, 'runtime-packs');
+const destDir = opts.dest || join(ARTIFACTS_DIR, 'nuget-packages');
 const major = parseInt(opts.major, 10);
 const strategy = opts.strategy;
 

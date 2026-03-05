@@ -28,6 +28,7 @@ import { mkdir, rm, writeFile, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_DIR = resolve(SCRIPT_DIR, '..', '..');
@@ -319,44 +320,54 @@ export async function checkAncestry(commit, descendant) {
 // ── Package download & extraction ───────────────────────────────────────────
 
 /**
- * Download a .nupkg and extract it to a destination directory.
- * The nupkg is a zip file containing the runtime pack contents.
+ * Download a .nupkg and extract it to the NuGet global packages cache layout.
+ * Layout: {destDir}/{PACKAGE_ID}/{version}/
  *
  * @param {string} flatBaseUrl - The NuGet flat container base URL
  * @param {string} version - Package version to download
- * @param {string} destDir - Directory to extract to
+ * @param {string} destDir - NuGet packages directory (e.g. artifacts/nuget-packages)
  * @returns {string} Path to the extracted pack root
  */
 export async function downloadAndExtractPack(flatBaseUrl, version, destDir) {
-    const nupkgUrl = `${flatBaseUrl}${PACKAGE_ID}/${version}/${PACKAGE_ID}.${version}.nupkg`;
-    const packDir = join(destDir, `${PACKAGE_ID}.${version}`);
+    const packDir = join(destDir, PACKAGE_ID, version);
 
     if (existsSync(packDir)) {
         console.error(`  Pack already extracted at ${packDir}, skipping download`);
         return packDir;
     }
 
+    const nupkgUrl = `${flatBaseUrl}${PACKAGE_ID}/${version}/${PACKAGE_ID}.${version}.nupkg`;
     console.error(`  Downloading ${PACKAGE_ID} v${version}...`);
     const buffer = await fetchBuffer(nupkgUrl);
 
     console.error(`  Downloaded ${(buffer.length / 1024 / 1024).toFixed(1)} MB`);
 
-    // Extract (nupkg is a zip file)
+    // Extract into NuGet cache layout: {id}/{version}/
     await mkdir(packDir, { recursive: true });
-    const zipPath = join(destDir, `${PACKAGE_ID}.${version}.nupkg`);
-    await writeFile(zipPath, buffer);
+    const nupkgPath = join(packDir, `${PACKAGE_ID}.${version}.nupkg`);
+    await writeFile(nupkgPath, buffer);
 
     const { execFileSync } = await import('node:child_process');
     if (process.platform === 'win32') {
         execFileSync('powershell', ['-NoProfile', '-Command',
-            `Expand-Archive -Force -Path '${zipPath}' -DestinationPath '${packDir}'`
+            `Expand-Archive -Force -Path '${nupkgPath}' -DestinationPath '${packDir}'`
         ], { stdio: 'pipe' });
     } else {
-        execFileSync('unzip', ['-o', '-q', zipPath, '-d', packDir], { stdio: 'pipe' });
+        execFileSync('unzip', ['-o', '-q', nupkgPath, '-d', packDir], { stdio: 'pipe' });
     }
 
-    // Clean up the zip
-    await rm(zipPath);
+    // Clean up zip artifacts that NuGet cache doesn't keep
+    for (const junk of ['[Content_Types].xml', '_rels']) {
+        await rm(join(packDir, junk), { recursive: true, force: true });
+    }
+
+    // Write NuGet cache metadata files
+    const sha512 = createHash('sha512').update(buffer).digest('base64');
+    await writeFile(join(packDir, `${PACKAGE_ID}.${version}.nupkg.sha512`), sha512);
+    await writeFile(join(packDir, '.nupkg.metadata'), JSON.stringify({
+        contentHash: sha512,
+        source: flatBaseUrl,
+    }) + '\n');
 
     // Read the versions.txt to report what we got
     const versionsTxt = join(packDir, 'Microsoft.NETCore.App.versions.txt');
@@ -487,7 +498,7 @@ export async function refreshRuntimePacks(major = DEFAULT_MAJOR) {
 export async function resolveRuntimePack(runtimeCommit, options = {}) {
     const {
         major = DEFAULT_MAJOR,
-        destDir = join(process.cwd(), 'artifacts', 'runtime-packs'),
+        destDir = join(process.cwd(), 'artifacts', 'nuget-packages'),
         strategy = 'closest-after',
         knownVersion = null,
     } = options;

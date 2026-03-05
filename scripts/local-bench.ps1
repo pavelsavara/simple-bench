@@ -16,7 +16,7 @@
     ./local-bench.ps1 --sdk-channel 10.0
     ./local-bench.ps1 --sdk-version 11.0.100-preview.3.26062.1
     ./local-bench.ps1 --runtime-pack 11.0.0-preview.3.26153.109
-    ./local-bench.ps1 --runtime-commit abcdef1234567890
+    ./local-bench.ps1 --runtime-commit b37f7ad8869bde05cc0e1f6e0faba2245006a0a0
 
     All flags are forwarded to: node scripts/run-bench.mjs --mode local ...
 #>
