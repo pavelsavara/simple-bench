@@ -314,17 +314,20 @@ async function main() {
         console.error(`✓ Runtime pack resolved: ${packResult.runtimePackVersion} (match: ${packResult.match})`);
         console.error(`  Pack runtime commit: ${packResult.runtimeCommit?.substring(0, 12)}`);
 
-        // Look up matching SDK version by runtimeGitHash from sdk-list.json
-        if (!args['sdk-version'] && packResult.runtimeCommit) {
+        // Look up matching SDK version from runtime-packs.json by runtimePackVersion or runtimeGitHash
+        if (!args['sdk-version']) {
             try {
-                const sdkData = JSON.parse(await readFile(join(REPO_DIR, 'sdk-list.json'), 'utf-8'));
-                const sdkEntry = (sdkData.versions || []).find(e =>
-                    e.valid && e.runtimeGitHash === packResult.runtimeCommit
+                const packsData = JSON.parse(await readFile(join(REPO_DIR, 'runtime-packs.json'), 'utf-8'));
+                const versions = packsData.versions || [];
+                const packEntry = versions.find(e =>
+                    e.runtimePackVersion === packResult.runtimePackVersion
+                ) || versions.find(e =>
+                    packResult.runtimeCommit && e.runtimeGitHash === packResult.runtimeCommit
                 );
-                if (sdkEntry) {
-                    console.error(`  Matched SDK version: ${sdkEntry.sdkVersion}`);
-                    args['sdk-version'] = sdkEntry.sdkVersion;
-                    SDK_DIR = `${OS_PREFIX}.sdk${sdkEntry.sdkVersion}`;
+                if (packEntry?.sdkVersionOfTheRuntimeBuild) {
+                    console.error(`  Matched SDK version (from runtime-packs.json): ${packEntry.sdkVersionOfTheRuntimeBuild}`);
+                    args['sdk-version'] = packEntry.sdkVersionOfTheRuntimeBuild;
+                    SDK_DIR = `${OS_PREFIX}.sdk${packEntry.sdkVersionOfTheRuntimeBuild}`;
                     SDK_INFO_PATH = join(ARTIFACTS_DIR, SDK_DIR, 'sdk-info.json');
                 }
             } catch { }

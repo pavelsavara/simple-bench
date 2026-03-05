@@ -42,14 +42,14 @@ import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { refreshRuntimePacks } from './lib/runtime-pack-resolver.mjs';
 
-/** Look up SDK version from sdk-list.json by matching runtimeGitHash. */
+/** Look up SDK version from runtime-packs.json by matching runtimeGitHash. */
 async function lookupSdkByRuntimeHash(runtimeGitHash) {
     try {
-        const sdkData = JSON.parse(await readFile(join(REPO_DIR, 'sdk-list.json'), 'utf-8'));
-        const entry = (sdkData.versions || []).find(e =>
-            e.valid && e.runtimeGitHash === runtimeGitHash
+        const packsData = JSON.parse(await readFile(join(REPO_DIR, 'runtime-packs.json'), 'utf-8'));
+        const entry = (packsData.versions || []).find(e =>
+            e.runtimeGitHash === runtimeGitHash
         );
-        return entry?.sdkVersion || null;
+        return entry?.sdkVersionOfTheRuntimeBuild || null;
     } catch { return null; }
 }
 
@@ -431,14 +431,11 @@ async function main() {
                 if (entry?.runtimeGitHash) {
                     args['runtime-commit'] = entry.runtimeGitHash;
                     console.error(`Resolved runtime commit from pack ${packVersion}: ${entry.runtimeGitHash.substring(0, 12)}`);
-                    // Look up matching SDK version by runtimeGitHash
-                    if (!args['sdk-version']) {
-                        const sdkVer = await lookupSdkByRuntimeHash(entry.runtimeGitHash);
-                        if (sdkVer) {
-                            args['sdk-version'] = sdkVer;
-                            SDK_DIR = `${OS_PREFIX}.sdk${sdkVer}`;
-                            console.error(`Matched SDK version: ${sdkVer}`);
-                        }
+                    // Use sdkVersionOfTheRuntimeBuild from runtime-packs.json
+                    if (!args['sdk-version'] && entry.sdkVersionOfTheRuntimeBuild) {
+                        args['sdk-version'] = entry.sdkVersionOfTheRuntimeBuild;
+                        SDK_DIR = `${OS_PREFIX}.sdk${entry.sdkVersionOfTheRuntimeBuild}`;
+                        console.error(`Matched SDK version: ${entry.sdkVersionOfTheRuntimeBuild}`);
                     }
                 } else {
                     console.error(`Warning: pack ${packVersion} not found in runtime-packs.json`);
