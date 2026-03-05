@@ -1,8 +1,8 @@
 {
   "generated": "2026-03-03T15:07:02.499Z",
   "platform": "linux-x64",
-  "totalVersions": 148,
-  "validVersions": 148,
+  "totalVersions": 149,
+  "validVersions": 149,
   "versions": [
     {
       "version": "6.0.136",
@@ -1779,6 +1779,20 @@
       "runtimeGitHash": "348ad67a2c1e3349b7c9fda78d2ba929de125921",
       "httpStatus": 200,
       "valid": true
+    },
+    {
+      "version": "11.0.100-preview.3.26153.117",
+      "channel": "11.0",
+      "band": "1xx",
+      "type": "daily",
+      "buildDate": "2026-03-03",
+      "runtimeVersion": "11.0.0-preview.3.26153.117",
+      "url": "https://ci.dot.net/public/Sdk/11.0.100-preview.3.26153.117/dotnet-sdk-11.0.100-preview.3.26153.117-linux-x64.tar.gz",
+      "runtimeGitHash": "9b46e58206b2695ad7089ceea0db93cad22abbd7",
+      "httpStatus": 200,
+      "valid": true
     }
-  ]
+  ],
+  "_etag": "\"0x8DE79C25B44BA22\"",
+  "_lastRefreshed": "2026-03-05T00:04:50.410Z"
 }

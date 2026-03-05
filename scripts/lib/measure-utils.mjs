@@ -220,7 +220,7 @@ export async function readCompileTime(filePath) {
 // ── SDK info reader ─────────────────────────────────────────────────────────
 
 /**
- * Read sdk-info.json produced by resolve-sdk.sh.
+ * Read sdk-info.json produced by resolve-sdk.mjs.
  * @param {string} filePath Path to sdk-info.json
  * @returns {Promise<{sdkVersion: string, runtimeGitHash: string, sdkGitHash: string, vmrGitHash: string, commitDate: string, commitTime: string}>}
  */

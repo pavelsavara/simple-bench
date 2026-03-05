@@ -1,15 +1,13 @@
 /**
  * resolve-sdk.mjs — Download .NET SDK and resolve version + git hashes.
  *
- * JS port of resolve-sdk.sh. Can be imported as a library or run as a script.
- *
  * Resolution algorithm:
- *   1. Download dotnet-install.sh, install SDK
- *   2. Run `dotnet --info`, extract commit hashes
- *   3. Fetch src/source-manifest.json from dotnet/dotnet VMR at that commit
- *   4. If found → parse sdk + runtime hashes from manifest
- *   5. Fallback: SDK Commit → sdkGitHash, Host Commit → runtimeGitHash
- *   6. Write sdk-info.json
+ *   1. Look up exact SDK version from sdk-list.json (channel → latest valid build)
+ *   2. Cross-reference with runtime-packs.json for git hashes (vmr, sdk, runtime)
+ *   3. Install exact version via dotnet-install script (never channel-based guess)
+ *   4. Fallback: if catalog lookup fails, install via channel and resolve
+ *      hashes from dotnet --info + VMR source-manifest.json
+ *   5. Write sdk-info.json
  *
  * Usage as script:
  *   node scripts/lib/resolve-sdk.mjs --channel 11.0 --install-dir artifacts/sdk
@@ -18,7 +16,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { readFile, writeFile, mkdir, chmod } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import {
@@ -27,10 +25,19 @@ import {
     parseHostCommitHash,
     buildSdkInfo,
 } from './sdk-info.mjs';
+import {
+    PACKAGE_ID,
+    listAvailablePackVersions,
+    decodeBuildDate as decodePackBuildDate,
+    getVmrCommitFromNuspec,
+    getRepoCommitsFromVMR,
+} from './runtime-pack-resolver.mjs';
+
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
+const REPO_DIR = resolve(SCRIPT_DIR, '..', '..');
 
 /**
  * Download a URL and return the body as a string.
- * Uses native fetch (Node 18+).
  */
 async function download(url) {
     const res = await fetch(url);
@@ -57,16 +64,6 @@ function runCapture(cmd, args, opts = {}) {
 }
 
 /**
- * Run a command, inheriting stderr, suppressing stdout.
- */
-function runQuiet(cmd, args, opts = {}) {
-    execFileSync(cmd, args, {
-        stdio: ['inherit', 'pipe', 'inherit'],
-        ...opts,
-    });
-}
-
-/**
  * Parse VMR source-manifest.json to extract repo commit hashes.
  */
 function parseManifest(manifestJson) {
@@ -78,6 +75,341 @@ function parseManifest(manifestJson) {
         sdkGitHash: sdk?.commitSha || '',
         runtimeGitHash: runtime?.commitSha || '',
     };
+}
+
+/**
+ * Derive the runtime pack version from an SDK version.
+ * e.g. "11.0.100-preview.3.26152.106" → "11.0.0-preview.3.26152.106"
+ */
+function deriveRuntimeVersion(sdkVersion) {
+    return sdkVersion.replace(/^(\d+\.\d+\.)\d+/, (_, prefix) => prefix + '0');
+}
+
+/**
+ * Refresh sdk-list.json by checking the latest daily SDK from the CDN.
+ * Fetches the productCommit endpoint with an ETag for conditional checks.
+ * On 304 (unchanged) this is a single cheap HTTP round-trip.
+ */
+async function refreshSdkList(channel) {
+    const sdkListPath = join(REPO_DIR, 'sdk-list.json');
+    let sdkListData;
+    try {
+        sdkListData = JSON.parse(await readFile(sdkListPath, 'utf-8'));
+    } catch {
+        console.error('  sdk-list.json not found, skipping refresh');
+        return;
+    }
+
+    const productCommitUrl = `https://aka.ms/dotnet/${channel}/daily/productCommit-linux-x64.txt`;
+    const headers = {};
+    if (sdkListData._etag) {
+        headers['If-None-Match'] = sdkListData._etag;
+    }
+
+    let res;
+    try {
+        res = await fetch(productCommitUrl, { headers, signal: AbortSignal.timeout(15000) });
+    } catch (e) {
+        console.error(`  SDK catalog refresh failed (network): ${e.message}`);
+        return;
+    }
+
+    if (res.status === 304) {
+        console.error('  SDK catalog is up to date (304)');
+        return;
+    }
+    if (!res.ok) {
+        console.error(`  SDK catalog refresh: HTTP ${res.status}`);
+        return;
+    }
+
+    // Parse productCommit key="value" pairs (multiple per line)
+    const body = await res.text();
+    const fields = {};
+    for (const [, key, value] of body.matchAll(/(\w+)="([^"]*)"/g)) {
+        fields[key] = value;
+    }
+
+    const sdkVersion = fields.sdk_version;
+    const runtimeVersion = fields.runtime_version;
+    const vmrCommit = fields.sdk_commit || fields.runtime_commit;
+    if (!sdkVersion) {
+        console.error('  SDK catalog refresh: could not parse sdk_version from productCommit');
+        return;
+    }
+
+    // Update ETag
+    const etag = res.headers.get('etag');
+    if (etag) sdkListData._etag = etag;
+    sdkListData._lastRefreshed = new Date().toISOString();
+
+    // Check if version already in catalog
+    const versions = sdkListData.versions || [];
+    if (versions.some(e => e.version === sdkVersion)) {
+        console.error(`  SDK ${sdkVersion} already in catalog, ETag updated`);
+        await writeFile(sdkListPath, JSON.stringify(sdkListData, null, 2) + '\n');
+        return;
+    }
+
+    // New version — resolve runtime git hash from VMR source-manifest
+    console.error(`  New SDK ${sdkVersion} found, resolving git hashes...`);
+    let runtimeGitHash = '';
+    if (vmrCommit) {
+        try {
+            const manifestText = await download(
+                `https://raw.githubusercontent.com/dotnet/dotnet/${vmrCommit}/src/source-manifest.json`
+            );
+            runtimeGitHash = parseManifest(manifestText).runtimeGitHash;
+        } catch {
+            console.error(`  Could not resolve runtime hash from VMR commit ${vmrCommit.slice(0, 10)}`);
+        }
+    }
+
+    const buildDate = decodePackBuildDate(sdkVersion) || '';
+    const bandDigit = sdkVersion.match(/^\d+\.\d+\.(\d)/)?.[1] || '1';
+    versions.push({
+        version: sdkVersion,
+        channel,
+        band: `${bandDigit}xx`,
+        type: 'daily',
+        buildDate,
+        runtimeVersion: runtimeVersion || deriveRuntimeVersion(sdkVersion),
+        url: `https://ci.dot.net/public/Sdk/${sdkVersion}/dotnet-sdk-${sdkVersion}-linux-x64.tar.gz`,
+        runtimeGitHash,
+        httpStatus: 200,
+        valid: true,
+    });
+    sdkListData.versions = versions;
+    sdkListData.totalVersions = versions.length;
+    sdkListData.validVersions = versions.filter(e => e.valid).length;
+
+    await writeFile(sdkListPath, JSON.stringify(sdkListData, null, 2) + '\n');
+    console.error(`  Added SDK ${sdkVersion} to catalog (${versions.length} total)`);
+}
+
+/**
+ * Refresh runtime-packs.json by checking for new versions on the NuGet feed.
+ * Compares version count against stored _lastVersionCount for cheap staleness check.
+ */
+async function refreshRuntimePacks(major) {
+    const packsPath = join(REPO_DIR, 'runtime-packs.json');
+    let packsData;
+    try {
+        packsData = JSON.parse(await readFile(packsPath, 'utf-8'));
+    } catch {
+        console.error('  runtime-packs.json not found, skipping refresh');
+        return;
+    }
+
+    let flatBaseUrl, allVersions;
+    try {
+        ({ flatBaseUrl, versions: allVersions } = await listAvailablePackVersions(major));
+    } catch (e) {
+        console.error(`  Runtime packs refresh failed (network): ${e.message}`);
+        return;
+    }
+
+    const storedCount = packsData._lastVersionCount || 0;
+    if (allVersions.length === storedCount) {
+        console.error(`  Runtime packs catalog is up to date (${storedCount} versions)`);
+        return;
+    }
+
+    console.error(`  Runtime packs: feed has ${allVersions.length} versions (was ${storedCount})`);
+
+    // Find versions not yet in catalog
+    const existingVersions = new Set((packsData.versions || []).map(e => e.version));
+    const newVersions = allVersions.filter(v => !existingVersions.has(v));
+
+    if (newVersions.length > 0) {
+        console.error(`  Resolving ${newVersions.length} new runtime pack versions...`);
+        for (const version of newVersions) {
+            const buildDate = decodePackBuildDate(version);
+            const vmrCommit = await getVmrCommitFromNuspec(flatBaseUrl, version);
+            let runtimeGitHash = null;
+            let sdkGitHash = null;
+            if (vmrCommit) {
+                const commits = await getRepoCommitsFromVMR(vmrCommit);
+                runtimeGitHash = commits?.runtimeCommit || null;
+                sdkGitHash = commits?.sdkCommit || null;
+            }
+            packsData.versions.unshift({
+                version,
+                buildDate,
+                vmrCommit,
+                runtimeGitHash,
+                sdkGitHash,
+                nupkgUrl: `${flatBaseUrl}${PACKAGE_ID}/${version}/${PACKAGE_ID}.${version}.nupkg`,
+            });
+        }
+    }
+
+    packsData._lastVersionCount = allVersions.length;
+    packsData._lastRefreshed = new Date().toISOString();
+    packsData.totalVersions = packsData.versions.length;
+    packsData.resolvedVersions = packsData.versions.filter(e => e.runtimeGitHash).length;
+    packsData.generated = new Date().toISOString();
+
+    await writeFile(packsPath, JSON.stringify(packsData, null, 2) + '\n');
+    console.error(`  Runtime packs updated (${packsData.versions.length} total, ${newVersions.length} new)`);
+}
+
+/**
+ * Look up SDK version + git hashes from pre-computed catalog files.
+ *
+ * When channel is given (no explicit version), finds the latest valid SDK
+ * from sdk-list.json. When a specific version is given, looks it up directly.
+ *
+ * Cross-references runtime-packs.json for vmrCommit and sdkGitHash.
+ *
+ * @returns {{ sdkVersion, runtimeGitHash, sdkGitHash, vmrGitHash, buildDate } | null}
+ */
+async function resolveFromCatalog({ channel, sdkVersion }) {
+    let sdkListData, runtimePacksData;
+    try {
+        sdkListData = JSON.parse(await readFile(join(REPO_DIR, 'sdk-list.json'), 'utf-8'));
+    } catch {
+        console.error('  sdk-list.json not found or invalid, skipping catalog lookup');
+        return null;
+    }
+    try {
+        runtimePacksData = JSON.parse(await readFile(join(REPO_DIR, 'runtime-packs.json'), 'utf-8'));
+    } catch {
+        runtimePacksData = { versions: [] };
+    }
+
+    const sdkEntries = (sdkListData.versions || []).filter(e => e.valid);
+
+    let entry;
+    if (sdkVersion) {
+        // Look up specific version
+        entry = sdkEntries.find(e => e.version === sdkVersion);
+        if (!entry) {
+            console.error(`  SDK ${sdkVersion} not found in sdk-list.json`);
+            return null;
+        }
+    } else {
+        // Find latest valid SDK for the channel
+        const channelEntries = sdkEntries.filter(e => e.channel === channel);
+        if (channelEntries.length === 0) {
+            console.error(`  No valid SDKs found for channel ${channel} in sdk-list.json`);
+            return null;
+        }
+        // Sort descending by version string — daily builds sort correctly since
+        // they share the same major.minor.patch-label prefix and the date+rev suffix
+        // is monotonically increasing.
+        channelEntries.sort((a, b) => b.version.localeCompare(a.version));
+        entry = channelEntries[0];
+    }
+
+    // Cross-reference with runtime-packs.json using the derived runtime version
+    const runtimeVersion = entry.runtimeVersion || deriveRuntimeVersion(entry.version);
+    const packEntry = (runtimePacksData.versions || []).find(e => e.version === runtimeVersion);
+
+    const result = {
+        sdkVersion: entry.version,
+        runtimeGitHash: packEntry?.runtimeGitHash || entry.runtimeGitHash || '',
+        sdkGitHash: packEntry?.sdkGitHash || '',
+        vmrGitHash: packEntry?.vmrCommit || '',
+        buildDate: entry.buildDate || '',
+    };
+
+    console.error(`  Catalog resolved: SDK ${result.sdkVersion}`);
+    if (result.runtimeGitHash) console.error(`    runtimeGitHash: ${result.runtimeGitHash}`);
+    if (result.sdkGitHash) console.error(`    sdkGitHash:     ${result.sdkGitHash}`);
+    if (result.vmrGitHash) console.error(`    vmrGitHash:     ${result.vmrGitHash}`);
+    if (result.buildDate) console.error(`    buildDate:      ${result.buildDate}`);
+
+    return result;
+}
+
+/**
+ * Resolve hashes by running dotnet --info and fetching VMR source-manifest.json.
+ * Used as fallback when catalog data is incomplete.
+ */
+async function resolveHashesFromInstall(installDir) {
+    const isWindows = process.platform === 'win32';
+    const dotnetBin = join(installDir, isWindows ? 'dotnet.exe' : 'dotnet');
+    const resolvedVersion = runCapture(dotnetBin, ['--version']);
+    const dotnetInfo = runCapture(dotnetBin, ['--info']);
+
+    const dotnetCommit = parseCommitHash(dotnetInfo) || '0'.repeat(40);
+    const hostCommit = parseHostCommitHash(dotnetInfo) || '';
+
+    let vmrGitHash = '';
+    let sdkGitHash = '';
+    let runtimeGitHash = '';
+
+    const manifestUrl = `https://raw.githubusercontent.com/dotnet/dotnet/${dotnetCommit}/src/source-manifest.json`;
+    console.error(`Trying VMR resolution at ${dotnetCommit.substring(0, 10)}...`);
+
+    try {
+        const manifestText = await download(manifestUrl);
+        const hashes = parseManifest(manifestText);
+        vmrGitHash = dotnetCommit;
+        sdkGitHash = hashes.sdkGitHash;
+        runtimeGitHash = hashes.runtimeGitHash;
+        console.error('VMR commit confirmed.');
+        console.error(`  vmrGitHash:     ${vmrGitHash}`);
+        console.error(`  sdkGitHash:     ${sdkGitHash}`);
+        console.error(`  runtimeGitHash: ${runtimeGitHash}`);
+    } catch {
+        console.error('VMR resolution failed (non-VMR build or network error). Using fallback.');
+    }
+
+    if (!sdkGitHash) {
+        sdkGitHash = dotnetCommit;
+        console.error(`  sdkGitHash (fallback from SDK Commit): ${sdkGitHash}`);
+    }
+    if (!runtimeGitHash) {
+        runtimeGitHash = hostCommit || dotnetCommit;
+        console.error(`  runtimeGitHash (fallback from Host Commit): ${runtimeGitHash}`);
+    }
+
+    return { resolvedVersion, vmrGitHash, sdkGitHash, runtimeGitHash };
+}
+
+/**
+ * Install .NET SDK via dotnet-install script.
+ * Always uses --version for exact install when version is known.
+ * Falls back to --channel/--quality when version is not known.
+ */
+async function installSdk({ sdkVersion, channel, installDir }) {
+    const isWindows = process.platform === 'win32';
+    const installScript = join(installDir, isWindows ? 'dotnet-install.ps1' : 'dotnet-install.sh');
+    const installUrl = isWindows
+        ? 'https://dot.net/v1/dotnet-install.ps1'
+        : 'https://dot.net/v1/dotnet-install.sh';
+    console.error(`Downloading ${isWindows ? 'dotnet-install.ps1' : 'dotnet-install.sh'}...`);
+    await downloadToFile(installUrl, installScript);
+    if (!isWindows) await chmod(installScript, 0o755);
+
+    const installArgs = isWindows
+        ? ['-InstallDir', installDir]
+        : ['--install-dir', installDir];
+
+    if (sdkVersion) {
+        console.error(`Installing .NET SDK ${sdkVersion}...`);
+        installArgs.push(isWindows ? '-Version' : '--version', sdkVersion);
+    } else {
+        console.error(`Installing latest .NET SDK from channel ${channel} (daily quality)...`);
+        installArgs.push(
+            isWindows ? '-Channel' : '--channel', channel,
+            isWindows ? '-Quality' : '--quality', 'daily',
+        );
+    }
+
+    if (isWindows) {
+        execFileSync('powershell', ['-ExecutionPolicy', 'Bypass', '-File', installScript, ...installArgs], {
+            stdio: 'inherit',
+            env: { ...process.env, DOTNET_ROOT: installDir },
+        });
+    } else {
+        execFileSync('bash', [installScript, ...installArgs], {
+            stdio: 'inherit',
+            env: { ...process.env, DOTNET_ROOT: installDir },
+        });
+    }
 }
 
 /**
@@ -101,7 +433,6 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
         const existing = JSON.parse(await readFile(sdkInfoPath, 'utf-8'));
         if (existing.sdkVersion) {
             console.error(`SDK already installed at ${installDir} (${existing.sdkVersion}), skipping download.`);
-            // Still set env vars so subsequent steps find the SDK
             process.env.DOTNET_ROOT = installDir;
             process.env.PATH = `${installDir}${pathSep}${process.env.PATH}`;
             process.env.DOTNET_NOLOGO = 'true';
@@ -112,47 +443,35 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
         }
     } catch { /* sdk-info.json missing or invalid — proceed with install */ }
 
-    // ── Download and run dotnet-install script ─────────────────────────
-    const installScript = join(installDir, isWindows ? 'dotnet-install.ps1' : 'dotnet-install.sh');
-    const installUrl = isWindows
-        ? 'https://dot.net/v1/dotnet-install.ps1'
-        : 'https://dot.net/v1/dotnet-install.sh';
-    console.error(`Downloading ${isWindows ? 'dotnet-install.ps1' : 'dotnet-install.sh'}...`);
-    await downloadToFile(installUrl, installScript);
-    if (!isWindows) await chmod(installScript, 0o755);
-
-    const installArgs = isWindows
-        ? ['-InstallDir', installDir]
-        : ['--install-dir', installDir];
-    if (sdkVersion) {
-        console.error(`Installing .NET SDK ${sdkVersion}...`);
-        installArgs.push(isWindows ? '-Version' : '--version', sdkVersion);
-    } else {
-        console.error(`Installing latest .NET SDK from channel ${channel} (daily quality)...`);
-        installArgs.push(
-            isWindows ? '-Channel' : '--channel', channel,
-            isWindows ? '-Quality' : '--quality', 'daily',
-        );
+    // ── Refresh catalogs before lookup ──────────────────────────────────
+    const refreshChannel = channel || sdkVersion?.match(/^(\d+\.\d+)\./)?.[1];
+    if (refreshChannel) {
+        try {
+            await refreshSdkList(refreshChannel);
+        } catch (e) {
+            console.error(`  SDK catalog refresh warning: ${e.message}`);
+        }
+        try {
+            const major = parseInt(refreshChannel) || 11;
+            await refreshRuntimePacks(major);
+        } catch (e) {
+            console.error(`  Runtime packs refresh warning: ${e.message}`);
+        }
     }
 
-    if (isWindows) {
-        execFileSync('powershell', ['-ExecutionPolicy', 'Bypass', '-File', installScript, ...installArgs], {
-            stdio: 'inherit',
-            env: { ...process.env, DOTNET_ROOT: installDir },
-        });
-    } else {
-        execFileSync('bash', [installScript, ...installArgs], {
-            stdio: 'inherit',
-            env: { ...process.env, DOTNET_ROOT: installDir },
-        });
-    }
+    // ── Resolve version from catalog ─────────────────────────────────────
+    console.error('Resolving SDK version from catalog...');
+    const catalog = await resolveFromCatalog({ channel, sdkVersion });
+    const resolvedSdkVersion = catalog?.sdkVersion || sdkVersion || '';
+
+    // ── Install SDK ──────────────────────────────────────────────────────
+    await installSdk({ sdkVersion: resolvedSdkVersion, channel, installDir });
 
     // Update env for subsequent calls
     process.env.DOTNET_ROOT = installDir;
     process.env.PATH = `${installDir}${pathSep}${process.env.PATH}`;
     process.env.DOTNET_NOLOGO = 'true';
 
-    // Place NuGet cache inside artifacts so it's isolated and reproducible
     const nugetDir = join(installDir, '..', 'nuget-packages');
     await mkdir(nugetDir, { recursive: true });
     process.env.NUGET_PACKAGES = resolve(nugetDir);
@@ -164,49 +483,34 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
             `DOTNET_ROOT=${installDir}\nPATH=${installDir}:${process.env.PATH}\n`);
     }
 
-    // ── Extract version and commit info ──────────────────────────────────
+    // ── Resolve git hashes ───────────────────────────────────────────────
+    // Use catalog data when available, otherwise fall back to dotnet --info
     const dotnetBin = join(installDir, isWindows ? 'dotnet.exe' : 'dotnet');
-    const resolvedVersion = runCapture(dotnetBin, ['--version']);
-    const dotnetInfo = runCapture(dotnetBin, ['--info']);
+    const finalVersion = runCapture(dotnetBin, ['--version']);
+    let vmrGitHash, sdkGitHash, runtimeGitHash;
 
-    const dotnetCommit = parseCommitHash(dotnetInfo) || '0'.repeat(40);
-    const hostCommit = parseHostCommitHash(dotnetInfo) || '';
+    // Check if the installed version matches the catalog version. If not (e.g.
+    // the install dir already had a newer SDK), the catalog hashes won't match.
+    const catalogValid = catalog?.runtimeGitHash && finalVersion === catalog.sdkVersion;
 
-    // ── Resolve three git hashes via VMR manifest ────────────────────────
-    let vmrGitHash = '';
-    let sdkGitHash = '';
-    let runtimeGitHash = '';
-
-    const manifestUrl = `https://raw.githubusercontent.com/dotnet/dotnet/${dotnetCommit}/src/source-manifest.json`;
-    console.error(`Trying VMR resolution at ${dotnetCommit.substring(0, 10)}...`);
-
-    try {
-        const manifestText = await download(manifestUrl);
-        const hashes = parseManifest(manifestText);
-        vmrGitHash = dotnetCommit;
-        sdkGitHash = hashes.sdkGitHash;
-        runtimeGitHash = hashes.runtimeGitHash;
-
-        console.error('VMR commit confirmed. Extracting repo hashes from source-manifest.json...');
-        console.error(`  vmrGitHash:     ${vmrGitHash}`);
-        console.error(`  sdkGitHash:     ${sdkGitHash}`);
-        console.error(`  runtimeGitHash: ${runtimeGitHash}`);
-    } catch {
-        console.error('VMR resolution failed (non-VMR build or network error). Using fallback.');
-    }
-
-    // Fallbacks
-    if (!sdkGitHash) {
-        sdkGitHash = dotnetCommit;
-        console.error(`  sdkGitHash (fallback from SDK Commit): ${sdkGitHash}`);
-    }
-    if (!runtimeGitHash) {
-        runtimeGitHash = hostCommit || dotnetCommit;
-        console.error(`  runtimeGitHash (fallback from Host Commit): ${runtimeGitHash}`);
+    if (catalogValid) {
+        vmrGitHash = catalog.vmrGitHash;
+        sdkGitHash = catalog.sdkGitHash;
+        runtimeGitHash = catalog.runtimeGitHash;
+    } else {
+        if (catalog?.runtimeGitHash && finalVersion !== catalog.sdkVersion) {
+            console.error(`Installed version ${finalVersion} differs from catalog ${catalog.sdkVersion}, resolving hashes from install...`);
+        } else {
+            console.error('Catalog data incomplete, resolving hashes from installed SDK...');
+        }
+        const resolved = await resolveHashesFromInstall(installDir);
+        vmrGitHash = resolved.vmrGitHash;
+        sdkGitHash = resolved.sdkGitHash;
+        runtimeGitHash = resolved.runtimeGitHash;
     }
 
     // ── Build date from version string ───────────────────────────────────
-    let commitDate = parseBuildDate(resolvedVersion);
+    let commitDate = (catalogValid && catalog.buildDate) || parseBuildDate(finalVersion);
     if (!commitDate) {
         console.error('Warning: Could not parse build date from version, using current date');
         commitDate = new Date().toISOString().slice(0, 10);
@@ -222,7 +526,7 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
 
     // ── Write sdk-info.json ──────────────────────────────────────────────
     const info = buildSdkInfo(
-        resolvedVersion, runtimeGitHash, sdkGitHash,
+        finalVersion, runtimeGitHash, sdkGitHash,
         vmrGitHash, commitDate, commitTime, null,
     );
     const infoPath = join(installDir, 'sdk-info.json');

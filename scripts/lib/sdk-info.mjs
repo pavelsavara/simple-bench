@@ -1,6 +1,6 @@
 /**
  * SDK version parsing and info extraction utilities.
- * Shared between resolve-sdk.sh (via node -e) and unit tests.
+ * Shared between resolve-sdk.mjs and unit tests.
  */
 
 /**

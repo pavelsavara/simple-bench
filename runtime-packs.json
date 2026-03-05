@@ -1,5 +1,5 @@
 {
-  "generated": "2026-03-04T21:11:40.672Z",
+  "generated": "2026-03-05T00:02:55.292Z",
   "feed": "dotnet11",
   "packageId": "microsoft.netcore.app.runtime.mono.browser-wasm",
   "totalVersions": 134,
@@ -1077,5 +1077,7 @@
       "sdkGitHash": "65384c6536d6c6f6afa9c13dc023b1848f0ef69e",
       "nupkgUrl": "https://pkgs.dev.azure.com/dnceng/9ee6d478-d288-47f7-aacc-f6e6d082ae6d/_packaging/2303eb2b-8177-4b47-977a-e7278e3abf72/nuget/v3/flat2/microsoft.netcore.app.runtime.mono.browser-wasm/11.0.0-alpha.1.25605.110/microsoft.netcore.app.runtime.mono.browser-wasm.11.0.0-alpha.1.25605.110.nupkg"
     }
-  ]
+  ],
+  "_lastVersionCount": 134,
+  "_lastRefreshed": "2026-03-05T00:02:55.290Z"
 }
