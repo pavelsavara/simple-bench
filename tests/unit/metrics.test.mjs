@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { METRICS, EXTERNAL_METRICS, INTERNAL_METRICS } from '../../scripts/lib/metrics.mjs';
 
 describe('METRICS registry', () => {
-    it('has 13 metric definitions', () => {
-        assert.equal(Object.keys(METRICS).length, 13);
+    it('has 12 metric definitions', () => {
+        assert.equal(Object.keys(METRICS).length, 12);
     });
 
     it('all entries have displayName, unit, and category', () => {
@@ -30,8 +30,8 @@ describe('METRICS registry', () => {
         }
     });
 
-    it('EXTERNAL_METRICS has 10 entries', () => {
-        assert.equal(EXTERNAL_METRICS.length, 10);
+    it('EXTERNAL_METRICS has 9 entries', () => {
+        assert.equal(EXTERNAL_METRICS.length, 9);
     });
 
     it('INTERNAL_METRICS has 3 entries', () => {
