@@ -64,6 +64,7 @@ export class DataLoader {
                     if (result.app === app &&
                         filterState.runtime.includes(result.runtime) &&
                         filterState.preset.includes(result.preset) &&
+                        filterState.profile.includes(result.profile || 'desktop') &&
                         filterState.engine.includes(result.engine)) {
                         runs.push({
                             ...result,

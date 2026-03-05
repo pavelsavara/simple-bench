@@ -139,7 +139,8 @@ export class ChartManager {
             if (value == null) continue;
 
             const { runtime, preset, engine, commitDate, sdkVersion, gitHash } = result.meta;
-            const seriesKey = `${runtime}/${preset}/${engine}`;
+            const profile = result.meta.profile || 'desktop';
+            const seriesKey = `${runtime}/${preset}/${profile}/${engine}`;
 
             if (!seriesMap.has(seriesKey)) {
                 seriesMap.set(seriesKey, []);
@@ -152,9 +153,9 @@ export class ChartManager {
         }
 
         return Array.from(seriesMap.entries()).map(([seriesKey, points]) => {
-            const [runtime, preset, engine] = seriesKey.split('/');
+            const [runtime, preset, profile, engine] = seriesKey.split('/');
             return {
-                label: `${runtime} / ${preset} / ${engine}`,
+                label: `${runtime} / ${preset} / ${profile} / ${engine}`,
                 data: points.sort((a, b) => a.x.localeCompare(b.x)),
                 borderColor: ENGINE_COLORS[engine] || '#999',
                 borderWidth: RUNTIME_LINE_WIDTH[runtime] || 1.5,
@@ -197,6 +198,7 @@ export class ChartManager {
                                 lines.push(`Git: ${(meta.gitHash || '').slice(0, 7)}`);
                                 lines.push(`Runtime: ${meta.runtime}`);
                                 lines.push(`Preset: ${meta.preset}`);
+                                lines.push(`Profile: ${meta.profile || 'desktop'}`);
                                 lines.push(`Engine: ${meta.engine}`);
                                 lines.push(`────────────────`);
                             }

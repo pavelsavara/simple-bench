@@ -9,7 +9,7 @@ export class Filters {
 
     constructor(sidebar) {
         this.#sidebar = sidebar;
-        this.#state = { runtime: [], preset: [], engine: [], range: { min: null, max: null } };
+        this.#state = { runtime: [], preset: [], profile: [], engine: [], range: { min: null, max: null } };
         this.#changeCallbacks = [];
         this.#visibleEngines = ['v8', 'node', 'chrome', 'firefox'];
     }
@@ -18,6 +18,7 @@ export class Filters {
     init(dimensions, hashState) {
         this.#renderCheckboxGroup('filter-runtime', dimensions.runtimes, hashState?.runtime);
         this.#renderCheckboxGroup('filter-preset', dimensions.presets, hashState?.preset);
+        this.#renderCheckboxGroup('filter-profile', dimensions.profiles, hashState?.profile);
         this.#renderCheckboxGroup('filter-engine', dimensions.engines, hashState?.engine);
 
         if (hashState?.range) {
@@ -59,6 +60,7 @@ export class Filters {
         this.#state = {
             runtime: this.#getCheckedValues('runtime'),
             preset: this.#getCheckedValues('preset'),
+            profile: this.#getCheckedValues('profile'),
             engine: this.#getCheckedValues('engine'),
             range: this.#state.range
         };
@@ -111,6 +113,7 @@ export function readHashState() {
         app: params.get('app') || 'empty-browser',
         runtime: params.get('runtime')?.split(',') || null,
         preset: params.get('preset')?.split(',') || null,
+        profile: params.get('profile')?.split(',') || null,
         engine: params.get('engine')?.split(',') || null,
         range: rangeParts?.length === 2
             ? { min: rangeParts[0], max: rangeParts[1] }
@@ -124,6 +127,7 @@ export function writeHash(app, filterState) {
     params.set('app', app);
     if (filterState.runtime.length) params.set('runtime', filterState.runtime.join(','));
     if (filterState.preset.length) params.set('preset', filterState.preset.join(','));
+    if (filterState.profile.length) params.set('profile', filterState.profile.join(','));
     if (filterState.engine.length) params.set('engine', filterState.engine.join(','));
     if (filterState.range.min && filterState.range.max) {
         params.set('range', `${filterState.range.min},${filterState.range.max}`);
@@ -137,6 +141,7 @@ export function pushHash(app, filterState) {
     params.set('app', app);
     if (filterState.runtime.length) params.set('runtime', filterState.runtime.join(','));
     if (filterState.preset.length) params.set('preset', filterState.preset.join(','));
+    if (filterState.profile.length) params.set('profile', filterState.profile.join(','));
     if (filterState.engine.length) params.set('engine', filterState.engine.join(','));
     if (filterState.range.min && filterState.range.max) {
         params.set('range', `${filterState.range.min},${filterState.range.max}`);
