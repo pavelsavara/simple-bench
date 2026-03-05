@@ -12,6 +12,7 @@ function readHashState(hash) {
         app: params.get('app') || 'empty-browser',
         runtime: params.get('runtime')?.split(',') || null,
         preset: params.get('preset')?.split(',') || null,
+        profile: params.get('profile')?.split(',') || null,
         engine: params.get('engine')?.split(',') || null,
         range: rangeParts?.length === 2
             ? { min: rangeParts[0], max: rangeParts[1] }
@@ -25,6 +26,7 @@ function writeHash(app, filterState) {
     params.set('app', app);
     if (filterState.runtime.length) params.set('runtime', filterState.runtime.join(','));
     if (filterState.preset.length) params.set('preset', filterState.preset.join(','));
+    if (filterState.profile.length) params.set('profile', filterState.profile.join(','));
     if (filterState.engine.length) params.set('engine', filterState.engine.join(','));
     if (filterState.range.min && filterState.range.max) {
         params.set('range', `${filterState.range.min},${filterState.range.max}`);
@@ -38,6 +40,7 @@ describe('Filters — hash parsing', () => {
         assert.equal(state.app, 'empty-browser');
         assert.equal(state.runtime, null);
         assert.equal(state.preset, null);
+        assert.equal(state.profile, null);
         assert.equal(state.engine, null);
         assert.deepEqual(state.range, { min: null, max: null });
     });
@@ -73,10 +76,11 @@ describe('Filters — hash parsing', () => {
     });
 
     it('parses full hash string', () => {
-        const state = readHashState('app=microbenchmarks&runtime=coreclr&preset=no-workload&engine=v8,chrome&range=2025-01-01,2026-01-01');
+        const state = readHashState('app=microbenchmarks&runtime=coreclr&preset=no-workload&profile=desktop,mobile&engine=v8,chrome&range=2025-01-01,2026-01-01');
         assert.equal(state.app, 'microbenchmarks');
         assert.deepEqual(state.runtime, ['coreclr']);
         assert.deepEqual(state.preset, ['no-workload']);
+        assert.deepEqual(state.profile, ['desktop', 'mobile']);
         assert.deepEqual(state.engine, ['v8', 'chrome']);
         assert.deepEqual(state.range, { min: '2025-01-01', max: '2026-01-01' });
     });
@@ -92,6 +96,7 @@ describe('Filters — hash writing', () => {
         const hash = writeHash('empty-browser', {
             runtime: ['coreclr', 'mono'],
             preset: ['no-workload'],
+            profile: ['desktop'],
             engine: ['chrome'],
             range: { min: '2026-02-01', max: '2026-03-03' }
         });
@@ -99,6 +104,7 @@ describe('Filters — hash writing', () => {
         assert.equal(parsed.app, 'empty-browser');
         assert.deepEqual(parsed.runtime, ['coreclr', 'mono']);
         assert.deepEqual(parsed.preset, ['no-workload']);
+        assert.deepEqual(parsed.profile, ['desktop']);
         assert.deepEqual(parsed.engine, ['chrome']);
         assert.deepEqual(parsed.range, { min: '2026-02-01', max: '2026-03-03' });
     });
@@ -107,6 +113,7 @@ describe('Filters — hash writing', () => {
         const original = {
             runtime: ['coreclr'],
             preset: ['aot', 'no-workload'],
+            profile: ['desktop', 'mobile'],
             engine: ['v8', 'node'],
             range: { min: '2025-12-01', max: '2026-03-01' }
         };
@@ -115,6 +122,7 @@ describe('Filters — hash writing', () => {
         assert.equal(parsed.app, 'microbenchmarks');
         assert.deepEqual(parsed.runtime, original.runtime);
         assert.deepEqual(parsed.preset, original.preset);
+        assert.deepEqual(parsed.profile, original.profile);
         assert.deepEqual(parsed.engine, original.engine);
         assert.deepEqual(parsed.range, original.range);
     });
@@ -123,11 +131,13 @@ describe('Filters — hash writing', () => {
         const hash = writeHash('empty-browser', {
             runtime: [],
             preset: [],
+            profile: [],
             engine: [],
             range: { min: null, max: null }
         });
         assert.ok(!hash.includes('runtime='));
         assert.ok(!hash.includes('preset='));
+        assert.ok(!hash.includes('profile='));
         assert.ok(!hash.includes('engine='));
         assert.ok(!hash.includes('range='));
     });
@@ -136,6 +146,7 @@ describe('Filters — hash writing', () => {
         const hash = writeHash('empty-browser', {
             runtime: ['coreclr'],
             preset: ['no-workload'],
+            profile: ['desktop'],
             engine: ['chrome'],
             range: { min: null, max: null }
         });

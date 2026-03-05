@@ -7,7 +7,7 @@
 # Usage:
 #   ./scripts/local-bench.sh                              # Run all steps
 #   ./scripts/local-bench.sh --skip-build                  # Measure only
-#   ./scripts/local-bench.sh --app try-mud-blazor          # Single app
+#   ./scripts/local-bench.sh --app blazing-pizza          # Single app
 #   ./scripts/local-bench.sh --engine chrome,firefox       # Specific engines
 #   ./scripts/local-bench.sh --dry-run                     # Chrome only (fast)
 #   ./scripts/local-bench.sh --preset devloop,aot            # Specific presets

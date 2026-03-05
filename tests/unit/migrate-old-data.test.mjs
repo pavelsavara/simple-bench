@@ -344,7 +344,7 @@ describe('migrate', () => {
         assert.equal(stats.results, 1);
 
         // Check that the result file exists
-        const resultPath = join(dataDir, '2023/2023-06-15/14-23-45-UTC_abc1234_mono_aot_chrome_empty-browser.json');
+        const resultPath = join(dataDir, '2023/2023-06-15/14-23-45-UTC_abc1234_mono_aot_desktop_chrome_empty-browser.json');
         const content = JSON.parse(await readFile(resultPath, 'utf-8'));
         assert.equal(content.meta.runtime, 'mono');
         assert.equal(content.meta.preset, 'aot');

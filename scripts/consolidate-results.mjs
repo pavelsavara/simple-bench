@@ -64,7 +64,8 @@ export function parseResultJson(content) {
  */
 export function computeResultFilename(meta) {
     const hash7 = (meta.runtimeGitHash || meta.gitHash).slice(0, 7);
-    return `${meta.commitTime}_${hash7}_${meta.runtime}_${meta.preset}_${meta.engine}_${meta.app}.json`;
+    const profile = meta.profile || 'desktop';
+    return `${meta.commitTime}_${hash7}_${meta.runtime}_${meta.preset}_${profile}_${meta.engine}_${meta.app}.json`;
 }
 
 /**
@@ -101,6 +102,7 @@ export function buildMonthResultEntry(meta, metrics) {
     return {
         runtime: meta.runtime,
         preset: meta.preset,
+        profile: meta.profile || 'desktop',
         engine: meta.engine,
         app: meta.app,
         file: computeResultRelPath(meta),
@@ -140,6 +142,7 @@ export function upsertResult(monthIndex, resultJson) {
     const existingIdx = commit.results.findIndex(r =>
         r.runtime === meta.runtime &&
         r.preset === meta.preset &&
+        (r.profile || 'desktop') === (meta.profile || 'desktop') &&
         r.engine === meta.engine &&
         r.app === meta.app
     );
@@ -173,6 +176,7 @@ export function sortMonthCommits(monthIndex) {
 export function rebuildTopLevelIndex(monthKeys, monthIndexes) {
     const runtimes = new Set();
     const presets = new Set();
+    const profiles = new Set();
     const engines = new Set();
     const apps = new Set();
 
@@ -181,6 +185,7 @@ export function rebuildTopLevelIndex(monthKeys, monthIndexes) {
             for (const r of commit.results) {
                 runtimes.add(r.runtime);
                 presets.add(r.preset);
+                profiles.add(r.profile || 'desktop');
                 engines.add(r.engine);
                 apps.add(r.app);
             }
@@ -192,6 +197,7 @@ export function rebuildTopLevelIndex(monthKeys, monthIndexes) {
         dimensions: {
             runtimes: [...runtimes].sort(),
             presets: [...presets].sort(),
+            profiles: [...profiles].sort(),
             engines: [...engines].sort(),
             apps: [...apps].sort(),
         },

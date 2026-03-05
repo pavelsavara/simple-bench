@@ -9,7 +9,7 @@
 .EXAMPLE
     ./local-bench.ps1                                # Run all steps
     ./local-bench.ps1 --skip-build                   # Measure only
-    ./local-bench.ps1 --app try-mud-blazor           # Single app
+    ./local-bench.ps1 --app blazing-pizza           # Single app
     ./local-bench.ps1 --engine chrome,firefox         # Specific engines
     ./local-bench.ps1 --dry-run                      # Chrome only (fast)
     ./local-bench.ps1 --preset devloop,aot           # Specific presets

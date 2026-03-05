@@ -37,6 +37,7 @@ import {
     getEngineCommand,
     validateBenchResults,
 } from './lib/internal-utils.mjs';
+import { PROFILES } from './lib/throttle-profiles.mjs';
 
 // ── CLI args ────────────────────────────────────────────────────────────────
 
@@ -51,6 +52,7 @@ const { values: args } = parseArgs({
         'compile-time-file': { type: 'string', default: '' },
         'timeout': { type: 'string', default: '55000' },
         'retries': { type: 'string', default: '2' },
+        'profile': { type: 'string', default: 'desktop' },
         'no-headless': { type: 'boolean', default: false },
         'ci-run-id': { type: 'string', default: '' },
         'ci-run-url': { type: 'string', default: '' },
@@ -109,6 +111,7 @@ const meta = {
     vmrGitHash: sdkInfo.vmrGitHash,
     runtime: args.runtime,
     preset: args.preset,
+    profile: args.profile,
     engine,
     app: 'microbenchmarks',
     ...(args['ci-run-id'] && { ciRunId: args['ci-run-id'] }),
@@ -133,6 +136,7 @@ async function measureBrowser(browserEngine, publishDirPath, timeoutMs, retries)
     const pw = await import('playwright');
     const browserType = browserEngine === 'firefox' ? pw.firefox : pw.chromium;
     const useCDP = browserEngine !== 'firefox'; // CDP is Chromium-only
+    const profile = args.profile;
 
     // Load fingerprint map for resolving #[.{fingerprint}] in HTML
     const { readdir } = await import('node:fs/promises');
@@ -169,6 +173,20 @@ async function measureBrowser(browserEngine, publishDirPath, timeoutMs, retries)
                 if (useCDP) {
                     client = await context.newCDPSession(page);
                     await client.send('Performance.enable');
+
+                    // Apply throttle profile (CPU + network simulation)
+                    const throttle = PROFILES[profile];
+                    if (throttle) {
+                        if (throttle.network) {
+                            await client.send('Network.enable');
+                            await client.send('Network.emulateNetworkConditions', throttle.network);
+                            console.error(`  Throttle: network ${JSON.stringify(throttle.network)}`);
+                        }
+                        if (throttle.cpu) {
+                            await client.send('Emulation.setCPUThrottlingRate', throttle.cpu);
+                            console.error(`  Throttle: CPU ${throttle.cpu.rate}x`);
+                        }
+                    }
 
                     memorySampling = true;
                     memoryPoller = (async () => {
@@ -249,11 +267,13 @@ async function measureCli(cliEngine, publishDirPath, timeoutMs) {
     console.error(`Running: ${cmd} ${engineArgs.join(' ')} ${driverFile}`);
     console.error(`  cwd: ${publishDirPath}`);
 
+    const useShell = process.platform === 'win32' && /\.(cmd|bat)$/i.test(cmd);
     const stdout = execFileSync(cmd, [...engineArgs, driverFile], {
         encoding: 'utf-8',
         cwd: publishDirPath,
         timeout: timeoutMs,
         env: { ...process.env },
+        ...(useShell && { shell: true }),
     });
 
     return parseCliOutput(stdout);

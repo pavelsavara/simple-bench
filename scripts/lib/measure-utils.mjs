@@ -69,6 +69,10 @@ const MIME_TYPES = {
     '.dat': 'application/octet-stream',
     '.pdb': 'application/octet-stream',
     '.blat': 'application/octet-stream',
+    '.woff': 'font/woff',
+    '.woff2': 'font/woff2',
+    '.ttf': 'font/ttf',
+    '.eot': 'application/vnd.ms-fontobject',
 };
 
 export function getMimeType(filePath) {

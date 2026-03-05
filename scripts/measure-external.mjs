@@ -36,7 +36,7 @@ import {
 } from './lib/measure-utils.mjs';
 import { getEngineCommand } from './lib/internal-utils.mjs';
 import { runPizzaWalkthrough } from './lib/pizza-walkthrough.mjs';
-import { runMudBlazorWalkthrough } from './lib/mud-blazor-walkthrough.mjs';
+import { PROFILES } from './lib/throttle-profiles.mjs';
 
 const BROWSER_ENGINES = new Set(['chrome', 'firefox']);
 const CLI_ENGINES = new Set(['v8', 'node']);
@@ -59,6 +59,7 @@ const { values: args } = parseArgs({
         'sdk-info': { type: 'string' },
         'compile-time-file': { type: 'string' },
         'engine': { type: 'string', default: 'chrome' },
+        'profile': { type: 'string', default: 'desktop' },
         'timeout': { type: 'string', default: '55000' },
         'warm-runs': { type: 'string', default: '3' },
         'retries': { type: 'string', default: '2' },
@@ -80,6 +81,12 @@ for (const name of requiredArgs) {
 const engine = args.engine;
 if (!BROWSER_ENGINES.has(engine) && !CLI_ENGINES.has(engine)) {
     console.error(`Unknown engine: ${engine}. Expected: chrome, firefox, v8, node`);
+    process.exit(1);
+}
+
+const profile = args.profile;
+if (!(profile in PROFILES)) {
+    console.error(`Unknown profile: ${profile}. Expected: ${Object.keys(PROFILES).join(', ')}`);
     process.exit(1);
 }
 
@@ -134,6 +141,7 @@ const meta = {
     vmrGitHash: sdkInfo.vmrGitHash,
     runtime: args.runtime,
     preset: args.preset,
+    profile,
     engine,
     app: args.app,
     benchmarkDateTime,
@@ -187,6 +195,19 @@ async function runBrowserMeasurement(browserEngine, app, publishDirPath, fpMap, 
                     client = await context.newCDPSession(page);
                     await client.send('Network.enable');
                     await client.send('Performance.enable');
+
+                    // Apply throttle profile (mobile CPU + network simulation)
+                    const throttle = PROFILES[profile];
+                    if (throttle) {
+                        if (throttle.network) {
+                            await client.send('Network.emulateNetworkConditions', throttle.network);
+                            console.error(`  ${ts()} Throttle: network ${JSON.stringify(throttle.network)}`);
+                        }
+                        if (throttle.cpu) {
+                            await client.send('Emulation.setCPUThrottlingRate', throttle.cpu);
+                            console.error(`  ${ts()} Throttle: CPU ${throttle.cpu.rate}x`);
+                        }
+                    }
 
                     client.on('Network.loadingFinished', (evt) => {
                         downloadSizeTotal += evt.encodedDataLength;
@@ -302,11 +323,13 @@ async function runCliMeasurement(cliEngine, publishDirPath, timeoutMs) {
 
     console.error(`  ${ts()} CLI engine starting...`);
     const startTime = performance.now();
+    const useShell = process.platform === 'win32' && /\.(cmd|bat)$/i.test(cmd);
     const stdout = execFileSync(cmd, [...engineArgs, entryFile], {
         encoding: 'utf-8',
         cwd: publishDirPath,
         timeout: timeoutMs,
         env: { ...process.env },
+        ...(useShell && { shell: true }),
     });
     const wallTimeMs = performance.now() - startTime;
     console.error(`  ${ts()} CLI engine finished in ${wallTimeMs.toFixed(0)} ms`);

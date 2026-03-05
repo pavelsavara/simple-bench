@@ -98,7 +98,7 @@ describe('computeResultFilename', () => {
         const meta = makeMeta();
         assert.equal(
             computeResultFilename(meta),
-            '12-34-56-UTC_abc1234_coreclr_no-workload_chrome_empty-browser.json'
+            '12-34-56-UTC_abc1234_coreclr_no-workload_desktop_chrome_empty-browser.json'
         );
     });
 
@@ -106,6 +106,17 @@ describe('computeResultFilename', () => {
         const meta = makeMeta({ runtimeGitHash: '0123456789abcdef0123456789abcdef01234567' });
         assert.ok(computeResultFilename(meta).includes('0123456'));
         assert.ok(!computeResultFilename(meta).includes('01234567'));
+    });
+
+    it('includes profile in filename', () => {
+        const meta = makeMeta({ profile: 'mobile' });
+        assert.ok(computeResultFilename(meta).includes('_mobile_'));
+    });
+
+    it('defaults to desktop when profile is missing', () => {
+        const meta = makeMeta();
+        delete meta.profile;
+        assert.ok(computeResultFilename(meta).includes('_desktop_'));
     });
 });
 
@@ -116,7 +127,7 @@ describe('computeResultRelPath', () => {
         const meta = makeMeta();
         assert.equal(
             computeResultRelPath(meta),
-            '2026/2026-03-02/12-34-56-UTC_abc1234_coreclr_no-workload_chrome_empty-browser.json'
+            '2026/2026-03-02/12-34-56-UTC_abc1234_coreclr_no-workload_desktop_chrome_empty-browser.json'
         );
     });
 
@@ -155,6 +166,7 @@ describe('buildMonthResultEntry', () => {
         const entry = buildMonthResultEntry(result.meta, result.metrics);
         assert.equal(entry.runtime, 'coreclr');
         assert.equal(entry.preset, 'no-workload');
+        assert.equal(entry.profile, 'desktop');
         assert.equal(entry.engine, 'chrome');
         assert.equal(entry.app, 'empty-browser');
         assert.ok(entry.file.includes('2026/2026-03-02/'));
@@ -196,6 +208,16 @@ describe('upsertResult', () => {
         assert.equal(mi.commits[0].results.length, 1);
         // Metrics list should reflect the replacement
         assert.deepEqual(mi.commits[0].results[0].metrics, ['compile-time']);
+    });
+
+    it('treats different profiles as different results', () => {
+        const mi = createEmptyMonthIndex('2026-03');
+        const result1 = makeResult({ profile: 'desktop' });
+        const result2 = makeResult({ profile: 'mobile' });
+        upsertResult(mi, result1);
+        upsertResult(mi, result2);
+        assert.equal(mi.commits.length, 1);
+        assert.equal(mi.commits[0].results.length, 2);
     });
 
     it('creates separate commit entries for different hashes', () => {
@@ -247,8 +269,8 @@ describe('rebuildTopLevelIndex', () => {
             commits: [{
                 runtimeGitHash: 'abc', date: '2026-03-02', time: '12-34-56-UTC', sdkVersion: '11.0.0',
                 results: [
-                    { runtime: 'coreclr', preset: 'no-workload', engine: 'chrome', app: 'empty-browser', file: '', metrics: [] },
-                    { runtime: 'mono', preset: 'aot', engine: 'chrome', app: 'empty-browser', file: '', metrics: [] },
+                    { runtime: 'coreclr', preset: 'no-workload', profile: 'desktop', engine: 'chrome', app: 'empty-browser', file: '', metrics: [] },
+                    { runtime: 'mono', preset: 'aot', profile: 'desktop', engine: 'chrome', app: 'empty-browser', file: '', metrics: [] },
                 ],
             }],
         };
@@ -256,6 +278,7 @@ describe('rebuildTopLevelIndex', () => {
         assert.deepEqual(idx.months, ['2026-03']);
         assert.deepEqual(idx.dimensions.runtimes, ['coreclr', 'mono']);
         assert.deepEqual(idx.dimensions.presets, ['aot', 'no-workload']);
+        assert.deepEqual(idx.dimensions.profiles, ['desktop']);
         assert.deepEqual(idx.dimensions.engines, ['chrome']);
         assert.deepEqual(idx.dimensions.apps, ['empty-browser']);
         assert.ok(idx.lastUpdated);
@@ -343,7 +366,7 @@ describe('consolidate', () => {
 
         // Verify result file was placed correctly
         const expectedPath = join(dataDir, '2026', '2026-03-02',
-            '12-34-56-UTC_abc1234_coreclr_no-workload_chrome_empty-browser.json');
+            '12-34-56-UTC_abc1234_coreclr_no-workload_desktop_chrome_empty-browser.json');
         const placed = JSON.parse(await readFile(expectedPath, 'utf-8'));
         assert.equal(placed.meta.runtime, 'coreclr');
 
@@ -402,8 +425,8 @@ describe('consolidate', () => {
                 time: '00-00-00-UTC',
                 sdkVersion: '11.0.100-preview.3.26060.1',
                 results: [{
-                    runtime: 'coreclr', preset: 'no-workload', engine: 'chrome', app: 'empty-browser',
-                    file: '2026/2026-03-01/00-00-00-UTC_aaaaaaa_coreclr_no-workload_chrome_empty-browser.json',
+                    runtime: 'coreclr', preset: 'no-workload', profile: 'desktop', engine: 'chrome', app: 'empty-browser',
+                    file: '2026/2026-03-01/00-00-00-UTC_aaaaaaa_coreclr_no-workload_desktop_chrome_empty-browser.json',
                     metrics: ['compile-time'],
                 }],
             }],
@@ -492,7 +515,7 @@ describe('consolidate', () => {
         await writeFile(join(dataDir, '2026-01.json'), JSON.stringify({
             month: '2026-01', commits: [{
                 runtimeGitHash: 'aaa', date: '2026-01-10', time: '10-00-00-UTC', sdkVersion: '11.0.0',
-                results: [{ runtime: 'coreclr', preset: 'no-workload', engine: 'chrome', app: 'empty-browser', file: '', metrics: [] }],
+                results: [{ runtime: 'coreclr', preset: 'no-workload', profile: 'desktop', engine: 'chrome', app: 'empty-browser', file: '', metrics: [] }],
             }],
         }));
 

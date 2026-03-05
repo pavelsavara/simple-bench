@@ -26,6 +26,7 @@ import { readFile, readdir, stat, mkdir } from 'node:fs/promises';
 import { resolve, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { ALL_PROFILES, profileRequiresCDP } from './lib/throttle-profiles.mjs';
 
 // ── Engine routing ──────────────────────────────────────────────────────────
 
@@ -64,6 +65,7 @@ const { values: args } = parseArgs({
         'dry-run': { type: 'boolean', default: false },
         'no-headless': { type: 'boolean', default: false },
         'engine': { type: 'string', default: '' },
+        'profile': { type: 'string', default: '' },
         'ci-run-id': { type: 'string', default: '' },
         'ci-run-url': { type: 'string', default: '' },
     },
@@ -154,6 +156,17 @@ const engines = getEnginesForApp(app, args['dry-run'], args.engine);
 const isInternal = INTERNAL_APPS.has(app);
 const measureScript = isInternal ? 'measure-internal.mjs' : 'measure-external.mjs';
 
+// ── Determine profiles ──────────────────────────────────────────────────────
+
+function getProfilesForEngine(engine, profileFilter) {
+    if (profileFilter) {
+        return profileFilter.split(',').map(s => s.trim());
+    }
+    // mobile requires CDP → Chrome only
+    if (engine !== 'chrome') return ['desktop'];
+    return ALL_PROFILES;
+}
+
 console.error(`App: ${app}, Preset: ${preset}, Engines: ${engines.join(', ')}`);
 console.error(`Script: ${measureScript}`);
 
@@ -164,48 +177,58 @@ const compileTimeFile = join(publishDir, 'compile-time.json');
 let failCount = 0;
 
 for (const engine of engines) {
-    const filename = `${commitTime}_${runtimeHash7}_${runtime}_${preset}_${engine}_${app}.json`;
-    const outputFile = join(outputDir, filename);
+    const profiles = getProfilesForEngine(engine, args.profile);
+    for (const profile of profiles) {
+        const filename = `${commitTime}_${runtimeHash7}_${runtime}_${preset}_${profile}_${engine}_${app}.json`;
+        const outputFile = join(outputDir, filename);
 
-    const isDryRun = args['dry-run'];
-    const retries = isDryRun ? '1' : args.retries;
-    const timeoutVal = isDryRun ? String(Math.min(parseInt(args.timeout, 10), 55000)) : args.timeout;
+        const isDryRun = args['dry-run'];
+        const retries = isDryRun ? '1' : args.retries;
+        const timeoutVal = isDryRun ? String(Math.min(parseInt(args.timeout, 10), 55000)) : args.timeout;
 
-    const scriptArgs = [
-        join(SCRIPT_DIR, measureScript),
-        '--publish-dir', wwwrootDir,
-        '--engine', engine,
-        '--output', outputFile,
-        '--runtime', runtime,
-        '--preset', preset,
-        '--sdk-info', sdkInfoPath,
-        '--compile-time-file', compileTimeFile,
-        '--retries', retries,
-        '--timeout', timeoutVal,
-        ...(isDryRun && !isInternal ? ['--warm-runs', '1'] : []),
-        ...(args['no-headless'] ? ['--no-headless'] : []),
-        ...(args['ci-run-id'] ? ['--ci-run-id', args['ci-run-id']] : []),
-        ...(args['ci-run-url'] ? ['--ci-run-url', args['ci-run-url']] : []),
-    ];
+        const scriptArgs = [
+            join(SCRIPT_DIR, measureScript),
+            '--publish-dir', wwwrootDir,
+            '--engine', engine,
+            '--output', outputFile,
+            '--runtime', runtime,
+            '--preset', preset,
+            '--sdk-info', sdkInfoPath,
+            '--compile-time-file', compileTimeFile,
+            '--retries', retries,
+            '--timeout', timeoutVal,
+            ...(isDryRun && !isInternal ? ['--warm-runs', '1'] : []),
+            ...(args['no-headless'] ? ['--no-headless'] : []),
+            ...(args['ci-run-id'] ? ['--ci-run-id', args['ci-run-id']] : []),
+            ...(args['ci-run-url'] ? ['--ci-run-url', args['ci-run-url']] : []),
+        ];
 
-    // measure-external.mjs also needs --app
-    if (!isInternal) {
-        scriptArgs.push('--app', app);
-    }
+        // measure-external.mjs also needs --app
+        if (!isInternal) {
+            scriptArgs.push('--app', app);
+        }
 
-    console.error(`\n▶ measure ${app} (${runtime}/${preset}/${engine})`);
-    try {
-        execFileSync('node', scriptArgs, {
-            stdio: 'inherit',
-            env: process.env,
-        });
-    } catch (err) {
-        console.error(`✗ Measurement failed for ${engine}: ${err.message}`);
-        failCount++;
-    }
+        // pass profile for throttling
+        scriptArgs.push('--profile', profile);
+
+        console.error(`\n▶ measure ${app} (${runtime}/${preset}/${profile}/${engine})`);
+        try {
+            execFileSync('node', scriptArgs, {
+                stdio: 'inherit',
+                env: process.env,
+            });
+        } catch (err) {
+            console.error(`✗ Measurement failed for ${profile}/${engine}: ${err.message}`);
+            failCount++;
+        }
+    } // end profile loop
 }
 
-console.error(`\n✓ Measurements complete: ${engines.length - failCount}/${engines.length} engines succeeded`);
+// Count total combinations
+let totalCombinations = 0;
+for (const e of engines) totalCombinations += getProfilesForEngine(e, args.profile).length;
+
+console.error(`\n✓ Measurements complete: ${totalCombinations - failCount}/${totalCombinations} succeeded`);
 if (failCount > 0) {
     process.exit(1);
 }

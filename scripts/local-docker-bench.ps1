@@ -13,7 +13,7 @@
     ./local-docker-bench.ps1 --skip-docker --skip-build     # Measure only
     ./local-docker-bench.ps1 --step docker-build            # Run only one step
     ./local-docker-bench.ps1 --dry-run                      # Chrome only
-    ./local-docker-bench.ps1 --app try-mud-blazor           # Single app
+    ./local-docker-bench.ps1 --app blazing-pizza           # Single app
     ./local-docker-bench.ps1 --engine chrome                # Specific engine
     ./local-docker-bench.ps1 --preset devloop,aot             # Specific presets
     ./local-docker-bench.ps1 --sdk-channel 10.0

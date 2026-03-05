@@ -12,7 +12,7 @@
  *
  * Usage:
  *   node scripts/run-bench.mjs --mode local
- *   node scripts/run-bench.mjs --mode local --app try-mud-blazor --engine chrome
+ *   node scripts/run-bench.mjs --mode local --app blazing-pizza --engine chrome
  *   node scripts/run-bench.mjs --mode docker --dry-run
  *   node scripts/run-bench.mjs --mode local --skip-build --preset devloop
  *
@@ -61,6 +61,7 @@ const { values: args } = parseArgs({
         'app': { type: 'string', default: '' },
         'preset': { type: 'string', default: '' },
         'engine': { type: 'string', default: '' },
+        'profile': { type: 'string', default: '' },
         'retries': { type: 'string', default: '3' },
         'timeout': { type: 'string', default: '300000' },
         'no-headless': { type: 'boolean', default: false },
@@ -210,6 +211,7 @@ function measureJobArgs(app, preset, publishDir, sdkInfoPath, manifestPath) {
         '--timeout', args.timeout,
     ];
     if (args.engine) mArgs.push('--engine', args.engine);
+    if (args.profile) mArgs.push('--profile', args.profile);
     if (args['dry-run']) mArgs.push('--dry-run');
     if (args['no-headless']) mArgs.push('--no-headless');
     return mArgs;
