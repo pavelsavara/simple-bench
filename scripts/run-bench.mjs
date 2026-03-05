@@ -40,6 +40,19 @@ import { readFile, mkdir } from 'node:fs/promises';
 import { resolve, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { refreshRuntimePacks } from './lib/runtime-pack-resolver.mjs';
+
+/** Look up SDK version from sdk-list.json by matching runtimeGitHash. */
+async function lookupSdkByRuntimeHash(runtimeGitHash) {
+    try {
+        const sdkData = JSON.parse(await readFile(join(REPO_DIR, 'sdk-list.json'), 'utf-8'));
+        const entry = (sdkData.versions || []).find(e =>
+            e.valid && e.runtimeGitHash === runtimeGitHash
+        );
+        return entry?.sdkVersion || null;
+    } catch { return null; }
+}
+
 
 // ── CLI args ────────────────────────────────────────────────────────────────
 
@@ -90,9 +103,8 @@ const MEASURE_IMAGE = 'browser-bench-measure:latest';
 const isDocker = args.mode === 'docker';
 const IS_WINDOWS = process.platform === 'win32';
 const OS_PREFIX = isDocker ? 'linux' : (IS_WINDOWS ? 'windows' : 'linux');
-const runtimeSuffix = args['runtime-commit'] ? `.${args['runtime-commit'].substring(0, 12)}` : '';
 const channelSuffix = args['sdk-version'] ? '' : `.${args['sdk-channel']}`;
-let SDK_DIR = `${OS_PREFIX}.sdk${args['sdk-version'] || ''}${channelSuffix}${runtimeSuffix}`;
+let SDK_DIR = `${OS_PREFIX}.sdk${args['sdk-version'] || ''}${channelSuffix}`;
 
 // Paths into the timestamped results run directory (set by discoverRunPaths)
 let RESULTS_RUN_DIR;
@@ -183,6 +195,7 @@ function buildPipelineArgs() {
         '--runtime', args.runtime,
     ];
     if (args['sdk-version']) pArgs.push('--sdk-version', args['sdk-version']);
+    if (args['runtime-pack']) pArgs.push('--runtime-pack', args['runtime-pack']);
     if (args['runtime-commit']) pArgs.push('--runtime-commit', args['runtime-commit']);
     if (args.app) pArgs.push('--app', args.app);
     if (args.preset) pArgs.push('--preset', args.preset);
@@ -262,7 +275,7 @@ async function stepBuild() {
     try {
         const sdkInfo = JSON.parse(await readFile(SDK_INFO_PATH, 'utf-8'));
         if (sdkInfo.sdkVersion) {
-            SDK_DIR = `${OS_PREFIX}.sdk${sdkInfo.sdkVersion}${runtimeSuffix}`;
+            SDK_DIR = `${OS_PREFIX}.sdk${sdkInfo.sdkVersion}`;
         }
     } catch { }
 
@@ -403,6 +416,48 @@ async function stepMeasure() {
 // ── Main ────────────────────────────────────────────────────────────────────
 
 async function main() {
+    // Resolve --runtime-pack: look up runtime commit + matching SDK version
+    if (args['runtime-pack']) {
+        const packVersion = args['runtime-pack'];
+        // Refresh runtime-packs.json catalog
+        try { await refreshRuntimePacks(); } catch (e) {
+            console.error(`Warning: runtime packs refresh failed: ${e.message}`);
+        }
+        // Look up runtimeGitHash from runtime-packs.json
+        if (!args['runtime-commit']) {
+            try {
+                const packsData = JSON.parse(await readFile(join(REPO_DIR, 'runtime-packs.json'), 'utf-8'));
+                const entry = (packsData.versions || []).find(e => e.version === packVersion);
+                if (entry?.runtimeGitHash) {
+                    args['runtime-commit'] = entry.runtimeGitHash;
+                    console.error(`Resolved runtime commit from pack ${packVersion}: ${entry.runtimeGitHash.substring(0, 12)}`);
+                    // Look up matching SDK version by runtimeGitHash
+                    if (!args['sdk-version']) {
+                        const sdkVer = await lookupSdkByRuntimeHash(entry.runtimeGitHash);
+                        if (sdkVer) {
+                            args['sdk-version'] = sdkVer;
+                            SDK_DIR = `${OS_PREFIX}.sdk${sdkVer}`;
+                            console.error(`Matched SDK version: ${sdkVer}`);
+                        }
+                    }
+                } else {
+                    console.error(`Warning: pack ${packVersion} not found in runtime-packs.json`);
+                }
+            } catch {
+                console.error(`Warning: could not read runtime-packs.json for pack ${packVersion}`);
+            }
+        }
+    }
+    // --runtime-commit without --runtime-pack: look up matching SDK by runtimeGitHash
+    else if (args['runtime-commit'] && !args['sdk-version']) {
+        const sdkVer = await lookupSdkByRuntimeHash(args['runtime-commit']);
+        if (sdkVer) {
+            args['sdk-version'] = sdkVer;
+            SDK_DIR = `${OS_PREFIX}.sdk${sdkVer}`;
+            console.error(`Matched SDK version by runtime commit: ${sdkVer}`);
+        }
+    }
+
     console.error(`╔═══════════════════════════════════════════════╗`);
     console.error(`║  Benchmark Pipeline — ${isDocker ? 'Docker' : 'Local '}               ║`);
     console.error(`╚═══════════════════════════════════════════════╝`);
@@ -440,7 +495,7 @@ async function main() {
         try {
             const sdkInfo = JSON.parse(await readFile(SDK_INFO_PATH, 'utf-8'));
             if (sdkInfo.sdkVersion) {
-                SDK_DIR = `${OS_PREFIX}.sdk${sdkInfo.sdkVersion}${runtimeSuffix}`;
+                SDK_DIR = `${OS_PREFIX}.sdk${sdkInfo.sdkVersion}`;
             }
         } catch { }
     }

@@ -33,7 +33,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { getPresetGroups, validateCombination } from './lib/build-config.mjs';
 import { parseWorkloadVersion, isWorkloadInstalled } from './lib/sdk-info.mjs';
-import { resolveRuntimePack, deriveSdkVersion } from './lib/runtime-pack-resolver.mjs';
+import { resolveRuntimePack } from './lib/runtime-pack-resolver.mjs';
 import { resolveSDK } from './lib/resolve-sdk.mjs';
 import { buildApp } from './lib/build-app.mjs';
 
@@ -45,6 +45,7 @@ const { values: args } = parseArgs({
         'sdk-version': { type: 'string', default: '' },
         'runtime': { type: 'string', default: 'mono' },
         'runtime-commit': { type: 'string', default: '' },
+        'runtime-pack': { type: 'string', default: '' },
         'dry-run': { type: 'boolean', default: false },
         'app': { type: 'string', default: '' },
         'preset': { type: 'string', default: '' },
@@ -57,9 +58,8 @@ const REPO_DIR = resolve(SCRIPT_DIR, '..');
 const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR || join(REPO_DIR, 'artifacts');
 const APPS_DIR = join(REPO_DIR, 'src');
 const OS_PREFIX = process.platform === 'win32' ? 'windows' : 'linux';
-const runtimeSuffix = args['runtime-commit'] ? `.${args['runtime-commit'].substring(0, 12)}` : '';
 const channelSuffix = args['sdk-version'] ? '' : `.${args['sdk-channel']}`;
-let SDK_DIR = `${OS_PREFIX}.sdk${args['sdk-version'] || ''}${channelSuffix}${runtimeSuffix}`;
+let SDK_DIR = `${OS_PREFIX}.sdk${args['sdk-version'] || ''}${channelSuffix}`;
 let SDK_INFO_PATH = join(ARTIFACTS_DIR, SDK_DIR, 'sdk-info.json');
 
 // Run ID = UTC timestamp used to namespace results for this pipeline run
@@ -286,23 +286,27 @@ async function main() {
 
     // Phase 0: Resolve runtime pack first to determine matching SDK version
     let packResult = null;
-    if (args['runtime-commit']) {
+    if (args['runtime-pack'] || args['runtime-commit']) {
         console.error('\n═══ Phase 0: Resolve runtime pack ═══');
 
-        // Look up exact pack version from runtime-packs.json
-        let knownVersion = null;
-        try {
-            const packsData = JSON.parse(await readFile(join(REPO_DIR, 'runtime-packs.json'), 'utf-8'));
-            const entry = (packsData.versions || []).find(e =>
-                e.runtimeGitHash?.startsWith(args['runtime-commit'])
-            );
-            if (entry) {
-                knownVersion = entry.version;
-                console.error(`  Found exact pack in runtime-packs.json: ${entry.version}`);
-            }
-        } catch { }
+        // Determine exact pack version: explicit --runtime-pack takes priority
+        let knownVersion = args['runtime-pack'] || null;
+        if (!knownVersion) {
+            try {
+                const packsData = JSON.parse(await readFile(join(REPO_DIR, 'runtime-packs.json'), 'utf-8'));
+                const entry = (packsData.versions || []).find(e =>
+                    e.runtimeGitHash?.startsWith(args['runtime-commit'])
+                );
+                if (entry) {
+                    knownVersion = entry.version;
+                    console.error(`  Found exact pack in runtime-packs.json: ${entry.version}`);
+                }
+            } catch { }
+        } else {
+            console.error(`  Using explicit runtime pack: ${knownVersion}`);
+        }
 
-        packResult = await resolveRuntimePack(args['runtime-commit'], {
+        packResult = await resolveRuntimePack(args['runtime-commit'] || 'unknown', {
             destDir: join(ARTIFACTS_DIR, 'runtime-packs'),
             strategy: 'closest-after',
             knownVersion,
@@ -310,15 +314,20 @@ async function main() {
         console.error(`✓ Runtime pack resolved: ${packResult.version} (match: ${packResult.match})`);
         console.error(`  Pack runtime commit: ${packResult.runtimeCommit?.substring(0, 12)}`);
 
-        // Derive the matching SDK version from the pack version
-        if (!args['sdk-version']) {
-            const derived = deriveSdkVersion(packResult.version);
-            if (derived) {
-                console.error(`  Derived SDK version: ${derived}`);
-                args['sdk-version'] = derived;
-                SDK_DIR = `${OS_PREFIX}.sdk${derived}${runtimeSuffix}`;
-                SDK_INFO_PATH = join(ARTIFACTS_DIR, SDK_DIR, 'sdk-info.json');
-            }
+        // Look up matching SDK version by runtimeGitHash from sdk-list.json
+        if (!args['sdk-version'] && packResult.runtimeCommit) {
+            try {
+                const sdkData = JSON.parse(await readFile(join(REPO_DIR, 'sdk-list.json'), 'utf-8'));
+                const sdkEntry = (sdkData.versions || []).find(e =>
+                    e.valid && e.runtimeGitHash === packResult.runtimeCommit
+                );
+                if (sdkEntry) {
+                    console.error(`  Matched SDK version: ${sdkEntry.sdkVersion}`);
+                    args['sdk-version'] = sdkEntry.sdkVersion;
+                    SDK_DIR = `${OS_PREFIX}.sdk${sdkEntry.sdkVersion}`;
+                    SDK_INFO_PATH = join(ARTIFACTS_DIR, SDK_DIR, 'sdk-info.json');
+                }
+            } catch { }
         }
     }
 

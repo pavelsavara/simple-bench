@@ -5,7 +5,7 @@
   "validVersions": 149,
   "versions": [
     {
-      "version": "6.0.136",
+      "sdkVersion": "6.0.136",
       "channel": "6.0",
       "band": "1xx",
       "type": "release",
@@ -17,7 +17,7 @@
       "valid": true
     },
     {
-      "version": "6.0.203",
+      "sdkVersion": "6.0.203",
       "channel": "6.0",
       "band": "2xx",
       "type": "release",
@@ -29,7 +29,7 @@
       "valid": true
     },
     {
-      "version": "6.0.321",
+      "sdkVersion": "6.0.321",
       "channel": "6.0",
       "band": "3xx",
       "type": "release",
@@ -41,7 +41,7 @@
       "valid": true
     },
     {
-      "version": "6.0.428",
+      "sdkVersion": "6.0.428",
       "channel": "6.0",
       "band": "4xx",
       "type": "release",
@@ -53,7 +53,7 @@
       "valid": true
     },
     {
-      "version": "7.0.120",
+      "sdkVersion": "7.0.120",
       "channel": "7.0",
       "band": "1xx",
       "type": "release",
@@ -65,7 +65,7 @@
       "valid": true
     },
     {
-      "version": "7.0.203",
+      "sdkVersion": "7.0.203",
       "channel": "7.0",
       "band": "2xx",
       "type": "release",
@@ -77,7 +77,7 @@
       "valid": true
     },
     {
-      "version": "7.0.317",
+      "sdkVersion": "7.0.317",
       "channel": "7.0",
       "band": "3xx",
       "type": "release",
@@ -89,7 +89,7 @@
       "valid": true
     },
     {
-      "version": "7.0.410",
+      "sdkVersion": "7.0.410",
       "channel": "7.0",
       "band": "4xx",
       "type": "release",
@@ -101,7 +101,7 @@
       "valid": true
     },
     {
-      "version": "8.0.124",
+      "sdkVersion": "8.0.124",
       "channel": "8.0",
       "band": "1xx",
       "type": "release",
@@ -113,7 +113,7 @@
       "valid": true
     },
     {
-      "version": "8.0.206",
+      "sdkVersion": "8.0.206",
       "channel": "8.0",
       "band": "2xx",
       "type": "release",
@@ -125,7 +125,7 @@
       "valid": true
     },
     {
-      "version": "8.0.319",
+      "sdkVersion": "8.0.319",
       "channel": "8.0",
       "band": "3xx",
       "type": "release",
@@ -137,7 +137,7 @@
       "valid": true
     },
     {
-      "version": "8.0.418",
+      "sdkVersion": "8.0.418",
       "channel": "8.0",
       "band": "4xx",
       "type": "release",
@@ -149,7 +149,7 @@
       "valid": true
     },
     {
-      "version": "9.0.114",
+      "sdkVersion": "9.0.114",
       "channel": "9.0",
       "band": "1xx",
       "type": "release",
@@ -161,7 +161,7 @@
       "valid": true
     },
     {
-      "version": "9.0.205",
+      "sdkVersion": "9.0.205",
       "channel": "9.0",
       "band": "2xx",
       "type": "release",
@@ -173,7 +173,7 @@
       "valid": true
     },
     {
-      "version": "9.0.311",
+      "sdkVersion": "9.0.311",
       "channel": "9.0",
       "band": "3xx",
       "type": "release",
@@ -185,7 +185,7 @@
       "valid": true
     },
     {
-      "version": "10.0.103",
+      "sdkVersion": "10.0.103",
       "channel": "10.0",
       "band": "1xx",
       "type": "release",
@@ -197,7 +197,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25605.110",
+      "sdkVersion": "11.0.100-alpha.1.25605.110",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -209,7 +209,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25606.102",
+      "sdkVersion": "11.0.100-alpha.1.25606.102",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -221,7 +221,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25607.101",
+      "sdkVersion": "11.0.100-alpha.1.25607.101",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -233,7 +233,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25608.101",
+      "sdkVersion": "11.0.100-alpha.1.25608.101",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -245,7 +245,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25608.106",
+      "sdkVersion": "11.0.100-alpha.1.25608.106",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -257,7 +257,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25609.102",
+      "sdkVersion": "11.0.100-alpha.1.25609.102",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -269,7 +269,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25609.108",
+      "sdkVersion": "11.0.100-alpha.1.25609.108",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -281,7 +281,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25611.103",
+      "sdkVersion": "11.0.100-alpha.1.25611.103",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -293,7 +293,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25612.115",
+      "sdkVersion": "11.0.100-alpha.1.25612.115",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -305,7 +305,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25613.101",
+      "sdkVersion": "11.0.100-alpha.1.25613.101",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -317,7 +317,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25614.102",
+      "sdkVersion": "11.0.100-alpha.1.25614.102",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -329,7 +329,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25614.103",
+      "sdkVersion": "11.0.100-alpha.1.25614.103",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -341,7 +341,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25615.104",
+      "sdkVersion": "11.0.100-alpha.1.25615.104",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -353,7 +353,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25616.107",
+      "sdkVersion": "11.0.100-alpha.1.25616.107",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -365,7 +365,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25616.110",
+      "sdkVersion": "11.0.100-alpha.1.25616.110",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -377,7 +377,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25616.112",
+      "sdkVersion": "11.0.100-alpha.1.25616.112",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -389,7 +389,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25617.103",
+      "sdkVersion": "11.0.100-alpha.1.25617.103",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -401,7 +401,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25617.108",
+      "sdkVersion": "11.0.100-alpha.1.25617.108",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -413,7 +413,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25618.104",
+      "sdkVersion": "11.0.100-alpha.1.25618.104",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -425,7 +425,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25618.105",
+      "sdkVersion": "11.0.100-alpha.1.25618.105",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -437,7 +437,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25618.115",
+      "sdkVersion": "11.0.100-alpha.1.25618.115",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -449,7 +449,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.25619.109",
+      "sdkVersion": "11.0.100-alpha.1.25619.109",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -461,7 +461,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.26055.101",
+      "sdkVersion": "11.0.100-alpha.1.26055.101",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -473,7 +473,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.26055.102",
+      "sdkVersion": "11.0.100-alpha.1.26055.102",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -485,7 +485,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.26055.109",
+      "sdkVersion": "11.0.100-alpha.1.26055.109",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -497,7 +497,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.26055.114",
+      "sdkVersion": "11.0.100-alpha.1.26055.114",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -509,7 +509,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.26057.107",
+      "sdkVersion": "11.0.100-alpha.1.26057.107",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -521,7 +521,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.26059.112",
+      "sdkVersion": "11.0.100-alpha.1.26059.112",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -533,7 +533,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.26059.114",
+      "sdkVersion": "11.0.100-alpha.1.26059.114",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -545,7 +545,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.26060.101",
+      "sdkVersion": "11.0.100-alpha.1.26060.101",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -557,7 +557,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.26060.102",
+      "sdkVersion": "11.0.100-alpha.1.26060.102",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -569,7 +569,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.26062.101",
+      "sdkVersion": "11.0.100-alpha.1.26062.101",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -581,7 +581,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.26063.112",
+      "sdkVersion": "11.0.100-alpha.1.26063.112",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -593,7 +593,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.26063.114",
+      "sdkVersion": "11.0.100-alpha.1.26063.114",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -605,7 +605,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.26064.107",
+      "sdkVersion": "11.0.100-alpha.1.26064.107",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -617,7 +617,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.26064.118",
+      "sdkVersion": "11.0.100-alpha.1.26064.118",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -629,7 +629,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.26064.120",
+      "sdkVersion": "11.0.100-alpha.1.26064.120",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -641,7 +641,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.26065.101",
+      "sdkVersion": "11.0.100-alpha.1.26065.101",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -653,7 +653,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-alpha.1.26065.110",
+      "sdkVersion": "11.0.100-alpha.1.26065.110",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -665,7 +665,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26065.113",
+      "sdkVersion": "11.0.100-preview.1.26065.113",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -677,7 +677,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26066.103",
+      "sdkVersion": "11.0.100-preview.1.26066.103",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -689,7 +689,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26066.105",
+      "sdkVersion": "11.0.100-preview.1.26066.105",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -701,7 +701,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26066.111",
+      "sdkVersion": "11.0.100-preview.1.26066.111",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -713,7 +713,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26067.103",
+      "sdkVersion": "11.0.100-preview.1.26067.103",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -725,7 +725,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26069.103",
+      "sdkVersion": "11.0.100-preview.1.26069.103",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -737,7 +737,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26069.105",
+      "sdkVersion": "11.0.100-preview.1.26069.105",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -749,7 +749,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26070.110",
+      "sdkVersion": "11.0.100-preview.1.26070.110",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -761,7 +761,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26071.101",
+      "sdkVersion": "11.0.100-preview.1.26071.101",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -773,7 +773,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26071.105",
+      "sdkVersion": "11.0.100-preview.1.26071.105",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -785,7 +785,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26073.106",
+      "sdkVersion": "11.0.100-preview.1.26073.106",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -797,7 +797,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26073.115",
+      "sdkVersion": "11.0.100-preview.1.26073.115",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -809,7 +809,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26073.122",
+      "sdkVersion": "11.0.100-preview.1.26073.122",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -821,7 +821,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26073.123",
+      "sdkVersion": "11.0.100-preview.1.26073.123",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -833,7 +833,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26074.103",
+      "sdkVersion": "11.0.100-preview.1.26074.103",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -845,7 +845,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26074.105",
+      "sdkVersion": "11.0.100-preview.1.26074.105",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -857,7 +857,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26076.102",
+      "sdkVersion": "11.0.100-preview.1.26076.102",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -869,7 +869,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26078.107",
+      "sdkVersion": "11.0.100-preview.1.26078.107",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -881,7 +881,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26078.110",
+      "sdkVersion": "11.0.100-preview.1.26078.110",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -893,7 +893,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26078.111",
+      "sdkVersion": "11.0.100-preview.1.26078.111",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -905,7 +905,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26078.121",
+      "sdkVersion": "11.0.100-preview.1.26078.121",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -917,7 +917,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26079.116",
+      "sdkVersion": "11.0.100-preview.1.26079.116",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -929,7 +929,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26079.122",
+      "sdkVersion": "11.0.100-preview.1.26079.122",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -941,7 +941,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26081.107",
+      "sdkVersion": "11.0.100-preview.1.26081.107",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -953,7 +953,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26103.109",
+      "sdkVersion": "11.0.100-preview.1.26103.109",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -965,7 +965,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.1.26104.118",
+      "sdkVersion": "11.0.100-preview.1.26104.118",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -977,7 +977,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26078.113",
+      "sdkVersion": "11.0.100-preview.2.26078.113",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -989,7 +989,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26078.120",
+      "sdkVersion": "11.0.100-preview.2.26078.120",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1001,7 +1001,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26079.101",
+      "sdkVersion": "11.0.100-preview.2.26079.101",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1013,7 +1013,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26079.111",
+      "sdkVersion": "11.0.100-preview.2.26079.111",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1025,7 +1025,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26079.117",
+      "sdkVersion": "11.0.100-preview.2.26079.117",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1037,7 +1037,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26080.101",
+      "sdkVersion": "11.0.100-preview.2.26080.101",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1049,7 +1049,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26080.108",
+      "sdkVersion": "11.0.100-preview.2.26080.108",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1061,7 +1061,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26080.116",
+      "sdkVersion": "11.0.100-preview.2.26080.116",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1073,7 +1073,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26080.121",
+      "sdkVersion": "11.0.100-preview.2.26080.121",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1085,7 +1085,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26081.104",
+      "sdkVersion": "11.0.100-preview.2.26081.104",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1097,7 +1097,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26102.101",
+      "sdkVersion": "11.0.100-preview.2.26102.101",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1109,7 +1109,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26102.106",
+      "sdkVersion": "11.0.100-preview.2.26102.106",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1121,7 +1121,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26102.114",
+      "sdkVersion": "11.0.100-preview.2.26102.114",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1133,7 +1133,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26102.119",
+      "sdkVersion": "11.0.100-preview.2.26102.119",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1145,7 +1145,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26103.103",
+      "sdkVersion": "11.0.100-preview.2.26103.103",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1157,7 +1157,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26103.110",
+      "sdkVersion": "11.0.100-preview.2.26103.110",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1169,7 +1169,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26103.111",
+      "sdkVersion": "11.0.100-preview.2.26103.111",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1181,7 +1181,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26103.121",
+      "sdkVersion": "11.0.100-preview.2.26103.121",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1193,7 +1193,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26108.103",
+      "sdkVersion": "11.0.100-preview.2.26108.103",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1205,7 +1205,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26109.101",
+      "sdkVersion": "11.0.100-preview.2.26109.101",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1217,7 +1217,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26109.104",
+      "sdkVersion": "11.0.100-preview.2.26109.104",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1229,7 +1229,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26110.101",
+      "sdkVersion": "11.0.100-preview.2.26110.101",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1241,7 +1241,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26110.109",
+      "sdkVersion": "11.0.100-preview.2.26110.109",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1253,7 +1253,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26110.116",
+      "sdkVersion": "11.0.100-preview.2.26110.116",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1265,7 +1265,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26110.125",
+      "sdkVersion": "11.0.100-preview.2.26110.125",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1277,7 +1277,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26111.105",
+      "sdkVersion": "11.0.100-preview.2.26111.105",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1289,7 +1289,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26111.109",
+      "sdkVersion": "11.0.100-preview.2.26111.109",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1301,7 +1301,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26112.105",
+      "sdkVersion": "11.0.100-preview.2.26112.105",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1313,7 +1313,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26112.110",
+      "sdkVersion": "11.0.100-preview.2.26112.110",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1325,7 +1325,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26112.113",
+      "sdkVersion": "11.0.100-preview.2.26112.113",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1337,7 +1337,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26113.105",
+      "sdkVersion": "11.0.100-preview.2.26113.105",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1349,7 +1349,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26113.108",
+      "sdkVersion": "11.0.100-preview.2.26113.108",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1361,7 +1361,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26113.114",
+      "sdkVersion": "11.0.100-preview.2.26113.114",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1373,7 +1373,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26113.117",
+      "sdkVersion": "11.0.100-preview.2.26113.117",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1385,7 +1385,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26114.105",
+      "sdkVersion": "11.0.100-preview.2.26114.105",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1397,7 +1397,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26115.103",
+      "sdkVersion": "11.0.100-preview.2.26115.103",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1409,7 +1409,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26115.104",
+      "sdkVersion": "11.0.100-preview.2.26115.104",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1421,7 +1421,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26116.101",
+      "sdkVersion": "11.0.100-preview.2.26116.101",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1433,7 +1433,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26116.109",
+      "sdkVersion": "11.0.100-preview.2.26116.109",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1445,7 +1445,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26117.101",
+      "sdkVersion": "11.0.100-preview.2.26117.101",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1457,7 +1457,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26117.112",
+      "sdkVersion": "11.0.100-preview.2.26117.112",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1469,7 +1469,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26117.114",
+      "sdkVersion": "11.0.100-preview.2.26117.114",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1481,7 +1481,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26118.102",
+      "sdkVersion": "11.0.100-preview.2.26118.102",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1493,7 +1493,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26118.111",
+      "sdkVersion": "11.0.100-preview.2.26118.111",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1505,7 +1505,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.2.26122.107",
+      "sdkVersion": "11.0.100-preview.2.26122.107",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1517,7 +1517,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26118.109",
+      "sdkVersion": "11.0.100-preview.3.26118.109",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1529,7 +1529,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26119.103",
+      "sdkVersion": "11.0.100-preview.3.26119.103",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1541,7 +1541,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26119.109",
+      "sdkVersion": "11.0.100-preview.3.26119.109",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1553,7 +1553,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26119.117",
+      "sdkVersion": "11.0.100-preview.3.26119.117",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1565,7 +1565,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26119.123",
+      "sdkVersion": "11.0.100-preview.3.26119.123",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1577,7 +1577,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26119.125",
+      "sdkVersion": "11.0.100-preview.3.26119.125",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1589,7 +1589,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26120.105",
+      "sdkVersion": "11.0.100-preview.3.26120.105",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1601,7 +1601,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26120.112",
+      "sdkVersion": "11.0.100-preview.3.26120.112",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1613,7 +1613,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26120.116",
+      "sdkVersion": "11.0.100-preview.3.26120.116",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1625,7 +1625,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26121.101",
+      "sdkVersion": "11.0.100-preview.3.26121.101",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1637,7 +1637,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26121.104",
+      "sdkVersion": "11.0.100-preview.3.26121.104",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1649,7 +1649,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26123.103",
+      "sdkVersion": "11.0.100-preview.3.26123.103",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1661,7 +1661,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26123.109",
+      "sdkVersion": "11.0.100-preview.3.26123.109",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1673,7 +1673,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26123.115",
+      "sdkVersion": "11.0.100-preview.3.26123.115",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1685,7 +1685,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26124.102",
+      "sdkVersion": "11.0.100-preview.3.26124.102",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1697,7 +1697,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26126.114",
+      "sdkVersion": "11.0.100-preview.3.26126.114",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1709,7 +1709,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26127.101",
+      "sdkVersion": "11.0.100-preview.3.26127.101",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1721,7 +1721,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26127.120",
+      "sdkVersion": "11.0.100-preview.3.26127.120",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1733,7 +1733,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26128.103",
+      "sdkVersion": "11.0.100-preview.3.26128.103",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1745,7 +1745,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26128.104",
+      "sdkVersion": "11.0.100-preview.3.26128.104",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1757,7 +1757,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26151.104",
+      "sdkVersion": "11.0.100-preview.3.26151.104",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1769,7 +1769,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26152.106",
+      "sdkVersion": "11.0.100-preview.3.26152.106",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",
@@ -1781,7 +1781,7 @@
       "valid": true
     },
     {
-      "version": "11.0.100-preview.3.26153.117",
+      "sdkVersion": "11.0.100-preview.3.26153.117",
       "channel": "11.0",
       "band": "1xx",
       "type": "daily",

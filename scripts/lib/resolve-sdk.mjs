@@ -92,8 +92,8 @@ async function refreshSdkList(channel) {
     try {
         sdkListData = JSON.parse(await readFile(sdkListPath, 'utf-8'));
     } catch {
-        console.error('  sdk-list.json not found, skipping refresh');
-        return;
+        // Bootstrap empty catalog
+        sdkListData = { versions: [] };
     }
 
     const productCommitUrl = `https://aka.ms/dotnet/${channel}/daily/productCommit-linux-x64.txt`;
@@ -141,7 +141,7 @@ async function refreshSdkList(channel) {
 
     // Check if version already in catalog
     const versions = sdkListData.versions || [];
-    if (versions.some(e => e.version === sdkVersion)) {
+    if (versions.some(e => e.sdkVersion === sdkVersion)) {
         console.error(`  SDK ${sdkVersion} already in catalog, ETag updated`);
         await writeFile(sdkListPath, JSON.stringify(sdkListData, null, 2) + '\n');
         return;
@@ -164,7 +164,7 @@ async function refreshSdkList(channel) {
     const buildDate = decodePackBuildDate(sdkVersion) || '';
     const bandDigit = sdkVersion.match(/^\d+\.\d+\.(\d)/)?.[1] || '1';
     versions.push({
-        version: sdkVersion,
+        sdkVersion,
         channel,
         band: `${bandDigit}xx`,
         type: 'daily',
@@ -198,8 +198,7 @@ async function resolveFromCatalog({ channel, sdkVersion }) {
     try {
         sdkListData = JSON.parse(await readFile(join(REPO_DIR, 'sdk-list.json'), 'utf-8'));
     } catch {
-        console.error('  sdk-list.json not found or invalid, skipping catalog lookup');
-        return null;
+        sdkListData = { versions: [] };
     }
     try {
         runtimePacksData = JSON.parse(await readFile(join(REPO_DIR, 'runtime-packs.json'), 'utf-8'));
@@ -212,7 +211,7 @@ async function resolveFromCatalog({ channel, sdkVersion }) {
     let entry;
     if (sdkVersion) {
         // Look up specific version
-        entry = sdkEntries.find(e => e.version === sdkVersion);
+        entry = sdkEntries.find(e => e.sdkVersion === sdkVersion);
         if (!entry) {
             console.error(`  SDK ${sdkVersion} not found in sdk-list.json`);
             return null;
@@ -227,16 +226,16 @@ async function resolveFromCatalog({ channel, sdkVersion }) {
         // Sort descending by version string — daily builds sort correctly since
         // they share the same major.minor.patch-label prefix and the date+rev suffix
         // is monotonically increasing.
-        channelEntries.sort((a, b) => b.version.localeCompare(a.version));
+        channelEntries.sort((a, b) => b.sdkVersion.localeCompare(a.sdkVersion));
         entry = channelEntries[0];
     }
 
     // Cross-reference with runtime-packs.json using the derived runtime version
-    const runtimeVersion = entry.runtimeVersion || deriveRuntimeVersion(entry.version);
+    const runtimeVersion = entry.runtimeVersion || deriveRuntimeVersion(entry.sdkVersion);
     const packEntry = (runtimePacksData.versions || []).find(e => e.version === runtimeVersion);
 
     const result = {
-        sdkVersion: entry.version,
+        sdkVersion: entry.sdkVersion,
         runtimeGitHash: packEntry?.runtimeGitHash || entry.runtimeGitHash || '',
         sdkGitHash: packEntry?.sdkGitHash || '',
         vmrGitHash: packEntry?.vmrCommit || '',

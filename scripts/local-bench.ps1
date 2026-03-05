@@ -13,7 +13,10 @@
     ./local-bench.ps1 --engine chrome,firefox         # Specific engines
     ./local-bench.ps1 --dry-run                      # Chrome only (fast)
     ./local-bench.ps1 --preset devloop,aot           # Specific presets
+    ./local-bench.ps1 --sdk-channel 10.0
     ./local-bench.ps1 --sdk-version 11.0.100-preview.3.26062.1
+    ./local-bench.ps1 --runtime-pack 11.0.0-preview.3.26153.109
+    ./local-bench.ps1 --runtime-commit abcdef1234567890
 
     All flags are forwarded to: node scripts/run-bench.mjs --mode local ...
 #>

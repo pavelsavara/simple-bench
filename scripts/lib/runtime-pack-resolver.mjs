@@ -323,13 +323,19 @@ export async function downloadAndExtractPack(flatBaseUrl, version, destDir) {
 
     console.error(`  Downloaded ${(buffer.length / 1024 / 1024).toFixed(1)} MB`);
 
-    // Extract using unzip (nupkg is a zip file)
+    // Extract (nupkg is a zip file)
     await mkdir(packDir, { recursive: true });
     const zipPath = join(destDir, `${PACKAGE_ID}.${version}.nupkg`);
     await writeFile(zipPath, buffer);
 
     const { execFileSync } = await import('node:child_process');
-    execFileSync('unzip', ['-o', '-q', zipPath, '-d', packDir], { stdio: 'pipe' });
+    if (process.platform === 'win32') {
+        execFileSync('powershell', ['-NoProfile', '-Command',
+            `Expand-Archive -Force -Path '${zipPath}' -DestinationPath '${packDir}'`
+        ], { stdio: 'pipe' });
+    } else {
+        execFileSync('unzip', ['-o', '-q', zipPath, '-d', packDir], { stdio: 'pipe' });
+    }
 
     // Clean up the zip
     await rm(zipPath);
@@ -398,8 +404,8 @@ export async function refreshRuntimePacks(major = DEFAULT_MAJOR) {
     try {
         packsData = JSON.parse(await readFile(packsPath, 'utf-8'));
     } catch {
-        console.error('  runtime-packs.json not found, skipping refresh');
-        return;
+        // Bootstrap empty catalog
+        packsData = { versions: [] };
     }
 
     let flatBaseUrl, allVersions;
