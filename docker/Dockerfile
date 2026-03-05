@@ -72,6 +72,7 @@ RUN npm install -g jsvu@3.0.3 \
     && mkdir -p /opt/jsvu \
     && cp -a /root/.jsvu/. /opt/jsvu/ \
     && rm -rf /root/.jsvu \
+    && sed -i 's|/root/\.jsvu|/opt/jsvu|g' /opt/jsvu/bin/* \
     && ln -sf /opt/jsvu/bin/v8 /usr/local/bin/d8 \
     && chmod -R a+rX /opt/jsvu
 

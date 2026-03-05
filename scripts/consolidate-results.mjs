@@ -46,7 +46,8 @@ export function parseResultJson(content) {
     const { commitDate, commitTime, runtime, preset, engine, app } = data.meta;
     // Support both new (runtimeGitHash) and legacy (gitHash) field names
     const runtimeGitHash = data.meta.runtimeGitHash || data.meta.gitHash;
-    if (!commitDate || !commitTime || !runtimeGitHash || !runtime || !preset || !engine || !app) {
+    // runtimeGitHash must be a hex hash, not a placeholder like "unknown"
+    if (!commitDate || !commitTime || !runtimeGitHash || !/^[0-9a-f]+$/i.test(runtimeGitHash) || !runtime || !preset || !engine || !app) {
         return null;
     }
     // Normalize: ensure runtimeGitHash is always present in meta

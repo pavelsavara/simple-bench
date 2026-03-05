@@ -21,6 +21,8 @@
  *   --sdk-channel <ch>       SDK channel (default: 11.0)
  *   --sdk-version <ver>      Specific SDK version (default: latest from channel)
  *   --runtime <rt>           Runtime to benchmark (default: mono)
+ *   --runtime-pack <ver>     Specific runtime pack version
+ *   --runtime-commit <hash>  Specific dotnet/runtime commit hash
  *   --dry-run                Build only empty-browser app + devloop preset (fast validation)
  *   --app <list>             Comma-separated app filter (e.g. empty-browser,try-mud-blazor)
  *   --preset <list>          Comma-separated preset filter (e.g. devloop,aot)
@@ -100,13 +102,7 @@ function run(cmd, cmdArgs, { label, env: extraEnv } = {}) {
 
 function dotnet() {
     const exe = process.platform === 'win32' ? 'dotnet.exe' : 'dotnet';
-    const p = join(ARTIFACTS_DIR, 'sdks', SDK_DIR, exe);
-    try {
-        execFileSync(p, ['--version'], { stdio: 'ignore' });
-        return p;
-    } catch {
-        return 'dotnet';
-    }
+    return join(ARTIFACTS_DIR, 'sdks', SDK_DIR, exe);
 }
 
 /** Discover app directories under src/ (each dir with a .csproj). */
@@ -184,6 +180,7 @@ async function buildApps(apps, presets, phaseLabel, buildLabel) {
                     preset,
                     buildLabel,
                     artifactsDir: ARTIFACTS_DIR,
+                    dotnetBin: dotnet(),
                 });
                 succeeded.push({ app, preset });
             } catch {
@@ -291,7 +288,7 @@ async function main() {
         console.error('\n═══ Phase 0: Resolve runtime pack version ═══');
 
         // Refresh artifacts/runtime-packs.json catalog
-        try { await refreshRuntimePacks(); } catch (e) {
+        try { await refreshRuntimePacks({ artifactsDir: ARTIFACTS_DIR }); } catch (e) {
             console.error(`  Warning: runtime packs refresh failed: ${e.message}`);
         }
 
@@ -401,6 +398,10 @@ async function main() {
 
     const allSucceeded = [...phase3, ...phase5];
     console.error(`\n✓ ${allSucceeded.length} builds succeeded`);
+
+    if (allSucceeded.length === 0) {
+        throw new Error('All builds failed — nothing to measure');
+    }
 
     // Phase 6: Write build manifest
     await writeBuildManifest(allSucceeded, buildLabel);

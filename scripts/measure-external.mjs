@@ -62,6 +62,7 @@ const { values: args } = parseArgs({
         'timeout': { type: 'string', default: '55000' },
         'warm-runs': { type: 'string', default: '3' },
         'retries': { type: 'string', default: '2' },
+        'no-headless': { type: 'boolean', default: false },
         'ci-run-id': { type: 'string', default: '' },
         'ci-run-url': { type: 'string', default: '' },
     },
@@ -151,7 +152,6 @@ const metrics = {
     'time-to-reach-managed-cold': result.timeToReachManagedCold,
     'memory-peak': result.memoryPeak,
     'pizza-walkthru': result.pizzaWalkthru,
-    'mud-blazor-walkthru': result.mudBlazorWalkthru,
 };
 
 const output = buildResultJson(meta, metrics);
@@ -173,7 +173,7 @@ async function runBrowserMeasurement(browserEngine, app, publishDirPath, fpMap, 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
         if (attempt > 0) console.error(`Retry ${attempt}/${maxRetries}...`);
         try {
-            const browser = await browserType.launch();
+            const browser = await browserType.launch({ headless: !args['no-headless'] });
             try {
                 const context = await browser.newContext();
                 const page = await context.newPage();
@@ -251,13 +251,6 @@ async function runBrowserMeasurement(browserEngine, app, publishDirPath, fpMap, 
                     console.error(`  Pizza walkthrough: ${pizzaWalkthru?.toFixed(0)} ms`);
                 }
 
-                let mudBlazorWalkthru = null;
-                if (app === 'try-mud-blazor') {
-                    console.error('  Running MudBlazor walkthrough...');
-                    mudBlazorWalkthru = await runMudBlazorWalkthrough(page, pageUrl, timeoutMs, { ts });
-                    console.error(`  MudBlazor walkthrough: ${mudBlazorWalkthru?.toFixed(0)} ms`);
-                }
-
                 // ── Cleanup CDP ─────────────────────────────────────────
                 if (useCDP) {
                     await sleep(2000); // let memory settle
@@ -276,7 +269,6 @@ async function runBrowserMeasurement(browserEngine, app, publishDirPath, fpMap, 
                     timeToReachManaged,
                     memoryPeak: useCDP ? (memoryPeak || null) : null,
                     pizzaWalkthru,
-                    mudBlazorWalkthru,
                 };
             } finally {
                 await browser.close();
@@ -340,7 +332,6 @@ async function runCliMeasurement(cliEngine, publishDirPath, timeoutMs) {
         timeToReachManaged: timeToReachManaged ?? wallTimeMs,
         memoryPeak: null,
         pizzaWalkthru: null,
-        mudBlazorWalkthru: null,
     };
 }
 

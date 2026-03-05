@@ -9,7 +9,7 @@
  *   - refreshRuntimePacks(major)  — update artifacts/runtime-packs.json catalog
  */
 
-import { writeFile, readFile } from 'node:fs/promises';
+import { writeFile, readFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -257,9 +257,11 @@ export function restoreRuntimePack(dotnetPath, version, nugetPackagesDir) {
 /**
  * Refresh artifacts/runtime-packs.json by fetching the NuGet feed index and checking
  * if the newest version is already cached. If not, resolves new versions.
+ * @param {{ major?: number, artifactsDir?: string }} options
  */
-export async function refreshRuntimePacks(major = DEFAULT_MAJOR) {
-    const packsPath = join(REPO_DIR, 'artifacts', 'runtime-packs.json');
+export async function refreshRuntimePacks({ major = DEFAULT_MAJOR, artifactsDir } = {}) {
+    const baseDir = artifactsDir || join(REPO_DIR, 'artifacts');
+    const packsPath = join(baseDir, 'runtime-packs.json');
     let packsData;
     try {
         packsData = JSON.parse(await readFile(packsPath, 'utf-8'));
@@ -322,6 +324,7 @@ export async function refreshRuntimePacks(major = DEFAULT_MAJOR) {
     packsData.resolvedVersions = packsData.versions.filter(e => e.runtimeGitHash).length;
     packsData.generated = new Date().toISOString();
 
+    await mkdir(baseDir, { recursive: true });
     await writeFile(packsPath, JSON.stringify(packsData, null, 2) + '\n');
     console.error(`  Runtime packs updated (${packsData.versions.length} total, ${newVersions.length} new)`);
 }

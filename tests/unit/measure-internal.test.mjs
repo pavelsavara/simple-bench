@@ -78,9 +78,10 @@ describe('parseCliOutput', () => {
 // ── getEngineCommand ────────────────────────────────────────────────────────
 
 describe('getEngineCommand', () => {
-    it('returns d8 --module for v8 engine', () => {
+    it('returns d8 (linux) or v8.cmd (windows) --module for v8 engine', () => {
         const { cmd, args } = getEngineCommand('v8');
-        assert.equal(cmd, 'd8');
+        const expected = process.platform === 'win32' ? 'v8.cmd' : 'd8';
+        assert.equal(cmd, expected);
         assert.deepEqual(args, ['--module']);
     });
 

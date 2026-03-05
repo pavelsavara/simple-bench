@@ -20,6 +20,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(BenchmarkTargetFramework)' == 'net11.0'">
+    <!-- Disable broken stuff
+    <WasmEnableHotReload>false</WasmEnableHotReload>
+    <WasmEnableWebcil>false</WasmEnableWebcil>
+    -->
+
     <WebPushVersion>1.0.12</WebPushVersion>
     <MudBlazorVersion>9.1.0</MudBlazorVersion>
     <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>

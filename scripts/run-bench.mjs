@@ -24,6 +24,7 @@
  *   --sdk-channel <ch>    SDK channel (default: 11.0)
  *   --sdk-version <ver>   Specific SDK version
  *   --runtime-pack <ver>  Specific runtime pack version
+ *   --runtime-commit <hash> Specific dotnet/runtime commit hash
  *
  * Flow control:
  *   --skip-build           Skip the build step (reuse artifacts)
@@ -31,6 +32,7 @@
  *   --skip-docker          Skip Docker image rebuild (docker mode only)
  *   --step <name>          Run only one step: build | measure | docker-build
  *   --dry-run              Chrome only, devloop preset only (unless --app/--preset override)
+ *   --no-headless           Launch browsers in headed mode (visible window)
  *   --retries <n>          Measurement retry count (default: 3)
  *   --timeout <ms>         Per-measurement timeout (default: 300000)
  */
@@ -61,6 +63,7 @@ const { values: args } = parseArgs({
         'engine': { type: 'string', default: '' },
         'retries': { type: 'string', default: '3' },
         'timeout': { type: 'string', default: '300000' },
+        'no-headless': { type: 'boolean', default: false },
     },
     strict: true,
 });
@@ -208,6 +211,7 @@ function measureJobArgs(app, preset, publishDir, sdkInfoPath, manifestPath) {
     ];
     if (args.engine) mArgs.push('--engine', args.engine);
     if (args['dry-run']) mArgs.push('--dry-run');
+    if (args['no-headless']) mArgs.push('--no-headless');
     return mArgs;
 }
 
@@ -398,7 +402,10 @@ async function stepMeasure() {
         console.error('No result files produced.');
     }
 
-    if (failed > 0) {
+    if (failed === entries.length) {
+        err('All measurements failed');
+        process.exit(1);
+    } else if (failed > 0) {
         err(`${failed} measurement(s) failed`);
     }
 }

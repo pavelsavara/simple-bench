@@ -4,11 +4,9 @@
   <Import Project="presets.props" />
 
   <!-- bin/obj location: artifacts/{bin,obj}/{app}/{BuildLabel}/{preset} -->
-
   <PropertyGroup>
     <BuildLabel Condition="'$(BuildLabel)' == ''">local</BuildLabel>
     <ArtifactsPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'artifacts', 'bin', '$(MSBuildProjectName)', '$(BuildLabel)', '$(BenchmarkPreset)'))</ArtifactsPath>
     <BaseIntermediateOutputPath>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '..', 'artifacts', 'obj', '$(MSBuildProjectName)', '$(BuildLabel)', '$(BenchmarkPreset)'))</BaseIntermediateOutputPath>
   </PropertyGroup>
-
 </Project>

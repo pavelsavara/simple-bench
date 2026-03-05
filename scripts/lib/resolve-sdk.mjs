@@ -31,6 +31,7 @@ import {
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_DIR = resolve(SCRIPT_DIR, '..', '..');
+const CATALOG_DIR = process.env.ARTIFACTS_DIR || join(REPO_DIR, 'artifacts');
 
 /**
  * Download a URL and return the body as a string.
@@ -196,12 +197,12 @@ async function refreshSdkList(channel) {
 async function resolveFromCatalog({ channel, sdkVersion }) {
     let sdkListData, runtimePacksData;
     try {
-        sdkListData = JSON.parse(await readFile(join(REPO_DIR, 'artifacts', 'sdk-list.json'), 'utf-8'));
+        sdkListData = JSON.parse(await readFile(join(CATALOG_DIR, 'sdk-list.json'), 'utf-8'));
     } catch {
         sdkListData = { versions: [] };
     }
     try {
-        runtimePacksData = JSON.parse(await readFile(join(REPO_DIR, 'artifacts', 'runtime-packs.json'), 'utf-8'));
+        runtimePacksData = JSON.parse(await readFile(join(CATALOG_DIR, 'runtime-packs.json'), 'utf-8'));
     } catch {
         runtimePacksData = { versions: [] };
     }
@@ -353,16 +354,19 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
     await mkdir(installDir, { recursive: true });
 
     const isWindows = process.platform === 'win32';
-    const pathSep = isWindows ? ';' : ':';
 
     // ── Skip download if SDK is already installed ────────────────────────
     const sdkInfoPath = join(installDir, 'sdk-info.json');
     try {
         const existing = JSON.parse(await readFile(sdkInfoPath, 'utf-8'));
         if (existing.sdkVersion) {
+            // Clear invalid runtimeGitHash (must be hex)
+            if (existing.runtimeGitHash && !/^[0-9a-f]+$/i.test(existing.runtimeGitHash)) {
+                existing.runtimeGitHash = '';
+            }
+            await writeFile(sdkInfoPath, JSON.stringify(existing, null, 2) + '\n');
             console.error(`SDK already installed at ${installDir} (${existing.sdkVersion}), skipping download.`);
             process.env.DOTNET_ROOT = installDir;
-            process.env.PATH = `${installDir}${pathSep}${process.env.PATH}`;
             process.env.DOTNET_NOLOGO = 'true';
             const nugetDir = join(installDir, '..', '..', 'nuget-packages');
             await mkdir(nugetDir, { recursive: true });
@@ -391,7 +395,6 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
 
     // Update env for subsequent calls
     process.env.DOTNET_ROOT = installDir;
-    process.env.PATH = `${installDir}${pathSep}${process.env.PATH}`;
     process.env.DOTNET_NOLOGO = 'true';
 
     const nugetDir = join(installDir, '..', '..', 'nuget-packages');
@@ -402,7 +405,7 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
     if (process.env.GITHUB_ENV) {
         const { appendFile } = await import('node:fs/promises');
         await appendFile(process.env.GITHUB_ENV,
-            `DOTNET_ROOT=${installDir}\nPATH=${installDir}:${process.env.PATH}\n`);
+            `DOTNET_ROOT=${installDir}\n`);
     }
 
     // ── Resolve git hashes ───────────────────────────────────────────────

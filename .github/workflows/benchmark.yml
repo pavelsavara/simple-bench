@@ -20,6 +20,11 @@ on:
         required: false
         default: ''
         type: string
+      runtime_pack:
+        description: 'Specific runtime pack version (e.g. 11.0.0-preview.3.26153.109)'
+        required: false
+        default: ''
+        type: string
       dry_run:
         description: 'Dry run (run benchmarks but do not publish results)'
         required: false
@@ -50,6 +55,7 @@ jobs:
             --sdk-channel "${{ inputs.sdk_channel || '11.0' }}" \
             ${{ inputs.sdk_version && format('--sdk-version "{0}"', inputs.sdk_version) || '' }} \
             ${{ inputs.runtime_commit && format('--runtime-commit "{0}"', inputs.runtime_commit) || '' }} \
+            ${{ inputs.runtime_pack && format('--runtime-pack "{0}"', inputs.runtime_pack) || '' }} \
             --runtime mono \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 

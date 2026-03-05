@@ -30,7 +30,7 @@ import { execFileSync } from 'node:child_process';
 // ── Engine routing ──────────────────────────────────────────────────────────
 
 /** Apps that require a browser (DOM, fetch, service workers). */
-const BROWSER_ONLY_APPS = new Set(['empty-blazor', 'blazing-pizza', 'try-mud-blazor']);
+const BROWSER_ONLY_APPS = new Set(['empty-blazor', 'blazing-pizza']);
 
 /** Apps measured with measure-internal.mjs; everything else uses measure-external.mjs. */
 const INTERNAL_APPS = new Set(['microbenchmarks']);
@@ -62,6 +62,7 @@ const { values: args } = parseArgs({
         'timeout': { type: 'string', default: '300000' },
         'retries': { type: 'string', default: '3' },
         'dry-run': { type: 'boolean', default: false },
+        'no-headless': { type: 'boolean', default: false },
         'engine': { type: 'string', default: '' },
         'ci-run-id': { type: 'string', default: '' },
         'ci-run-url': { type: 'string', default: '' },
@@ -137,7 +138,8 @@ async function verifyIntegrity() {
 // ── Read SDK info for result filenames ──────────────────────────────────────
 
 const sdkInfo = JSON.parse(await readFile(sdkInfoPath, 'utf-8'));
-const runtimeHash7 = (sdkInfo.runtimeGitHash || sdkInfo.gitHash || '').slice(0, 7);
+const rawHash = sdkInfo.runtimeGitHash || sdkInfo.gitHash || '';
+const runtimeHash7 = /^[0-9a-f]+$/i.test(rawHash) ? rawHash.slice(0, 7) : '0000000';
 const commitTime = sdkInfo.commitTime;
 
 await mkdir(outputDir, { recursive: true });
@@ -181,6 +183,7 @@ for (const engine of engines) {
         '--retries', retries,
         '--timeout', timeoutVal,
         ...(isDryRun && !isInternal ? ['--warm-runs', '1'] : []),
+        ...(args['no-headless'] ? ['--no-headless'] : []),
         ...(args['ci-run-id'] ? ['--ci-run-id', args['ci-run-id']] : []),
         ...(args['ci-run-url'] ? ['--ci-run-url', args['ci-run-url']] : []),
     ];
