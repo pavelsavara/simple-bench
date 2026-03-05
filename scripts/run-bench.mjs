@@ -42,6 +42,7 @@ import { readFile, mkdir } from 'node:fs/promises';
 import { resolve, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { shouldSkipMeasurement } from './lib/build-config.mjs';
 
 // ── CLI args ────────────────────────────────────────────────────────────────
 
@@ -339,6 +340,7 @@ async function stepMeasure() {
     const entries = manifest.filter(entry => {
         if (appFilter && !appFilter.has(entry.app)) return false;
         if (presetFilter && !presetFilter.has(entry.preset)) return false;
+        if (shouldSkipMeasurement(entry.app, entry.preset)) return false;
         return true;
     });
 

@@ -33,7 +33,7 @@ import { readdir, readFile, writeFile, stat, mkdir } from 'node:fs/promises';
 import { resolve, join, dirname } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { getPresetGroups, validateCombination } from './lib/build-config.mjs';
+import { getPresetGroups, validateCombination, shouldSkipMeasurement } from './lib/build-config.mjs';
 import { parseWorkloadVersion, isWorkloadInstalled } from './lib/sdk-info.mjs';
 import { refreshRuntimePacks, restoreRuntimePack, PACKAGE_ID } from './lib/runtime-pack-resolver.mjs';
 import { resolveSDK } from './lib/resolve-sdk.mjs';
@@ -171,6 +171,13 @@ async function buildApps(apps, presets, phaseLabel, buildLabel) {
                 validateCombination(runtime, preset);
             } catch {
                 console.error(`  Skipping invalid combination: ${runtime} + ${preset}`);
+                continue;
+            }
+
+            // Skip unsupported app+preset combinations
+            const skipReason = shouldSkipMeasurement(app, preset);
+            if (skipReason) {
+                console.error(`  Skipping: ${skipReason}`);
                 continue;
             }
             try {

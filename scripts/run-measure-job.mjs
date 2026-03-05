@@ -27,6 +27,7 @@ import { resolve, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { ALL_PROFILES, profileRequiresCDP } from './lib/throttle-profiles.mjs';
+import { shouldSkipMeasurement } from './lib/build-config.mjs';
 
 // ── Engine routing ──────────────────────────────────────────────────────────
 
@@ -147,6 +148,13 @@ const commitTime = sdkInfo.commitTime;
 await mkdir(outputDir, { recursive: true });
 
 // ── Verify build artifact integrity ─────────────────────────────────────────
+
+// Skip unsupported app+preset combinations early
+const skipReason = shouldSkipMeasurement(app, preset);
+if (skipReason) {
+    console.error(`Skipping measurement: ${skipReason}`);
+    process.exit(0);
+}
 
 await verifyIntegrity();
 

@@ -10,7 +10,9 @@ import {
     needsWorkload,
     WORKLOAD_PRESETS,
     NON_WORKLOAD_PRESETS,
-    getPresetGroups
+    getPresetGroups,
+    shouldSkipMeasurement,
+    BLAZOR_APPS,
 } from '../../scripts/lib/build-config.mjs';
 
 describe('mapRuntimeFlavor', () => {
@@ -264,5 +266,27 @@ describe('getPresetGroups', () => {
         for (const key of Object.keys(PRESET_MAP)) {
             assert.ok(allPresets.has(key), `PRESET_MAP key '${key}' should be in a preset group`);
         }
+    });
+});
+
+describe('shouldSkipMeasurement', () => {
+    it('skips blazor apps with no-reflection-emit', () => {
+        for (const app of BLAZOR_APPS) {
+            const reason = shouldSkipMeasurement(app, 'no-reflection-emit');
+            assert.ok(reason, `Expected skip reason for ${app} + no-reflection-emit`);
+        }
+    });
+
+    it('allows blazor apps with other presets', () => {
+        for (const app of BLAZOR_APPS) {
+            assert.equal(shouldSkipMeasurement(app, 'devloop'), null);
+            assert.equal(shouldSkipMeasurement(app, 'aot'), null);
+            assert.equal(shouldSkipMeasurement(app, 'native-relink'), null);
+        }
+    });
+
+    it('allows non-blazor apps with no-reflection-emit', () => {
+        assert.equal(shouldSkipMeasurement('empty-browser', 'no-reflection-emit'), null);
+        assert.equal(shouldSkipMeasurement('microbenchmarks', 'no-reflection-emit'), null);
     });
 });

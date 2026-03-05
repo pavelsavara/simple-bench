@@ -92,6 +92,21 @@ export function getPresetArgs(preset) {
     return [`/p:BenchmarkPreset=${benchPreset}`, '-c', config];
 }
 
+/** Apps that use Blazor (DOM-dependent, no CLI engine support). */
+const BLAZOR_APPS = new Set(['empty-blazor', 'blazing-pizza']);
+export { BLAZOR_APPS };
+
+/**
+ * Returns a reason string if measurement should be skipped for this app+preset,
+ * or null if the combination is valid for measurement.
+ */
+export function shouldSkipMeasurement(app, preset) {
+    if (BLAZOR_APPS.has(app) && preset === 'no-reflection-emit') {
+        return `Blazor app '${app}' is not supported with preset 'no-reflection-emit'`;
+    }
+    return null;
+}
+
 /**
  * Validate that the runtime + preset combination is valid.
  * AOT is Mono-only.
