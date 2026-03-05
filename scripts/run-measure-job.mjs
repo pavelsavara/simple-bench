@@ -26,6 +26,7 @@ import { readFile, readdir, stat, mkdir } from 'node:fs/promises';
 import { resolve, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { ALL_PROFILES, profileRequiresCDP } from './lib/throttle-profiles.mjs';
 
 // ── Engine routing ──────────────────────────────────────────────────────────
 
@@ -64,6 +65,7 @@ const { values: args } = parseArgs({
         'dry-run': { type: 'boolean', default: false },
         'no-headless': { type: 'boolean', default: false },
         'engine': { type: 'string', default: '' },
+        'profile': { type: 'string', default: '' },
         'ci-run-id': { type: 'string', default: '' },
         'ci-run-url': { type: 'string', default: '' },
     },
@@ -154,6 +156,17 @@ const engines = getEnginesForApp(app, args['dry-run'], args.engine);
 const isInternal = INTERNAL_APPS.has(app);
 const measureScript = isInternal ? 'measure-internal.mjs' : 'measure-external.mjs';
 
+// ── Determine profiles ──────────────────────────────────────────────────────
+
+function getProfilesForEngine(engine, profileFilter) {
+    if (profileFilter) {
+        return profileFilter.split(',').map(s => s.trim());
+    }
+    // mobile requires CDP → Chrome only
+    if (engine !== 'chrome') return ['desktop'];
+    return ALL_PROFILES;
+}
+
 console.error(`App: ${app}, Preset: ${preset}, Engines: ${engines.join(', ')}`);
 console.error(`Script: ${measureScript}`);
 
@@ -164,7 +177,9 @@ const compileTimeFile = join(publishDir, 'compile-time.json');
 let failCount = 0;
 
 for (const engine of engines) {
-    const filename = `${commitTime}_${runtimeHash7}_${runtime}_${preset}_${engine}_${app}.json`;
+    const profiles = getProfilesForEngine(engine, args.profile);
+    for (const profile of profiles) {
+    const filename = `${commitTime}_${runtimeHash7}_${runtime}_${preset}_${profile}_${engine}_${app}.json`;
     const outputFile = join(outputDir, filename);
 
     const isDryRun = args['dry-run'];
@@ -193,19 +208,27 @@ for (const engine of engines) {
         scriptArgs.push('--app', app);
     }
 
-    console.error(`\n▶ measure ${app} (${runtime}/${preset}/${engine})`);
+    // pass profile for throttling
+    scriptArgs.push('--profile', profile);
+
+    console.error(`\n▶ measure ${app} (${runtime}/${preset}/${profile}/${engine})`);
     try {
         execFileSync('node', scriptArgs, {
             stdio: 'inherit',
             env: process.env,
         });
     } catch (err) {
-        console.error(`✗ Measurement failed for ${engine}: ${err.message}`);
+        console.error(`✗ Measurement failed for ${profile}/${engine}: ${err.message}`);
         failCount++;
     }
+    } // end profile loop
 }
 
-console.error(`\n✓ Measurements complete: ${engines.length - failCount}/${engines.length} engines succeeded`);
+// Count total combinations
+let totalCombinations = 0;
+for (const e of engines) totalCombinations += getProfilesForEngine(e, args.profile).length;
+
+console.error(`\n✓ Measurements complete: ${totalCombinations - failCount}/${totalCombinations} succeeded`);
 if (failCount > 0) {
     process.exit(1);
 }
