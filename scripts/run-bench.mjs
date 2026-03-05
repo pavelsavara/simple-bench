@@ -12,7 +12,7 @@
  *
  * Usage:
  *   node scripts/run-bench.mjs --mode local
- *   node scripts/run-bench.mjs --mode local --app try-mud-blazor --engine chrome
+ *   node scripts/run-bench.mjs --mode local --app blazing-pizza --engine chrome
  *   node scripts/run-bench.mjs --mode docker --dry-run
  *   node scripts/run-bench.mjs --mode local --skip-build --preset devloop
  *

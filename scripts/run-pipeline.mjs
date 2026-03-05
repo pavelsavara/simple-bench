@@ -24,7 +24,7 @@
  *   --runtime-pack <ver>     Specific runtime pack version
  *   --runtime-commit <hash>  Specific dotnet/runtime commit hash
  *   --dry-run                Build only empty-browser app + devloop preset (fast validation)
- *   --app <list>             Comma-separated app filter (e.g. empty-browser,try-mud-blazor)
+ *   --app <list>             Comma-separated app filter (e.g. empty-browser,blazing-pizza)
  *   --preset <list>          Comma-separated preset filter (e.g. devloop,aot)
  */
 

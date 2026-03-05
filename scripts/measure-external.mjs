@@ -36,7 +36,6 @@ import {
 } from './lib/measure-utils.mjs';
 import { getEngineCommand } from './lib/internal-utils.mjs';
 import { runPizzaWalkthrough } from './lib/pizza-walkthrough.mjs';
-import { runMudBlazorWalkthrough } from './lib/mud-blazor-walkthrough.mjs';
 import { PROFILES } from './lib/throttle-profiles.mjs';
 
 const BROWSER_ENGINES = new Set(['chrome', 'firefox']);

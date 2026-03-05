@@ -13,7 +13,7 @@
 #   ./scripts/local-docker-bench.sh --step build
 #   ./scripts/local-docker-bench.sh --step measure
 #   ./scripts/local-docker-bench.sh --dry-run              # Chrome only
-#   ./scripts/local-docker-bench.sh --app try-mud-blazor   # Single app
+#   ./scripts/local-docker-bench.sh --app blazing-pizza   # Single app
 #   ./scripts/local-docker-bench.sh --engine chrome        # Specific engine
 #   ./scripts/local-docker-bench.sh --preset devloop,aot     # Specific presets
 #   ./scripts/local-docker-bench.sh --sdk-channel 10.0

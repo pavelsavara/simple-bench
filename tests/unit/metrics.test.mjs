@@ -42,7 +42,7 @@ describe('METRICS registry', () => {
         const expected = [
             'compile-time', 'disk-size-total', 'disk-size-wasm',
             'disk-size-dlls', 'download-size-total', 'time-to-reach-managed', 'time-to-reach-managed-cold',
-            'memory-peak', 'pizza-walkthru', 'mud-blazor-walkthru',
+            'memory-peak', 'pizza-walkthru'
         ];
         for (const key of expected) {
             assert.ok(EXTERNAL_METRICS.includes(key), `Missing external metric: ${key}`);
