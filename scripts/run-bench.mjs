@@ -427,7 +427,7 @@ async function main() {
         if (!args['runtime-commit']) {
             try {
                 const packsData = JSON.parse(await readFile(join(REPO_DIR, 'runtime-packs.json'), 'utf-8'));
-                const entry = (packsData.versions || []).find(e => e.version === packVersion);
+                const entry = (packsData.versions || []).find(e => e.runtimePackVersion === packVersion);
                 if (entry?.runtimeGitHash) {
                     args['runtime-commit'] = entry.runtimeGitHash;
                     console.error(`Resolved runtime commit from pack ${packVersion}: ${entry.runtimeGitHash.substring(0, 12)}`);

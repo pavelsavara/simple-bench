@@ -25,6 +25,7 @@ import {
     decodeBuildDate,
     getVmrCommitFromNuspec,
     getRepoCommitsFromVMR,
+    getSdkVersionFromRuntimeCommit,
 } from './lib/runtime-pack-resolver.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -76,7 +77,7 @@ function loadExisting() {
         const data = JSON.parse(readFileSync(OUTPUT, 'utf-8'));
         const map = new Map();
         for (const entry of data.versions || []) {
-            map.set(entry.version, entry);
+            map.set(entry.runtimePackVersion, entry);
         }
         return map;
     } catch {
@@ -138,11 +139,12 @@ async function main() {
         if (!vmrCommit) {
             failed++;
             existing.set(version, {
-                version,
+                runtimePackVersion: version,
                 buildDate,
                 vmrCommit: null,
                 runtimeGitHash: null,
                 sdkGitHash: null,
+                sdkVersionOfTheRuntimeBuild: null,
                 nupkgUrl: `${flatBaseUrl}${PACKAGE_ID}/${version}/${PACKAGE_ID}.${version}.nupkg`,
             });
             return;
@@ -150,12 +152,17 @@ async function main() {
 
         // Step 4b: Resolve runtime + SDK commits from VMR
         const commits = await getRepoCommitsFromVMR(vmrCommit);
+        const runtimeGitHash = commits?.runtimeCommit || null;
+        const sdkVersionOfTheRuntimeBuild = runtimeGitHash
+            ? await getSdkVersionFromRuntimeCommit(runtimeGitHash)
+            : null;
         const entry = {
-            version,
+            runtimePackVersion: version,
             buildDate,
             vmrCommit,
-            runtimeGitHash: commits?.runtimeCommit || null,
+            runtimeGitHash,
             sdkGitHash: commits?.sdkCommit || null,
+            sdkVersionOfTheRuntimeBuild,
             nupkgUrl: `${flatBaseUrl}${PACKAGE_ID}/${version}/${PACKAGE_ID}.${version}.nupkg`,
         };
         existing.set(version, entry);

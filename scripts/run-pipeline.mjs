@@ -298,8 +298,8 @@ async function main() {
                     e.runtimeGitHash?.startsWith(args['runtime-commit'])
                 );
                 if (entry) {
-                    knownVersion = entry.version;
-                    console.error(`  Found exact pack in runtime-packs.json: ${entry.version}`);
+                    knownVersion = entry.runtimePackVersion;
+                    console.error(`  Found exact pack in runtime-packs.json: ${entry.runtimePackVersion}`);
                 }
             } catch { }
         } else {
@@ -311,7 +311,7 @@ async function main() {
             strategy: 'closest-after',
             knownVersion,
         });
-        console.error(`✓ Runtime pack resolved: ${packResult.version} (match: ${packResult.match})`);
+        console.error(`✓ Runtime pack resolved: ${packResult.runtimePackVersion} (match: ${packResult.match})`);
         console.error(`  Pack runtime commit: ${packResult.runtimeCommit?.substring(0, 12)}`);
 
         // Look up matching SDK version by runtimeGitHash from sdk-list.json
@@ -338,7 +338,7 @@ async function main() {
     if (packResult) {
         const sdkInfo = JSON.parse(await readFile(SDK_INFO_PATH, 'utf-8'));
         sdkInfo.runtimeGitHash = packResult.runtimeCommit || sdkInfo.runtimeGitHash;
-        sdkInfo.customRuntimePackVersion = packResult.version;
+        sdkInfo.customRuntimePackVersion = packResult.runtimePackVersion;
         sdkInfo.customRuntimePackMatch = packResult.match;
         await writeFile(SDK_INFO_PATH, JSON.stringify(sdkInfo, null, 2) + '\n');
 

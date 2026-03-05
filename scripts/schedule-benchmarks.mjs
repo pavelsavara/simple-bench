@@ -294,7 +294,7 @@ async function main() {
     // Show what we found
     console.log('\n  Missing commits (most recent first):');
     for (const entry of missing.slice(0, 10)) {
-        console.log(`    ${entry.buildDate} | ${entry.runtimeGitHash?.substring(0, 12)} | ${entry.version}`);
+        console.log(`    ${entry.buildDate} | ${entry.runtimeGitHash?.substring(0, 12)} | ${entry.runtimePackVersion}`);
     }
     if (missing.length > 10) {
         console.log(`    ... and ${missing.length - 10} more`);
@@ -306,7 +306,7 @@ async function main() {
 
     let dispatched = 0;
     for (const entry of toDispatch) {
-        console.log(`\n  Dispatching: ${entry.runtimeGitHash?.substring(0, 12)} (${entry.buildDate}, pack ${entry.version})`);
+        console.log(`\n  Dispatching: ${entry.runtimeGitHash?.substring(0, 12)} (${entry.buildDate}, pack ${entry.runtimePackVersion})`);
         const ok = dispatchWorkflow(repo, args.branch, entry.runtimeGitHash, args.dryRun);
         if (ok) dispatched++;
     }

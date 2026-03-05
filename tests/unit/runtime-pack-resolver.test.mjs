@@ -141,7 +141,7 @@ describe('runtime-pack-resolver (network)', { skip: !NETWORK_TESTS }, () => {
         const { versions } = await listAvailablePackVersions(11);
         const latest = versions[versions.length - 1];
         const info = await getPackCommitInfo(flatBaseUrl, latest);
-        assert.equal(info.version, latest);
+        assert.equal(info.runtimePackVersion, latest);
         assert.ok(info.buildDate, 'Should have buildDate');
         assert.ok(info.nupkgUrl.includes(latest), 'nupkgUrl should include version');
         // vmrCommit and runtimeGitHash may be null if resolution fails,

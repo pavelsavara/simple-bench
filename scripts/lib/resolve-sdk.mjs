@@ -232,7 +232,7 @@ async function resolveFromCatalog({ channel, sdkVersion }) {
 
     // Cross-reference with runtime-packs.json using the derived runtime version
     const runtimeVersion = entry.runtimeVersion || deriveRuntimeVersion(entry.sdkVersion);
-    const packEntry = (runtimePacksData.versions || []).find(e => e.version === runtimeVersion);
+    const packEntry = (runtimePacksData.versions || []).find(e => e.runtimePackVersion === runtimeVersion);
 
     const result = {
         sdkVersion: entry.sdkVersion,

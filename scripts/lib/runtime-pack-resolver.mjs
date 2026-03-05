@@ -145,7 +145,7 @@ export function decodeBuildDate(version) {
  * from the nupkg (without downloading the full package) to get the VMR commit hash.
  * Then resolve the runtime commit from the VMR source-manifest.json.
  *
- * Returns: { vmrCommit, runtimeCommit, version, buildDate }
+ * Returns: { vmrCommit, runtimeCommit, runtimePackVersion, buildDate }
  */
 export async function getPackCommitInfo(flatBaseUrl, version) {
     const buildDate = decodeBuildDate(version);
@@ -157,12 +157,16 @@ export async function getPackCommitInfo(flatBaseUrl, version) {
         runtimeGitHash = commits?.runtimeCommit || null;
         sdkGitHash = commits?.sdkCommit || null;
     }
+    const sdkVersionOfTheRuntimeBuild = runtimeGitHash
+        ? await getSdkVersionFromRuntimeCommit(runtimeGitHash)
+        : null;
     return {
-        version,
+        runtimePackVersion: version,
         buildDate,
         vmrCommit,
         runtimeGitHash,
         sdkGitHash,
+        sdkVersionOfTheRuntimeBuild,
         nupkgUrl: `${flatBaseUrl}${PACKAGE_ID}/${version}/${PACKAGE_ID}.${version}.nupkg`,
     };
 }
@@ -205,6 +209,20 @@ export async function getRepoCommitsFromVMR(vmrCommit) {
         runtimeCommit: runtimeEntry?.commitSha || null,
         sdkCommit: sdkEntry?.commitSha || null,
     };
+}
+
+/**
+ * Get the SDK version used to build a given dotnet/runtime commit.
+ * Reads `global.json` from the runtime repo at the given commit and
+ * extracts the `tools.dotnet` value.
+ *
+ * @param {string} runtimeGitHash - The dotnet/runtime commit hash
+ * @returns {string|null} SDK version string or null
+ */
+export async function getSdkVersionFromRuntimeCommit(runtimeGitHash) {
+    const url = `https://raw.githubusercontent.com/dotnet/runtime/${runtimeGitHash}/global.json`;
+    const globalJson = await tryFetchJSON(url);
+    return globalJson?.tools?.dotnet ?? null;
 }
 
 // ── VMR commit → runtime commit mapping ─────────────────────────────────────
@@ -423,7 +441,7 @@ export async function refreshRuntimePacks(major = DEFAULT_MAJOR) {
 
     // Check if the newest version on the feed is already in our cache
     const newestFeedVersion = allVersions[0];
-    const existingVersions = new Set((packsData.versions || []).map(e => e.version));
+    const existingVersions = new Set((packsData.versions || []).map(e => e.runtimePackVersion));
     if (existingVersions.has(newestFeedVersion)) {
         console.error(`  Runtime packs catalog is up to date (newest: ${newestFeedVersion})`);
         return;
@@ -443,12 +461,16 @@ export async function refreshRuntimePacks(major = DEFAULT_MAJOR) {
             runtimeGitHash = commits?.runtimeCommit || null;
             sdkGitHash = commits?.sdkCommit || null;
         }
+        const sdkVersionOfTheRuntimeBuild = runtimeGitHash
+            ? await getSdkVersionFromRuntimeCommit(runtimeGitHash)
+            : null;
         packsData.versions.unshift({
-            version,
+            runtimePackVersion: version,
             buildDate,
             vmrCommit,
             runtimeGitHash,
             sdkGitHash,
+            sdkVersionOfTheRuntimeBuild,
             nupkgUrl: `${flatBaseUrl}${PACKAGE_ID}/${version}/${PACKAGE_ID}.${version}.nupkg`,
         });
     }
@@ -491,7 +513,7 @@ export async function resolveRuntimePack(runtimeCommit, options = {}) {
         }
         return {
             packDir,
-            version: knownVersion,
+            runtimePackVersion: knownVersion,
             runtimeCommit: packRuntimeCommit || runtimeCommit,
             vmrCommit,
             match: 'exact-version',
@@ -545,7 +567,7 @@ export async function resolveRuntimePack(runtimeCommit, options = {}) {
             console.error(`  ${candidate.version}: EXACT MATCH`);
             return {
                 packDir,
-                version: candidate.version,
+                runtimePackVersion: candidate.version,
                 runtimeCommit: packRuntimeCommit,
                 vmrCommit,
                 match: 'exact',
@@ -561,7 +583,7 @@ export async function resolveRuntimePack(runtimeCommit, options = {}) {
             // This pack includes our target commit (pack is same or ahead)
             return {
                 packDir,
-                version: candidate.version,
+                runtimePackVersion: candidate.version,
                 runtimeCommit: packRuntimeCommit,
                 vmrCommit,
                 match: 'closest-after',
@@ -572,7 +594,7 @@ export async function resolveRuntimePack(runtimeCommit, options = {}) {
             // This pack is before our target commit
             return {
                 packDir,
-                version: candidate.version,
+                runtimePackVersion: candidate.version,
                 runtimeCommit: packRuntimeCommit,
                 vmrCommit,
                 match: 'closest-before',
