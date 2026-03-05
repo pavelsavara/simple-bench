@@ -302,11 +302,13 @@ async function runCliMeasurement(cliEngine, publishDirPath, timeoutMs) {
 
     console.error(`  ${ts()} CLI engine starting...`);
     const startTime = performance.now();
+    const useShell = process.platform === 'win32' && /\.(cmd|bat)$/i.test(cmd);
     const stdout = execFileSync(cmd, [...engineArgs, entryFile], {
         encoding: 'utf-8',
         cwd: publishDirPath,
         timeout: timeoutMs,
         env: { ...process.env },
+        ...(useShell && { shell: true }),
     });
     const wallTimeMs = performance.now() - startTime;
     console.error(`  ${ts()} CLI engine finished in ${wallTimeMs.toFixed(0)} ms`);
