@@ -30,7 +30,7 @@ import { execFileSync } from 'node:child_process';
 // ── Engine routing ──────────────────────────────────────────────────────────
 
 /** Apps that require a browser (DOM, fetch, service workers). */
-const BROWSER_ONLY_APPS = new Set(['empty-blazor', 'blazing-pizza', 'try-mud-blazor']);
+const BROWSER_ONLY_APPS = new Set(['empty-blazor', 'blazing-pizza']);
 
 /** Apps measured with measure-internal.mjs; everything else uses measure-external.mjs. */
 const INTERNAL_APPS = new Set(['microbenchmarks']);
