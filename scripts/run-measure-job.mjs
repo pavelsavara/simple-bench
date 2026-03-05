@@ -179,48 +179,48 @@ let failCount = 0;
 for (const engine of engines) {
     const profiles = getProfilesForEngine(engine, args.profile);
     for (const profile of profiles) {
-    const filename = `${commitTime}_${runtimeHash7}_${runtime}_${preset}_${profile}_${engine}_${app}.json`;
-    const outputFile = join(outputDir, filename);
+        const filename = `${commitTime}_${runtimeHash7}_${runtime}_${preset}_${profile}_${engine}_${app}.json`;
+        const outputFile = join(outputDir, filename);
 
-    const isDryRun = args['dry-run'];
-    const retries = isDryRun ? '1' : args.retries;
-    const timeoutVal = isDryRun ? String(Math.min(parseInt(args.timeout, 10), 55000)) : args.timeout;
+        const isDryRun = args['dry-run'];
+        const retries = isDryRun ? '1' : args.retries;
+        const timeoutVal = isDryRun ? String(Math.min(parseInt(args.timeout, 10), 55000)) : args.timeout;
 
-    const scriptArgs = [
-        join(SCRIPT_DIR, measureScript),
-        '--publish-dir', wwwrootDir,
-        '--engine', engine,
-        '--output', outputFile,
-        '--runtime', runtime,
-        '--preset', preset,
-        '--sdk-info', sdkInfoPath,
-        '--compile-time-file', compileTimeFile,
-        '--retries', retries,
-        '--timeout', timeoutVal,
-        ...(isDryRun && !isInternal ? ['--warm-runs', '1'] : []),
-        ...(args['no-headless'] ? ['--no-headless'] : []),
-        ...(args['ci-run-id'] ? ['--ci-run-id', args['ci-run-id']] : []),
-        ...(args['ci-run-url'] ? ['--ci-run-url', args['ci-run-url']] : []),
-    ];
+        const scriptArgs = [
+            join(SCRIPT_DIR, measureScript),
+            '--publish-dir', wwwrootDir,
+            '--engine', engine,
+            '--output', outputFile,
+            '--runtime', runtime,
+            '--preset', preset,
+            '--sdk-info', sdkInfoPath,
+            '--compile-time-file', compileTimeFile,
+            '--retries', retries,
+            '--timeout', timeoutVal,
+            ...(isDryRun && !isInternal ? ['--warm-runs', '1'] : []),
+            ...(args['no-headless'] ? ['--no-headless'] : []),
+            ...(args['ci-run-id'] ? ['--ci-run-id', args['ci-run-id']] : []),
+            ...(args['ci-run-url'] ? ['--ci-run-url', args['ci-run-url']] : []),
+        ];
 
-    // measure-external.mjs also needs --app
-    if (!isInternal) {
-        scriptArgs.push('--app', app);
-    }
+        // measure-external.mjs also needs --app
+        if (!isInternal) {
+            scriptArgs.push('--app', app);
+        }
 
-    // pass profile for throttling
-    scriptArgs.push('--profile', profile);
+        // pass profile for throttling
+        scriptArgs.push('--profile', profile);
 
-    console.error(`\n▶ measure ${app} (${runtime}/${preset}/${profile}/${engine})`);
-    try {
-        execFileSync('node', scriptArgs, {
-            stdio: 'inherit',
-            env: process.env,
-        });
-    } catch (err) {
-        console.error(`✗ Measurement failed for ${profile}/${engine}: ${err.message}`);
-        failCount++;
-    }
+        console.error(`\n▶ measure ${app} (${runtime}/${preset}/${profile}/${engine})`);
+        try {
+            execFileSync('node', scriptArgs, {
+                stdio: 'inherit',
+                env: process.env,
+            });
+        } catch (err) {
+            console.error(`✗ Measurement failed for ${profile}/${engine}: ${err.message}`);
+            failCount++;
+        }
     } // end profile loop
 }
 
