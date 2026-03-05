@@ -38,7 +38,7 @@ setModuleImports('bench-driver.mjs', {
     }
 });
 
-await runMain();
+await runMain("MicroBenchmarks", []);
 
 // ── Run benchmarks ──────────────────────────────────────────────────────────
 

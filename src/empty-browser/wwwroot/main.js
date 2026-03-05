@@ -14,7 +14,7 @@ setModuleImports('main.js', {
 });
 
 globalThis.dotnet_ready = performance.now();
-await runMain();
+await runMain("EmptyBrowser", []);
 
 // CLI engines (v8/d8, node): output timing as JSON for measurement scripts.
 // In a browser, `window` exists so this is skipped.
