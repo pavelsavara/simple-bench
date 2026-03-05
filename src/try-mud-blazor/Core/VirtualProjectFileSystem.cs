@@ -12,7 +12,7 @@ namespace Try.Core
             return Enumerable.Empty<RazorProjectItem>();
         }
 
-        public override RazorProjectItem GetItem(string path) => GetItem(path, fileKind: null);
+        public new RazorProjectItem GetItem(string path) => GetItem(path, fileKind: null);
 
         public override RazorProjectItem GetItem(string path, string fileKind)
         {

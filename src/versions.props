@@ -23,7 +23,7 @@
     <WebPushVersion>1.0.12</WebPushVersion>
     <MudBlazorVersion>9.1.0</MudBlazorVersion>
     <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
-    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.24555.4</MicrosoftNetCompilersRazorToolsetVersion>
+    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.25112.101</MicrosoftNetCompilersRazorToolsetVersion>
     <BlazoredLocalStorageVersion>4.5.0</BlazoredLocalStorageVersion>
     <FluentValidationVersion>12.1.1</FluentValidationVersion>
   </PropertyGroup>
@@ -32,7 +32,7 @@
     <WebPushVersion>1.0.12</WebPushVersion>
     <MudBlazorVersion>9.1.0</MudBlazorVersion>
     <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
-    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.24555.4</MicrosoftNetCompilersRazorToolsetVersion>
+    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.25112.101</MicrosoftNetCompilersRazorToolsetVersion>
     <BlazoredLocalStorageVersion>4.5.0</BlazoredLocalStorageVersion>
     <FluentValidationVersion>12.1.1</FluentValidationVersion>
   </PropertyGroup>
@@ -41,7 +41,7 @@
     <WebPushVersion>1.0.12</WebPushVersion>
     <MudBlazorVersion>9.1.0</MudBlazorVersion>
     <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
-    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.24555.4</MicrosoftNetCompilersRazorToolsetVersion>
+    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.25112.101</MicrosoftNetCompilersRazorToolsetVersion>
     <BlazoredLocalStorageVersion>4.5.0</BlazoredLocalStorageVersion>
     <FluentValidationVersion>12.1.1</FluentValidationVersion>
   </PropertyGroup>
@@ -50,7 +50,7 @@
     <WebPushVersion>1.0.12</WebPushVersion>
     <MudBlazorVersion>9.1.0</MudBlazorVersion>
     <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
-    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.24555.4</MicrosoftNetCompilersRazorToolsetVersion>
+    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.25112.101</MicrosoftNetCompilersRazorToolsetVersion>
     <BlazoredLocalStorageVersion>4.5.0</BlazoredLocalStorageVersion>
     <FluentValidationVersion>12.1.1</FluentValidationVersion>
   </PropertyGroup>
@@ -59,7 +59,7 @@
     <WebPushVersion>1.0.12</WebPushVersion>
     <MudBlazorVersion>6.21.0</MudBlazorVersion>
     <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
-    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.24555.4</MicrosoftNetCompilersRazorToolsetVersion>
+    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.25112.101</MicrosoftNetCompilersRazorToolsetVersion>
     <MicrosoftAspNetCoreWebUtilitiesVersion>2.2.0</MicrosoftAspNetCoreWebUtilitiesVersion>
     <BlazoredLocalStorageVersion>4.5.0</BlazoredLocalStorageVersion>
     <FluentValidationVersion>11.11.0</FluentValidationVersion>
@@ -69,7 +69,7 @@
     <WebPushVersion>1.0.12</WebPushVersion>
     <MudBlazorVersion>6.21.0</MudBlazorVersion>
     <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
-    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.24555.4</MicrosoftNetCompilersRazorToolsetVersion>
+    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.25112.101</MicrosoftNetCompilersRazorToolsetVersion>
     <MicrosoftAspNetCoreWebUtilitiesVersion>2.2.0</MicrosoftAspNetCoreWebUtilitiesVersion>
     <BlazoredLocalStorageVersion>4.5.0</BlazoredLocalStorageVersion>
     <FluentValidationVersion>11.11.0</FluentValidationVersion>

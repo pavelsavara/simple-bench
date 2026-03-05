@@ -269,7 +269,7 @@
                     {
                         FilePath = codeFile.Path,
                         ProjectItem = projectItem,
-                        Code = cSharpDocument.GeneratedCode,
+                        Code = cSharpDocument.Text.ToString(),
                         Diagnostics = cSharpDocument.Diagnostics.Select(CompilationDiagnostic.FromRazorDiagnostic).ToList(),
                     };
                 }
@@ -314,7 +314,7 @@
                     {
                         FilePath = declaration.FilePath,
                         ProjectItem = declaration.ProjectItem,
-                        Code = cSharpDocument.GeneratedCode,
+                        Code = cSharpDocument.Text.ToString(),
                         Diagnostics = cSharpDocument.Diagnostics.Select(CompilationDiagnostic.FromRazorDiagnostic).ToList(),
                     };
                 }

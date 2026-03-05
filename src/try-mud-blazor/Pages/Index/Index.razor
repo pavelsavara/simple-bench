@@ -1,11 +1,11 @@
 ﻿@page "/"
 
 <MudLayout Class="try-mudblazor-index">
-    <MudAppBar Color="Color.Transparent" Fixed="false" Elevation="0">
-        <div class="brand">Try<span>MudBlazor</span></div>
+    <MudAppBar data-testid="index-app-bar" Color="Color.Transparent" Fixed="false" Elevation="0">
+        <div class="brand" data-testid="index-brand">Try<span>MudBlazor</span></div>
         <MudSpacer />
-        <MudButton Href="https://mudblazor.com/" Color="Color.Default" Size="Size.Large">MudBlazor</MudButton>
-        <MudButton Href="https://github.com/MudBlazor/TryMudBlazor" Color="Color.Primary" Size="Size.Large">Source Code</MudButton>
+        <MudButton data-testid="index-mudblazor-link" Href="https://mudblazor.com/" Color="Color.Default" Size="Size.Large">MudBlazor</MudButton>
+        <MudButton data-testid="index-source-link" Href="https://github.com/MudBlazor/TryMudBlazor" Color="Color.Primary" Size="Size.Large">Source Code</MudButton>
     </MudAppBar>
     <MudMainContent>
         <MudContainer Class="my-16" MaxWidth="MaxWidth.Large">
@@ -19,7 +19,7 @@
                             A playground for <MudLink Typo="Typo.h4" Href="https://mudblazor.com" Target="_blank">MudBlazor</MudLink> @Version
                         </MudText>
                         <div class="px-2 mt-8">
-                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" DropShadow="false" Class="px-6" Href="/snippet">Play now</MudButton>
+                            <MudButton data-testid="play-now-button" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" DropShadow="false" Class="px-6" Href="/snippet">Play now</MudButton>
                         </div>
                     </div>
                 </MudItem>
@@ -29,7 +29,7 @@
                     <MudText Typo="Typo.h5" Class="mud-text-secondary">
                         Play with MudBlazor components entirely in the browser. Test and experiment anytime, anywhere.
                     </MudText>
-                    <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Large" Class="ml-n2" Href="/snippet" EndIcon="@Icons.Material.Filled.East">Get started</MudButton>
+                    <MudButton data-testid="get-started-button" Variant="Variant.Text" Color="Color.Primary" Size="Size.Large" Class="ml-n2" Href="/snippet" EndIcon="@Icons.Material.Filled.East">Get started</MudButton>
                     <MudPaper Elevation="25" Class="rounded-lg mt-12">
                         <div class="d-flex align-center py-2 try-mudblazor-codecard rounded-t-lg">
                             <div class="flex-grow-0 px-1">
@@ -107,7 +107,7 @@
         <MudDivider Class="my-16" />
 
         <MudContainer>
-            <MudGrid Class="try-index-footer">
+            <MudGrid data-testid="index-footer" Class="try-index-footer">
                 <MudItem xs="12" sm="3">
                     <div style="text-align:center">
                         <h1>Try</h1>

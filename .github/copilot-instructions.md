@@ -50,60 +50,60 @@ Test files:
 
 Prerequisites: Docker
 
-The `scripts/local-bench.sh` script simulates the CI benchmark pipeline locally. It uses two Docker images:
+The `scripts/local-docker-bench.sh` script simulates the CI benchmark pipeline locally. It uses two Docker images:
 - **browser-bench-build** — Ubuntu + Node.js + .NET SDK prerequisites (builds apps)
 - **browser-bench-measure** — Ubuntu + Node.js + V8/d8 + Playwright + Chrome + Firefox (runs benchmarks)
 
 ```bash
 # Full run: build images → build apps → measure
-./scripts/local-bench.sh
+./scripts/local-docker-bench.sh
 
 # Skip Docker image rebuild (reuse cached images)
-./scripts/local-bench.sh --skip-docker
+./scripts/local-docker-bench.sh --skip-docker
 
 # Skip build and measure only (reuse existing artifacts/publish/)
-./scripts/local-bench.sh --skip-docker --skip-build
+./scripts/local-docker-bench.sh --skip-docker --skip-build
 
 # Run a single step
-./scripts/local-bench.sh --step docker-build
-./scripts/local-bench.sh --step build
-./scripts/local-bench.sh --step measure
+./scripts/local-docker-bench.sh --step docker-build
+./scripts/local-docker-bench.sh --step build
+./scripts/local-docker-bench.sh --step measure
 
 # Fast mode: chrome only (like PR validation)
-./scripts/local-bench.sh --dry-run
+./scripts/local-docker-bench.sh --dry-run
 
 # Measure only one app/preset combination
-./scripts/local-bench.sh --skip-docker --skip-build --app empty-browser --preset debug
+./scripts/local-docker-bench.sh --skip-docker --skip-build --app empty-browser --preset devloop
 
 # Use a specific SDK version
-./scripts/local-bench.sh --sdk-version 11.0.100-preview.3.26062.1
+./scripts/local-docker-bench.sh --sdk-version 11.0.100-preview.3.26062.1
 ```
 
 #### Typical development loop
 
 1. First run — build everything:
    ```bash
-   ./scripts/local-bench.sh --dry-run
+   ./scripts/local-docker-bench.sh --dry-run
    ```
 
 2. After changing measurement scripts — re-measure only:
    ```bash
-   ./scripts/local-bench.sh --skip-docker --skip-build --dry-run
+   ./scripts/local-docker-bench.sh --skip-docker --skip-build --dry-run
    ```
 
 3. After changing build scripts or .csproj files — rebuild + measure:
    ```bash
-   ./scripts/local-bench.sh --skip-docker --dry-run
+   ./scripts/local-docker-bench.sh --skip-docker --dry-run
    ```
 
 4. After changing Dockerfile — full rebuild:
    ```bash
-   ./scripts/local-bench.sh
+   ./scripts/local-docker-bench.sh
    ```
 
 #### Outputs
 
-- `artifacts/sdk/sdk-info.json` — resolved SDK version and git hashes
+- `artifacts/sdks/sdk-info.json` — resolved SDK version and git hashes
 - `artifacts/publish/{app}/{preset}/` — published app binaries
 - `artifacts/results/*.json` — benchmark result JSONs
 
@@ -112,11 +112,11 @@ The `scripts/local-bench.sh` script simulates the CI benchmark pipeline locally.
 ```bash
 # With .NET SDK installed locally
 cd src/empty-browser
-dotnet publish /p:BenchmarkPreset=Debug
+dotnet publish /p:BenchmarkPreset=DevLoop
 
 # Inside the build container
 docker run --rm -v "$PWD:/bench" -w /bench browser-bench-build:latest \
-    bash scripts/build-app.sh empty-browser mono debug
+    bash scripts/build-app.sh empty-browser mono devloop
 ```
 
 ## CI Workflows

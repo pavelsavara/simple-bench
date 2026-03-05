@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 import {
     decodeBuildDate,
+    deriveSdkVersion,
     PACKAGE_ID,
 } from '../../scripts/lib/runtime-pack-resolver.mjs';
 
@@ -54,6 +55,30 @@ describe('PACKAGE_ID constant', () => {
     });
 });
 
+// ── deriveSdkVersion ────────────────────────────────────────────────────────
+
+describe('deriveSdkVersion', () => {
+    it('derives 1xx band SDK version from preview pack version', () => {
+        assert.equal(deriveSdkVersion('11.0.0-preview.3.26127.120'), '11.0.100-preview.3.26127.120');
+    });
+
+    it('derives 1xx band SDK version from alpha pack version', () => {
+        assert.equal(deriveSdkVersion('11.0.0-alpha.1.25613.101'), '11.0.100-alpha.1.25613.101');
+    });
+
+    it('derives 2xx band SDK version when band=2', () => {
+        assert.equal(deriveSdkVersion('11.0.0-preview.3.26127.120', 2), '11.0.200-preview.3.26127.120');
+    });
+
+    it('returns null for malformed version', () => {
+        assert.equal(deriveSdkVersion('foo'), null);
+    });
+
+    it('returns null for version without prerelease', () => {
+        assert.equal(deriveSdkVersion('11.0.0'), null);
+    });
+});
+
 // ── Integration-style tests (require network, skip in offline CI) ───────────
 // These tests are guarded by an environment variable.
 // Run with: RUNTIME_PACK_NETWORK_TESTS=1 node --test tests/unit/runtime-pack-resolver.test.mjs
@@ -74,16 +99,6 @@ describe('runtime-pack-resolver (network)', { skip: !NETWORK_TESTS }, () => {
         // VMR commit 15ac4103 is known to contain runtime 9b46e582
         const runtimeCommit = await getRuntimeCommitFromVMR('15ac4103422d47f7c8f14fa98e813f315432d03b');
         assert.equal(runtimeCommit, '9b46e58206b2695ad7089ceea0db93cad22abbd7');
-    });
-
-    it('checkAncestry detects ancestor relationship', async () => {
-        const { checkAncestry } = await import('../../scripts/lib/runtime-pack-resolver.mjs');
-        // 17b089f9 is an ancestor of e524be69 (25 commits ahead)
-        const result = await checkAncestry(
-            '17b089f9dea34dff21e3417ab7ed53ef30a4f6b0',
-            'e524be6928cdcd74bdbb79b389eeb31978b188ef'
-        );
-        assert.equal(result, 'ancestor');
     });
 
     it('getVmrCommitFromNuspec returns a commit hash', async () => {
@@ -116,7 +131,7 @@ describe('runtime-pack-resolver (network)', { skip: !NETWORK_TESTS }, () => {
         const { versions } = await listAvailablePackVersions(11);
         const latest = versions[versions.length - 1];
         const info = await getPackCommitInfo(flatBaseUrl, latest);
-        assert.equal(info.version, latest);
+        assert.equal(info.runtimePackVersion, latest);
         assert.ok(info.buildDate, 'Should have buildDate');
         assert.ok(info.nupkgUrl.includes(latest), 'nupkgUrl should include version');
         // vmrCommit and runtimeGitHash may be null if resolution fails,

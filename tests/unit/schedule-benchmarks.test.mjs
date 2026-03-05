@@ -33,7 +33,7 @@ function findMissingCommits(packs, existingHashes, sdkList, maxRecent) {
 
 describe('schedule-benchmarks gap detection', () => {
     const makePack = (version, buildDate, runtimeGitHash) => ({
-        version,
+        runtimePackVersion: version,
         buildDate,
         runtimeGitHash,
         vmrCommit: 'vmr_' + runtimeGitHash,

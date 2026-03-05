@@ -1,7 +1,7 @@
 ﻿
 @if (Show && Diagnostics != null && Diagnostics.Any())
 {
-    <div class="try-diagnostics">
+    <div class="try-diagnostics" data-testid="diagnostics-panel">
         <MudSimpleTable Elevation="0" Square="true">
             <thead>
                 <tr>
@@ -11,7 +11,7 @@
                     <th>File</th>
                     <th>Line</th>
                     <th>
-                        <MudIconButton Class="rounded-0 pa-2" OnClick="@ToggleDiagnosticsAsync" Icon="@Icons.Material.Outlined.ExpandMore" />
+                        <MudIconButton data-testid="collapse-diagnostics" Class="rounded-0 pa-2" OnClick="@ToggleDiagnosticsAsync" Icon="@Icons.Material.Outlined.ExpandMore" />
                     </th>
                 </tr>
             </thead>

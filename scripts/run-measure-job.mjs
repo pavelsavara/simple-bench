@@ -11,9 +11,9 @@
  *
  * Usage:
  *   node scripts/run-measure-job.mjs \
- *     --app empty-browser --preset debug \
- *     --publish-dir artifacts/publish/empty-browser/debug \
- *     --sdk-info artifacts/sdk/sdk-info.json \
+ *     --app empty-browser --preset devloop \
+ *     --publish-dir artifacts/publish/empty-browser/devloop \
+ *     --sdk-info artifacts/sdks/sdk-info.json \
  *     --build-manifest artifacts/results/build-manifest.json \
  *     --output-dir artifacts/results \
  *     --runtime mono \
@@ -23,7 +23,8 @@
 
 import { parseArgs } from 'node:util';
 import { readFile, readdir, stat, mkdir } from 'node:fs/promises';
-import { resolve, join } from 'node:path';
+import { resolve, join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 
 // ── Engine routing ──────────────────────────────────────────────────────────
@@ -37,7 +38,11 @@ const INTERNAL_APPS = new Set(['microbenchmarks']);
 const ALL_BROWSER_ENGINES = ['chrome', 'firefox'];
 const ALL_CLI_ENGINES = ['v8', 'node'];
 
-function getEnginesForApp(app, isDryRun) {
+function getEnginesForApp(app, isDryRun, engineFilter) {
+    // If explicit engine filter provided, use it (comma-separated)
+    if (engineFilter) {
+        return engineFilter.split(',').map(s => s.trim());
+    }
     if (isDryRun) return ['chrome'];
     if (BROWSER_ONLY_APPS.has(app)) return ALL_BROWSER_ENGINES;
     return [...ALL_BROWSER_ENGINES, ...ALL_CLI_ENGINES];
@@ -57,6 +62,7 @@ const { values: args } = parseArgs({
         'timeout': { type: 'string', default: '300000' },
         'retries': { type: 'string', default: '3' },
         'dry-run': { type: 'boolean', default: false },
+        'engine': { type: 'string', default: '' },
         'ci-run-id': { type: 'string', default: '' },
         'ci-run-url': { type: 'string', default: '' },
     },
@@ -71,7 +77,7 @@ for (const name of required) {
     }
 }
 
-const SCRIPT_DIR = new URL('.', import.meta.url).pathname;
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const app = args.app;
 const preset = args.preset;
 const runtime = args.runtime;
@@ -142,7 +148,7 @@ await verifyIntegrity();
 
 // ── Determine engines and script ────────────────────────────────────────────
 
-const engines = getEnginesForApp(app, args['dry-run']);
+const engines = getEnginesForApp(app, args['dry-run'], args.engine);
 const isInternal = INTERNAL_APPS.has(app);
 const measureScript = isInternal ? 'measure-internal.mjs' : 'measure-external.mjs';
 

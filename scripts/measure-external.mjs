@@ -18,7 +18,7 @@
  *     --output artifacts/results/result.json \
  *     --engine chrome \
  *     --runtime coreclr --preset no-workload \
- *     --sdk-info artifacts/sdk/sdk-info.json \
+ *     --sdk-info artifacts/sdks/sdk-info.json \
  *     --compile-time-file artifacts/results/compile-time.json
  */
 
@@ -35,6 +35,8 @@ import {
     loadEndpointsMap,
 } from './lib/measure-utils.mjs';
 import { getEngineCommand } from './lib/internal-utils.mjs';
+import { runPizzaWalkthrough } from './lib/pizza-walkthrough.mjs';
+import { runMudBlazorWalkthrough } from './lib/mud-blazor-walkthrough.mjs';
 
 const BROWSER_ENGINES = new Set(['chrome', 'firefox']);
 const CLI_ENGINES = new Set(['v8', 'node']);
@@ -149,6 +151,7 @@ const metrics = {
     'time-to-reach-managed-cold': result.timeToReachManagedCold,
     'memory-peak': result.memoryPeak,
     'pizza-walkthru': result.pizzaWalkthru,
+    'mud-blazor-walkthru': result.mudBlazorWalkthru,
 };
 
 const output = buildResultJson(meta, metrics);
@@ -240,12 +243,19 @@ async function runBrowserMeasurement(browserEngine, app, publishDirPath, fpMap, 
                 }
                 const timeToReachManaged = Number.isFinite(warmMin) ? warmMin : null;
 
-                // ── App-specific walkthrough (blazing-pizza only) ───────
+                // ── App-specific walkthroughs ──────────────────────────
                 let pizzaWalkthru = null;
                 if (app === 'blazing-pizza') {
                     console.error('  Running pizza walkthrough...');
-                    pizzaWalkthru = await runPizzaWalkthrough(page, pageUrl, timeoutMs);
+                    pizzaWalkthru = await runPizzaWalkthrough(page, pageUrl, timeoutMs, { ts });
                     console.error(`  Pizza walkthrough: ${pizzaWalkthru?.toFixed(0)} ms`);
+                }
+
+                let mudBlazorWalkthru = null;
+                if (app === 'try-mud-blazor') {
+                    console.error('  Running MudBlazor walkthrough...');
+                    mudBlazorWalkthru = await runMudBlazorWalkthrough(page, pageUrl, timeoutMs, { ts });
+                    console.error(`  MudBlazor walkthrough: ${mudBlazorWalkthru?.toFixed(0)} ms`);
                 }
 
                 // ── Cleanup CDP ─────────────────────────────────────────
@@ -266,6 +276,7 @@ async function runBrowserMeasurement(browserEngine, app, publishDirPath, fpMap, 
                     timeToReachManaged,
                     memoryPeak: useCDP ? (memoryPeak || null) : null,
                     pizzaWalkthru,
+                    mudBlazorWalkthru,
                 };
             } finally {
                 await browser.close();
@@ -329,82 +340,8 @@ async function runCliMeasurement(cliEngine, publishDirPath, timeoutMs) {
         timeToReachManaged: timeToReachManaged ?? wallTimeMs,
         memoryPeak: null,
         pizzaWalkthru: null,
+        mudBlazorWalkthru: null,
     };
-}
-
-// ── Pizza walkthrough (blazing-pizza only) ──────────────────────────────────
-
-/**
- * Runs an automated smoke-test walkthrough of the Blazing Pizza app.
- * Measures total wall-clock time from fresh navigation to order tracking page.
- *
- * Steps: load home → pick pizza → configure (resize + topping) → add to cart
- *      → checkout → fill address → place order → verify tracking page.
- */
-async function runPizzaWalkthrough(page, baseUrl, timeoutMs) {
-    const sel = (id) => `[data-testid="${id}"]`;
-    const t = timeoutMs;
-
-    const startTime = await page.evaluate(() => performance.now());
-
-    // Fresh navigation for walkthrough
-    console.error(`  ${ts()} Pizza: navigating to home...`);
-    await page.goto(baseUrl, { timeout: t, waitUntil: 'load' });
-    await page.waitForFunction(
-        () => globalThis.dotnet_managed_ready !== undefined,
-        null, { timeout: t }
-    );
-    console.error(`  ${ts()} Pizza: home loaded`);
-
-    // Wait for pizza specials to render
-    await page.waitForSelector(sel('pizza-cards'), { timeout: t });
-    await page.waitForSelector(sel('pizza-special-1'), { timeout: t });
-    console.error(`  ${ts()} Pizza: specials rendered`);
-
-    // Click first pizza (Basic Cheese Pizza)
-    await page.click(sel('pizza-special-1'));
-    await page.waitForSelector(sel('dialog-container'), { state: 'visible', timeout: t });
-    console.error(`  ${ts()} Pizza: dialog opened`);
-
-    // Adjust size slider to 15
-    await page.fill(sel('size-slider'), '15');
-    await page.dispatchEvent(sel('size-slider'), 'input');
-
-    // Add a topping
-    await page.waitForSelector(sel('topping-select'), { timeout: t });
-    await page.selectOption(sel('topping-select'), { index: 1 });
-
-    // Confirm pizza → add to cart
-    await page.click(sel('confirm-pizza-button'));
-    await page.waitForSelector(sel('dialog-container'), { state: 'hidden', timeout: t });
-    console.error(`  ${ts()} Pizza: pizza confirmed, added to cart`);
-
-    // Verify cart has item
-    await page.waitForSelector(sel('cart-item'), { timeout: t });
-
-    // Click "Order >" to go to checkout
-    await page.click(sel('order-button'));
-    await page.waitForSelector(sel('checkout-main'), { timeout: t });
-    console.error(`  ${ts()} Pizza: checkout loaded`);
-
-    // Fill delivery address
-    await page.fill(sel('address-name'), 'Test User');
-    await page.fill(sel('address-line1'), '123 Pizza Street');
-    await page.fill(sel('address-city'), 'London');
-    await page.fill(sel('address-region'), 'Greater London');
-    await page.fill(sel('address-postalcode'), 'EC1A 1BB');
-
-    // Place order
-    await page.click(sel('place-order-button'));
-    console.error(`  ${ts()} Pizza: order placed`);
-
-    // Wait for order tracking page
-    await page.waitForSelector(sel('track-order'), { timeout: t });
-    await page.waitForSelector(sel('order-status'), { timeout: t });
-    console.error(`  ${ts()} Pizza: tracking page loaded`);
-
-    const endTime = await page.evaluate(() => performance.now());
-    return endTime - startTime;
 }
 
 function isTimeoutError(err) {

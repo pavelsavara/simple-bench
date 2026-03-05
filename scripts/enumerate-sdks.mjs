@@ -5,14 +5,14 @@
 //   - Released SDKs (.NET 6–10): releases-index.json → per-channel releases.json
 //   - Daily SDKs (.NET 11):      HEAD-probe ci.dot.net/public blob storage
 //
-// Output: sdk-list.json in repo root
+// Output: artifacts/sdk-list.json
 
 import { writeFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const OUTPUT = resolve(__dirname, '..', 'sdk-list.json');
+const OUTPUT = resolve(__dirname, '..', 'artifacts', 'sdk-list.json');
 
 const PLATFORM = 'linux-x64';
 const CDN = 'https://dotnetcli.azureedge.net/dotnet';
@@ -221,23 +221,23 @@ async function getReleasedSdks() {
                 const band = getBand(v);
                 if (band < 0) continue;
                 const existing = byBand.get(band);
-                if (!existing || v.localeCompare(existing.version) > 0) {
-                    byBand.set(band, { version: v, releaseDate: rel['release-date'] || '', runtimeVersion: rv });
+                if (!existing || v.localeCompare(existing.sdkVersion) > 0) {
+                    byBand.set(band, { sdkVersion: v, releaseDate: rel['release-date'] || '', runtimeVersion: rv });
                 }
             }
         }
 
-        for (const [band, { version, releaseDate, runtimeVersion }] of [...byBand.entries()].sort((a, b) => a[0] - b[0])) {
+        for (const [band, { sdkVersion, releaseDate, runtimeVersion }] of [...byBand.entries()].sort((a, b) => a[0] - b[0])) {
             entries.push({
-                version,
+                sdkVersion,
                 channel: ch,
                 band: `${band}xx`,
                 type: 'release',
                 releaseDate,
                 runtimeVersion,
-                url: sdkDownloadUrl(version)
+                url: sdkDownloadUrl(sdkVersion)
             });
-            console.log(`    band ${band}xx: ${version} (${releaseDate})`);
+            console.log(`    band ${band}xx: ${sdkVersion} (${releaseDate})`);
         }
     }
 
@@ -316,7 +316,7 @@ async function getDailyBuilds() {
         const m = v.match(/\.(\d{5})\./);
         const buildDate = m ? decodeDateCode(parseInt(m[1])) : null;
         return {
-            version: v,
+            sdkVersion: v,
             channel: DAILY_CHANNEL,
             band: `${getBand(v)}xx`,
             type: 'daily',
@@ -326,7 +326,7 @@ async function getDailyBuilds() {
         };
     });
 
-    entries.sort((a, b) => a.version.localeCompare(b.version));
+    entries.sort((a, b) => a.sdkVersion.localeCompare(b.sdkVersion));
     console.log(`  ${entries.length} daily builds discovered`);
     return entries;
 }
@@ -362,7 +362,7 @@ async function main() {
 
     // Log invalid entries
     for (const e of validated) {
-        if (!e.valid) console.log(`  INVALID: ${e.version} → HTTP ${e.httpStatus}`);
+        if (!e.valid) console.log(`  INVALID: ${e.sdkVersion} → HTTP ${e.httpStatus}`);
     }
 
     const output = {

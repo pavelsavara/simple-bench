@@ -53,21 +53,39 @@ jobs:
             --runtime mono \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 
+      - name: Read run ID
+        id: run-id
+        shell: bash
+        run: |
+          RUN_ID=$(cat "${ARTIFACTS_DIR:-artifacts}/results/.run-id")
+          echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "Run ID: $RUN_ID" >&2
+
       - name: Set matrix output
         id: matrix
         shell: bash
         run: |
-          MANIFEST="${ARTIFACTS_DIR:-artifacts}/results/build-manifest.json"
+          MANIFEST="${ARTIFACTS_DIR:-artifacts}/results/${{ steps.run-id.outputs.run-id }}/build-manifest.json"
           if [ ! -f "$MANIFEST" ]; then
             echo "matrix=[]" >> "$GITHUB_OUTPUT"
             echo "⚠ No build manifest found" >&2
             exit 0
           fi
-          # Extract just {app, preset} for the GHA matrix
+          # Read commitDate from sdk-info.json for the publish path hierarchy
+          SDK_INFO="${ARTIFACTS_DIR:-artifacts}/results/${{ steps.run-id.outputs.run-id }}/sdk-info.json"
+          COMMIT_DATE="local"
+          if [ -f "$SDK_INFO" ]; then
+            COMMIT_DATE=$(node --input-type=module -e "
+              import { readFileSync } from 'node:fs';
+              const info = JSON.parse(readFileSync('$SDK_INFO', 'utf-8'));
+              console.log(info.commitDate || 'local');
+            ")
+          fi
+          # Extract {app, preset, commitDate} for the GHA matrix
           MATRIX=$(node --input-type=module -e "
             import { readFileSync } from 'node:fs';
             const m = JSON.parse(readFileSync('$MANIFEST', 'utf-8'));
-            console.log(JSON.stringify(m.map(e => ({ app: e.app, preset: e.preset }))));
+            console.log(JSON.stringify(m.map(e => ({ app: e.app, preset: e.preset, commitDate: '$COMMIT_DATE' }))));
           ")
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
           echo "Build matrix: $MATRIX" >&2
@@ -77,7 +95,7 @@ jobs:
         if: always()
         with:
           name: sdk-info
-          path: ${{ env.ARTIFACTS_DIR || 'artifacts' }}/sdk/sdk-info.json
+          path: ${{ env.ARTIFACTS_DIR || 'artifacts' }}/results/${{ steps.run-id.outputs.run-id }}/sdk-info.json
           if-no-files-found: error
           retention-days: 7
 
@@ -86,7 +104,7 @@ jobs:
         if: always()
         with:
           name: build-manifest
-          path: ${{ env.ARTIFACTS_DIR || 'artifacts' }}/results/build-manifest.json
+          path: ${{ env.ARTIFACTS_DIR || 'artifacts' }}/results/${{ steps.run-id.outputs.run-id }}/build-manifest.json
           if-no-files-found: error
           retention-days: 7
 
@@ -104,7 +122,9 @@ jobs:
     needs: build
     if: needs.build.outputs.matrix != '[]' && needs.build.outputs.matrix != ''
     runs-on: ubuntu-latest
-    container: ghcr.io/${{ github.repository }}/browser-bench-measure:latest
+    container:
+      image: ghcr.io/${{ github.repository }}/browser-bench-measure:latest
+      options: --user 1001
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -123,7 +143,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: sdk-info
-          path: artifacts/sdk
+          path: artifacts/results
 
       - name: Download build manifest
         uses: actions/download-artifact@v4
@@ -147,8 +167,8 @@ jobs:
           node scripts/run-measure-job.mjs \
             --app "${{ matrix.app }}" \
             --preset "${{ matrix.preset }}" \
-            --publish-dir "artifacts/publish/${{ matrix.app }}/${{ matrix.preset }}" \
-            --sdk-info artifacts/sdk/sdk-info.json \
+            --publish-dir "artifacts/publish/${{ matrix.app }}/${{ matrix.commitDate }}/${{ matrix.preset }}" \
+            --sdk-info artifacts/results/sdk-info.json \
             --build-manifest artifacts/results/build-manifest.json \
             --output-dir artifacts/results \
             --runtime mono \
