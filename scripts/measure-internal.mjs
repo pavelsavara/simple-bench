@@ -126,7 +126,14 @@ const metrics = {
     'exception-ops': benchResults['exception-ops'],
 };
 
+// Include detailed statistics if available
+const benchStats = benchResults['_stats'] || null;
+
 const output = buildResultJson(meta, metrics);
+// Attach detailed statistics outside the main metrics (not affected by rounding)
+if (benchStats) {
+    output.stats = benchStats;
+}
 await writeFile(args.output, JSON.stringify(output, null, 2) + '\n');
 console.error(`Result written to ${args.output}`);
 
@@ -220,6 +227,20 @@ async function measureBrowser(browserEngine, publishDirPath, timeoutMs, retries)
                 );
 
                 const results = await page.evaluate(() => globalThis.bench_results);
+                const benchStats = await page.evaluate(() => globalThis.bench_stats);
+
+                // Log statistical summary from browser
+                if (benchStats) {
+                    console.error('\n═══ Benchmark Statistical Summary (from browser) ═══');
+                    for (const [name, s] of Object.entries(benchStats)) {
+                        console.error(`\n  ${name}:`);
+                        console.error(`    samples: ${s.n}, median: ${s.median?.toFixed(1)}, mean: ${s.mean?.toFixed(1)}`);
+                        console.error(`    stddev: ${s.stddev?.toFixed(1)}, CV: ${s.cv?.toFixed(2)}%, SE: ${s.se?.toFixed(1)}`);
+                        console.error(`    95% CI: [${s.ci95lo?.toFixed(1)}, ${s.ci95hi?.toFixed(1)}]`);
+                        console.error(`    min: ${s.min?.toFixed(1)}, max: ${s.max?.toFixed(1)}`);
+                    }
+                    console.error('');
+                }
 
                 // ── Cleanup CDP ─────────────────────────────────────────
                 if (useCDP) {
@@ -233,6 +254,7 @@ async function measureBrowser(browserEngine, publishDirPath, timeoutMs, retries)
                 await context.close();
                 await srv.close();
                 results['memory-peak'] = useCDP ? (memoryPeak || null) : null;
+                results['_stats'] = benchStats || null;
                 return results;
             } finally {
                 await browser.close();

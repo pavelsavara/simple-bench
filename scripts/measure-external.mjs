@@ -61,7 +61,7 @@ const { values: args } = parseArgs({
         'engine': { type: 'string', default: 'chrome' },
         'profile': { type: 'string', default: 'desktop' },
         'timeout': { type: 'string', default: '55000' },
-        'warm-runs': { type: 'string', default: '3' },
+        'warm-runs': { type: 'string', default: '100' },  // temporarily raised from 3
         'retries': { type: 'string', default: '2' },
         'no-headless': { type: 'boolean', default: false },
         'ci-run-id': { type: 'string', default: '' },
@@ -249,7 +249,8 @@ async function runBrowserMeasurement(browserEngine, app, publishDirPath, fpMap, 
                 const timeToReachManagedCold = coldMetrics.dotnetManagedReady;
                 console.error(`  ${ts()} Cold load done: ${timeToReachManagedCold?.toFixed(0)} ms`);
 
-                // ── Warm loads (reloads, take minimum) ──────────────────
+                // ── Warm loads (reloads, collect all samples for statistics) ──
+                const warmSamples = [];
                 let warmMin = Infinity;
                 for (let i = 0; i < warmRunCount; i++) {
                     console.error(`  ${ts()} Warm load ${i + 1}/${warmRunCount} starting...`);
@@ -260,9 +261,32 @@ async function runBrowserMeasurement(browserEngine, app, publishDirPath, fpMap, 
                     );
                     const warm = await page.evaluate(() => globalThis.dotnet_managed_ready);
                     console.error(`  ${ts()} Warm load ${i + 1}/${warmRunCount} done: ${warm?.toFixed(0)} ms`);
+                    warmSamples.push(warm);
                     if (warm < warmMin) warmMin = warm;
                 }
                 const timeToReachManaged = Number.isFinite(warmMin) ? warmMin : null;
+
+                // Report warm-run statistics
+                if (warmSamples.length > 1) {
+                    const n = warmSamples.length;
+                    const mean = warmSamples.reduce((a, b) => a + b, 0) / n;
+                    const variance = warmSamples.reduce((s, v) => s + (v - mean) ** 2, 0) / (n - 1);
+                    const stddev = Math.sqrt(variance);
+                    const se = stddev / Math.sqrt(n);
+                    const cv = mean !== 0 ? (stddev / mean) * 100 : 0;
+                    const sorted = [...warmSamples].sort((a, b) => a - b);
+                    const t95 = n >= 30 ? 1.96 : 2.0; // rough approximation
+                    console.error(`\n  ═══ Warm-run Statistics (time-to-reach-managed) ═══`);
+                    console.error(`    samples: ${n}`);
+                    console.error(`    min:     ${sorted[0]?.toFixed(1)} ms`);
+                    console.error(`    max:     ${sorted[n - 1]?.toFixed(1)} ms`);
+                    console.error(`    mean:    ${mean.toFixed(1)} ms`);
+                    console.error(`    stddev:  ${stddev.toFixed(1)} ms`);
+                    console.error(`    CV:      ${cv.toFixed(2)}%`);
+                    console.error(`    SE:      ${se.toFixed(1)} ms`);
+                    console.error(`    95% CI:  [${(mean - t95 * se).toFixed(1)}, ${(mean + t95 * se).toFixed(1)}] ms`);
+                    console.error(`    range:   ${(sorted[n - 1] - sorted[0]).toFixed(1)} ms\n`);
+                }
 
                 // ── App-specific walkthroughs ──────────────────────────
                 let pizzaWalkthru = null;

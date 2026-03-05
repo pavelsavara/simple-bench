@@ -18,9 +18,16 @@ export function parseCliOutput(stdout) {
         const line = lines[i].trim();
         if (!line.startsWith('{')) continue;
         try {
-            const result = JSON.parse(line);
-            if (typeof result === 'object' && result !== null) {
-                return result;
+            const parsed = JSON.parse(line);
+            if (typeof parsed === 'object' && parsed !== null) {
+                // New format: { results: {...}, stats: {...} }
+                if (parsed.results && typeof parsed.results === 'object') {
+                    const result = parsed.results;
+                    result['_stats'] = parsed.stats || null;
+                    return result;
+                }
+                // Legacy format: flat { 'js-interop-ops': number, ... }
+                return parsed;
             }
         } catch { continue; }
     }

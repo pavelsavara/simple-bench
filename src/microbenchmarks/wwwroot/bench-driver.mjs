@@ -25,8 +25,8 @@
 import { dotnet } from './_framework/dotnet.js';
 
 const isBrowser = typeof globalThis.window !== 'undefined';
-const SAMPLE_COUNT = 7;        // total samples (including 1 warm-up)
-const SAMPLE_DURATION_MS = 2000; // duration per sample window
+const SAMPLE_COUNT = 100;       // total samples (including 1 warm-up) — temporarily raised from 7
+const SAMPLE_DURATION_MS = 500;  // duration per sample window — temporarily reduced from 2000
 
 const { setModuleImports, getAssemblyExports, runMain } = await dotnet
     .withApplicationArguments("start")
@@ -44,43 +44,63 @@ await runMain("MicroBenchmarks", []);
 
 const exports = await getAssemblyExports("MicroBenchmarks");
 const results = {};
+const stats = {};
 
 // JS Interop: tight loop calling [JSExport] Ping
-results['js-interop-ops'] = runBenchSampled(() => exports.JsInteropBench.Ping(42));
+({ value: results['js-interop-ops'], stats: stats['js-interop-ops'] } = runBenchSampled(() => exports.JsInteropBench.Ping(42)));
 
 // JSON Parse: tight loop calling [JSExport] ParseJson
 const sampleJson = JSON.stringify({ count: 42, name: "benchmark", items: [1, 2, 3] });
-results['json-parse-ops'] = runBenchSampled(() => exports.JsonBench.ParseJson(sampleJson));
+({ value: results['json-parse-ops'], stats: stats['json-parse-ops'] } = runBenchSampled(() => exports.JsonBench.ParseJson(sampleJson)));
 
 // Exception Handling: recursive Fibonacci throw/catch (100 iterations per call)
-results['exception-ops'] = runBenchSampled(() => exports.ExceptionBench.ThrowCatch(42));
+({ value: results['exception-ops'], stats: stats['exception-ops'] } = runBenchSampled(() => exports.ExceptionBench.ThrowCatch(42)));
 
 // ── Report results ──────────────────────────────────────────────────────────
 
 // Browser: set on globalThis for Playwright to read
 globalThis.bench_results = results;
+globalThis.bench_stats = stats;
 globalThis.bench_complete = performance.now();
+
+// Print statistical summary
+const log = isBrowser ? console.log.bind(console) : console.error.bind(console);
+log('\n═══ Benchmark Statistical Summary ═══');
+for (const [name, s] of Object.entries(stats)) {
+    log(`\n  ${name}:`);
+    log(`    samples (after outlier removal): ${s.n}`);
+    log(`    median:   ${s.median.toFixed(1)} ops/s`);
+    log(`    mean:     ${s.mean.toFixed(1)} ops/s`);
+    log(`    stddev:   ${s.stddev.toFixed(1)} ops/s`);
+    log(`    CV:       ${s.cv.toFixed(2)}%`);
+    log(`    SE:       ${s.se.toFixed(1)} ops/s`);
+    log(`    95% CI:   [${s.ci95lo.toFixed(1)}, ${s.ci95hi.toFixed(1)}] ops/s`);
+    log(`    min:      ${s.min.toFixed(1)} ops/s`);
+    log(`    max:      ${s.max.toFixed(1)} ops/s`);
+    log(`    range:    ${(s.max - s.min).toFixed(1)} ops/s (${((s.max - s.min) / s.median * 100).toFixed(2)}% of median)`);
+}
+log('');
 
 // Update page (if in browser)
 if (isBrowser) {
     const el = globalThis.document?.getElementById('status');
     if (el) {
-        el.textContent = `Done: interop=${results['js-interop-ops']} ops/s, `
-            + `json=${results['json-parse-ops']} ops/s, `
-            + `exception=${results['exception-ops']} ops/s`;
+        el.textContent = `Done: interop=${results['js-interop-ops']} ops/s (CV ${stats['js-interop-ops'].cv.toFixed(2)}%), `
+            + `json=${results['json-parse-ops']} ops/s (CV ${stats['json-parse-ops'].cv.toFixed(2)}%), `
+            + `exception=${results['exception-ops']} ops/s (CV ${stats['exception-ops'].cv.toFixed(2)}%)`;
     }
 }
 
 // CLI: output JSON to stdout (for d8, node)
 if (!isBrowser) {
-    console.log(JSON.stringify(results));
+    console.log(JSON.stringify({ results, stats }));
 }
 
 // ── Sampling & statistics ───────────────────────────────────────────────────
 
 /**
  * Collect SAMPLE_COUNT samples, discard warm-up, filter outliers via IQR,
- * return median ops/sec.
+ * return { value: median ops/sec, stats: detailed statistics }.
  */
 function runBenchSampled(fn) {
     const allSamples = [];
@@ -90,7 +110,10 @@ function runBenchSampled(fn) {
     // Discard first sample (warm-up)
     const samples = allSamples.slice(1);
     const filtered = filterOutliersIQR(samples);
-    return Math.round(median(filtered.length > 0 ? filtered : samples));
+    const data = filtered.length > 0 ? filtered : samples;
+    const med = median(data);
+    const st = computeStats(data);
+    return { value: Math.round(med), stats: st };
 }
 
 /** Run fn in a tight loop for durationMs; return ops/sec. */
@@ -133,4 +156,42 @@ function median(values) {
     return sorted.length % 2 !== 0
         ? sorted[mid]
         : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+/** Compute descriptive statistics + 95% CI for a set of samples. */
+function computeStats(values) {
+    const n = values.length;
+    const sorted = [...values].sort((a, b) => a - b);
+    const med = median(values);
+    const mean = values.reduce((a, b) => a + b, 0) / n;
+    const variance = values.reduce((sum, v) => sum + (v - mean) ** 2, 0) / (n - 1);
+    const stddev = Math.sqrt(variance);
+    const se = stddev / Math.sqrt(n);     // standard error of the mean
+    const cv = mean !== 0 ? (stddev / mean) * 100 : 0;  // coefficient of variation %
+    // 95% CI using t-distribution approximation (z=1.96 for large n)
+    const t95 = n >= 30 ? 1.96 : tCritical95(n - 1);
+    const ci95lo = mean - t95 * se;
+    const ci95hi = mean + t95 * se;
+    return {
+        n, median: med, mean, variance, stddev, se, cv,
+        ci95lo, ci95hi,
+        min: sorted[0], max: sorted[n - 1],
+    };
+}
+
+/** Approximate t-critical value for 95% CI (two-tailed) for small df. */
+function tCritical95(df) {
+    // Lookup table for common small df values
+    const table = {
+        1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571,
+        6: 2.447, 7: 2.365, 8: 2.306, 9: 2.262, 10: 2.228,
+        15: 2.131, 20: 2.086, 25: 2.060, 30: 2.042,
+    };
+    if (table[df]) return table[df];
+    // Find nearest lower
+    const keys = Object.keys(table).map(Number).sort((a, b) => a - b);
+    for (let i = keys.length - 1; i >= 0; i--) {
+        if (keys[i] <= df) return table[keys[i]];
+    }
+    return 1.96;
 }
