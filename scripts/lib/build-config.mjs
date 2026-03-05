@@ -117,6 +117,7 @@ export function getPublishArgs(runtime, preset, appDir, outputDir) {
 
     return [
         'publish',
+        `-bl:${outputDir}/publish.binlog`,
         appDir,
         ...presetArgs,
         `/p:RuntimeFlavor=${runtimeFlavor}`,

@@ -161,7 +161,7 @@ async function validateNoWorkload() {
 
 // ── Phase 3 / 5: Build apps ─────────────────────────────────────────────────
 
-async function buildApps(apps, presets, phaseLabel, commitDate) {
+async function buildApps(apps, presets, phaseLabel, buildLabel) {
     console.error(`\n═══ ${phaseLabel} ═══`);
     const runtime = args.runtime;
     const succeeded = [];
@@ -182,7 +182,7 @@ async function buildApps(apps, presets, phaseLabel, commitDate) {
                     app,
                     runtime,
                     preset,
-                    commitDate,
+                    buildLabel,
                     artifactsDir: ARTIFACTS_DIR,
                 });
                 succeeded.push({ app, preset });
@@ -245,13 +245,13 @@ async function computeIntegrity(dir) {
 
 // ── Build manifest ──────────────────────────────────────────────────────────
 
-async function writeBuildManifest(builds, commitDate) {
+async function writeBuildManifest(builds, buildLabel) {
     console.error('\n═══ Phase 6: Write build manifest ═══');
-    const dateSegment = commitDate || 'local';
+    const label = buildLabel || 'local';
     const manifest = [];
 
     for (const { app, preset } of builds) {
-        const publishDir = join(ARTIFACTS_DIR, 'publish', app, dateSegment, preset);
+        const publishDir = join(ARTIFACTS_DIR, 'publish', app, label, preset);
         const compileTimePath = join(publishDir, 'compile-time.json');
 
         let compileTimeMs = null;
@@ -375,12 +375,15 @@ async function main() {
         console.error(`\nDiscovered apps: ${apps.join(', ')}`);
     }
 
-    // Read commitDate from sdk-info.json for path hierarchy
-    const sdkInfoForDate = JSON.parse(await readFile(SDK_INFO_PATH, 'utf-8'));
-    const commitDate = sdkInfoForDate.commitDate || null;
+    // Compute buildLabel from sdk-info.json: {sdkVersion}_{runtimePackVersion} or just {sdkVersion}
+    const sdkInfoForLabel = JSON.parse(await readFile(SDK_INFO_PATH, 'utf-8'));
+    const sdkVer = sdkInfoForLabel.sdkVersion || 'local';
+    const buildLabel = sdkInfoForLabel.runtimePackVersion
+        ? `${sdkVer}_${sdkInfoForLabel.runtimePackVersion}`
+        : sdkVer;
 
     // Phase 3: Build non-workload presets
-    const phase3 = await buildApps(apps, nonWorkload, 'Phase 3: Build non-workload presets', commitDate);
+    const phase3 = await buildApps(apps, nonWorkload, 'Phase 3: Build non-workload presets', buildLabel);
 
     // Phase 4: Install workload + capture version
     // Skip workload install if preset filter excludes all workload presets
@@ -393,14 +396,14 @@ async function main() {
 
     // Phase 5: Build workload/native presets
     const phase5 = needWorkload
-        ? await buildApps(apps, workload, 'Phase 5: Build workload/native presets', commitDate)
+        ? await buildApps(apps, workload, 'Phase 5: Build workload/native presets', buildLabel)
         : [];
 
     const allSucceeded = [...phase3, ...phase5];
     console.error(`\n✓ ${allSucceeded.length} builds succeeded`);
 
     // Phase 6: Write build manifest
-    await writeBuildManifest(allSucceeded, commitDate);
+    await writeBuildManifest(allSucceeded, buildLabel);
 
     // Copy sdk-info.json to results run dir for discovery
     const finalSdkInfo = await readFile(SDK_INFO_PATH, 'utf-8');

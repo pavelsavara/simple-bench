@@ -116,6 +116,7 @@ describe('getPublishArgs', () => {
         const args = getPublishArgs('coreclr', 'no-workload', '/bench/src/empty-browser', '/bench/artifacts/publish/empty-browser');
         assert.deepEqual(args, [
             'publish',
+            '-bl:/bench/artifacts/publish/empty-browser/publish.binlog',
             '/bench/src/empty-browser',
             '/p:BenchmarkPreset=NoWorkload',
             '-c', 'Release',
@@ -128,6 +129,7 @@ describe('getPublishArgs', () => {
         const args = getPublishArgs('mono', 'aot', '/bench/src/empty-browser', '/out');
         assert.deepEqual(args, [
             'publish',
+            '-bl:/out/publish.binlog',
             '/bench/src/empty-browser',
             '/p:BenchmarkPreset=Aot',
             '-c', 'Release',
@@ -147,6 +149,7 @@ describe('getPublishArgs', () => {
         const args = getPublishArgs('coreclr', 'devloop', '/app', '/out');
         assert.deepEqual(args, [
             'publish',
+            '-bl:/out/publish.binlog',
             '/app',
             '/p:BenchmarkPreset=DevLoop',
             '-c', 'Debug',

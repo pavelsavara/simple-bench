@@ -308,7 +308,10 @@ async function stepMeasure() {
         err('sdk-info.json not found — run the build step first.');
         process.exit(1);
     }
-    const commitDate = sdkInfoData.commitDate || 'local';
+    const sdkVer = sdkInfoData.sdkVersion || 'local';
+    const buildLabel = sdkInfoData.runtimePackVersion
+        ? `${sdkVer}_${sdkInfoData.runtimePackVersion}`
+        : sdkVer;
 
     let manifest;
     try {
@@ -340,7 +343,7 @@ async function stepMeasure() {
     for (let i = 0; i < entries.length; i++) {
         const { app, preset } = entries[i];
         const prefix = isDocker ? '/bench/artifacts' : ARTIFACTS_DIR;
-        const publishDir = `${prefix}/publish/${app}/${commitDate}/${preset}`;
+        const publishDir = `${prefix}/publish/${app}/${buildLabel}/${preset}`;
         const dockerRunDir = `/bench/artifacts/results/${runId}`;
         const sdkInfo = isDocker ? `${dockerRunDir}/sdk-info.json` : SDK_INFO_PATH;
         const manifestArg = isDocker

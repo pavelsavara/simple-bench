@@ -59,7 +59,7 @@ const { values: args } = parseArgs({
         'sdk-info': { type: 'string' },
         'compile-time-file': { type: 'string' },
         'engine': { type: 'string', default: 'chrome' },
-        'timeout': { type: 'string', default: '60000' },
+        'timeout': { type: 'string', default: '55000' },
         'warm-runs': { type: 'string', default: '3' },
         'retries': { type: 'string', default: '2' },
         'ci-run-id': { type: 'string', default: '' },
