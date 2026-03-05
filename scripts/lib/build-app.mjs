@@ -39,19 +39,13 @@ function detectSdkMajor(dotnetBin) {
 
 /**
  * Resolve the dotnet binary path.
+ * Requires explicit dotnetBin parameter via buildApp() or --dotnet-path CLI arg.
  */
 function findDotnet() {
-    const exe = process.platform === 'win32' ? 'dotnet.exe' : 'dotnet';
-    const fromEnv = process.env.DOTNET_ROOT
-        ? join(process.env.DOTNET_ROOT, exe)
-        : null;
-    if (fromEnv) {
-        try {
-            execFileSync(fromEnv, ['--version'], { stdio: 'ignore' });
-            return fromEnv;
-        } catch { /* fall through */ }
-    }
-    return 'dotnet';
+    throw new Error(
+        'No dotnet binary path provided. '
+        + 'Pass dotnetBin to buildApp() or use --dotnet-path <path> on the CLI.',
+    );
 }
 
 /**
@@ -80,10 +74,11 @@ function resolveAppDir(app, sdkMajor) {
  * @param {string} options.preset        Build preset name (e.g. 'devloop', 'aot')
  * @param {string} [options.buildLabel]  Version label for artifact paths (e.g. '11.0.100-preview.3.26153.117_11.0.0-preview.3.26153.117')
  * @param {string} [options.artifactsDir] Artifacts directory (default: env or ./artifacts)
+ * @param {string} [options.dotnetBin]    Explicit path to dotnet binary (overrides DOTNET_ROOT lookup)
  * @param {string} [options.runtimePackDir] Optional runtime pack directory override
  * @returns {Promise<{compileTimeMs: number, publishDir: string}>}
  */
-export async function buildApp({ app, runtime, preset, buildLabel, artifactsDir, runtimePackDir }) {
+export async function buildApp({ app, runtime, preset, buildLabel, artifactsDir, dotnetBin, runtimePackDir }) {
     validateCombination(runtime, preset);
 
     const effectiveArtifactsDir = artifactsDir
@@ -91,7 +86,7 @@ export async function buildApp({ app, runtime, preset, buildLabel, artifactsDir,
         || join(REPO_DIR, 'artifacts');
 
     const label = buildLabel || 'local';
-    const dotnetBin = findDotnet();
+    if (!dotnetBin) dotnetBin = findDotnet();
     const sdkMajor = detectSdkMajor(dotnetBin);
     const appDir = resolveAppDir(app, sdkMajor);
     const publishDir = join(effectiveArtifactsDir, 'publish', app, label, preset);
@@ -114,7 +109,7 @@ export async function buildApp({ app, runtime, preset, buildLabel, artifactsDir,
     await mkdir(publishDir, { recursive: true });
 
     console.error(`Building ${app} (runtime=${runtime}, preset=${preset})...`);
-    console.error(`  dotnet ${publishArgs.join(' ')}`);
+    console.error(`  ${dotnetBin} ${publishArgs.join(' ')}`);
 
     // Record compile time
     const startTime = performance.now();
@@ -152,16 +147,18 @@ if (isMain) {
             'app': { type: 'string' },
             'runtime': { type: 'string', default: 'mono' },
             'preset': { type: 'string' },
+            'dotnet-path': { type: 'string' },
         },
         strict: true,
     });
     if (!values.app || !values.preset) {
-        console.error('Usage: node scripts/lib/build-app.mjs --app <app> --runtime <runtime> --preset <preset>');
+        console.error('Usage: node scripts/lib/build-app.mjs --app <app> --runtime <runtime> --preset <preset> [--dotnet-path <path>]');
         process.exit(1);
     }
     await buildApp({
         app: values.app,
         runtime: values.runtime,
         preset: values.preset,
+        dotnetBin: values['dotnet-path'],
     });
 }

@@ -354,7 +354,6 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
     await mkdir(installDir, { recursive: true });
 
     const isWindows = process.platform === 'win32';
-    const pathSep = isWindows ? ';' : ':';
 
     // ── Skip download if SDK is already installed ────────────────────────
     const sdkInfoPath = join(installDir, 'sdk-info.json');
@@ -368,7 +367,6 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
             await writeFile(sdkInfoPath, JSON.stringify(existing, null, 2) + '\n');
             console.error(`SDK already installed at ${installDir} (${existing.sdkVersion}), skipping download.`);
             process.env.DOTNET_ROOT = installDir;
-            process.env.PATH = `${installDir}${pathSep}${process.env.PATH}`;
             process.env.DOTNET_NOLOGO = 'true';
             const nugetDir = join(installDir, '..', '..', 'nuget-packages');
             await mkdir(nugetDir, { recursive: true });
@@ -397,7 +395,6 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
 
     // Update env for subsequent calls
     process.env.DOTNET_ROOT = installDir;
-    process.env.PATH = `${installDir}${pathSep}${process.env.PATH}`;
     process.env.DOTNET_NOLOGO = 'true';
 
     const nugetDir = join(installDir, '..', '..', 'nuget-packages');
@@ -408,7 +405,7 @@ export async function resolveSDK({ channel, sdkVersion, installDir }) {
     if (process.env.GITHUB_ENV) {
         const { appendFile } = await import('node:fs/promises');
         await appendFile(process.env.GITHUB_ENV,
-            `DOTNET_ROOT=${installDir}\nPATH=${installDir}:${process.env.PATH}\n`);
+            `DOTNET_ROOT=${installDir}\n`);
     }
 
     // ── Resolve git hashes ───────────────────────────────────────────────

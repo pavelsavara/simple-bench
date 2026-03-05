@@ -102,13 +102,7 @@ function run(cmd, cmdArgs, { label, env: extraEnv } = {}) {
 
 function dotnet() {
     const exe = process.platform === 'win32' ? 'dotnet.exe' : 'dotnet';
-    const p = join(ARTIFACTS_DIR, 'sdks', SDK_DIR, exe);
-    try {
-        execFileSync(p, ['--version'], { stdio: 'ignore' });
-        return p;
-    } catch {
-        return 'dotnet';
-    }
+    return join(ARTIFACTS_DIR, 'sdks', SDK_DIR, exe);
 }
 
 /** Discover app directories under src/ (each dir with a .csproj). */
@@ -186,6 +180,7 @@ async function buildApps(apps, presets, phaseLabel, buildLabel) {
                     preset,
                     buildLabel,
                     artifactsDir: ARTIFACTS_DIR,
+                    dotnetBin: dotnet(),
                 });
                 succeeded.push({ app, preset });
             } catch {
