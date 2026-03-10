@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "commitDate": "2026-06-08",
+    "commitTime": "05-04-54-UTC",
+    "sdkVersion": "11.0.100-preview.3.26159.106",
+    "runtimeGitHash": "cd38a58a63aa4a45330ee012ed1f1b5b2bbe279c",
+    "sdkGitHash": "5bb7e315bf797af120abf7ed17b7cbd6145b48f6",
+    "vmrGitHash": "5121846aac",
+    "runtime": "mono",
+    "preset": "no-workload",
+    "profile": "desktop",
+    "engine": "firefox",
+    "app": "empty-blazor",
+    "benchmarkDateTime": "2026-03-10T05:13:48.320Z",
+    "warmRunCount": 3,
+    "ciRunId": "22887983010",
+    "ciRunUrl": "https://github.com/pavelsavara/simple-bench/actions/runs/22887983010"
+  },
+  "metrics": {
+    "compile-time": 35713,
+    "disk-size-total": 27895618,
+    "disk-size-wasm": 6485746,
+    "time-to-reach-managed": 413,
+    "time-to-reach-managed-cold": 716
+  }
+}

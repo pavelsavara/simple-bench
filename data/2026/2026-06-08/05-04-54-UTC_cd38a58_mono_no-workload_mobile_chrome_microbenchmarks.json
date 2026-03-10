@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "commitDate": "2026-06-08",
+    "commitTime": "05-04-54-UTC",
+    "sdkVersion": "11.0.100-preview.3.26159.106",
+    "runtimeGitHash": "cd38a58a63aa4a45330ee012ed1f1b5b2bbe279c",
+    "sdkGitHash": "5bb7e315bf797af120abf7ed17b7cbd6145b48f6",
+    "vmrGitHash": "5121846aac",
+    "runtime": "mono",
+    "preset": "no-workload",
+    "profile": "mobile",
+    "engine": "chrome",
+    "app": "microbenchmarks",
+    "ciRunId": "22887983010",
+    "ciRunUrl": "https://github.com/pavelsavara/simple-bench/actions/runs/22887983010"
+  },
+  "metrics": {
+    "compile-time": 17167,
+    "memory-peak": 5993356,
+    "js-interop-ops": 518473,
+    "json-parse-ops": 24001,
+    "exception-ops": 132
+  }
+}
