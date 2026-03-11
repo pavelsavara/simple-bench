@@ -53,8 +53,7 @@ Without this stage the dashboard would have to fetch every individual result fil
       "runtimeGitHash": "abc1234def567890...",
       "sdkGitHash": "111222333...",
       "vmrGitHash": "aaa111bbb...",
-      "date": "2026-03-02",
-      "time": "12-34-56-UTC",
+      "runtimeCommitDateTime": "2026-03-02T12:34:56Z",
       "sdkVersion": "11.0.100-preview.3.26153.117",
       "results": [
         {
@@ -63,7 +62,7 @@ Without this stage the dashboard would have to fetch every individual result fil
           "profile": "desktop",
           "engine": "chrome",
           "app": "empty-browser",
-          "file": "2026/2026-03-02/12-34-56-UTC_abc1234_mono_devloop_desktop_chrome_empty-browser.json",
+          "file": "2026/2026-03-02/2026-03-02T12-34-56Z_abc1234_mono_devloop_desktop_chrome_empty-browser.json",
           "metrics": ["compile-time", "disk-size-total", "time-to-reach-managed", ...]
         }
       ]
@@ -77,7 +76,7 @@ Without this stage the dashboard would have to fetch every individual result fil
 ```json
 {
   "meta": {
-    "runtimeCommitDateTime": "2026-03-02",
+    "runtimeCommitDateTime": "2026-03-02T12:34:56Z",
     "sdkVersion": "11.0.100-preview.3.26153.117",
     "runtimeGitHash": "abc1234def567890...",
     "sdkGitHash": "111222333...",
@@ -147,10 +146,9 @@ All output files go into `gh-pages/data/views/`.
       "runtimeHash": "abc1234def567890...",
       "sdkHash": "111222333...",
       "vmrHash": "aaa111bbb...",
-      "date": "2026-03-02",
-      "time": "10-00-00-UTC"
+      "runtimeCommitDateTime": "2026-03-02T12:34:56Z"
     },
-    { "sdk": "...", "runtimeHash": "...", "date": "2026-03-03", "time": "..." }
+    { "sdk": "...", "runtimeHash": "...", "runtimeCommitDateTime": "..." }
   ],
   "apps": {
     "empty-browser": ["compile-time", "disk-size-total", "time-to-reach-managed"],
@@ -159,7 +157,7 @@ All output files go into `gh-pages/data/views/`.
 }
 ```
 
-- `columns` sorted chronologically by `(date, time)`
+- `columns` sorted chronologically by `runtimeCommitDateTime`
 - `apps` map lists only metric data files that actually exist in this week directory (prevents UI from making 404 requests)
 
 ### 3. Week Data File — `views/{week}/{app}_{metric}.json`
@@ -174,7 +172,7 @@ All output files go into `gh-pages/data/views/`.
 - Keys = row key strings: `{runtime}/{preset}/{profile}/{engine}`
 - Values = arrays of numbers or `null`, length = number of columns in the week header
 - Rows that are entirely `null` are **omitted**
-- Values are integers (rounded) except timing which may be decimal ms
+- Values are integers (rounded: ms, bytes, ops/sec)
 - File is **minified** (no whitespace)
 
 ### 4. Release Header — `views/releases/{net}/header.json`
@@ -184,8 +182,8 @@ All output files go into `gh-pages/data/views/`.
   "release": "net9",
   "sdkMajor": 9,
   "columns": [
-    { "sdk": "9.0.100", "runtimeHash": "...", "date": "2024-11-12", ... },
-    { "sdk": "9.0.101", "runtimeHash": "...", "date": "2024-12-10", ... }
+    { "sdk": "9.0.100", "runtimeHash": "...", "runtimeCommitDateTime": "2024-11-12T10:00:00Z", ... },
+    { "sdk": "9.0.101", "runtimeHash": "...", "runtimeCommitDateTime": "2024-12-10T10:00:00Z", ... }
   ],
   "apps": {
     "empty-browser": ["compile-time", "disk-size-total"]
@@ -216,7 +214,7 @@ for each month index file (data/{YYYY-MM}.json):
     for each commit in monthIndex.commits:
         sdkMajor = getSdkMajor(commit.sdkVersion)
         if sdkMajor is null: skip commit  // unknown SDK version
-        weekMonday = getWeekMonday(commit.date)
+        weekMonday = getWeekMonday(commit.runtimeCommitDateTime)
 
         for each resultRef in commit.results:
             load result JSON from data/{resultRef.file}
@@ -225,7 +223,7 @@ for each month index file (data/{YYYY-MM}.json):
             yield {
                 sdkMajor,
                 weekMonday,
-                commit: { sdk, runtimeHash, sdkHash, vmrHash, date, time },
+                commit: { sdk, runtimeHash, sdkHash, vmrHash, runtimeCommitDateTime },
                 rowKey: buildRowKey(result.meta),
                 app: result.meta.app,
                 metrics: result.metrics
@@ -266,7 +264,7 @@ row 2 (mono/devloop/…/firefox)  null             55 ms           53 ms
 For each bucket:
 
 1. **Sort columns**:
-   - Weekly: by `(date, time)` ascending (chronological)
+   - Weekly: by `runtimeCommitDateTime` ascending (chronological)
    - Release: by `sdkVersion` (semver-aware comparison, see below)
 
 2. **Build column index**: `Map<columnKey, columnPosition>`
@@ -425,8 +423,7 @@ for (const result of bucketResults) {
             runtimeHash: result.commit.runtimeHash,
             sdkHash: result.commit.sdkHash,
             vmrHash: result.commit.vmrHash,
-            date: result.commit.date,
-            time: result.commit.time,
+            runtimeCommitDateTime: result.commit.runtimeCommitDateTime,
         });
     }
     // For metric values: later write overwrites earlier
@@ -487,7 +484,7 @@ const affectedReleases = new Set<number>();
 for (const result of newOrUpdatedResults) {
     const sdkMajor = getSdkMajor(result.commit.sdkVersion);
     if (sdkMajor === activeReleaseMajor) {
-        affectedWeeks.add(getWeekMonday(result.commit.date));
+        affectedWeeks.add(getWeekMonday(result.commit.runtimeCommitDateTime));
     } else if (sdkMajor !== null) {
         affectedReleases.add(sdkMajor);
     }
@@ -635,7 +632,7 @@ Write failures (permissions, disk full) on output files:
 
 ## Existing Code Reference
 
-### Consolidation Script (`scripts/consolidate-results.mjs`)
+### Consolidation Stage (`bench/src/stages/consolidate.ts`)
 
 Key patterns the transformer reuses:
 
@@ -646,7 +643,7 @@ Key patterns the transformer reuses:
 
 The transformer follows the same month index traversal pattern but instead of writing *into* the consolidated store, it reads *from* it and writes to `views/`.
 
-### Metrics Registry (`scripts/lib/metrics.mjs`)
+### Metrics Registry (`bench/src/lib/metrics.ts`)
 
 Defines display names and units for all metrics. The transformer does **not** import this (it discovers metrics from data), but the dashboard uses it for chart labels and formatting.
 
@@ -672,15 +669,14 @@ interface ViewColumn {
     runtimeHash: string;
     sdkHash: string;
     vmrHash: string;
-    date: string;
-    time: string;
+    runtimeCommitDateTime: string;
 }
 
 // ── Week header ──
 
 interface WeekHeader {
     week: string;                                    // Monday date "YYYY-MM-DD"
-    columns: ViewColumn[];                           // sorted by (date, time)
+    columns: ViewColumn[];                           // sorted by runtimeCommitDateTime
     apps: Record<string, string[]>;                  // app → metric keys with data files
 }
 

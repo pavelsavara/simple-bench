@@ -69,15 +69,13 @@ export interface AppConfig {
     browserOnly: boolean;
     /** Uses measure-internal instead of measure-external */
     internal: boolean;
-    /** Has dotnet_managed_ready / bench_complete JS marker */
-    hasTimingMarker: boolean;
 }
 
 export const APP_CONFIG: Record<App, AppConfig> = {
-    [App.EmptyBrowser]: { browserOnly: false, internal: false, hasTimingMarker: true },
-    [App.EmptyBlazor]: { browserOnly: true, internal: false, hasTimingMarker: false },
-    [App.BlazingPizza]: { browserOnly: true, internal: false, hasTimingMarker: false },
-    [App.Microbenchmarks]: { browserOnly: false, internal: true, hasTimingMarker: true },
+    [App.EmptyBrowser]: { browserOnly: false, internal: false },
+    [App.EmptyBlazor]: { browserOnly: true, internal: false },
+    [App.BlazingPizza]: { browserOnly: true, internal: false },
+    [App.Microbenchmarks]: { browserOnly: false, internal: true },
 };
 
 // ── Preset Constraints ───────────────────────────────────────────────────────

@@ -7,8 +7,8 @@ Every benchmark result is identified by a tuple of `(app, preset, runtime, engin
 | App | SDK | Measurement | Timing Marker | Notes |
 |-----|-----|-------------|---------------|-------|
 | `empty-browser` | Microsoft.NET.Sdk.WebAssembly | measure-external | Yes (JSImport → `dotnet_managed_ready`) | Minimal console app |
-| `empty-blazor` | Microsoft.NET.Sdk.BlazorWebAssembly | measure-external | No (standard Blazor startup) | Minimal Blazor template |
-| `blazing-pizza` | Microsoft.NET.Sdk.BlazorWebAssembly | measure-external + pizza-walkthrough | No | Multi-page Blazor app with order workflow |
+| `empty-blazor` | Microsoft.NET.Sdk.BlazorWebAssembly | measure-external | Yes (Blazor startup hook → `dotnet_managed_ready`) | Minimal Blazor template |
+| `blazing-pizza` | Microsoft.NET.Sdk.BlazorWebAssembly | measure-external + pizza-walkthrough | Yes (Blazor startup hook → `dotnet_managed_ready`) | Multi-page Blazor app with order workflow |
 | `microbenchmarks` | Microsoft.NET.Sdk.WebAssembly | measure-internal | Yes (`bench_complete`) | JS interop, JSON, exception perf |
 
 **Routing rules** (run-measure-job.mjs):
@@ -18,7 +18,7 @@ Every benchmark result is identified by a tuple of `(app, preset, runtime, engin
 
 ## Presets
 
-Build optimization profiles defined in `src/presets.props`, mapped to MSBuild args in `scripts/lib/build-config.mjs`.
+Build optimization profiles defined in `src/presets.props`, mapped to MSBuild args in `bench/src/lib/build-config.ts`.
 
 ### Non-workload presets (no wasm-tools needed)
 
@@ -44,8 +44,8 @@ Build optimization profiles defined in `src/presets.props`, mapped to MSBuild ar
 | Runtime | MSBuild Value | Constraints |
 |---------|---------------|-------------|
 | `mono` | `/p:RuntimeFlavor=Mono` | Supports all 7 presets |
-| `coreclr` | `/p:RuntimeFlavor=CoreCLR` | Cannot use `aot` or `no-jiterp` presets. Extra `r2r` preset. |
-| `naotllvm` | - | -future- |
+| `coreclr` | `/p:RuntimeFlavor=CoreCLR` | Cannot use `aot` or `no-jiterp` presets. See [future.md](future.md) for `r2r` preset. |
+| `naotllvm` | — | Future — see [future.md](future.md) |
 
 **Validation** (build-config.mjs): `aot` or `no-jiterp` with `coreclr` → error.
 

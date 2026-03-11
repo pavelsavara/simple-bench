@@ -36,7 +36,7 @@ Into `gh-pages/data/views/`:
 4. `releases/{net}/header.json` — per-release column metadata
 5. `releases/{net}/{app}_{metric}.json` — per-release data files
 
-See [model.md](model.md) for file format details.
+See [pipeline-model.md](pipeline-model.md) for file format details.
 
 ## Algorithm
 
@@ -67,7 +67,7 @@ Within each bucket, results are organized into:
 For each bucket:
 
 1. Sort columns:
-   - Weekly buckets: by `date` then `time` (chronological)
+   - Weekly buckets: by `runtimeCommitDateTime` (chronological)
    - Release buckets: by `sdkVersion` (version ordering)
 2. Build column index: map commit → column position
 3. For each row key that has at least one non-null value:
@@ -214,12 +214,10 @@ Deferred until the pipeline rework.
 ## CLI Interface
 
 ```
-node scripts/transform-views.mjs <data-dir> [options]
-
-Arguments:
-  data-dir          Path to gh-pages/data/ directory
+bench --stages transform-views [options]
 
 Options:
+  --data-dir <path> Path to gh-pages/data/ directory
   --full            Full rebuild (ignore incremental state)
   --dry-run         Print what would be written without writing
   --verbose         Log progress details

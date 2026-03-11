@@ -5,8 +5,9 @@ Items deferred from the initial implementation. Revisit as the system matures.
 ## CoreCLR Runtime
 
 Add `coreclr` as a measured runtime alongside `mono`. Requires CoreCLR-on-WASM to reach feature parity with Mono's Browser target. When enabled:
-- 5 valid presets: `devloop`, `no-workload`, `native-relink`, `invariant`, `no-reflection-emit` (`aot` and `no-jiterp` are mono-only)
-- Adds 80 measurement runs per SDK commit (5 × 16)
+- 6 valid presets: `devloop`, `no-workload`, `native-relink`, `invariant`, `no-reflection-emit`, `r2r` (`aot` and `no-jiterp` are mono-only; `r2r` is coreclr-only)
+- The `r2r` (ReadyToRun) preset enables pre-compiled IL for faster startup on CoreCLR
+- Adds measurement runs per SDK commit (6 presets × 16 engine/profile combos = 96)
 - Runtime pack enumeration needs a CoreCLR browser-wasm package source
 
 ## Dashboard Overview Tab
@@ -51,7 +52,11 @@ Import data from existing perf runs (e.g. WasmPerformanceMeasurements). The `mig
 
 ## WASI Target
 
-Add `wasi-node` and `wasmtime` engines when CoreCLR WASI matures. Requires new engine routing in `run-measure-job.mjs` and CLI measurement support.
+Add `wasi-node` and `wasmtime` engines when CoreCLR WASI matures. Requires new engine routing and CLI measurement support.
+
+## NativeAOT-LLVM Runtime
+
+Add `naotllvm` as a runtime flavor when NativeAOT-LLVM for browser WASM matures. This would be a separate runtime target distinct from Mono, producing fully AOT-compiled WASM via LLVM. Currently listed as a legacy alias for `mono` in the enum for backward compatibility with old result data.
 
 ## Granular AppBundle Size Tracking
 
@@ -72,79 +77,3 @@ Store min/p50/p99 across multiple runs rather than a single value — reduces no
 ## Gap-Filling Scheduler
 
 Adopt radekdoulik/bench-results pattern — track measured vs. unmeasured commits over a window, pick the midpoint of the largest gap for backfill when CI capacity is idle.
-
-
-## Overview Tab
-
-The default landing page. Shows a high-level health summary: how is the latest build doing compared to previous builds and older .NET releases?
-
-### Layout
-
-```
-┌─ Latest Build ────────────────────────────────────────────────────────┐
-│  SDK: 11.0.100-preview.3.26153.117   Date: 2026-03-05   Commit: abc1234  │
-└───────────────────────────────────────────────────────────────────────┘
-
-┌─ empty-browser ───────────────────────────────────────────────────────┐
-│                                                                       │
-│  Time to Managed (warm)    Download Size          Compile Time        │
-│  ┌──────────────────┐      ┌──────────────────┐   ┌────────────────┐  │
-│  │ 56 ms            │      │ 7.8 MB           │   │ 4,443 ms       │  │
-│  │ ▼ 3% vs prev     │      │ ▲ 1% vs prev     │   │ — same         │  │
-│  │ ▼ 15% vs Net10   │      │ ▼ 22% vs Net10   │   │ ▼ 40% vs Net10 │  │
-│  └──────────────────┘      └──────────────────┘   └────────────────┘  │
-│                                                                       │
-│  [sparkline: time-to-reach-managed last 30 days]                      │
-│  [sparkline: download-size-total last 30 days]                        │
-└───────────────────────────────────────────────────────────────────────┘
-
-┌─ empty-blazor ────────────────────────────────────────────────────────┐
-│  (same card layout)                                                   │
-└───────────────────────────────────────────────────────────────────────┘
-
-┌─ blazing-pizza ───────────────────────────────────────────────────────┐
-│  (same card layout + pizza-walkthru KPI)                              │
-└───────────────────────────────────────────────────────────────────────┘
-
-┌─ microbenchmarks ─────────────────────────────────────────────────────┐
-│  JS Interop: 3.2M ops/sec    JSON Parse: 199K ops/sec                 │
-│  ▼ 2% vs prev                ▲ 5% vs prev                            │
-└───────────────────────────────────────────────────────────────────────┘
-```
-
-### Content Per App Card
-
-Each app gets a summary card with:
-
-**KPI Tiles** — one tile per key metric, using the **reference series** (`mono/no-workload/desktop/chrome` for external apps, `mono/no-workload/desktop/v8` for microbenchmarks):
-
-| App | KPI Metrics |
-|-----|------------|
-| `empty-browser` | `time-to-reach-managed`, `download-size-total`, `compile-time` |
-| `empty-blazor` | `time-to-reach-managed`, `download-size-total`, `compile-time` |
-| `blazing-pizza` | `time-to-reach-managed`, `download-size-total`, `pizza-walkthru` |
-| `microbenchmarks` | `js-interop-ops`, `json-parse-ops`, `exception-ops` |
-
-Each KPI tile shows:
-1. **Current value** — latest data point from the most recent column
-2. **Delta vs previous build** — percentage change from the previous column (green ▼ = improvement for time/size metrics, red ▲ = regression)
-3. **Delta vs last frozen release** — comparison to the latest frozen release's last column (e.g. Net10 GA)
-
-Arrows are direction-aware per metric type:
-- Time/size metrics: lower is better (▼ green, ▲ red)
-- Throughput metrics (ops/sec): higher is better (▲ green, ▼ red)
-
-**Sparklines** — tiny inline charts (last 30 days) for the top 2 metrics per app. Gives a quick visual trend without needing to switch tabs. Uses the same reference series.
-
-### Data Source
-
-The overview tab reads from the same view data files as other tabs. It loads:
-1. The most recent week header (for latest + previous column metadata)
-2. The data files for KPI metrics across all apps for that week
-3. The last frozen release header + data for comparison baseline
-
-No additional transformer output needed — the overview assembles KPIs from existing data.
-
-### Click-through
-
-Clicking an app card navigates to that app's detail tab.

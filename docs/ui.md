@@ -176,7 +176,7 @@ Each visible row key becomes a Chart.js dataset (line). Visual encoding:
 | Runtime | **Marker shape** | mono=triangle, coreclr=circle |
 | Profile | **Line width** | desktop=1px, mobile=2px |
 
-This gives each combination a unique visual signature — e.g. "mono/aot/desktop/chrome" is a yellow dashed line with triangle markers at 2px width.
+This gives each combination a unique visual signature — e.g. "mono/aot/desktop/chrome" is a yellow dashed line with triangle markers at 1px width.
 
 ### Legend
 

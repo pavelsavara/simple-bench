@@ -50,7 +50,7 @@ Where:
 ```json
 {
   "meta": {
-    "runtimeCommitDateTime": "2026-03-02",
+    "runtimeCommitDateTime": "2026-03-02T12:34:56Z",
     "sdkVersion": "11.0.100-preview.3.26153.117",
     "runtimeGitHash": "abc1234def5678...",
     "sdkGitHash": "def5678...",
@@ -125,8 +125,8 @@ Dry-run override: only `['chrome']` regardless of app.
 | App | Script | Marker |
 |-----|--------|--------|
 | `empty-browser` | `measure-external` | `dotnet_managed_ready` |
-| `empty-blazor` | `measure-external` | None (standard Blazor) |
-| `blazing-pizza` | `measure-external` + pizza walkthrough | None (standard Blazor) |
+| `empty-blazor` | `measure-external` | `dotnet_managed_ready` |
+| `blazing-pizza` | `measure-external` + pizza walkthrough | `dotnet_managed_ready` |
 | `microbenchmarks` | `measure-internal` | `bench_complete` + `bench_results` |
 
 ### Full Combination Matrix (per preset × runtime)
@@ -248,6 +248,8 @@ const cold = await page.evaluate(() => globalThis.dotnet_managed_ready);
 - Record `time-to-reach-managed-cold` = value of the marker
 
 **Apps without timing marker** (empty-blazor, blazing-pizza): The `waitForFunction` will timeout. The current code does not have a fallback for browser-based apps without the marker — these apps rely on the timeout/retry mechanism and the cold load value may be unavailable.
+
+**TODO:** Implement `dotnet_managed_ready` timing marker for all Blazor apps via a Blazor startup hook, so `time-to-reach-managed` and `time-to-reach-managed-cold` are available for all apps.
 
 #### 6. Warm Loads
 
@@ -563,16 +565,12 @@ In Docker mode, each measurement runs inside the `browser-bench-measure` contain
 
 | File | Role |
 |------|------|
-| `scripts/measure-external.mjs` | Primary measurement script — browser + CLI measurement for all external apps |
-| `scripts/measure-internal.mjs` | Microbenchmark measurement — ops/sec metrics via `bench_complete` / `bench_results` |
-| `scripts/run-measure-job.mjs` | Orchestrator for one `{app, preset}` — engine × profile loop, integrity check, result naming |
-| `scripts/run-bench.mjs` | Top-level orchestrator — iterates build manifest, calls run-measure-job per entry |
-| `scripts/lib/measure-utils.mjs` | Static server, file size walker, result JSON builder, compile-time/SDK-info readers |
-| `scripts/lib/internal-utils.mjs` | CLI engine commands, stdout JSON parser, benchmark result validation |
-| `scripts/lib/throttle-profiles.mjs` | Desktop/mobile profile definitions (CPU + network throttle params) |
-| `scripts/lib/metrics.mjs` | Canonical metric registry (names, units, categories) |
-| `scripts/lib/pizza-walkthrough.mjs` | Playwright automation for blazing-pizza order walkthrough |
-| `bench/src/stages/measure.ts` | TypeScript stub (TODO) |
+| `bench/src/stages/measure.ts` | Primary measurement stage — browser + CLI measurement for all external apps, microbenchmark measurement |
+| `bench/src/lib/measure-utils.ts` | Static server, file size walker, result JSON builder, compile-time/SDK-info readers |
+| `bench/src/lib/internal-utils.ts` | CLI engine commands, stdout JSON parser, benchmark result validation |
+| `bench/src/lib/throttle-profiles.ts` | Desktop/mobile profile definitions (CPU + network throttle params) |
+| `bench/src/lib/metrics.ts` | Canonical metric registry (names, units, categories) |
+| `bench/src/lib/pizza-walkthrough.ts` | Playwright automation for blazing-pizza order walkthrough |
 | `bench/src/enums.ts` | `APP_CONFIG`, `getEnginesForApp()`, `getProfilesForEngine()`, engine/profile routing logic |
 | `bench/src/context.ts` | `BenchContext`, `BuildManifestEntry`, `SdkInfo` type definitions |
 

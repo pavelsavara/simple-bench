@@ -1,8 +1,8 @@
 # Pipeline: Flow of a Single Benchmark Run
 
-Entry point: `scripts/run-pipeline.mjs` (build) → `scripts/run-measure-job.mjs` (measure per app/preset).
+Entry point: `bench --stages acquire-sdk,build` (build) → `bench --stages measure` (measure per app/preset).
 
-In CI these run in separate containers. Locally `scripts/run-bench.mjs` orchestrates both.
+In CI these run in separate containers. Locally `bench --stages acquire-sdk,build,measure` orchestrates both.
 
 ## Build Phase (run-pipeline.mjs)
 
@@ -109,7 +109,7 @@ If `--build-manifest` provided: compute actual `{fileCount, totalBytes}` from `-
 9. **Chrome only**: sum `encodedDataLength` from all `Network.loadingFinished` events → `download-size-total`; max `JSHeapUsedSize` across samples → `memory-peak`
 10. **blazing-pizza**: additionally run `pizza-walkthrough.mjs` — Playwright automates full order flow, returns wall-clock ms
 
-**Retry logic**: catches timeout errors only, retries up to `--retries` (default 2). Non-timeout errors re-thrown immediately.
+**Retry logic**: catches timeout errors only, retries up to `--retries` (default 3). Non-timeout errors re-thrown immediately.
 
 #### CLI flow (v8/node)
 
@@ -132,7 +132,7 @@ For `microbenchmarks` app:
 ```json
 {
   "meta": {
-    "runtimeCommitDateTime": "2026-03-02T12-34-56",
+    "runtimeCommitDateTime": "2026-03-02T12:34:56Z",
     "sdkVersion": "11.0.100-preview.3.26153.117",
     "runtimeGitHash": "abc1234...",
     "sdkGitHash": "def5678...",
@@ -149,14 +149,14 @@ For `microbenchmarks` app:
     "disk-size-wasm": 8187744,
     "disk-size-dlls": 1758720,
     "download-size-total": 12100920,
-    "time-to-reach-managed": 289.15,
+    "time-to-reach-managed": 289,
     "time-to-reach-managed-cold": 7446,
     "memory-peak": 52428800
   }
 }
 ```
 
-Null metrics are omitted. Values rounded to integers except timing (decimal ms).
+Null metrics are omitted. All values are rounded to integers.
 
 ## Consolidation (consolidate-results.mjs)
 
@@ -174,12 +174,12 @@ Invalid/missing JSONs are silently skipped. `compile-time.json`, `sdk-info.json`
 
 ## Local Execution
 
-`scripts/run-bench.mjs` unifies both phases:
+`bench --stages acquire-sdk,build,measure` unifies both phases:
 
 | Mode | Flag | Steps |
 |------|------|-------|
-| Local (no Docker) | `--mode local` | run-pipeline → run-measure-job per manifest entry |
-| Docker | `--mode docker` | Build images → run-pipeline in build container → run-measure-job in measure container |
+| Local (no Docker) | `--mode local` | build stages → measure stage per manifest entry |
+| Docker | `--mode docker` | Build images → build stages in build container → measure stage in measure container |
 
 **Skip flags**: `--skip-docker`, `--skip-build`, `--skip-measure`  
 **Step override**: `--step {docker-build|build|measure}` runs only that step  

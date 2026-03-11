@@ -10,7 +10,7 @@
 - `workflow_dispatch` inputs: `sdk_version`, `sdk_channel` (default 11.0), `runtime_commit`, `runtime_pack`, `dry_run`
 
 **Job: build** (container: `ghcr.io/{repo}/browser-bench-build:latest`, 60 min timeout)
-1. Run `node scripts/run-pipeline.mjs` with SDK/runtime args
+1. Run `bench --stages acquire-sdk,build` with SDK/runtime args
 2. Read `.run-id` from `artifacts/results/.run-id`
 3. Compute matrix from `build-manifest.json` — one entry per `{app, preset}` with `buildLabel = sdkVersion[_runtimePackVersion]`
 4. Upload artifacts: `sdk-info`, `build-manifest`, `all-builds` (3d retention)
@@ -18,7 +18,7 @@
 **Job: measure** (container: `browser-bench-measure:latest`, uid 1001, 30 min timeout)
 - Matrix: `include: fromJSON(needs.build.outputs.matrix)`, `fail-fast: false`
 - Downloads build artifacts; links pre-installed `node_modules`
-- Runs `node scripts/run-measure-job.mjs --app {app} --preset {preset} --publish-dir "artifacts/publish/{app}/{buildLabel}/{preset}" ...`
+- Runs `bench --stages measure --app {app} --preset {preset} --publish-dir "artifacts/publish/{app}/{buildLabel}/{preset}" ...`
 - Flags: `--retries 3 --timeout 300000 --ci-run-id ${{ github.run_id }}`
 - Upload: `results-{app}-{preset}` with `if: always()` and `if-no-files-found: ignore`
 
@@ -33,9 +33,9 @@
 **Condition:** `conclusion == 'success' && event != 'pull_request'`
 
 1. Checkout `gh-pages` branch
-2. Checkout `main` (sparse: `scripts/`) into `repo/`
+2. Checkout `main` (sparse: `bench/`) into `repo/`
 3. Download all artifacts from benchmark run
-4. `node repo/scripts/consolidate-results.mjs /tmp/artifacts/ data/`
+4. `node repo/bench/dist/bench.mjs --stages consolidate /tmp/artifacts/ data/`
 5. Commit + push if changes detected
 
 **Known issue — partial result loss:** If any measure job fails, benchmark.yml conclusion is `failure` → consolidate.yml does not trigger → successful partial results sit in GHA artifacts and never reach gh-pages. The consolidation script itself handles partial input gracefully (skips invalid JSONs), so the fix is to change the trigger condition to also consolidate on `failure`.
@@ -55,7 +55,7 @@ Registry cache in max mode.
 ### test.yml — Unit Tests
 
 **Triggers:** push to `main`, `pull_request`  
-Single job: `npm ci` → `node --test tests/unit/*.test.mjs` on ubuntu-latest, Node 22.
+Single job: `npm ci` → `node --test tests/unit/*.test.mjs` on ubuntu-latest, Node 24.
 
 ## Docker Images
 
@@ -90,8 +90,8 @@ Detects runtime commits with no benchmark results and dispatches `benchmark.yml`
 
 **CLI:**
 ```bash
-node scripts/schedule-benchmarks.mjs --refresh --max-dispatches 3 --dry-run
-node scripts/schedule-benchmarks.mjs --recent 30 --repo user/repo --branch main
+bench --stages schedule --refresh --max-dispatches 3 --dry-run
+bench --stages schedule --recent 30 --repo user/repo --branch main
 ```
 
 ### Known issue — infinite retry of failing commits

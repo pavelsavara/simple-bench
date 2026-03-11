@@ -33,12 +33,12 @@ The artifacts directory contains result JSON files produced by the measure stage
 ```
 artifacts/
   results-empty-browser-devloop/
-    12-34-56-UTC_abc1234_mono_devloop_desktop_chrome_empty-browser.json
-    12-34-56-UTC_abc1234_mono_devloop_desktop_firefox_empty-browser.json
+    2026-03-02T12-34-56Z_abc1234_mono_devloop_desktop_chrome_empty-browser.json
+    2026-03-02T12-34-56Z_abc1234_mono_devloop_desktop_firefox_empty-browser.json
   results-empty-browser-aot/
-    12-34-56-UTC_abc1234_mono_aot_desktop_chrome_empty-browser.json
+    2026-03-02T12-34-56Z_abc1234_mono_aot_desktop_chrome_empty-browser.json
   results-blazing-pizza-devloop/
-    12-34-56-UTC_abc1234_mono_devloop_desktop_chrome_blazing-pizza.json
+    2026-03-02T12-34-56Z_abc1234_mono_devloop_desktop_chrome_blazing-pizza.json
     compile-time.json       ← skipped (no meta field)
     sdk-info.json           ← skipped (no meta field)
     build-manifest.json     ← skipped (no meta field)
@@ -49,7 +49,7 @@ Each valid result file has this structure:
 ```json
 {
   "meta": {
-    "runtimeCommitDateTime": "2026-03-02",
+    "runtimeCommitDateTime": "2026-03-02T12:34:56Z",
     "sdkVersion": "11.0.100-preview.3.26153.117",
     "runtimeGitHash": "abc1234def5678abc1234def5678abc1234def567",
     "sdkGitHash": "111222333444555666777888999aaabbbcccdddee",
@@ -82,7 +82,7 @@ data/{year}/{YYYY-MM-DD}/{canonicalFilename}.json
 
 Example:
 ```
-data/2026/2026-03-02/12-34-56-UTC_abc1234_mono_devloop_desktop_chrome_empty-browser.json
+data/2026/2026-03-02/2026-03-02T12-34-56Z_abc1234_mono_devloop_desktop_chrome_empty-browser.json
 ```
 
 The file content is the full `{ meta, metrics }` object, pretty-printed with 2-space indent.
@@ -99,8 +99,7 @@ One per calendar month, at `data/{YYYY-MM}.json`:
       "runtimeGitHash": "abc1234def5678...",
       "sdkGitHash": "111222333...",
       "vmrGitHash": "aaaa1111...",
-      "date": "2026-03-02",
-      "time": "12-34-56-UTC",
+      "runtimeCommitDateTime": "2026-03-02T12:34:56Z",
       "sdkVersion": "11.0.100-preview.3.26153.117",
       "results": [
         {
@@ -109,7 +108,7 @@ One per calendar month, at `data/{YYYY-MM}.json`:
           "profile": "desktop",
           "engine": "chrome",
           "app": "empty-browser",
-          "file": "2026/2026-03-02/12-34-56-UTC_abc1234_mono_devloop_desktop_chrome_empty-browser.json",
+          "file": "2026/2026-03-02/2026-03-02T12-34-56Z_abc1234_mono_devloop_desktop_chrome_empty-browser.json",
           "metrics": ["compile-time", "disk-size-total", "disk-size-wasm", "time-to-reach-managed", "memory-peak"]
         }
       ]
@@ -118,7 +117,7 @@ One per calendar month, at `data/{YYYY-MM}.json`:
 }
 ```
 
-Commits within a month index are **sorted chronologically** by `date` then `time`.
+Commits within a month index are **sorted chronologically** by `runtimeCommitDateTime`.
 
 ### Top-Level Index
 
@@ -152,14 +151,14 @@ data/
 ├── 2026-03.json                         # Month index for March 2026
 ├── 2026/
 │   ├── 2026-01-15/
-│   │   ├── 10-00-00-UTC_abc1234_mono_devloop_desktop_chrome_empty-browser.json
-│   │   ├── 10-00-00-UTC_abc1234_mono_devloop_mobile_chrome_empty-browser.json
+│   │   ├── 2026-01-15T10-00-00Z_abc1234_mono_devloop_desktop_chrome_empty-browser.json
+│   │   ├── 2026-01-15T10-00-00Z_abc1234_mono_devloop_mobile_chrome_empty-browser.json
 │   │   └── ...
 │   ├── 2026-02-03/
 │   │   └── ...
 │   └── 2026-03-02/
-│       ├── 12-34-56-UTC_abc1234_mono_devloop_desktop_chrome_empty-browser.json
-│       ├── 12-34-56-UTC_abc1234_mono_aot_desktop_chrome_empty-browser.json
+│       ├── 2026-03-02T12-34-56Z_abc1234_mono_devloop_desktop_chrome_empty-browser.json
+│       ├── 2026-03-02T12-34-56Z_abc1234_mono_aot_desktop_chrome_empty-browser.json
 │       └── ...
 └── views/                               # Produced by transform-views stage (not by consolidate)
 ```
@@ -209,11 +208,11 @@ Absolute path:      {dataDir}/{relPath}
 ```
 
 Where:
-- `{runtimeCommitDateTime}` = `meta.runtimeCommitDateTime` (e.g. `12-34-56-UTC`)
+- `{runtimeCommitDateTime}` = path-safe form of `meta.runtimeCommitDateTime` (colons replaced with dashes, e.g. `2026-03-02T12:34:56Z` → `2026-03-02T12-34-56Z`)
 - `{hash7}` = first 7 characters of `meta.runtimeGitHash`
 - `{profile}` = `meta.profile` or `'desktop'` if absent
-- `{year}` = first 4 characters of `meta.runtimeCommitDateTime`
-- `{YYYY-MM-DD}` = `meta.runtimeCommitDateTime`
+- `{year}` = `meta.runtimeCommitDateTime.slice(0, 4)` (e.g. `2026`)
+- `{YYYY-MM-DD}` = `meta.runtimeCommitDateTime.slice(0, 10)` (e.g. `2026-03-02`)
 
 The target directory is created with `mkdir({ recursive: true })`. The result file is written as pretty-printed JSON with a trailing newline.
 
@@ -224,7 +223,7 @@ The target directory is created with `mkdir({ recursive: true })`. The result fi
 Each result is assigned to a month via:
 
 ```
-monthKey = runtimeCommitDateTime.slice(0, 7)    // "2026-03-02" → "2026-03"
+monthKey = runtimeCommitDateTime.slice(0, 7)    // "2026-03-02T12:34:56Z" → "2026-03"
 ```
 
 For each affected month:
@@ -235,7 +234,7 @@ For each affected month:
    - Within the commit, find or replace a **result entry** matched by the 5-tuple `(runtime, preset, profile, engine, app)`
    - If an existing result matches the same 5-tuple → **replace** (last write wins)
    - Otherwise → **append** to the commit's results array
-3. After all results are processed, **sort** commits within each month by `date` then `time`
+3. After all results are processed, **sort** commits within each month by `runtimeCommitDateTime`
 4. **Write** updated month index files
 
 ### Step 5: Rebuild Top-Level Index
@@ -260,7 +259,7 @@ For each affected month:
 
 | Component | Source | Example |
 |-----------|--------|---------|
-| `runtimeCommitDateTime` | `meta.runtimeCommitDateTime` | `12-34-56-UTC` |
+| `runtimeCommitDateTime` | `meta.runtimeCommitDateTime` (path-safe) | `2026-03-02T12-34-56Z` |
 | `hash7` | `meta.runtimeGitHash[0:7]` | `abc1234` |
 | `runtime` | `meta.runtime` | `mono`, `coreclr` |
 | `preset` | `meta.preset` | `devloop`, `aot`, `no-workload` |
@@ -270,14 +269,14 @@ For each affected month:
 
 Full example:
 ```
-12-34-56-UTC_abc1234_mono_devloop_desktop_chrome_empty-browser.json
+2026-03-02T12-34-56Z_abc1234_mono_devloop_desktop_chrome_empty-browser.json
 ```
 
 ### Directory Path Components
 
-- **Year**: extracted from `runtimeCommitDateTime` (first 4 chars) → `2026`
-- **Date directory**: full `runtimeCommitDateTime` → `2026-03-02`
-- **Month key**: `runtimeCommitDateTime[0:7]` → `2026-03` (used for month index filename)
+- **Year**: `runtimeCommitDateTime.slice(0, 4)` → `2026`
+- **Date directory**: `runtimeCommitDateTime.slice(0, 10)` → `2026-03-02`
+- **Month key**: `runtimeCommitDateTime.slice(0, 7)` → `2026-03` (used for month index filename)
 
 ## Deduplication
 
@@ -324,9 +323,9 @@ The `consolidate.yml` workflow currently triggers only when benchmark.yml conclu
 
 ## Existing Code Reference
 
-### JavaScript Implementation
+### TypeScript Implementation
 
-The current implementation is [scripts/consolidate-results.mjs](../scripts/consolidate-results.mjs). Key exported functions:
+The current implementation is [bench/src/stages/consolidate.ts](../../bench/src/stages/consolidate.ts). Key exported functions:
 
 | Function | Purpose |
 |----------|---------|
@@ -338,7 +337,7 @@ The current implementation is [scripts/consolidate-results.mjs](../scripts/conso
 | `createEmptyMonthIndex(month)` | `{ month, commits: [] }` |
 | `buildMonthResultEntry(meta, metrics)` | Dimension tuple + file path + metric key list |
 | `upsertResult(monthIndex, resultJson)` | Find-or-create commit, find-or-replace result |
-| `sortMonthCommits(monthIndex)` | Sort commits by `date` then `time` |
+| `sortMonthCommits(monthIndex)` | Sort commits by `runtimeCommitDateTime` |
 | `rebuildTopLevelIndex(monthKeys, monthIndexes)` | Derive dimensions union, assemble index.json |
 | `consolidate(artifactsDir, dataDir)` | Main orchestrator — returns `{ processed, skipped }` |
 

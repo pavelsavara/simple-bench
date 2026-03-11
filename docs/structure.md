@@ -8,30 +8,39 @@
 │   ├── Dockerfile                 # Multi-stage: base → browser-bench-build, browser-bench-measure
 │   ├── package-build.json         # Node package for build image (no deps)
 │   └── package-measure.json       # Node package for measure image (playwright 1.58.2)
-├── scripts/
-│   ├── run-bench.mjs              # Unified entry point for local/docker execution
-│   ├── run-pipeline.mjs           # Build phase orchestrator (Phases 0–6)
-│   ├── run-measure-job.mjs        # Measure phase orchestrator (per app/preset)
-│   ├── measure-external.mjs       # Browser + CLI measurement (chrome/firefox/v8/node)
-│   ├── measure-internal.mjs       # Microbenchmark measurement
-│   ├── consolidate-results.mjs    # Merge results into gh-pages data/
-│   ├── schedule-benchmarks.mjs    # Gap detection & workflow dispatch
-│   ├── enumerate-runtime-packs.mjs # Catalog runtime packs from NuGet feeds
-│   ├── enumerate-sdks.mjs         # Catalog SDKs from CDN + NuGet
-│   ├── init-gh-pages.sh           # Bootstrap gh-pages branch
-│   ├── local-bench.sh/.ps1        # Local mode wrapper (no Docker)
-│   ├── local-docker-bench.sh/.ps1 # Docker mode wrapper
-│   └── lib/
-│       ├── build-app.mjs          # Single app build (dotnet publish wrapper)
-│       ├── build-config.mjs       # Preset → MSBuild flag mapping + validation
-│       ├── measure-utils.mjs      # Static server, file sizes, result JSON builder
-│       ├── internal-utils.mjs     # Engine commands, bench result parsing
-│       ├── metrics.mjs            # Metrics registry (names, units, categories)
-│       ├── throttle-profiles.mjs  # Desktop/mobile profile definitions
-│       ├── resolve-sdk.mjs        # SDK download + version resolution
-│       ├── sdk-info.mjs           # Git hash extraction, date parsing
-│       ├── runtime-pack-resolver.mjs # Runtime pack resolution, date decoding
-│       └── pizza-walkthrough.mjs  # Playwright order flow for blazing-pizza
+├── bench.sh                       # Shell wrapper: builds CLI if needed, runs bench
+├── bench.ps1                      # PowerShell wrapper: builds CLI if needed, runs bench
+├── bench/
+│   ├── package.json               # Separate from root. Deps: typescript, tsx, rollup
+│   ├── tsconfig.json              # strict, ESNext, NodeNext module resolution
+│   ├── rollup.config.mjs          # Bundle src/main.ts → dist/bench.mjs (ESM)
+│   └── src/
+│       ├── main.ts                # Entry point: parseArgs → buildContext → runStages
+│       ├── args.ts                # CLI argument parsing, validation, help text
+│       ├── context.ts             # BenchContext type, defaults, serialization
+│       ├── enums.ts               # All dimension enums + routing tables + constraints
+│       ├── exec.ts                # Cross-platform process execution, Docker, WSL helpers
+│       ├── log.ts                 # Structured logging (respects --verbose)
+│       ├── lib/
+│       │   ├── build-config.ts    # Preset → MSBuild flag mapping + validation
+│       │   ├── sdk-info.ts        # Git hash extraction, date parsing
+│       │   ├── metrics.ts         # Metrics registry (names, units, categories)
+│       │   ├── measure-utils.ts   # Static server, file sizes, result JSON builder
+│       │   ├── internal-utils.ts  # Engine commands, bench result parsing
+│       │   ├── throttle-profiles.ts # Desktop/mobile profile definitions
+│       │   ├── runtime-pack-resolver.ts # Runtime pack resolution, date decoding
+│       │   └── pizza-walkthrough.ts # Playwright order flow for blazing-pizza
+│       └── stages/
+│           ├── index.ts           # Stage registry, sequential runner
+│           ├── docker-image.ts    # Build Docker images
+│           ├── acquire-sdk.ts     # SDK download, hash resolution, sdk-info.json
+│           ├── build.ts           # Build all app×preset, write build-manifest
+│           ├── measure.ts         # Measure all combinations, write result JSONs
+│           ├── consolidate.ts     # Merge results into gh-pages
+│           ├── schedule.ts        # Gap detection, workflow dispatch
+│           ├── enumerate-packs.ts # Runtime pack catalog
+│           ├── enumerate-sdks.ts  # SDK catalog
+│           └── transform-views.ts # View file generation
 ├── src/
 │   ├── Directory.Build.props      # Output paths, imports versions.props + presets.props
 │   ├── Directory.Build.targets    # Runtime pack override target (UpdateRuntimePack)
@@ -111,7 +120,7 @@ Controls directory nesting under `bin/`, `obj/`, `publish/`:
 ```
 {runtimeCommitDateTime}_{hash7}_{runtime}_{preset}_{profile}_{engine}_{app}.json
 ```
-Example: `2026-03-02T12-34-56-UTC_abc1234_mono_devloop_desktop_chrome_empty-browser.json`
+Example: `2026-03-02T12-34-56Z_abc1234_mono_devloop_desktop_chrome_empty-browser.json`
 
 ### gh-pages data directory (after consolidation)
 

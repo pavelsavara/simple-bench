@@ -9,7 +9,7 @@ export interface SdkInfo {
     runtimeGitHash: string;
     sdkGitHash: string;
     vmrGitHash: string;
-    runtimeruntimeCommitDateTimeTime: string;
+    runtimeCommitDateTime: string;
     runtimePackVersion?: string;
     workloadVersion?: string;
 }

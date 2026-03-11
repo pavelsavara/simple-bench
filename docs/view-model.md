@@ -84,16 +84,14 @@ gh-pages/data/views/
       "runtimeHash": "abc1234def567890...",
       "sdkHash": "111222333444555...",
       "vmrHash": "aaa111bbb222...",
-      "date": "2026-03-02",
-      "time": "10-00-00-UTC"
+      "runtimeCommitDateTime": "2026-03-02T12:34:56Z"
     },
     {
       "sdk": "11.0.100-preview.3.26152.105",
       "runtimeHash": "...",
       "sdkHash": "...",
       "vmrHash": "...",
-      "date": "2026-03-03",
-      "time": "08-30-00-UTC"
+      "runtimeCommitDateTime": "2026-03-02T18:45:00Z"
     }
   ],
   "apps": {
@@ -112,13 +110,12 @@ gh-pages/data/views/
 | `columns[].runtimeHash` | Full runtime git hash |
 | `columns[].sdkHash` | Full SDK git hash |
 | `columns[].vmrHash` | VMR git hash |
-| `columns[].date` | Commit date `YYYY-MM-DD` |
-| `columns[].time` | Commit time `HH-MM-SS-UTC` |
+| `columns[].runtimeCommitDateTime` | ISO UTC datetime of the runtime commit |
 | `apps` | Map of app → list of metric file names that exist in this week directory |
 
 The `apps` map prevents the UI from making 404 requests for missing data files.
 
-Columns are sorted chronologically by `date` then `time`.
+Columns are sorted chronologically by `runtimeCommitDateTime`.
 
 When multiple pipeline runs produce results for the same commit (same `runtimeHash`), the column is deduplicated — last-write wins for metric values.
 
@@ -164,16 +161,14 @@ The UI parses row keys to populate filter checkboxes and to match visibility tog
       "runtimeHash": "...",
       "sdkHash": "...",
       "vmrHash": "...",
-      "date": "2024-11-12",
-      "time": "..."
+      "runtimeCommitDateTime": "2024-11-12T10:00:00Z"
     },
     {
       "sdk": "9.0.101",
       "runtimeHash": "...",
       "sdkHash": "...",
       "vmrHash": "...",
-      "date": "2024-12-10",
-      "time": "..."
+      "runtimeCommitDateTime": "2024-12-10T10:00:00Z"
     }
   ],
   "apps": {

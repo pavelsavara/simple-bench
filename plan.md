@@ -150,10 +150,10 @@ enum MetricKey {
 
 ```typescript
 const APP_CONFIG: Record<App, AppConfig> = {
-    [App.EmptyBrowser]:   { browserOnly: false, internal: false, hasTimingMarker: true },
-    [App.EmptyBlazor]:    { browserOnly: true,  internal: false, hasTimingMarker: false },
-    [App.BlazingPizza]:   { browserOnly: true,  internal: false, hasTimingMarker: false },
-    [App.Microbenchmarks]:{ browserOnly: false, internal: true,  hasTimingMarker: true },
+    [App.EmptyBrowser]:   { browserOnly: false, internal: false },
+    [App.EmptyBlazor]:    { browserOnly: true,  internal: false },
+    [App.BlazingPizza]:   { browserOnly: true,  internal: false },
+    [App.Microbenchmarks]:{ browserOnly: false, internal: true },
 };
 ```
 
@@ -348,5 +348,11 @@ bench.ps1                      # PowerShell — check Node, exec tsx or node
 | Shell wrappers | Minimal `bench.sh`/`bench.ps1` | Only check Node prereq, delegate everything to TS |
 | `naotllvm` | Kept as legacy alias for `mono` | Backward compat for old result data |
 | `no-jiterp` preset | Kept | Valid mono-only preset |
-| Apps | Hardcoded enum | Bake routing rules (browserOnly, internal, hasTimingMarker) |
+| Apps | Hardcoded enum | Bake routing rules (browserOnly, internal) |
 | CI run URL | Derived from `GITHUB_RUN_ID` + `GITHUB_REPOSITORY` env vars | No need for separate `--ci-run-url` parameter |
+
+---
+
+## TODO
+
+- [ ] Implement `dotnet_managed_ready` timing marker for Blazor apps (`empty-blazor`, `blazing-pizza`) via a Blazor startup hook so that `time-to-reach-managed` and `time-to-reach-managed-cold` are available for all apps. The design assumes these metrics are always present.
