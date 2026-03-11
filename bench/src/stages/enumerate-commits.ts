@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { existsSync } from 'node:fs';
 import { type BenchContext } from '../context.js';
 import { info, banner } from '../log.js';
+import { resolveGitHubToken, githubHeaders, GITHUB_API } from '../lib/http.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -26,7 +27,6 @@ interface CommitsList {
 
 // ── GitHub REST API ──────────────────────────────────────────────────────────
 
-const GITHUB_API = 'https://api.github.com';
 const REPO = 'dotnet/runtime';
 
 async function fetchCommitsPage(
@@ -41,14 +41,7 @@ async function fetchCommitsPage(
     url.searchParams.set('per_page', '100');
     url.searchParams.set('page', String(page));
 
-    const headers: Record<string, string> = {
-        'Accept': 'application/vnd.github+json',
-        'User-Agent': 'simple-bench-cli',
-        'X-GitHub-Api-Version': '2022-11-28',
-    };
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
+    const headers = githubHeaders(token);
 
     const response = await fetch(url.toString(), { headers });
 
@@ -140,9 +133,9 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     info(`Enumerating commits for ${REPO} (last ${ctx.months} months)`);
 
-    const token = process.env['GITHUB_TOKEN'] || process.env['GH_TOKEN'];
+    const token = await resolveGitHubToken();
     if (!token && ctx.verbose) {
-        info('No GITHUB_TOKEN set — using unauthenticated requests (60 req/hr limit)');
+        info('No GitHub token found (env vars or gh CLI) — unauthenticated requests (60 req/hr limit)');
     }
 
     const existing = await loadExisting(outputPath);

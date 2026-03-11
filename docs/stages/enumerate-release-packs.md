@@ -2,6 +2,8 @@
 
 Implementation: `bench/src/stages/enumerate-release-packs.ts`
 
+Shared utilities: `bench/src/lib/http.ts` (fetchJson, headOk, githubHeaders, resolveGitHubToken, mapConcurrent)
+
 ## Purpose
 
 Enumerates all GA (General Availability) releases of .NET 8, 9, and 10, resolves full `SdkInfo` metadata for each, and writes `artifacts/release-packs-list.json`. Covers every monthly service-pack release. Previews and RCs are excluded.
@@ -98,6 +100,8 @@ For .NET 10+, all commits in productCommit are the **same VMR commit**. Resoluti
 | `aspnetCoreGitHash` | `source-manifest.json` → `repositories[path=aspnetcore].commitSha` |
 | `sdkGitHash` | `source-manifest.json` → `repositories[path=sdk].commitSha` |
 | `bootstrapSdkVersion` | VMR `global.json` → `tools.dotnet` |
+
+**2xx/3xx SDK bands:** Runtime and ASP.NET Core are not source-built in higher bands — `source-manifest.json` only contains `sdk`. Resolution follows the upstream 1xx VMR commit via `eng/Version.Details.xml` (`Microsoft.NETCore.App.Ref` dependency SHA), then reads that commit's `source-manifest.json` for the missing repos.
 
 ### .NET 8/9 (pre-VMR)
 

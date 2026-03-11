@@ -40,7 +40,10 @@
 │           ├── schedule.ts        # Gap detection, workflow dispatch
 │           ├── enumerate-commits.ts # Enumerate runtime commits via GitHub API
 │           ├── enumerate-daily-packs.ts # Runtime pack catalog
+│           ├── enumerate-release-packs.ts # GA release pack catalog
 │           └── transform-views.ts # View file generation
+│       └── lib/
+│           └── http.ts            # Shared HTTP: fetchJson, headOk, GitHub auth, mapConcurrent
 ├── src/
 │   ├── Directory.Build.props      # Output paths, imports versions.props + presets.props
 │   ├── Directory.Build.targets    # Runtime pack override target (UpdateRuntimePack)

@@ -61,6 +61,7 @@ Scheduling:
 Enumeration:
   --major <n>              .NET major version (default: 11)
   --months <n>             History months to scan (default: 3)
+  --release-majors <list>  Comma-separated majors for release enumeration (default: 8,9,10)
   --force-enumerate        Re-resolve all versions (ignore cache)
 
 General:
@@ -112,6 +113,7 @@ const ARG_OPTIONS = {
     // Enumeration
     'major': { type: 'string' as const, default: '11' },
     'months': { type: 'string' as const, default: '3' },
+    'release-majors': { type: 'string' as const, default: '8,9,10' },
     'force-enumerate': { type: 'boolean' as const, default: false },
 
     // General
@@ -249,6 +251,7 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
         // Enumeration
         major: parseIntStrict(values.major!, 'major'),
         months: parseIntStrict(values.months!, 'months'),
+        releaseMajors: values['release-majors']!.split(',').map(s => parseIntStrict(s.trim(), 'release-majors')),
         forceEnumerate: values['force-enumerate'] ?? false,
 
         // Resolved paths

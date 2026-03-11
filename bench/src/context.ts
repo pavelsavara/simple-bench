@@ -72,6 +72,7 @@ export interface BenchContext {
     // ── Enumeration ──
     major: number;
     months: number;
+    releaseMajors: number[];
     forceEnumerate: boolean;
 
     // ── Resolved paths (populated during execution) ──

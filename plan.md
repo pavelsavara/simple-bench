@@ -44,6 +44,7 @@ The pipeline is a sequence of stages. Each stage receives `BenchContext`, may mu
 | `schedule` | any | Detect untested runtime commits, dispatch benchmark workflows |
 | `enumerate-commits` | any | Enumerate recent dotnet/runtime commits via GitHub API |
 | `enumerate-daily-packs` | any | Catalog runtime pack versions from daily NuGet feeds |
+| `enumerate-release-packs` | any | Catalog GA runtime pack versions from official release metadata |
 | `transform-views` | any | Build pre-aggregated view files for dashboard |
 
 Default (no `--stages`): `acquire-sdk,build,measure`
@@ -126,6 +127,7 @@ enum Stage {
     Consolidate = 'consolidate',
     Schedule = 'schedule',
     EnumerateDailyPacks = 'enumerate-daily-packs',
+    EnumerateReleasePacks = 'enumerate-release-packs',
     TransformViews = 'transform-views',
 }
 
@@ -264,8 +266,10 @@ bench/
 │   │   ├── schedule.ts        # Gap detection, workflow dispatch (stub)
 │   │   ├── enumerate-commits.ts # Enumerate runtime commits via GitHub API ✅
 │   │   ├── enumerate-daily-packs.ts # Runtime pack catalog (stub)
+│   │   ├── enumerate-release-packs.ts # GA release pack catalog ✅
 │   │   └── transform-views.ts # View file generation (stub)
-│   └── lib/                   # (not yet created)
+│   └── lib/
+│       ├── http.ts            # Shared HTTP: fetchJson, headOk, GitHub auth, concurrency
 │       ├── build-config.ts    # Preset → MSBuild flag mapping
 │       ├── sdk-info.ts        # Version parsing, SHORT_DATE decoding
 │       ├── metrics.ts         # Metric registry (shared types)
@@ -330,6 +334,7 @@ bench.ps1                      # PowerShell — check Node, exec tsx or node
 ### Step 6: Port stages one by one
 - [x] `enumerate-commits` — fully implemented (GitHub REST API pagination, token auth, writes artifacts/commits-list.json)
 - [ ] `enumerate-daily-packs` — stub (runtime pack catalog from daily NuGet feeds)
+- [x] `enumerate-release-packs` — fully implemented (release metadata API, productCommit resolution, VMR/pre-VMR detection, nuget.org validation, incremental)
 - [x] `docker-image` — fully implemented (build both images, skip logic)
 - [x] `build` — fully implemented (207 lines: app×preset iteration, dotnet publish, workload install, compile-time tracking, integrity check, build-manifest + sdk-info emission)
 - [ ] `acquire-sdk` — stub (SDK download, hash resolution, sdk-info.json)
