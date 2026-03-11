@@ -29,6 +29,15 @@ RUN mkdir -p $ARTIFACTS_DIR/sdks $ARTIFACTS_DIR/publish $ARTIFACTS_DIR/results $
 
 WORKDIR /bench
 
+# Build the bench CLI bundle from TypeScript source
+COPY bench/ /tmp/bench-build/
+RUN cd /tmp/bench-build \
+    && npm ci \
+    && npm run build \
+    && mkdir -p /opt/bench \
+    && cp /tmp/artifacts/bench/bench.mjs /opt/bench/bench.mjs \
+    && rm -rf /tmp/bench-build /tmp/artifacts
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Stage: browser-bench-build — .NET SDK prerequisites for building WASM apps
 # ═══════════════════════════════════════════════════════════════════════════════
