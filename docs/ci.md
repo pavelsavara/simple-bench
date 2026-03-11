@@ -75,12 +75,12 @@ Creates non-root user `benchuser` (uid 1001) — Firefox refuses root when HOME 
 **Playwright browsers:** chromium + firefox into `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers`, world-readable.  
 Pre-caches `npm ci` (playwright 1.58.2). Runs as `benchuser`.
 
-## Self-Scheduling (schedule-benchmarks.mjs)
+## Self-Scheduling (`schedule` stage)
 
 Detects runtime commits with no benchmark results and dispatches `benchmark.yml` for them.
 
 **Flow:**
-1. Load `artifacts/runtime-packs.json` (optionally `--refresh` to re-enumerate from NuGet)
+1. Load `artifacts/daily-packs-list.json` (optionally `--force-enumerate` to re-enumerate from NuGet)
 2. Fetch gh-pages `index.json` + last 6 months of month indexes
 3. Collect all `runtimeGitHash` values into a "tested" set
 4. Sort packs by `buildDate` DESC, take `--recent N` (default 30)
@@ -90,7 +90,7 @@ Detects runtime commits with no benchmark results and dispatches `benchmark.yml`
 
 **CLI:**
 ```bash
-bench --stages schedule --refresh --max-dispatches 3 --dry-run
+bench --stages schedule --max-dispatches 3 --dry-run
 bench --stages schedule --recent 30 --repo user/repo --branch main
 ```
 
@@ -103,15 +103,15 @@ The scheduler cannot distinguish "never tried" from "tried and always fails". If
 ### Storage branch — persistent CI state
 
 A `storage` branch holds state that must survive across CI runs:
-- `runtime-packs.json` and `sdk-list.json` — catalog caches (currently local-only; CI runs always start cold)
+- `daily-packs-list.json` and `release-packs-list.json` — catalog caches (currently local-only; CI runs always start cold)
 - `schedule-attempts.json` — tracks `{runtimeGitHash: {attempts: N, lastAttempt: ISO}}`
 
 **Status: not yet implemented (priority).**
 
 #### Flow
 
-**1. Scheduler** (`schedule-benchmarks.mjs`):
-1. Fetch `storage` branch → load `runtime-packs.json`, `schedule-attempts.json`
+**1. Scheduler** (`schedule` stage):
+1. Fetch `storage` branch → load `daily-packs-list.json`, `schedule-attempts.json`
 2. Fetch gh-pages `index.json` + month indexes → build "tested" set
 3. Filter runtime packs: not in tested set AND `attempts < 3` in schedule-attempts
 4. For each commit to dispatch: increment `attempts`, set `lastAttempt` in schedule-attempts
@@ -119,9 +119,9 @@ A `storage` branch holds state that must survive across CI runs:
 6. Dispatch `benchmark.yml -f runtime_commit={hash}`
 
 **2. Build pipeline** (`benchmark.yml` build job):
-1. Fetch `storage` branch → load `runtime-packs.json`, `sdk-list.json` (warm cache)
+1. Fetch `storage` branch → load `daily-packs-list.json`, `release-packs-list.json` (warm cache)
 2. Build apps, produce artifacts
-3. Optionally push updated `sdk-list.json` if new SDK info was resolved
+3. Optionally push updated catalog files if new SDK info was resolved
 
 **3. Consolidation** (`consolidate.yml`):
 1. Process result artifacts → push to `gh-pages`

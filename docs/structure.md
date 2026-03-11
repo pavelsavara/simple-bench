@@ -22,14 +22,7 @@
 │       ├── exec.ts                # Cross-platform process execution, Docker, WSL helpers
 │       ├── log.ts                 # Structured logging (respects --verbose)
 │       ├── lib/
-│       │   ├── build-config.ts    # Preset → MSBuild flag mapping + validation
-│       │   ├── sdk-info.ts        # Git hash extraction, date parsing
-│       │   ├── metrics.ts         # Metrics registry (names, units, categories)
-│       │   ├── measure-utils.ts   # Static server, file sizes, result JSON builder
-│       │   ├── internal-utils.ts  # Engine commands, bench result parsing
-│       │   ├── throttle-profiles.ts # Desktop/mobile profile definitions
-│       │   ├── runtime-pack-resolver.ts # Runtime pack resolution, date decoding
-│       │   └── pizza-walkthrough.ts # Playwright order flow for blazing-pizza
+│       │   └── http.ts            # Shared HTTP: fetchJson, headOk, GitHub auth, mapConcurrent
 │       └── stages/
 │           ├── index.ts           # Stage registry, sequential runner
 │           ├── docker-image.ts    # Build Docker images
@@ -39,11 +32,9 @@
 │           ├── consolidate.ts     # Merge results into gh-pages
 │           ├── schedule.ts        # Gap detection, workflow dispatch
 │           ├── enumerate-commits.ts # Enumerate runtime commits via GitHub API
-│           ├── enumerate-daily-packs.ts # Runtime pack catalog
-│           ├── enumerate-release-packs.ts # GA release pack catalog
+│           ├── enumerate-daily-packs.ts # Runtime pack catalog from NuGet daily feed
+│           ├── enumerate-release-packs.ts # GA release pack catalog from release metadata
 │           └── transform-views.ts # View file generation
-│       └── lib/
-│           └── http.ts            # Shared HTTP: fetchJson, headOk, GitHub auth, mapConcurrent
 ├── src/
 │   ├── Directory.Build.props      # Output paths, imports versions.props + presets.props
 │   ├── Directory.Build.targets    # Runtime pack override target (UpdateRuntimePack)
@@ -56,8 +47,6 @@
 │   ├── empty-blazor/              # Minimal Blazor app (no timing marker)
 │   ├── blazing-pizza/             # Real-world Blazor app (multi-page order flow)
 │   └── microbenchmarks/           # JS interop / JSON / exception perf benchmarks
-├── tests/
-│   └── unit/                      # Node.js test runner tests (*.test.mjs)
 ├── NuGet.config                   # Feed configuration (nuget.org + AzDO public feeds)
 ├── package.json                   # Root: Node 24, ES modules, Playwright + Chart.js deps
 └── artifacts/                     # Gitignored — all build/measure outputs
@@ -105,9 +94,9 @@ artifacts/
 │   │   └── build-manifest.json    # [{app, preset, compileTimeMs, integrity}]
 │   └── {runtimeCommitDateTime}_{hash7}_{runtime}_{preset}_{profile}_{engine}_{app}.json
 │
-├── runtime-packs.json             # Catalog of runtime pack versions + git hashes
-├── sdk-list.json                  # Catalog of SDK versions + git hashes
-└── commits-list.json              # Recent dotnet/runtime commits from GitHub API
+├── commits-list.json              # Recent dotnet/runtime commits from GitHub API
+├── daily-packs-list.json          # .NET 11 daily runtime pack catalog + SdkInfo
+└── release-packs-list.json        # .NET 8/9/10 GA release pack catalog + SdkInfo
 ```
 
 ## Key Path Patterns

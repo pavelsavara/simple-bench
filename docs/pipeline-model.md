@@ -11,14 +11,14 @@ Every benchmark result is identified by a tuple of `(app, preset, runtime, engin
 | `blazing-pizza` | Microsoft.NET.Sdk.BlazorWebAssembly | measure-external + pizza-walkthrough | Yes (Blazor startup hook → `dotnet_managed_ready`) | Multi-page Blazor app with order workflow |
 | `microbenchmarks` | Microsoft.NET.Sdk.WebAssembly | measure-internal | Yes (`bench_complete`) | JS interop, JSON, exception perf |
 
-**Routing rules** (run-measure-job.mjs):
+**Routing rules** (enums.ts `APP_CONFIG`):
 - `BROWSER_ONLY_APPS = {empty-blazor, blazing-pizza}` → chrome + firefox only (no CLI engines)
 - `INTERNAL_APPS = {microbenchmarks}` → uses `measure-internal.mjs` instead of `measure-external.mjs`
 - Default (empty-browser) → all 4 engines
 
 ## Presets
 
-Build optimization profiles defined in `src/presets.props`, mapped to MSBuild args in `bench/src/lib/build-config.ts`.
+Build optimization profiles defined in `src/presets.props`, mapped to MSBuild args in `bench/src/enums.ts`.
 
 ### Non-workload presets (no wasm-tools needed)
 
@@ -47,7 +47,7 @@ Build optimization profiles defined in `src/presets.props`, mapped to MSBuild ar
 | `coreclr` | `/p:RuntimeFlavor=CoreCLR` | Cannot use `aot` or `no-jiterp` presets. See [future.md](future.md) for `r2r` preset. |
 | `naotllvm` | — | Future — see [future.md](future.md) |
 
-**Validation** (build-config.mjs): `aot` or `no-jiterp` with `coreclr` → error.
+**Validation** (enums.ts): `aot` or `no-jiterp` with `coreclr` → error.
 
 ## Engines
 
@@ -67,7 +67,7 @@ Build optimization profiles defined in `src/presets.props`, mapped to MSBuild ar
 
 CLI engines measure timing only (no download size, no memory). Fall back to wall-clock if marker absent.
 
-**Engine selection** (run-measure-job.mjs):
+**Engine selection** (measure stage):
 - Explicit `--engine` filter → use it
 - `--dry-run` → `['chrome']` only
 - Browser-only apps → `['chrome', 'firefox']`
@@ -80,7 +80,7 @@ CLI engines measure timing only (no download size, no memory). Fall back to wall
 | `desktop` | 1x (none) | Unlimited | All |
 | `mobile` | 3x slowdown | 20 Mbps ↓ / 5 Mbps ↑ / 70ms RTT | Chrome only (requires CDP) |
 
-**Profile selection** (run-measure-job.mjs):
+**Profile selection** (measure stage):
 - Explicit `--profile` filter → use it
 - `engine != 'chrome'` → `['desktop']` only
 - Chrome → `['desktop', 'mobile']`

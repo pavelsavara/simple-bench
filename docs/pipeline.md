@@ -4,19 +4,19 @@ Entry point: `bench --stages acquire-sdk,build` (build) → `bench --stages meas
 
 In CI these run in separate containers. Locally `bench --stages acquire-sdk,build,measure` orchestrates both.
 
-## Build Phase (run-pipeline.mjs)
+## Build Phase (`acquire-sdk` + `build` stages)
 
 ### Phase 0 — Resolve runtime pack (optional)
 
 Activates when `--runtime-pack <version>` or `--runtime-commit <hash>` is provided.
 
-1. Load `artifacts/runtime-packs.json`
-2. `--runtime-commit`: find pack entry where `runtimeGitHash.startsWith(hash)` → extract `runtimePackVersion` + `sdkVersionOfTheRuntimeBuild`
+1. Load `artifacts/daily-packs-list.json`
+2. `--runtime-commit`: find pack entry where `runtimeGitHash.startsWith(hash)` → extract `runtimePackVersion` + `sdkVersion`
 3. `--runtime-pack`: direct version lookup → extract `runtimeGitHash`
-4. If `--sdk-version` not explicit: override with `sdkVersionOfTheRuntimeBuild` from pack entry
-5. Update `SDK_DIR` path to `{os}.sdk{sdkVersionOfTheRuntimeBuild}`
+4. If `--sdk-version` not explicit: override with `sdkVersion` from pack entry
+5. Update `SDK_DIR` path to `{os}.sdk{sdkVersion}`
 
-**Error:** commit not found in catalog → throws (user must run `enumerate-runtime-packs.mjs` first).
+**Error:** commit not found in catalog → throws (user must run `bench --stages enumerate-daily-packs` first).
 
 ### Phase 1 — Resolve and install .NET SDK
 
@@ -78,7 +78,7 @@ Integrity = count + total size of files in publish dir. Used by measure job to v
 
 **Run ID**: ISO timestamp with colons removed, e.g. `2026-03-05T10-30-45Z`. Written to `artifacts/results/.run-id`.
 
-## Measure Phase (run-measure-job.mjs)
+## Measure Phase (`measure` stage)
 
 Runs once per `{app, preset}` pair (CI parallelizes via matrix).
 
@@ -158,7 +158,7 @@ For `microbenchmarks` app:
 
 Null metrics are omitted. All values are rounded to integers.
 
-## Consolidation (consolidate-results.mjs)
+## Consolidation (`consolidate` stage)
 
 Triggered by `consolidate.yml` after benchmark completion.
 
@@ -176,12 +176,12 @@ Invalid/missing JSONs are silently skipped. `compile-time.json`, `sdk-info.json`
 
 Fetches recent commits from a GitHub repository (default `dotnet/runtime`) via the REST API and writes `artifacts/commits-list.json`. Used by the schedule stage to identify commits that need benchmarking.
 
-**CLI:** `bench --stages enumerate-commits [--commits-repo dotnet/runtime] [--commits-days 30]`
+**CLI:** `bench --stages enumerate-commits [--months 3]`
 
 **Flow:**
-1. Compute date range: now minus `--commits-days` (default 30) → `since`, now → `until`
+1. Compute date range: now minus `--months` (default 3) months → `since`, now → `until`
 2. Paginate `GET /repos/{owner}/{repo}/commits?since={since}&until={until}&per_page=100`
-3. Use `GITHUB_TOKEN` or `GH_TOKEN` env var for authentication (falls back to unauthenticated with 60 req/hr limit)
+3. Use `GITHUB_TOKEN` or `GH_TOKEN` env var for authentication; falls back to `gh auth token` (gh CLI), then unauthenticated (60 req/hr limit)
 4. Write `artifacts/commits-list.json`:
 
 ```json
@@ -210,12 +210,10 @@ Fetches recent commits from a GitHub repository (default `dotnet/runtime`) via t
 
 | Mode | Flag | Steps |
 |------|------|-------|
-| Local (no Docker) | `--mode local` | build stages → measure stage per manifest entry |
-| Docker | `--mode docker` | Build images → build stages in build container → measure stage in measure container |
+| Local (no Docker) | (default) | build stages → measure stage per manifest entry |
+| Docker | `--via-docker` | Build images → build stages in build container → measure stage in measure container |
 
-**Skip flags**: `--skip-docker`, `--skip-build`, `--skip-measure`  
-**Step override**: `--step {docker-build|build|measure}` runs only that step  
-**Filtering**: `--app`, `--preset`, `--engine` (comma-separated)  
+**Filtering**: `--app`, `--preset`, `--engine`, `--profile` (comma-separated)  
 **Windows**: Docker commands routed through WSL (`toWslPath()` conversion)
 
-Shell wrappers: `local-bench.sh`/`.ps1` (local mode), `local-docker-bench.sh`/`.ps1` (Docker mode). They check prerequisites (Node, Docker, Playwright browsers) and delegate.
+Shell wrappers: `bench.sh` / `bench.ps1` at repo root check for Node.js v24 and delegate to `tsx` (dev) or `node` (production).
