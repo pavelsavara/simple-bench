@@ -38,6 +38,7 @@
 │           ├── measure.ts         # Measure all combinations, write result JSONs
 │           ├── consolidate.ts     # Merge results into gh-pages
 │           ├── schedule.ts        # Gap detection, workflow dispatch
+│           ├── enumerate-commits.ts # Enumerate runtime commits via GitHub API
 │           ├── enumerate-packs.ts # Runtime pack catalog
 │           ├── enumerate-sdks.ts  # SDK catalog
 │           └── transform-views.ts # View file generation
@@ -103,7 +104,8 @@ artifacts/
 │   └── {runtimeCommitDateTime}_{hash7}_{runtime}_{preset}_{profile}_{engine}_{app}.json
 │
 ├── runtime-packs.json             # Catalog of runtime pack versions + git hashes
-└── sdk-list.json                  # Catalog of SDK versions + git hashes
+├── sdk-list.json                  # Catalog of SDK versions + git hashes
+└── commits-list.json              # Recent dotnet/runtime commits from GitHub API
 ```
 
 ## Key Path Patterns

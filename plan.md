@@ -42,6 +42,7 @@ The pipeline is a sequence of stages. Each stage receives `BenchContext`, may mu
 | `measure` | measure | Run measurements for all app×preset×engine×profile combinations |
 | `consolidate` | any | Merge result JSONs into gh-pages data/ directory |
 | `schedule` | any | Detect untested runtime commits, dispatch benchmark workflows |
+| `enumerate-commits` | any | Enumerate recent dotnet/runtime commits via GitHub API |
 | `enumerate-packs` | any | Catalog runtime pack versions from NuGet feeds |
 | `enumerate-sdks` | any | Catalog SDK versions from CDN + NuGet |
 | `transform-views` | any | Build pre-aggregated view files for dashboard |
@@ -263,6 +264,7 @@ bench/
 │   │   ├── measure.ts         # Measure all combinations, write result JSONs (stub)
 │   │   ├── consolidate.ts     # Merge results into gh-pages (stub)
 │   │   ├── schedule.ts        # Gap detection, workflow dispatch (stub)
+│   │   ├── enumerate-commits.ts # Enumerate runtime commits via GitHub API ✅
 │   │   ├── enumerate-packs.ts # Runtime pack catalog (stub)
 │   │   ├── enumerate-sdks.ts  # SDK catalog (stub)
 │   │   └── transform-views.ts # View file generation (stub)
@@ -321,7 +323,7 @@ bench.ps1                      # PowerShell — check Node, exec tsx or node
 
 ### Step 4: Implement stage skeleton ✅
 - `bench/src/stages/index.ts` — stage registry, `runStages(ctx)` loop
-- All 9 stage files created with `export async function run(ctx: BenchContext): Promise<BenchContext>`
+- All 10 stage files created with `export async function run(ctx: BenchContext): Promise<BenchContext>`
 - `bench/src/log.ts` — `banner()`, `info()`, `err()` helpers
 
 ### Step 5: Shell wrappers ✅
@@ -329,6 +331,7 @@ bench.ps1                      # PowerShell — check Node, exec tsx or node
 - `bench.ps1` — same, plus normalizes PowerShell comma-split args
 
 ### Step 6: Port stages one by one
+- [x] `enumerate-commits` — fully implemented (GitHub REST API pagination, token auth, writes artifacts/commits-list.json)
 - [ ] `enumerate-packs` — stub (runtime pack catalog from NuGet)
 - [ ] `enumerate-sdks` — stub (SDK catalog from CDN + NuGet)
 - [x] `docker-image` — fully implemented (build both images, skip logic)

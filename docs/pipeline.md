@@ -172,6 +172,38 @@ Triggered by `consolidate.yml` after benchmark completion.
 
 Invalid/missing JSONs are silently skipped. `compile-time.json`, `sdk-info.json`, `build-manifest.json` are skipped by validation (no `meta` field).
 
+## Enumerate Commits (enumerate-commits stage)
+
+Fetches recent commits from a GitHub repository (default `dotnet/runtime`) via the REST API and writes `artifacts/commits-list.json`. Used by the schedule stage to identify commits that need benchmarking.
+
+**CLI:** `bench --stages enumerate-commits [--commits-repo dotnet/runtime] [--commits-days 30]`
+
+**Flow:**
+1. Compute date range: now minus `--commits-days` (default 30) → `since`, now → `until`
+2. Paginate `GET /repos/{owner}/{repo}/commits?since={since}&until={until}&per_page=100`
+3. Use `GITHUB_TOKEN` or `GH_TOKEN` env var for authentication (falls back to unauthenticated with 60 req/hr limit)
+4. Write `artifacts/commits-list.json`:
+
+```json
+{
+  "repo": "dotnet/runtime",
+  "since": "2026-02-09T12:00:00.000Z",
+  "until": "2026-03-11T12:00:00.000Z",
+  "fetchedAt": "2026-03-11T12:00:00.000Z",
+  "totalCommits": 847,
+  "commits": [
+    {
+      "sha": "abc1234def5678...",
+      "message": "Fix wasm interop perf regression",
+      "authorDate": "2026-03-10T15:30:00Z",
+      "committerDate": "2026-03-10T16:00:00Z",
+      "author": "Author Name",
+      "url": "https://github.com/dotnet/runtime/commit/abc1234..."
+    }
+  ]
+}
+```
+
 ## Local Execution
 
 `bench --stages acquire-sdk,build,measure` unifies both phases:

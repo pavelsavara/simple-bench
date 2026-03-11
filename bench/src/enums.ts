@@ -37,13 +37,14 @@ export enum App {
 
 export enum Stage {
     DockerImage = 'docker-image',
+    EnumerateCommits = 'enumerate-commits',
+    EnumeratePacks = 'enumerate-packs',
+    EnumerateSdks = 'enumerate-sdks',
     AcquireSdk = 'acquire-sdk',
     Build = 'build',
     Measure = 'measure',
     Consolidate = 'consolidate',
     Schedule = 'schedule',
-    EnumeratePacks = 'enumerate-packs',
-    EnumerateSdks = 'enumerate-sdks',
     TransformViews = 'transform-views',
 }
 

@@ -22,18 +22,20 @@ import { run as build } from './build.js';
 import { run as measure } from './measure.js';
 import { run as consolidate } from './consolidate.js';
 import { run as schedule } from './schedule.js';
+import { run as enumerateCommits } from './enumerate-commits.js';
 import { run as enumeratePacks } from './enumerate-packs.js';
 import { run as enumerateSdks } from './enumerate-sdks.js';
 import { run as transformViews } from './transform-views.js';
 
+registerStage(Stage.EnumerateCommits, enumerateCommits);
+registerStage(Stage.EnumeratePacks, enumeratePacks);
+registerStage(Stage.EnumerateSdks, enumerateSdks);
 registerStage(Stage.DockerImage, dockerImage);
 registerStage(Stage.AcquireSdk, acquireSdk);
 registerStage(Stage.Build, build);
 registerStage(Stage.Measure, measure);
 registerStage(Stage.Consolidate, consolidate);
 registerStage(Stage.Schedule, schedule);
-registerStage(Stage.EnumeratePacks, enumeratePacks);
-registerStage(Stage.EnumerateSdks, enumerateSdks);
 registerStage(Stage.TransformViews, transformViews);
 
 // ── Runner ───────────────────────────────────────────────────────────────────
