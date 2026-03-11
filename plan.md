@@ -65,17 +65,17 @@ All Docker/WSL exec logic lives in `bench/src/exec.ts`.
 | Environment | Tool | How |
 |-------------|------|-----|
 | Local dev | `tsx` | `npx tsx bench/src/main.ts --stages ...` |
-| Docker container | `node` (bundled) | `node bench/dist/bench.mjs --stages ...` |
+| Docker container | `node` (bundled) | `node artifacts/bench/bench.mjs --stages ...` |
 | CI workflow | `node` (bundled) | Same as Docker |
 
-Bundle: `rollup` → single ESM file `bench/dist/bench.mjs`.
+Bundle: `rollup` → single ESM file `artifacts/bench/bench.mjs`.
 Compiled during Docker image creation (`npm run build` in Dockerfile).
 
 ### Shell Wrappers
 
 Thin `bench.sh` and `bench.ps1` at repo root:
 - Ensure Node.js v24 is available
-- Forward all args to `tsx bench/src/main.ts` (dev) or `node bench/dist/bench.mjs` (production)
+- Forward all args to `tsx bench/src/main.ts` (dev) or `node artifacts/bench/bench.mjs` (production)
 - No logic beyond prerequisite checks
 
 ---
@@ -246,7 +246,8 @@ Only serializable fields are persisted (no functions, no resolved module referen
 bench/
 ├── package.json               # Separate from root. Deps: typescript, tsx, rollup, @types/node
 ├── tsconfig.json              # strict, ESNext, NodeNext module resolution
-├── rollup.config.mjs          # Bundle src/main.ts → dist/bench.mjs (ESM)
+├── rollup.config.mjs          # Bundle src/main.ts → artifacts/bench/bench.mjs (ESM)
+├── .eslintrc.cjs              # typescript-eslint, strict style rules
 ├── src/
 │   ├── main.ts                # Entry point: parseArgs → buildContext → runStages
 │   ├── args.ts                # CLI argument parsing, validation, help text
@@ -256,16 +257,16 @@ bench/
 │   ├── log.ts                 # Structured logging (respects --verbose)
 │   ├── stages/
 │   │   ├── index.ts           # Stage registry, sequential runner
-│   │   ├── docker-image.ts    # Build Docker images
-│   │   ├── acquire-sdk.ts     # SDK download, hash resolution, sdk-info.json
-│   │   ├── build.ts           # Build all app×preset, write build-manifest
-│   │   ├── measure.ts         # Measure all combinations, write result JSONs
-│   │   ├── consolidate.ts     # Merge results into gh-pages
-│   │   ├── schedule.ts        # Gap detection, workflow dispatch
-│   │   ├── enumerate-packs.ts # Runtime pack catalog
-│   │   ├── enumerate-sdks.ts  # SDK catalog
-│   │   └── transform-views.ts # View file generation
-│   └── lib/
+│   │   ├── docker-image.ts    # Build Docker images ✅
+│   │   ├── acquire-sdk.ts     # SDK download, hash resolution, sdk-info.json (stub)
+│   │   ├── build.ts           # Build all app×preset, write build-manifest ✅
+│   │   ├── measure.ts         # Measure all combinations, write result JSONs (stub)
+│   │   ├── consolidate.ts     # Merge results into gh-pages (stub)
+│   │   ├── schedule.ts        # Gap detection, workflow dispatch (stub)
+│   │   ├── enumerate-packs.ts # Runtime pack catalog (stub)
+│   │   ├── enumerate-sdks.ts  # SDK catalog (stub)
+│   │   └── transform-views.ts # View file generation (stub)
+│   └── lib/                   # (not yet created)
 │       ├── build-config.ts    # Preset → MSBuild flag mapping
 │       ├── sdk-info.ts        # Version parsing, SHORT_DATE decoding
 │       ├── metrics.ts         # Metric registry (shared types)
@@ -293,46 +294,60 @@ bench.ps1                      # PowerShell — check Node, exec tsx or node
 | Windows + WSL Docker | ✓ | WSL | in container | `bench.ps1 --via-docker --stages docker-image,acquire-sdk,build,measure` |
 | Ubuntu (native) | ✓ | — | local | `./bench.sh --stages acquire-sdk,build,measure` |
 | Ubuntu + Docker | ✓ | native | in container | `./bench.sh --via-docker --stages ...` |
-| Build container | ✓ | — | installed | `node bench/dist/bench.mjs --stages acquire-sdk,build` |
-| Measure container | ✓ | — | — | `node bench/dist/bench.mjs --stages measure --context ...` |
+| Build container | ✓ | — | installed | `node artifacts/bench/bench.mjs --stages acquire-sdk,build` |
+| Measure container | ✓ | — | — | `node artifacts/bench/bench.mjs --stages measure --context ...` |
 
 ---
 
 ## Implementation Plan
 
-### Step 1: Scaffold `bench/` project
+### Step 1: Scaffold `bench/` project ✅
 - `bench/package.json` with deps: `typescript`, `tsx`, `@rollup/plugin-typescript`, `rollup`, `@types/node`
 - `bench/tsconfig.json` (strict, ESNext, NodeNext)
 - `bench/rollup.config.mjs`
+- `bench/.eslintrc.cjs` (typescript-eslint, strict style rules)
 
-### Step 2: Implement enums + context + args skeleton
-- `bench/src/enums.ts` — all enums, routing tables, constraint sets
-- `bench/src/context.ts` — `BenchContext` interface, defaults, save/load
-- `bench/src/args.ts` — `parseArgs()` → `BenchContext`, help text, validation
-- `bench/src/main.ts` — `main()`: parse → build context → dispatch stages
+### Step 2: Implement enums + context + args ✅
+- `bench/src/enums.ts` — all enums, routing tables, constraint sets, parse/validate helpers
+- `bench/src/context.ts` — `BenchContext` interface, `SdkInfo`, `BuildManifestEntry`, save/load
+- `bench/src/args.ts` — `parseArgs()` → `BenchContext`, help text, validation, dry-run defaults, `--context` handoff
+- `bench/src/main.ts` — `main()`: parse → build context → dispatch stages → optional context save
 
-### Step 3: Implement exec.ts
-- Cross-platform `exec()`, Docker helpers, WSL path conversion
-- Platform detection
+### Step 3: Implement exec.ts ✅
+- Cross-platform `exec()`, `execCapture()`, Docker helpers (`dockerExec`, `dockerBuild`, `dockerRun`, `dockerFixPermissions`)
+- WSL path conversion (`toWslPath`, `toWindowsPath`)
+- Platform detection (`getPlatform`, `isWindows`, `isInDocker`, `isCI`)
+- .NET helpers (`dotnetPublish`, `dotnetWorkloadInstall`, `dotnetWorkloadList`)
 
-### Step 4: Implement stage skeleton
+### Step 4: Implement stage skeleton ✅
 - `bench/src/stages/index.ts` — stage registry, `runStages(ctx)` loop
-- Stub each stage file with `export async function run(ctx: BenchContext): Promise<BenchContext>`
+- All 9 stage files created with `export async function run(ctx: BenchContext): Promise<BenchContext>`
+- `bench/src/log.ts` — `banner()`, `info()`, `err()` helpers
 
-### Step 5: Shell wrappers
-- `bench.sh`, `bench.ps1` at repo root
+### Step 5: Shell wrappers ✅
+- `bench.sh` — checks Node, runs `npm ci` if needed, `exec npx tsx bench/src/main.ts`
+- `bench.ps1` — same, plus normalizes PowerShell comma-split args
 
-### Step 6: Port stages one by one (future work)
-- Each stage migrated from corresponding `scripts/*.mjs`
-- Unit tests ported to `bench/tests/*.test.ts`
+### Step 6: Port stages one by one
+- [ ] `enumerate-packs` — stub (runtime pack catalog from NuGet)
+- [ ] `enumerate-sdks` — stub (SDK catalog from CDN + NuGet)
+- [x] `docker-image` — fully implemented (build both images, skip logic)
+- [x] `build` — fully implemented (207 lines: app×preset iteration, dotnet publish, workload install, compile-time tracking, integrity check, build-manifest + sdk-info emission)
+- [ ] `acquire-sdk` — stub (SDK download, hash resolution, sdk-info.json)
+- [ ] `measure` — stub (browser + CLI measurement, result JSON writing)
+- [ ] `consolidate` — stub (merge results into gh-pages data/)
+- [ ] `schedule` — stub (gap detection, workflow dispatch)
+- [ ] `transform-views` — stub (view file generation for dashboard)
+- [ ] `lib/` folder — not yet created; build-config logic currently inlined in `enums.ts` and `build.ts`
+- [ ] Unit tests (`bench/tests/*.test.ts`)
 
 ### Step 7: Update Dockerfile
 - Add `npm run build` step for `bench/` in build stage
-- Bundle `bench/dist/bench.mjs` into both images
+- Bundle `artifacts/bench/bench.mjs` into both images
 
 ### Step 8: Update CI workflows
-- Replace `node scripts/run-pipeline.mjs` with `node bench/dist/bench.mjs --stages ...`
-- Replace `node scripts/run-measure-job.mjs` with `node bench/dist/bench.mjs --stages measure --context ...`
+- Replace `node scripts/run-pipeline.mjs` with `node artifacts/bench/bench.mjs --stages ...`
+- Replace `node scripts/run-measure-job.mjs` with `node artifacts/bench/bench.mjs --stages measure --context ...`
 
 ---
 

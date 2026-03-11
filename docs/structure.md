@@ -13,7 +13,7 @@
 ├── bench/
 │   ├── package.json               # Separate from root. Deps: typescript, tsx, rollup
 │   ├── tsconfig.json              # strict, ESNext, NodeNext module resolution
-│   ├── rollup.config.mjs          # Bundle src/main.ts → dist/bench.mjs (ESM)
+│   ├── rollup.config.mjs          # Bundle src/main.ts → artifacts/bench/bench.mjs (ESM)
 │   └── src/
 │       ├── main.ts                # Entry point: parseArgs → buildContext → runStages
 │       ├── args.ts                # CLI argument parsing, validation, help text
