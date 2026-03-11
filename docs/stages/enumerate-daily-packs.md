@@ -2,6 +2,8 @@
 
 Implementation: `bench/src/stages/enumerate-daily-packs.ts`
 
+Shared utilities: `bench/src/lib/http.ts` (fetchJson, headOk, githubHeaders, resolveGitHubToken, mapConcurrent)
+
 ## Purpose
 
 Enumerates all `Microsoft.NETCore.App.Runtime.Mono.browser-wasm` packages published to the dotnet daily NuGet feed within a configurable time window, and resolves full `SdkInfo` metadata for each. Produces `artifacts/daily-packs-list.json` — the input for the `schedule` stage to decide which commits need benchmarking.

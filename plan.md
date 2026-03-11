@@ -265,7 +265,7 @@ bench/
 │   │   ├── consolidate.ts     # Merge results into gh-pages (stub)
 │   │   ├── schedule.ts        # Gap detection, workflow dispatch (stub)
 │   │   ├── enumerate-commits.ts # Enumerate runtime commits via GitHub API ✅
-│   │   ├── enumerate-daily-packs.ts # Runtime pack catalog (stub)
+│   │   ├── enumerate-daily-packs.ts # Runtime pack catalog ✅
 │   │   ├── enumerate-release-packs.ts # GA release pack catalog ✅
 │   │   └── transform-views.ts # View file generation (stub)
 │   └── lib/
@@ -333,7 +333,7 @@ bench.ps1                      # PowerShell — check Node, exec tsx or node
 
 ### Step 6: Port stages one by one
 - [x] `enumerate-commits` — fully implemented (GitHub REST API pagination, token auth, writes artifacts/commits-list.json)
-- [ ] `enumerate-daily-packs` — stub (runtime pack catalog from daily NuGet feeds)
+- [x] `enumerate-daily-packs` — fully implemented (NuGet flat API, SDK CDN validation, VMR resolution, incremental, workload check)
 - [x] `enumerate-release-packs` — fully implemented (release metadata API, productCommit resolution, VMR/pre-VMR detection, nuget.org validation, incremental)
 - [x] `docker-image` — fully implemented (build both images, skip logic)
 - [x] `build` — fully implemented (207 lines: app×preset iteration, dotnet publish, workload install, compile-time tracking, integrity check, build-manifest + sdk-info emission)
