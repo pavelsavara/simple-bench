@@ -39,8 +39,7 @@
 │           ├── consolidate.ts     # Merge results into gh-pages
 │           ├── schedule.ts        # Gap detection, workflow dispatch
 │           ├── enumerate-commits.ts # Enumerate runtime commits via GitHub API
-│           ├── enumerate-packs.ts # Runtime pack catalog
-│           ├── enumerate-sdks.ts  # SDK catalog
+│           ├── enumerate-daily-packs.ts # Runtime pack catalog
 │           └── transform-views.ts # View file generation
 ├── src/
 │   ├── Directory.Build.props      # Output paths, imports versions.props + presets.props

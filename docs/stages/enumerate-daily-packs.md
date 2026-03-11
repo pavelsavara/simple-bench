@@ -1,10 +1,10 @@
-# Stage: `enumerate-packs`
+# Stage: `enumerate-daily-packs`
 
-Implementation: `bench/src/stages/enumerate-packs.ts`
+Implementation: `bench/src/stages/enumerate-daily-packs.ts`
 
 ## Purpose
 
-Enumerates all `Microsoft.NETCore.App.Runtime.Mono.browser-wasm` packages published to the dotnet daily NuGet feed within a configurable time window, and resolves full `SdkInfo` metadata for each. Produces `artifacts/packs-list.json` — the input for the `schedule` stage to decide which commits need benchmarking.
+Enumerates all `Microsoft.NETCore.App.Runtime.Mono.browser-wasm` packages published to the dotnet daily NuGet feed within a configurable time window, and resolves full `SdkInfo` metadata for each. Produces `artifacts/daily-packs-list.json` — the input for the `schedule` stage to decide which commits need benchmarking.
 
 ## Prerequisites
 
@@ -15,7 +15,7 @@ None. This is an early pipeline stage that only requires network access.
 ```
 NuGet Feed (flat API)          ci.dot.net CDN              GitHub (raw + API)
 ────────────────────           ──────────────              ──────────────────
- 1. version index ─────┐
+ 1. version index ──────┐
                         ├─ 2. derive SDK version (11.0.0 → 11.0.100)
                         │
                         ├─ 3. HEAD SDK zip to validate existence
@@ -103,7 +103,7 @@ Instead of resolving the complex workload manifest band naming (which differs fr
 
 ## Incremental Behavior
 
-When `artifacts/packs-list.json` already exists:
+When `artifacts/daily-packs-list.json` already exists:
 
 1. Fetch only the NuGet flat index (lightweight — returns version strings only).
 2. Compare against versions already in the file.
@@ -140,7 +140,7 @@ The stage itself does NOT fail — it produces as many complete entries as possi
 
 ## Output
 
-`artifacts/packs-list.json`:
+`artifacts/daily-packs-list.json`:
 
 ```json
 {

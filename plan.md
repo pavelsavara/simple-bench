@@ -43,8 +43,7 @@ The pipeline is a sequence of stages. Each stage receives `BenchContext`, may mu
 | `consolidate` | any | Merge result JSONs into gh-pages data/ directory |
 | `schedule` | any | Detect untested runtime commits, dispatch benchmark workflows |
 | `enumerate-commits` | any | Enumerate recent dotnet/runtime commits via GitHub API |
-| `enumerate-packs` | any | Catalog runtime pack versions from NuGet feeds |
-| `enumerate-sdks` | any | Catalog SDK versions from CDN + NuGet |
+| `enumerate-daily-packs` | any | Catalog runtime pack versions from daily NuGet feeds |
 | `transform-views` | any | Build pre-aggregated view files for dashboard |
 
 Default (no `--stages`): `acquire-sdk,build,measure`
@@ -126,8 +125,7 @@ enum Stage {
     Measure = 'measure',
     Consolidate = 'consolidate',
     Schedule = 'schedule',
-    EnumeratePacks = 'enumerate-packs',
-    EnumerateSdks = 'enumerate-sdks',
+    EnumerateDailyPacks = 'enumerate-daily-packs',
     TransformViews = 'transform-views',
 }
 
@@ -265,8 +263,7 @@ bench/
 │   │   ├── consolidate.ts     # Merge results into gh-pages (stub)
 │   │   ├── schedule.ts        # Gap detection, workflow dispatch (stub)
 │   │   ├── enumerate-commits.ts # Enumerate runtime commits via GitHub API ✅
-│   │   ├── enumerate-packs.ts # Runtime pack catalog (stub)
-│   │   ├── enumerate-sdks.ts  # SDK catalog (stub)
+│   │   ├── enumerate-daily-packs.ts # Runtime pack catalog (stub)
 │   │   └── transform-views.ts # View file generation (stub)
 │   └── lib/                   # (not yet created)
 │       ├── build-config.ts    # Preset → MSBuild flag mapping
@@ -332,8 +329,7 @@ bench.ps1                      # PowerShell — check Node, exec tsx or node
 
 ### Step 6: Port stages one by one
 - [x] `enumerate-commits` — fully implemented (GitHub REST API pagination, token auth, writes artifacts/commits-list.json)
-- [ ] `enumerate-packs` — stub (runtime pack catalog from NuGet)
-- [ ] `enumerate-sdks` — stub (SDK catalog from CDN + NuGet)
+- [ ] `enumerate-daily-packs` — stub (runtime pack catalog from daily NuGet feeds)
 - [x] `docker-image` — fully implemented (build both images, skip logic)
 - [x] `build` — fully implemented (207 lines: app×preset iteration, dotnet publish, workload install, compile-time tracking, integrity check, build-manifest + sdk-info emission)
 - [ ] `acquire-sdk` — stub (SDK download, hash resolution, sdk-info.json)

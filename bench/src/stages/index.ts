@@ -23,13 +23,13 @@ import { run as measure } from './measure.js';
 import { run as consolidate } from './consolidate.js';
 import { run as schedule } from './schedule.js';
 import { run as enumerateCommits } from './enumerate-commits.js';
-import { run as enumeratePacks } from './enumerate-packs.js';
-import { run as enumerateSdks } from './enumerate-sdks.js';
+import { run as enumerateDailyPacks } from './enumerate-daily-packs.js';
+import { run as enumerateReleasePacks } from './enumerate-release-packs.js';
 import { run as transformViews } from './transform-views.js';
 
 registerStage(Stage.EnumerateCommits, enumerateCommits);
-registerStage(Stage.EnumeratePacks, enumeratePacks);
-registerStage(Stage.EnumerateSdks, enumerateSdks);
+registerStage(Stage.EnumerateDailyPacks, enumerateDailyPacks);
+registerStage(Stage.EnumerateReleasePacks, enumerateReleasePacks);
 registerStage(Stage.DockerImage, dockerImage);
 registerStage(Stage.AcquireSdk, acquireSdk);
 registerStage(Stage.Build, build);
