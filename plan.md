@@ -1,243 +1,352 @@
-# Plan: .NET Browser WASM Benchmark Suite
+# Plan: Rewrite `scripts/` as TypeScript CLI (`bench/`)
 
-## Current: CI Fix (2026-03-04)
+## Goal
 
-### Issues from run [#22669524404](https://github.com/pavelsavara/simple-bench/actions/runs/22669524404/job/65709714125)
-
-1. **dotnet-install stdout polluting `$GITHUB_OUTPUT`** — `run()` in `run-pipeline.mjs` used `stdio: 'inherit'`, so child processes sent `dotnet-install:` messages to stdout, captured in `$MATRIX`. Fixed by redirecting child stdout to stderr: `stdio: ['inherit', process.stderr, 'inherit']`.
-
-2. **`ERR_PACKAGE_PATH_NOT_EXPORTED` for `@actions/artifact`** — `@actions/artifact` v2+ is ESM-only; `require()` fails on Node 24. Fixed by converting heredoc to `node --input-type=module` with ESM `import` statements.
-
-Status: ✅ Complete — all 241 unit tests pass
-
----
-
-## Overview
-
-A benchmarking solution that measures .NET Browser/WASM performance (CoreCLR + Mono) across multiple sample apps, engines, and build configurations. Results stored as daily-sharded JSON on `gh-pages` (organized by commit date, indexed by month), visualized with a Chart.js dashboard, collected via GitHub Actions.
+Replace the `scripts/` folder (Node.js ESM `.mjs` files) with a TypeScript project in `bench/`.
+Single CLI entry point, strongly typed context, stage-based pipeline, cross-platform exec helpers.
 
 ## Design Documents
 
 | Document | Description |
 |----------|-------------|
-| [model.md](model.md) | Data dimensions, metric definitions, JSON schemas, file naming, directory layout, index structure |
-| [views.md](views.md) | Dashboard UI pages from user perspective — navigation, charts, filters, interactions |
-| [pipeline.md](pipeline.md) | CI pipeline: GitHub Actions workflows, Docker image, Playwright measurement, SDK resolution, result commits |
-| [ui.md](ui.md) | Dashboard JavaScript implementation — modules, data loading, Chart.js config, filter logic |
-| [migration.md](migration.md) | Old → new schema mapping for importing WasmPerformanceMeasurements historical data |
+| [docs/pipeline-model.md](docs/pipeline-model.md) | Data dimensions, metric definitions, combination matrix |
+| [docs/pipeline.md](docs/pipeline.md) | Build phases, measure phases, consolidation, local execution |
+| [docs/structure.md](docs/structure.md) | Repository layout, artifact paths, key path patterns |
+| [docs/ci.md](docs/ci.md) | CI workflows, Docker images, triggers, self-scheduling |
+| [docs/sdk-and-runtime.md](docs/sdk-and-runtime.md) | SDK resolution, git hash chain, runtime pack enumeration |
+| [docs/transformer.md](docs/transformer.md) | View transformer algorithm, bucketing, incremental updates |
+| [docs/ui.md](docs/ui.md) | Dashboard UI layout, chart zones, filter panel |
+| [docs/view-model.md](docs/view-model.md) | Pre-aggregated view JSON file formats |
 
-## Repo Structure
+---
+
+## Architecture
+
+### Single CLI Entry Point
 
 ```
-simple-bench/
-├── .github/
-│   └── workflows/
-│       ├── benchmark.yml           # Daily benchmark runs (matrix of configs)
-│       ├── consolidate.yml         # Merge results to gh-pages branch
-│       ├── docker-build.yml        # Build/push Docker image to ghcr.io
-│       └── test.yml                # Unit + E2E tests on PR and push
-├── docker/
-│   ├── Dockerfile                  # Multi-stage: base → browser-bench-build, base → browser-bench-measure
-│   ├── package-build.json          # Minimal npm deps for build image (none)
-│   └── package-measure.json        # Playwright dep for measure image
+bench --stages <comma-separated> [options]
+```
+
+One `main()` function. One `parseArgs()` call. One strongly-typed `BenchContext` object threaded through all stages.
+
+### Stages
+
+The pipeline is a sequence of stages. Each stage receives `BenchContext`, may mutate it (via spread-copy), and passes it to the next.
+
+| Stage | Container | Description |
+|-------|-----------|-------------|
+| `docker-image` | host | Build Docker images (browser-bench-build, browser-bench-measure) |
+| `acquire-sdk` | build | Download/install .NET SDK, resolve git hashes, write sdk-info.json |
+| `build` | build | Build all app×preset combinations, write build-manifest.json |
+| `measure` | measure | Run measurements for all app×preset×engine×profile combinations |
+| `consolidate` | any | Merge result JSONs into gh-pages data/ directory |
+| `schedule` | any | Detect untested runtime commits, dispatch benchmark workflows |
+| `enumerate-packs` | any | Catalog runtime pack versions from NuGet feeds |
+| `enumerate-sdks` | any | Catalog SDK versions from CDN + NuGet |
+| `transform-views` | any | Build pre-aggregated view files for dashboard |
+
+Default (no `--stages`): `acquire-sdk,build,measure`
+
+Stages that cross container boundaries persist context to `artifacts/bench-context.json` and reload it on the next container.
+
+### Docker Orchestration (`--via-docker`)
+
+When `--via-docker` is set, the CLI:
+1. Runs `docker-image` stage on host (if requested)
+2. Serializes context to `artifacts/bench-context.json`
+3. Runs build-container stages via `docker run ... bench --stages acquire-sdk,build --context artifacts/bench-context.json`
+4. Runs measure-container stages via `docker run ... bench --stages measure --context artifacts/bench-context.json`
+
+All Docker/WSL exec logic lives in `bench/src/exec.ts`.
+
+### Build & Run
+
+| Environment | Tool | How |
+|-------------|------|-----|
+| Local dev | `tsx` | `npx tsx bench/src/main.ts --stages ...` |
+| Docker container | `node` (bundled) | `node bench/dist/bench.mjs --stages ...` |
+| CI workflow | `node` (bundled) | Same as Docker |
+
+Bundle: `rollup` → single ESM file `bench/dist/bench.mjs`.
+Compiled during Docker image creation (`npm run build` in Dockerfile).
+
+### Shell Wrappers
+
+Thin `bench.sh` and `bench.ps1` at repo root:
+- Ensure Node.js v24 is available
+- Forward all args to `tsx bench/src/main.ts` (dev) or `node bench/dist/bench.mjs` (production)
+- No logic beyond prerequisite checks
+
+---
+
+## Enums (Dimensions)
+
+```typescript
+enum Runtime {
+    Mono = 'mono',
+    CoreCLR = 'coreclr',
+    NativeAOTLLVM = 'naotllvm',  // legacy alias for Mono
+}
+
+enum Preset {
+    DevLoop = 'devloop',
+    NoWorkload = 'no-workload',
+    Aot = 'aot',
+    NativeRelink = 'native-relink',
+    NoJiterp = 'no-jiterp',
+    Invariant = 'invariant',
+    NoReflectionEmit = 'no-reflection-emit',
+}
+
+enum Engine {
+    Chrome = 'chrome',
+    Firefox = 'firefox',
+    V8 = 'v8',
+    Node = 'node',
+}
+
+enum Profile {
+    Desktop = 'desktop',
+    Mobile = 'mobile',
+}
+
+enum App {
+    EmptyBrowser = 'empty-browser',
+    EmptyBlazor = 'empty-blazor',
+    BlazingPizza = 'blazing-pizza',
+    Microbenchmarks = 'microbenchmarks',
+}
+
+enum Stage {
+    DockerImage = 'docker-image',
+    AcquireSdk = 'acquire-sdk',
+    Build = 'build',
+    Measure = 'measure',
+    Consolidate = 'consolidate',
+    Schedule = 'schedule',
+    EnumeratePacks = 'enumerate-packs',
+    EnumerateSdks = 'enumerate-sdks',
+    TransformViews = 'transform-views',
+}
+
+enum MetricKey {
+    CompileTime = 'compile-time',
+    DiskSizeTotal = 'disk-size-total',
+    DiskSizeWasm = 'disk-size-wasm',
+    DiskSizeDlls = 'disk-size-dlls',
+    DownloadSizeTotal = 'download-size-total',
+    TimeToReachManaged = 'time-to-reach-managed',
+    TimeToReachManagedCold = 'time-to-reach-managed-cold',
+    MemoryPeak = 'memory-peak',
+    PizzaWalkthru = 'pizza-walkthru',
+    JsInteropOps = 'js-interop-ops',
+    JsonParseOps = 'json-parse-ops',
+    ExceptionOps = 'exception-ops',
+}
+```
+
+### Routing Rules (baked into App enum or companion map)
+
+```typescript
+const APP_CONFIG: Record<App, AppConfig> = {
+    [App.EmptyBrowser]:   { browserOnly: false, internal: false, hasTimingMarker: true },
+    [App.EmptyBlazor]:    { browserOnly: true,  internal: false, hasTimingMarker: false },
+    [App.BlazingPizza]:   { browserOnly: true,  internal: false, hasTimingMarker: false },
+    [App.Microbenchmarks]:{ browserOnly: false, internal: true,  hasTimingMarker: true },
+};
+```
+
+### Preset Constraints
+
+```typescript
+const WORKLOAD_PRESETS: Set<Preset> = new Set([
+    Preset.NativeRelink, Preset.Aot, Preset.NoJiterp,
+    Preset.Invariant, Preset.NoReflectionEmit,
+]);
+const NON_WORKLOAD_PRESETS: Set<Preset> = new Set([
+    Preset.DevLoop, Preset.NoWorkload,
+]);
+// Mono-only presets (invalid with CoreCLR)
+const MONO_ONLY_PRESETS: Set<Preset> = new Set([Preset.Aot, Preset.NoJiterp]);
+```
+
+---
+
+## CLI Parameters
+
+```
+bench [options]
+
+Pipeline control:
+  --stages <list>          Comma-separated stage names (default: acquire-sdk,build,measure)
+  --via-docker             Run build/measure stages inside Docker containers
+  --context <path>         Load/save BenchContext from JSON file (cross-container handoff)
+  --dry-run                Minimal run: empty-browser + devloop + chrome only
+
+SDK & Runtime:
+  --sdk-channel <ch>       SDK channel (default: 11.0)
+  --sdk-version <ver>      Exact SDK version (overrides channel)
+  --runtime <rt>           Runtime flavor: mono, coreclr (default: mono)
+  --runtime-pack <ver>     Specific runtime pack version
+  --runtime-commit <hash>  Specific dotnet/runtime commit hash
+
+Filters (comma-separated, restrict what gets built/measured):
+  --app <list>             App filter (default: all)
+  --preset <list>          Preset filter (default: all; dry-run: devloop)
+  --engine <list>          Engine filter (default: all; dry-run: chrome)
+  --profile <list>         Profile filter (default: all)
+
+Measurement:
+  --retries <n>            Max retries on timeout (default: 3)
+  --timeout <ms>           Per-measurement timeout (default: 300000)
+  --warm-runs <n>          Warm reload iterations (default: 3)
+  --no-headless            Launch browsers in headed mode
+
+Docker (only with --via-docker):
+  --skip-docker-build      Reuse existing Docker images
+
+Consolidation:
+  --artifacts-dir <path>   CI artifacts input directory
+  --data-dir <path>        gh-pages data/ output directory
+
+Scheduling:
+  --max-dispatches <n>     Max workflow dispatches (default: 3)
+  --recent <n>             Consider N most recent packs (default: 30)
+  --repo <owner/name>      GitHub repository (default: auto-detect)
+  --branch <name>          Branch for dispatch (default: main)
+
+Enumeration:
+  --major <n>              .NET major version (default: 11)
+  --months <n>             History months to scan (default: 3)
+  --force-enumerate        Re-resolve all versions (ignore cache)
+
+General:
+  --help                   Show help
+  --verbose                Verbose logging
+```
+
+---
+
+### Context Serialization
+
+For cross-container handoff:
+```typescript
+function saveContext(ctx: BenchContext, path: string): void;
+function loadContext(path: string): BenchContext;
+```
+
+Only serializable fields are persisted (no functions, no resolved module references).
+
+---
+
+## File Structure
+
+```
+bench/
+├── package.json               # Separate from root. Deps: typescript, tsx, rollup, @types/node
+├── tsconfig.json              # strict, ESNext, NodeNext module resolution
+├── rollup.config.mjs          # Bundle src/main.ts → dist/bench.mjs (ESM)
 ├── src/
-│   ├── microbenchmarks/            # C# JSExport benchmark project
-│   │   ├── MicroBenchmarks.csproj
-│   │   ├── JsInteropBench.cs
-│   │   ├── JsonBench.cs
-│   │   ├── ExceptionBench.cs
-│   │   └── bench-driver.mjs        # JS harness that calls [JSExport] methods
-│   └── dashboard/                   # Static web UI (served from gh-pages)
-│       ├── index.html
-│       ├── app.js                   # Main application logic
-│       ├── data-loader.js           # Index + month index + result JSON fetching
-│       ├── chart-manager.js         # Chart.js chart creation/update
-│       ├── filters.js               # Side-panel filter state management
-│       └── style.css
-├── tests/
-│   ├── unit/                        # Unit tests (Node.js test runner)
-│   │   ├── data-loader.test.mjs     # Month index filtering, data caching
-│   │   ├── chart-manager.test.mjs   # Dataset building, series grouping
-│   │   ├── filters.test.mjs         # Filter state, URL hash parsing
-│   │   ├── consolidate.test.mjs     # Month index merge, dedup, daily sharding
-│   ├── sdk-info.test.mjs        # SDK version parsing, commit hash extraction
-│   │   ├── build-config.test.mjs    # Build preset → MSBuild flag mapping
-│   │   ├── measure-utils.test.mjs   # Static server, file sizes, result JSON, compile time reader
-│   │   ├── metrics.test.mjs         # Metrics registry validation
-│   │   └── fixtures/                # Sample index.json, month indexes, result JSONs, dotnet --info output
-│   └── e2e/                         # End-to-end tests (Playwright)
-│       ├── dashboard.spec.mjs       # Load dashboard, verify charts render
-│       ├── pipeline-smoke.spec.mjs  # Build app, run measure script, verify JSON
-│       └── helpers/
-│           └── gh-api.mjs           # GitHub API helpers for CI status checks
-├── scripts/
-│   ├── measure-external.mjs        # Playwright + CDP: download sizes, reach-managed timing, memory
-│   ├── measure-internal.mjs        # Run microbenchmarks on V8/Node/Chrome/Firefox
-│   ├── resolve-sdk.sh              # Download nightly SDK, extract version+hash
-│   ├── build-app.sh                # Build/publish sample app with MSBuild flags
-│   ├── init-gh-pages.sh            # Initialize gh-pages branch (one-time setup)
-│   ├── consolidate-results.mjs     # Merge CI artifacts into gh-pages data/
+│   ├── main.ts                # Entry point: parseArgs → buildContext → runStages
+│   ├── args.ts                # CLI argument parsing, validation, help text
+│   ├── context.ts             # BenchContext type, defaults, serialization
+│   ├── enums.ts               # All dimension enums + routing tables + constraints
+│   ├── exec.ts                # Cross-platform process execution, Docker commands, WSL helpers
+│   ├── log.ts                 # Structured logging (respects --verbose)
+│   ├── stages/
+│   │   ├── index.ts           # Stage registry, sequential runner
+│   │   ├── docker-image.ts    # Build Docker images
+│   │   ├── acquire-sdk.ts     # SDK download, hash resolution, sdk-info.json
+│   │   ├── build.ts           # Build all app×preset, write build-manifest
+│   │   ├── measure.ts         # Measure all combinations, write result JSONs
+│   │   ├── consolidate.ts     # Merge results into gh-pages
+│   │   ├── schedule.ts        # Gap detection, workflow dispatch
+│   │   ├── enumerate-packs.ts # Runtime pack catalog
+│   │   ├── enumerate-sdks.ts  # SDK catalog
+│   │   └── transform-views.ts # View file generation
 │   └── lib/
-│       ├── sdk-info.mjs            # SDK version parsing utilities (testable)
-│       ├── build-config.mjs        # Build preset → MSBuild flag mapping (testable)
-│       ├── metrics.mjs             # Canonical metric registry (shared by scripts + dashboard)
-│       └── measure-utils.mjs       # Static server, file sizes, result JSON utilities (testable)
-├── apps/                            # Sample app configs and overrides
-│   ├── empty-browser/
-│   │   └── app.json                 # App metadata, template name, build flags
-│   ├── empty-blazor/
-│   │   └── app.json
-│   └── blazing-pizza/
-│       └── app.json                 # Repo URL, pinned commit, mock backend config
-├── artifacts/                       # Build outputs and temp files (gitignored)
-│   ├── publish/                     # dotnet publish output per app
-│   ├── sdk/                         # Downloaded .NET SDK
-│   ├── results/                     # Benchmark result JSONs before upload
-│   └── logs/                        # Build and measurement logs
-├── docs/
-│   ├── model.md
-│   ├── views.md
-│   ├── pipeline.md
-│   ├── ui.md
-│   └── migration.md
-├── plan.md                          # This file
-├── NuGet.config                     # NuGet feeds (dotnet-public, dotnet10, dotnet11)
-├── package.json                     # Playwright + any Node dependencies
-└── README.md
+│       ├── build-config.ts    # Preset → MSBuild flag mapping
+│       ├── sdk-info.ts        # Version parsing, SHORT_DATE decoding
+│       ├── metrics.ts         # Metric registry (shared types)
+│       ├── measure-utils.ts   # Static server, file sizes, result JSON builder
+│       ├── internal-utils.ts  # Engine commands, bench result parsing
+│       ├── throttle-profiles.ts # Desktop/mobile CDP throttling
+│       ├── runtime-pack-resolver.ts # Pack resolution, NuGet queries
+│       └── pizza-walkthrough.ts # Playwright order flow automation
 ```
 
-The `artifacts/` directory is gitignored. All build scripts write outputs there:
-- `scripts/resolve-sdk.sh` → `artifacts/sdks/`
-- `scripts/build-app.sh` → `artifacts/publish/{app}/`
-- `scripts/measure-*.mjs` → `artifacts/results/`
-- Build logs → `artifacts/logs/`
+### Shell Wrappers (repo root)
 
-## Implementation Phases
+```
+bench.sh                       # #!/bin/bash — check Node, exec tsx or node
+bench.ps1                      # PowerShell — check Node, exec tsx or node
+```
 
-### Phase 1: Foundation ✅
-Core infrastructure that everything else depends on.
+---
 
-| Step | Task | Output | Status |
-|------|------|--------|--------|
-| 1.1 | Init repo: `package.json`, `.gitignore`, `NuGet.config`, folder structure | Repo skeleton | ✅ Done |
-| 1.2 | Create [Dockerfile](docker/Dockerfile) with multi-stage build: `browser-bench-build` (Node + .NET prereqs) and `browser-bench-measure` (V8/d8, Chrome, Firefox, Playwright) | Docker images | ✅ Done |
-| 1.3 | Create [resolve-sdk.sh](scripts/resolve-sdk.sh) — uses official `dotnet-install.sh`, outputs version + git hash + build date JSON via [sdk-info.mjs](scripts/lib/sdk-info.mjs) | SDK resolver | ✅ Done |
-| 1.4 | Create [build-app.sh](scripts/build-app.sh) — build/publish sample app to `artifacts/publish/` with runtime/preset flags via [build-config.mjs](scripts/lib/build-config.mjs) | App builder | ✅ Done |
-| 1.5 | Create [init-gh-pages.sh](scripts/init-gh-pages.sh) — repeatable script to initialize `gh-pages` branch | Data branch | ✅ Done |
-| 1.6 | Unit tests for SDK version parsing + build flag generation (35 tests) | Tests | ✅ Done |
-| 2.1 | [apps/empty-browser/](apps/empty-browser/) — `.csproj` + `Program.cs` + `main.mjs` + `index.html` (browser-wasm standalone) | App config | ✅ Done |
+## Environment Support Matrix
 
-### Phase 2: First End-to-End Slice (empty-browser + external metrics) ✅
-Get one app measured end-to-end before expanding to more apps/metrics.
+| Environment | Node | Docker | .NET SDK | How bench runs |
+|-------------|------|--------|----------|---------------|
+| Windows (native) | ✓ | — | local | `bench.ps1 --stages acquire-sdk,build,measure` |
+| Windows + WSL Docker | ✓ | WSL | in container | `bench.ps1 --via-docker --stages docker-image,acquire-sdk,build,measure` |
+| Ubuntu (native) | ✓ | — | local | `./bench.sh --stages acquire-sdk,build,measure` |
+| Ubuntu + Docker | ✓ | native | in container | `./bench.sh --via-docker --stages ...` |
+| Build container | ✓ | — | installed | `node bench/dist/bench.mjs --stages acquire-sdk,build` |
+| Measure container | ✓ | — | — | `node bench/dist/bench.mjs --stages measure --context ...` |
 
-| Step | Task | Output | Status |
-|------|------|--------|--------|
-| 2.1 | [apps/empty-browser/](apps/empty-browser/) — `dotnet new web` config, browser target, `dotnet_ready` JS marker + `dotnet_managed_ready` C# marker via JSImport | App config | ✅ Done |
-| 2.2 | [measure-external.mjs](scripts/measure-external.mjs) — Playwright + CDP: compile time, download sizes (CDP total + FS wasm/dlls), time-to-reach-managed (min of 3 warm reloads), time-to-reach-managed-cold, memory peak (100ms JSHeapUsedSize sampling). Built-in node:http server with COOP/COEP. Retry on timeout only (default 2). | External script | ✅ Done |
-| 2.3 | Unit tests for measure-utils (33 tests): MIME types, static server (COOP/COEP, path traversal), file sizes, result JSON builder, compile time reader. Plus metrics registry tests. | Tests | ✅ Done |
-| 2.4 | JSON output schema documented in [model.md](docs/model.md), implemented in [measure-utils.mjs](scripts/lib/measure-utils.mjs) `buildResultJson()` | Schema | ✅ Done |
+---
 
-### Phase 3: CI Pipeline (single-app) ✅
-Get the CI loop working for the single empty-browser app.
+## Implementation Plan
 
-| Step | Task | Output | Status |
-|------|------|--------|--------|
-| 3.1 | [benchmark.yml](.github/workflows/benchmark.yml) — matrix: runtime×preset, single app (empty-browser), chrome engine only | CI workflow | ✅ Done |
-| 3.2 | [consolidate.yml](.github/workflows/consolidate.yml) — download artifacts, merge into gh-pages, commit | CI workflow | ✅ Done |
-| 3.3 | [consolidate-results.mjs](scripts/consolidate-results.mjs) — merge artifacts into gh-pages data/ | Script | ✅ Done |
-| 3.4 | Unit tests for consolidate-results: month index merge, dedup, daily sharding (34 tests) | Tests | ✅ Done |
-| 3.5 | [docker-build.yml](.github/workflows/docker-build.yml) — build + push Docker image weekly | CI workflow | ✅ Done |
-| 3.6 | [test.yml](.github/workflows/test.yml) — run unit tests on PR/push | CI workflow | ✅ Done |
+### Step 1: Scaffold `bench/` project
+- `bench/package.json` with deps: `typescript`, `tsx`, `@rollup/plugin-typescript`, `rollup`, `@types/node`
+- `bench/tsconfig.json` (strict, ESNext, NodeNext)
+- `bench/rollup.config.mjs`
 
-### Phase 4: Dashboard
-Static web UI on GitHub Pages.
+### Step 2: Implement enums + context + args skeleton
+- `bench/src/enums.ts` — all enums, routing tables, constraint sets
+- `bench/src/context.ts` — `BenchContext` interface, defaults, save/load
+- `bench/src/args.ts` — `parseArgs()` → `BenchContext`, help text, validation
+- `bench/src/main.ts` — `main()`: parse → build context → dispatch stages
 
-| Step | Task | Output | Depends on |
-|------|------|--------|------------|
-| 4.1 | [index.html](src/dashboard/index.html) — page shell, navigation tabs, filter sidebar | HTML | 2.4 |
-| 4.2 | [data-loader.js](src/dashboard/data-loader.js) — fetch index, lazy-load month indexes + result JSONs | JS module | 2.4 |
-| 4.3 | [chart-manager.js](src/dashboard/chart-manager.js) — Chart.js line charts, tooltips, colors | JS module | 4.1 |
-| 4.4 | [filters.js](src/dashboard/filters.js) — checkbox state, URL hash sync, re-render on change | JS module | 4.1 |
-| 4.5 | [app.js](src/dashboard/app.js) — orchestrator wiring modules together | JS module | 4.2-4.4 |
-| 4.6 | Unit tests for data-loader (filtering, caching) and filters (hash parse/serialize) | Tests | 4.2, 4.4 |
-| 4.7 | E2E test: Playwright loads dashboard with fixture data, verifies charts render | Tests | 4.1-4.5 |
-| 4.8 | Generate sample test data, verify charts render correctly | Test data | 4.1-4.5 |
+### Step 3: Implement exec.ts
+- Cross-platform `exec()`, Docker helpers, WSL path conversion
+- Platform detection
 
-### Phase 5: Polish & Docs
-| Step | Task | Output | Depends on |
-|------|------|--------|------------|
-| 5.1 | README.md with architecture overview, quickstart, manual run instructions | Docs | Phase 1-4 |
-| 5.2 | End-to-end test: run one preset locally in Docker, verify data → dashboard | Validation | Phase 1-4 |
+### Step 4: Implement stage skeleton
+- `bench/src/stages/index.ts` — stage registry, `runStages(ctx)` loop
+- Stub each stage file with `export async function run(ctx: BenchContext): Promise<BenchContext>`
 
-### Phase 6: Additional Sample Apps
-Expand to the remaining 3 sample apps.
+### Step 5: Shell wrappers
+- `bench.sh`, `bench.ps1` at repo root
 
-| Step | Task | Output | Depends on |
-|------|------|--------|------------|
-| 6.1 | [apps/empty-blazor/](apps/empty-blazor/) — `dotnet new blazorwasm` config | App config | Phase 2 |
-| 6.2 | [apps/blazing-pizza/](apps/blazing-pizza/) — clone script, pinned commit, mock backend | App config | Phase 2 |
-| 6.3 | [src/microbenchmarks/](src/microbenchmarks/) — C# project with `[JSExport]` benchmark methods | C# project | Phase 2 |
-| 6.4 | [bench-driver.mjs](src/microbenchmarks/bench-driver.mjs) — JS harness: loop, measure, produce JSON | JS harness | 6.3 |
-| 6.5 | Update benchmark.yml matrix to include all apps | CI update | Phase 3 |
-| 6.6 | E2E tests for each new app: verify build + measure produce valid JSON | Tests | 6.1-6.4 |
+### Step 6: Port stages one by one (future work)
+- Each stage migrated from corresponding `scripts/*.mjs`
+- Unit tests ported to `bench/tests/*.test.ts`
 
-### Phase 7: Internal Metrics
-Add microbenchmark measurement support.
+### Step 7: Update Dockerfile
+- Add `npm run build` step for `bench/` in build stage
+- Bundle `bench/dist/bench.mjs` into both images
 
-| Step | Task | Output | Depends on |
-|------|------|--------|------------|
-| 7.1 | [measure-internal.mjs](scripts/measure-internal.mjs) — run microbenchmarks on V8/Node/Chrome/Firefox | Internal script | 6.3-6.4 |
-| 7.2 | Unit tests for measure-internal: mock engine output, verify JSON schema | Tests | 7.1 |
-| 7.3 | Update benchmark.yml matrix to include all engines for microbenchmarks | CI update | 7.1 |
-| 7.4 | Update dashboard to show microbenchmark metrics (ops/sec charts) | UI update | 7.1, Phase 4 |
+### Step 8: Update CI workflows
+- Replace `node scripts/run-pipeline.mjs` with `node bench/dist/bench.mjs --stages ...`
+- Replace `node scripts/run-measure-job.mjs` with `node bench/dist/bench.mjs --stages measure --context ...`
+
+---
 
 ## Key Decisions
 
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
-| Data storage | gh-pages branch, daily-sharded JSON + per-month index files | Free hosting, easy fetch() from UI, no server |
-| Upload mechanism | CI artifacts → consolidation job | Avoids concurrent git push conflicts |
-| Dashboard tech | Chart.js + vanilla JS | No build step, simple to deploy on Pages |
-| Browser result extraction | Playwright `page.evaluate()` | Direct, reliable, no HTTP server needed in test |
-| Docker registry | ghcr.io | Free for public repos, integrated with GH Actions |
-| Dependency pinning | All exact versions | Playwright version pins Chromium/Firefox builds; avoids silent measurement drift |
-| Runtime flavors | CoreCLR + Mono + LLVM NativeAOT | Compare all three runtimes on browser target |
-| Build presets | NoWorkload, AOT (Mono), NativeRelink, Invariant, NoReflectionEmit, DevLoop | Cover production + diagnostic scenarios |
-| SDK resolution | Latest nightly default, optional version param | Flexibility for regression investigation |
-| Browser versions | Latest Playwright-compatible | Consistent with Playwright's tested versions |
-
-## Testing Strategy
-
-Every component has both unit tests and E2E validation:
-
-| Component | Unit Tests | E2E Tests |
-|-----------|-----------|----------|
-| `resolve-sdk.sh` | Verify output JSON parsing, version extraction | Run in Docker, confirm SDK installs |
-| `build-app.sh` | Verify MSBuild flag generation per preset | Build empty-browser in Docker, verify `artifacts/publish/` |
-| `measure-external.mjs` | Mock CDP events, verify metric extraction + JSON schema (download-size-total/wasm/dlls, time-to-reach-managed/cold) | Run against published app in Docker, verify result JSON |
-| `measure-internal.mjs` | Mock engine stdout, verify JSON parsing | Run microbenchmarks on V8/Node in Docker |
-| `consolidate-results.mjs` | Merge fixtures → verify month index dedup, daily sharding | Consolidation workflow with test artifacts |
-| `data-loader.js` | Month index filtering, caching, lazy fetch | — (covered by dashboard E2E) |
-| `filters.js` | URL hash parse/serialize, checkbox state | — (covered by dashboard E2E) |
-| `chart-manager.js` | Dataset grouping, series key generation | — (covered by dashboard E2E) |
-| Dashboard (full) | — | Playwright loads dashboard with fixture data, verifies chart rendering + filter interactions |
-
-### Test workflow: `test.yml`
-- Triggered on push and PR
-- Runs unit tests via Node.js test runner (`node --test tests/unit/*.test.mjs`)
-- Runs E2E tests via Playwright (`npx playwright test tests/e2e/`)
-- Uses `gh` CLI / GitHub REST API to verify CI status programmatically:
-  - `tests/e2e/helpers/gh-api.mjs` uses `@octokit/rest` to check workflow run status
-  - Useful for testing the consolidation pipeline: trigger benchmark → check artifacts → verify gh-pages update
-
-## Future Considerations
-
-- **Regression alerts**: Threshold-based detection → auto-file GitHub issues (post-MVP)
-- **Historical backfill**: Import data from existing perf runs
-- **WASI target**: Add wasi-node and wasmtime engines when CoreCLR WASI matures
-- **Gap-filling scheduler**: Adopt radekdoulik/bench-results pattern — track measured vs. unmeasured commits over a window, pick the midpoint of the largest gap for backfill when CI capacity is idle
-- **Granular AppBundle size tracking**: Track individual file sizes (`dotnet.native.wasm`, `icudt.dat`, `_framework/` dir) in addition to total download size, for finer-grained size regression detection
-- **Environment fingerprint per run**: Capture `uname -a`, `/proc/cpuinfo`, `/proc/meminfo`, browser versions, emscripten version alongside results for reproducibility and cross-machine comparisons
-- **Compact index format (IdMap)**: If month index files grow too large, adopt an integer ID mapping (flavor→int, metric→int) as used in radekdoulik/bench-results to compress the index
-- **Use minimum (or percentiles) instead of mean**: For internal microbenchmarks, store min/p50/p99 across multiple runs rather than a single value — reduces noise (bench-results stores `minTimes`)
-- **Commit-hash–based re-runs**: Allow the CI to re-benchmark a specific git commit and merge results into the correct historical date directory (already supported by the commit-date directory structure)
+| Language | TypeScript (strict) | Type safety for context, enums, stage interfaces |
+| Local dev runner | `tsx` | Fast (esbuild-based), no separate compile step |
+| Production bundler | Rollup → ESM | Single file, tree-shaken, runs on Node 24 |
+| CLI structure | Single binary with `--stages` | Resume from middle, cross-container handoff via `--context` |
+| Docker orchestration | In TypeScript (`--via-docker`) | Consistent cross-platform, reuses `exec.ts` |
+| Shell wrappers | Minimal `bench.sh`/`bench.ps1` | Only check Node prereq, delegate everything to TS |
+| `naotllvm` | Kept as legacy alias for `mono` | Backward compat for old result data |
+| `no-jiterp` preset | Kept | Valid mono-only preset |
+| Apps | Hardcoded enum | Bake routing rules (browserOnly, internal, hasTimingMarker) |
+| CI run URL | Derived from `GITHUB_RUN_ID` + `GITHUB_REPOSITORY` env vars | No need for separate `--ci-run-url` parameter |
