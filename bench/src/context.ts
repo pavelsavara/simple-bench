@@ -7,11 +7,14 @@ import { type App, type Engine, type Preset, type Profile, type Runtime, type St
 export interface SdkInfo {
     sdkVersion: string;
     runtimeGitHash: string;
+    aspnetCoreGitHash: string;
     sdkGitHash: string;
     vmrGitHash: string;
     runtimeCommitDateTime: string;
-    runtimePackVersion?: string;
-    workloadVersion?: string;
+    aspnetCoreCommitDateTime: string;
+    aspnetCoreVersion: string;
+    runtimePackVersion: string;
+    workloadVersion: string;
 }
 
 // ── Build Manifest Entry (populated by build stage) ──────────────────────────
