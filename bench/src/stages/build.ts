@@ -125,9 +125,6 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     if (!ctx.sdkDir) throw new Error('build stage requires ctx.sdkDir (run acquire-sdk first)');
     if (!ctx.dotnetBin) throw new Error('build stage requires ctx.dotnetBin (run acquire-sdk first)');
     if (!ctx.buildLabel) throw new Error('build stage requires ctx.buildLabel (run acquire-sdk first)');
-    if (ctx.sdkInfo.runtimePackVersion && !ctx.runtimePackDir) {
-        throw new Error('build stage requires ctx.runtimePackDir when runtimePackVersion is set');
-    }
 
     const sdkInfoPath = join(ctx.sdkDir, 'sdk-info.json');
 

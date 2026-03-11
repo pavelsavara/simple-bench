@@ -37,7 +37,7 @@ Runs via `tsx` (dev) or bundled `artifacts/bench/bench.mjs` (CI/Docker). Shell w
 | `enumerate-release-packs` | ✅ done | Catalog .NET 8/9/10 GA release packs from release metadata |
 | `docker-image` | ✅ done | Build Docker images (browser-bench-build, browser-bench-measure) |
 | `build` | ✅ done | Build all app×preset, write build-manifest |
-| `acquire-sdk` | stub | SDK download, hash resolution, sdk-info.json |
+| `acquire-sdk` | ✅ done | SDK download via dotnet-install, runtime pack override, sdk-info.json |
 | `measure` | stub | Run measurements for all app×preset×engine×profile combinations |
 | `consolidate` | stub | Merge result JSONs into gh-pages data/ directory |
 | `schedule` | stub | Detect untested runtime commits, dispatch benchmark workflows |
@@ -60,7 +60,7 @@ Default stages (no `--stages`): `acquire-sdk,build,measure`
    - [x] `enumerate-release-packs` — release metadata, VMR/pre-VMR detection, incremental
    - [x] `docker-image` — build both images, skip logic
    - [x] `build` — app×preset iteration, dotnet publish, workload install, build-manifest
-   - [ ] `acquire-sdk` — SDK download, hash resolution, sdk-info.json
+   - [x] `acquire-sdk` — dotnet-install scripts, pack catalog lookup, runtime pack override
    - [ ] `measure` — browser + CLI measurement, result JSON writing
    - [ ] `consolidate` — merge results into gh-pages data/
    - [ ] `schedule` — gap detection, workflow dispatch
