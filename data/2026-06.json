@@ -15,7 +15,7 @@
           "profile": "desktop",
           "engine": "chrome",
           "app": "microbenchmarks",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_no-workload_desktop_chrome_microbenchmarks.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_no-workload_desktop_chrome_microbenchmarks.json",
           "metrics": [
             "compile-time",
             "memory-peak",
@@ -30,7 +30,7 @@
           "profile": "desktop",
           "engine": "firefox",
           "app": "microbenchmarks",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_no-workload_desktop_firefox_microbenchmarks.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_no-workload_desktop_firefox_microbenchmarks.json",
           "metrics": [
             "compile-time",
             "js-interop-ops",
@@ -44,7 +44,7 @@
           "profile": "desktop",
           "engine": "node",
           "app": "microbenchmarks",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_no-workload_desktop_node_microbenchmarks.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_no-workload_desktop_node_microbenchmarks.json",
           "metrics": [
             "compile-time",
             "js-interop-ops",
@@ -58,7 +58,7 @@
           "profile": "desktop",
           "engine": "v8",
           "app": "microbenchmarks",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_no-workload_desktop_v8_microbenchmarks.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_no-workload_desktop_v8_microbenchmarks.json",
           "metrics": [
             "compile-time",
             "js-interop-ops",
@@ -72,7 +72,7 @@
           "profile": "mobile",
           "engine": "chrome",
           "app": "microbenchmarks",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_no-workload_mobile_chrome_microbenchmarks.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_no-workload_mobile_chrome_microbenchmarks.json",
           "metrics": [
             "compile-time",
             "memory-peak",
@@ -87,7 +87,7 @@
           "profile": "desktop",
           "engine": "chrome",
           "app": "microbenchmarks",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_devloop_desktop_chrome_microbenchmarks.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_devloop_desktop_chrome_microbenchmarks.json",
           "metrics": [
             "compile-time",
             "memory-peak",
@@ -102,7 +102,7 @@
           "profile": "desktop",
           "engine": "firefox",
           "app": "microbenchmarks",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_devloop_desktop_firefox_microbenchmarks.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_devloop_desktop_firefox_microbenchmarks.json",
           "metrics": [
             "compile-time",
             "js-interop-ops",
@@ -116,7 +116,7 @@
           "profile": "desktop",
           "engine": "node",
           "app": "microbenchmarks",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_devloop_desktop_node_microbenchmarks.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_devloop_desktop_node_microbenchmarks.json",
           "metrics": [
             "compile-time",
             "js-interop-ops",
@@ -130,7 +130,7 @@
           "profile": "desktop",
           "engine": "v8",
           "app": "microbenchmarks",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_devloop_desktop_v8_microbenchmarks.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_devloop_desktop_v8_microbenchmarks.json",
           "metrics": [
             "compile-time",
             "js-interop-ops",
@@ -144,7 +144,7 @@
           "profile": "mobile",
           "engine": "chrome",
           "app": "microbenchmarks",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_devloop_mobile_chrome_microbenchmarks.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_devloop_mobile_chrome_microbenchmarks.json",
           "metrics": [
             "compile-time",
             "memory-peak",
@@ -159,7 +159,7 @@
           "profile": "desktop",
           "engine": "chrome",
           "app": "empty-browser",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_no-workload_desktop_chrome_empty-browser.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_no-workload_desktop_chrome_empty-browser.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -176,7 +176,7 @@
           "profile": "desktop",
           "engine": "firefox",
           "app": "empty-browser",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_no-workload_desktop_firefox_empty-browser.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_no-workload_desktop_firefox_empty-browser.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -191,7 +191,7 @@
           "profile": "desktop",
           "engine": "node",
           "app": "empty-browser",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_no-workload_desktop_node_empty-browser.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_no-workload_desktop_node_empty-browser.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -206,7 +206,7 @@
           "profile": "desktop",
           "engine": "v8",
           "app": "empty-browser",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_no-workload_desktop_v8_empty-browser.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_no-workload_desktop_v8_empty-browser.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -221,7 +221,7 @@
           "profile": "mobile",
           "engine": "chrome",
           "app": "empty-browser",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_no-workload_mobile_chrome_empty-browser.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_no-workload_mobile_chrome_empty-browser.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -238,7 +238,7 @@
           "profile": "desktop",
           "engine": "chrome",
           "app": "empty-browser",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_devloop_desktop_chrome_empty-browser.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_devloop_desktop_chrome_empty-browser.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -256,7 +256,7 @@
           "profile": "desktop",
           "engine": "firefox",
           "app": "empty-browser",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_devloop_desktop_firefox_empty-browser.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_devloop_desktop_firefox_empty-browser.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -272,7 +272,7 @@
           "profile": "desktop",
           "engine": "node",
           "app": "empty-browser",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_devloop_desktop_node_empty-browser.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_devloop_desktop_node_empty-browser.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -288,7 +288,7 @@
           "profile": "desktop",
           "engine": "v8",
           "app": "empty-browser",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_devloop_desktop_v8_empty-browser.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_devloop_desktop_v8_empty-browser.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -304,7 +304,7 @@
           "profile": "mobile",
           "engine": "chrome",
           "app": "empty-browser",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_devloop_mobile_chrome_empty-browser.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_devloop_mobile_chrome_empty-browser.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -322,7 +322,7 @@
           "profile": "desktop",
           "engine": "chrome",
           "app": "empty-blazor",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_no-workload_desktop_chrome_empty-blazor.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_no-workload_desktop_chrome_empty-blazor.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -339,7 +339,7 @@
           "profile": "desktop",
           "engine": "firefox",
           "app": "empty-blazor",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_no-workload_desktop_firefox_empty-blazor.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_no-workload_desktop_firefox_empty-blazor.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -354,7 +354,7 @@
           "profile": "mobile",
           "engine": "chrome",
           "app": "empty-blazor",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_no-workload_mobile_chrome_empty-blazor.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_no-workload_mobile_chrome_empty-blazor.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -371,7 +371,7 @@
           "profile": "desktop",
           "engine": "chrome",
           "app": "empty-blazor",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_devloop_desktop_chrome_empty-blazor.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_devloop_desktop_chrome_empty-blazor.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -389,7 +389,7 @@
           "profile": "desktop",
           "engine": "firefox",
           "app": "empty-blazor",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_devloop_desktop_firefox_empty-blazor.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_devloop_desktop_firefox_empty-blazor.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -405,7 +405,7 @@
           "profile": "mobile",
           "engine": "chrome",
           "app": "empty-blazor",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_devloop_mobile_chrome_empty-blazor.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_devloop_mobile_chrome_empty-blazor.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -423,7 +423,7 @@
           "profile": "desktop",
           "engine": "chrome",
           "app": "blazing-pizza",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_no-workload_desktop_chrome_blazing-pizza.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_no-workload_desktop_chrome_blazing-pizza.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -441,7 +441,7 @@
           "profile": "desktop",
           "engine": "firefox",
           "app": "blazing-pizza",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_no-workload_desktop_firefox_blazing-pizza.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_no-workload_desktop_firefox_blazing-pizza.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -457,7 +457,7 @@
           "profile": "mobile",
           "engine": "chrome",
           "app": "blazing-pizza",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_no-workload_mobile_chrome_blazing-pizza.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_no-workload_mobile_chrome_blazing-pizza.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -475,7 +475,7 @@
           "profile": "desktop",
           "engine": "chrome",
           "app": "blazing-pizza",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_devloop_desktop_chrome_blazing-pizza.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_devloop_desktop_chrome_blazing-pizza.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -494,7 +494,7 @@
           "profile": "desktop",
           "engine": "firefox",
           "app": "blazing-pizza",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_devloop_desktop_firefox_blazing-pizza.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_devloop_desktop_firefox_blazing-pizza.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
@@ -511,7 +511,7 @@
           "profile": "mobile",
           "engine": "chrome",
           "app": "blazing-pizza",
-          "file": "2026/2026-06-08/05-04-54-UTC_cd38a58_mono_devloop_mobile_chrome_blazing-pizza.json",
+          "file": "2026/2026-06-09/05-05-58-UTC_cd38a58_mono_devloop_mobile_chrome_blazing-pizza.json",
           "metrics": [
             "compile-time",
             "disk-size-total",
