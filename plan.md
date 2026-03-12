@@ -61,7 +61,7 @@ Default stages (no `--stages`): `acquire-sdk,build,measure`
    - [x] `docker-image` — build both images, skip logic
    - [x] `build` — app×preset iteration, dotnet publish, workload install, build-manifest
    - [x] `acquire-sdk` — dotnet-install scripts, pack catalog lookup, runtime pack override
-   - [ ] `measure` — browser + CLI measurement, result JSON writing
+   - [x] `measure` — browser + CLI measurement, result JSON writing
    - [ ] `consolidate` — merge results into gh-pages data/
    - [ ] `schedule` — gap detection, workflow dispatch
    - [ ] `transform-views` — view file generation for dashboard
