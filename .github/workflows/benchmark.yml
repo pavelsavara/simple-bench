@@ -36,6 +36,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: ghcr.io/${{ github.repository }}/browser-bench-build:latest
+    permissions:
+      contents: write
+      packages: read
     timeout-minutes: 60
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
@@ -51,7 +54,9 @@ jobs:
       - name: Build all apps
         shell: bash
         run: |
-          node scripts/run-pipeline.mjs \
+          npx --prefix bench tsx bench/src/main.ts \
+            --stages check-out-cache,enumerate-daily-packs,enumerate-release-packs,update-cache,acquire-sdk,build \
+            --context "${ARTIFACTS_DIR}/bench-context.json" \
             --sdk-channel "${{ inputs.sdk_channel || '11.0' }}" \
             ${{ inputs.sdk_version && format('--sdk-version "{0}"', inputs.sdk_version) || '' }} \
             ${{ inputs.runtime_commit && format('--runtime-commit "{0}"', inputs.runtime_commit) || '' }} \
@@ -63,7 +68,7 @@ jobs:
         id: run-id
         shell: bash
         run: |
-          RUN_ID=$(cat "${ARTIFACTS_DIR:-artifacts}/results/.run-id")
+          RUN_ID=$(cat "${ARTIFACTS_DIR}/results/.run-id")
           echo "run-id=$RUN_ID" >> "$GITHUB_OUTPUT"
           echo "Run ID: $RUN_ID" >&2
 
@@ -71,47 +76,36 @@ jobs:
         id: matrix
         shell: bash
         run: |
-          MANIFEST="${ARTIFACTS_DIR:-artifacts}/results/${{ steps.run-id.outputs.run-id }}/build-manifest.json"
+          MANIFEST="${ARTIFACTS_DIR}/results/${{ steps.run-id.outputs.run-id }}/build-manifest.json"
           if [ ! -f "$MANIFEST" ]; then
             echo "matrix=[]" >> "$GITHUB_OUTPUT"
             echo "⚠ No build manifest found" >&2
             exit 0
           fi
-          # Compute buildLabel from sdk-info.json: {sdkVersion}_{runtimePackVersion}
-          SDK_INFO="${ARTIFACTS_DIR:-artifacts}/results/${{ steps.run-id.outputs.run-id }}/sdk-info.json"
-          BUILD_LABEL="local"
-          if [ -f "$SDK_INFO" ]; then
-            BUILD_LABEL=$(node --input-type=module -e "
-              import { readFileSync } from 'node:fs';
-              const info = JSON.parse(readFileSync('$SDK_INFO', 'utf-8'));
-              const sdk = info.sdkVersion || 'local';
-              console.log(info.runtimePackVersion ? sdk + '_' + info.runtimePackVersion : sdk);
-            ")
-          fi
-          # Extract {app, preset, buildLabel} for the GHA matrix
+          # Extract {app, preset} for the GHA matrix
           MATRIX=$(node --input-type=module -e "
             import { readFileSync } from 'node:fs';
             const m = JSON.parse(readFileSync('$MANIFEST', 'utf-8'));
-            console.log(JSON.stringify(m.map(e => ({ app: e.app, preset: e.preset, buildLabel: '$BUILD_LABEL' }))));
+            console.log(JSON.stringify(m.map(e => ({ app: e.app, preset: e.preset }))));
           ")
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
           echo "Build matrix: $MATRIX" >&2
 
-      - name: Upload SDK info
+      - name: Upload bench context
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: sdk-info
-          path: ${{ env.ARTIFACTS_DIR || 'artifacts' }}/results/${{ steps.run-id.outputs.run-id }}/sdk-info.json
+          name: bench-context
+          path: ${{ env.ARTIFACTS_DIR }}/bench-context.json
           if-no-files-found: error
           retention-days: 7
 
-      - name: Upload build manifest
+      - name: Upload results
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: build-manifest
-          path: ${{ env.ARTIFACTS_DIR || 'artifacts' }}/results/${{ steps.run-id.outputs.run-id }}/build-manifest.json
+          name: build-results
+          path: ${{ env.ARTIFACTS_DIR }}/results/
           if-no-files-found: error
           retention-days: 7
 
@@ -120,7 +114,7 @@ jobs:
         if: always() && steps.matrix.outputs.matrix != '[]'
         with:
           name: all-builds
-          path: ${{ env.ARTIFACTS_DIR || 'artifacts' }}/publish/
+          path: ${{ env.ARTIFACTS_DIR }}/publish/
           if-no-files-found: error
           retention-days: 3
 
@@ -141,48 +135,54 @@ jobs:
       - uses: actions/checkout@v4
         with:
           clean: false
-          sparse-checkout: |
-            scripts/
-            package.json
-            package-lock.json
 
-      - name: Download SDK info
+      - name: Export container env to GitHub Actions
+        shell: bash
+        run: echo "ARTIFACTS_DIR=${ARTIFACTS_DIR:-artifacts}" >> "$GITHUB_ENV"
+
+      - name: Symlink pre-installed node_modules into workspace
+        shell: bash
+        run: |
+          # The container image pre-installs deps to /opt/bench-deps/ and
+          # /opt/bench-cli-deps/. The entrypoint symlinks them into /bench/,
+          # but GHA checks out to $GITHUB_WORKSPACE. Create symlinks here too.
+          mkdir -p node_modules bench/node_modules
+          for src in /opt/bench-deps/node_modules/*; do
+            [ -e "$src" ] && ln -sf "$src" node_modules/ 2>/dev/null
+          done
+          for src in /opt/bench-cli-deps/node_modules/*; do
+            [ -e "$src" ] && ln -sf "$src" bench/node_modules/ 2>/dev/null
+          done
+
+      - name: Download bench context
         uses: actions/download-artifact@v4
         with:
-          name: sdk-info
-          path: artifacts/results
+          name: bench-context
+          path: ${{ env.ARTIFACTS_DIR }}
 
-      - name: Download build manifest
+      - name: Download results
         uses: actions/download-artifact@v4
         with:
-          name: build-manifest
-          path: artifacts/results
+          name: build-results
+          path: ${{ env.ARTIFACTS_DIR }}/results
 
       - name: Download builds
         uses: actions/download-artifact@v4
         with:
           name: all-builds
-          path: artifacts/publish
-
-      - name: Link pre-installed dependencies
-        shell: bash
-        run: ln -s /bench/node_modules node_modules
+          path: ${{ env.ARTIFACTS_DIR }}/publish
 
       - name: Run measurements
         shell: bash
         run: |
-          node scripts/run-measure-job.mjs \
+          npx --prefix bench tsx bench/src/main.ts \
+            --stages measure \
+            --context "${ARTIFACTS_DIR}/bench-context.json" \
             --app "${{ matrix.app }}" \
             --preset "${{ matrix.preset }}" \
-            --publish-dir "artifacts/publish/${{ matrix.app }}/${{ matrix.buildLabel }}/${{ matrix.preset }}" \
-            --sdk-info artifacts/results/sdk-info.json \
-            --build-manifest artifacts/results/build-manifest.json \
-            --output-dir artifacts/results \
             --runtime mono \
             --retries 3 \
             --timeout 300000 \
-            --ci-run-id "${{ github.run_id }}" \
-            --ci-run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 
       - name: Upload results
@@ -190,6 +190,6 @@ jobs:
         if: always()
         with:
           name: results-${{ matrix.app }}-${{ matrix.preset }}
-          path: artifacts/results/*.json
+          path: ${{ env.ARTIFACTS_DIR }}/results/*.json
           if-no-files-found: ignore
           retention-days: 7

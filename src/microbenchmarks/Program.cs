@@ -10,10 +10,10 @@ partial class MicroBenchmarkApp
     public static Task<int> Main()
     {
         Console.WriteLine("Microbenchmarks ready");
-        SetBenchReady();
+        SetManagedReady();
         return Task.FromResult(0);
     }
 
-    [JSImport("bench.setBenchReady", "bench-driver.mjs")]
-    internal static partial void SetBenchReady();
+    [JSImport("bench.setManagedReady", "main.mjs")]
+    internal static partial void SetManagedReady();
 }

@@ -1,23 +1,21 @@
 <!DOCTYPE html>
-<!-- Licensed to the .NET Foundation under one or more agreements. -->
+<!--  Licensed to the .NET Foundation under one or more agreements. -->
 <!-- The .NET Foundation licenses this file to you under the MIT license. -->
 <html>
 
 <head>
-    <title>Microbenchmarks</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preload" id="webassembly" />
-    <script type="importmap"></script>
-    <!-- this is for Net9 and above -->
-    <script type='module' src="bench-driver#[.{fingerprint}].mjs"></script>
-    <!-- this is for Net8 which doesn't support fingerprinting HTML -->
-    <script type='module' src="bench-driver.mjs"></script>
+  <title>microbenchmarks</title>
+  <link rel="icon" href="data:image/png;base64,iVBORw0KGgo=">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preload" id="webassembly" />
+  <script type="importmap"></script>
+  <script type='module' src="main#[.{fingerprint}].mjs"></script>
 </head>
 
 <body>
-    <h1>Microbenchmarks</h1>
-    <p id="status">Loading...</p>
+  <div id="out"></div>
+  <p id="status">Loading...</p>
 </body>
 
 </html>

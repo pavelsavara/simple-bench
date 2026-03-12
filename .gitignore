@@ -65,3 +65,4 @@ data/
 
 # gh-pages worktree
 gh-pages/
+dist/
