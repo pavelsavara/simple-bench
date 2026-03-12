@@ -124,4 +124,7 @@ ENTRYPOINT ["entrypoint.sh"]
 # Bench CLI deps — pre-installed so bench/ source runs via tsx without npm ci
 COPY --from=bench-cli-deps /opt/bench-cli-deps/node_modules /opt/bench-cli-deps/node_modules
 
+# Make /bench writable by benchuser so download-artifact can extract there
+RUN chown -R benchuser:benchuser /bench
+
 USER benchuser
