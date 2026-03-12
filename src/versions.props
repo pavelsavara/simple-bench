@@ -29,6 +29,8 @@
     <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
     <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.25112.101</MicrosoftNetCompilersRazorToolsetVersion>
     <FluentValidationVersion>12.1.1</FluentValidationVersion>
+    <HavitBlazorVersion>4.23.0</HavitBlazorVersion>
+    <HavitBlazorSmartVersion>4.23.0-preview04</HavitBlazorSmartVersion>
   </PropertyGroup>
   <ItemGroup Condition="'$(BenchmarkTargetFramework)' == 'net11.0'">
     <StaticWebAssetFingerprintPattern Include="JS" Pattern="*.js" Expression="#[.{fingerprint}]!" />
@@ -40,6 +42,8 @@
     <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
     <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.25112.101</MicrosoftNetCompilersRazorToolsetVersion>
     <FluentValidationVersion>12.1.1</FluentValidationVersion>
+    <HavitBlazorVersion>4.23.0</HavitBlazorVersion>
+    <HavitBlazorSmartVersion>4.23.0-preview04</HavitBlazorSmartVersion>
   </PropertyGroup>
   <ItemGroup Condition="'$(BenchmarkTargetFramework)' == 'net10.0'">
     <StaticWebAssetFingerprintPattern Include="JS" Pattern="*.js" Expression="#[.{fingerprint}]!" />
@@ -51,6 +55,8 @@
     <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
     <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.25112.101</MicrosoftNetCompilersRazorToolsetVersion>
     <FluentValidationVersion>12.1.1</FluentValidationVersion>
+    <HavitBlazorVersion>4.23.0</HavitBlazorVersion>
+    <HavitBlazorSmartVersion>4.23.0-preview04</HavitBlazorSmartVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(BenchmarkTargetFramework)' == 'net8.0'">
@@ -58,6 +64,8 @@
     <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
     <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.25112.101</MicrosoftNetCompilersRazorToolsetVersion>
     <FluentValidationVersion>12.1.1</FluentValidationVersion>
+    <HavitBlazorVersion>4.23.0</HavitBlazorVersion>
+    <HavitBlazorSmartVersion>4.23.0-preview04</HavitBlazorSmartVersion>
   </PropertyGroup>
 
 </Project>

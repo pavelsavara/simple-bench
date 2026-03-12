@@ -33,6 +33,7 @@ export enum App {
     EmptyBlazor = 'empty-blazor',
     BlazingPizza = 'blazing-pizza',
     Microbenchmarks = 'microbenchmarks',
+    HavitBlazor = 'havit-bootstrap',
 }
 
 export enum Stage {
@@ -74,9 +75,10 @@ export interface AppConfig {
 
 export const APP_CONFIG: Record<App, AppConfig> = {
     [App.EmptyBrowser]: { browserOnly: false, internal: false },
+    [App.Microbenchmarks]: { browserOnly: false, internal: true },
     [App.EmptyBlazor]: { browserOnly: true, internal: false },
     [App.BlazingPizza]: { browserOnly: true, internal: false },
-    [App.Microbenchmarks]: { browserOnly: false, internal: true },
+    [App.HavitBlazor]: { browserOnly: true, internal: false },
 };
 
 // ── Preset Constraints ───────────────────────────────────────────────────────
