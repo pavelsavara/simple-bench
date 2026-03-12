@@ -7,6 +7,7 @@ function setManagedReady() {
         'time-to-create-dotnet': Math.round(globalThis.dotnet_created - globalThis.js_loaded),
         'time-to-reach-managed': Math.round(globalThis.dotnet_managed_ready - globalThis.js_loaded),
     };
+    globalThis.bench_complete = true;
     const isBrowser = typeof globalThis.window !== 'undefined';
     if (isBrowser) {
         const el = globalThis.document?.getElementById('status');

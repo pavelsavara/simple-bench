@@ -30,6 +30,8 @@ async function outer() {
         'time-to-exit': Math.round(globalThis.dotnet_exit - globalThis.js_loaded),
     });
 
+    globalThis.bench_complete = true;
+
     if (isBrowser) {
         const el = globalThis.document?.getElementById('status');
         if (el) {

@@ -22,5 +22,6 @@ export default {
         'node:process',
         'node:url',
         'node:util',
+        'playwright',
     ],
 };

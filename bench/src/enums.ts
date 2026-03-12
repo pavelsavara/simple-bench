@@ -51,10 +51,10 @@ export enum Stage {
 export enum MetricKey {
     CompileTime = 'compile-time',
     DiskSizeTotal = 'disk-size-total',
-    DiskSizeWasm = 'disk-size-wasm',
-    DiskSizeDlls = 'disk-size-dlls',
+    DiskSizeNative = 'disk-size-native',
+    DiskSizeAssemblies = 'disk-size-assemblies',
     DownloadSizeTotal = 'download-size-total',
-    TimeToReachManaged = 'time-to-reach-managed',
+    TimeToReachManagedWarm = 'time-to-reach-managed-warm',
     TimeToReachManagedCold = 'time-to-reach-managed-cold',
     MemoryPeak = 'memory-peak',
     PizzaWalkthru = 'pizza-walkthru',

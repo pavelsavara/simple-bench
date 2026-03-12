@@ -595,3 +595,143 @@ In Docker mode, each measurement runs inside the `browser-bench-measure` contain
 9. **CLI fallback to wall-clock** — When CLI engines (`v8`, `node`) can't find the `time-to-reach-managed` marker in stdout, they use the total wall-clock execution time as a fallback for both cold and warm values.
 
 10. **Internal CLI parsing from last line** — `parseCliOutput()` scans stdout backwards because .NET may emit diagnostic output before the benchmark results JSON line.
+
+---
+
+## Implementation Decisions (Resolved)
+
+These decisions were made during implementation planning and supersede any conflicting information above.
+
+### D1. Completion Signal: `globalThis.bench_complete`
+
+All apps set `globalThis.bench_complete = true` at the very end of their `main.mjs`, after `bench_results` is fully populated. This is the universal "done" signal. The measurement code waits for `bench_complete` and then reads `bench_results`.
+
+**Why**: Decouples measurement code from knowing which specific keys each app populates. One line per app, simple and explicit.
+
+**App changes required**: Add `globalThis.bench_complete = true;` at the end of:
+- `src/empty-browser/wwwroot/main.mjs` — after the `Object.assign(globalThis.bench_results, {...})` block
+- `src/empty-blazor/wwwroot/main.mjs` — inside `setManagedReady()`, after populating `bench_results`
+- `src/blazing-pizza/wwwroot/main.mjs` — inside `setManagedReady()`, after populating `bench_results`
+- `src/microbenchmarks/wwwroot/main.mjs` — after the `Object.assign(globalThis.bench_results, {...})` block
+
+### D2. Wait Strategy: Unified via `bench_results`
+
+For **all** apps (external and internal), the measurement code:
+1. Navigates to the page
+2. Waits for `globalThis.bench_complete !== undefined`
+3. Reads `globalThis.bench_results` to extract timing, ops, etc.
+
+**External apps**: `bench_results['time-to-reach-managed']` provides the relative timing (ms since JS loaded). No need to read `dotnet_managed_ready` directly.
+
+**Internal apps (microbenchmarks)**: `bench_results` contains `js-interop-ops`, `json-parse-ops`, `exception-ops`, plus timing fields.
+
+**CLI apps**: Parse `bench_results` JSON from stdout (all apps output it in non-browser mode).
+
+### D3. Cold Load Timing: `performance.timing` Navigation Time
+
+In addition to the app-reported `bench_results['time-to-reach-managed']`, the browser measurement collects `performance.timing` data for a server-relative cold load timestamp:
+
+```javascript
+const perfTiming = await page.evaluate(() => {
+    const t = performance.timing;
+    return {
+        navigationStart: t.navigationStart,
+        responseStart: t.responseStart,
+        domContentLoadedEventEnd: t.domContentLoadedEventEnd,
+        loadEventEnd: t.loadEventEnd,
+    };
+});
+```
+
+- **Cold**: First navigation → `bench_results['time-to-reach-managed']` stored as `time-to-reach-managed-cold`
+- **Warm**: Each reload → read `bench_results['time-to-reach-managed']` → keep minimum across N warm runs
+- **`performance.timing`** data provides additional context (network latency, DOM parse time) that may be useful for diagnostics
+
+### D4. Publish Directory Structure
+
+Confirmed layout from build stage output:
+
+```
+publishDir (e.g. artifacts/publish/empty-browser/10.0.200/devloop)
+├── compile-time.json
+├── {AppName}.staticwebassets.endpoints.json     ← fingerprint map
+├── {AppName}.runtimeconfig.json
+├── publish.binlog
+├── web.config
+├── dotnet.js
+└── wwwroot/                                      ← web root (serve this)
+    ├── index.html
+    ├── main.{fingerprint}.mjs
+    ├── _framework/
+    │   ├── dotnet.{fp}.js
+    │   ├── dotnet.native.{fp}.wasm
+    │   ├── dotnet.runtime.{fp}.js
+    │   ├── *.dll (fingerprinted)
+    │   └── ...
+    └── _content/ (if any)
+```
+
+- **Static server** serves `publishDir/wwwroot/`
+- **Endpoints JSON** loaded from `publishDir/*.staticwebassets.endpoints.json`
+- **File size measurement** walks `publishDir/wwwroot/` (the actual served content)
+- **CLI entry file** (`main*.mjs`) lives in `publishDir/wwwroot/`
+- **Published HTML** already has fingerprints resolved via `<script type="importmap">` — the `#[.{fingerprint}]` pattern is only in source HTML, not in published output. The static server does NOT need to resolve fingerprint patterns in HTML.
+
+### D5. Pizza Walkthrough: Both Chrome and Firefox
+
+The `pizza-walkthru` metric is collected for **both Chrome and Firefox** (desktop profile). The walkthrough is Playwright-based navigation (no CDP required). Firefox will report timing but not `memory-peak` (no CDP).
+
+Updated metric availability:
+
+| Metric | Chrome | Firefox | V8 | Node |
+|--------|:------:|:-------:|:--:|:----:|
+| `pizza-walkthru` | ✓ | ✓ | — | — |
+
+The walkthrough is simplified to: navigate to home page, wait for page to fully render. No multi-step pizza ordering flow.
+
+### D6. Microbenchmarks CLI Entry File
+
+Microbenchmarks use the same `main*.mjs` entry file pattern as external apps (not `bench-driver*.mjs`). The CLI measurement glob is `main*.mjs` for all apps.
+
+---
+
+## Implementation Plan
+
+### Files to Create
+
+| File | Purpose |
+|------|---------|
+| `bench/src/lib/measure-utils.ts` | Static HTTP server (node:http), file size walker, result JSON builder, endpoints JSON loader |
+| `bench/src/lib/throttle-profiles.ts` | Desktop/mobile CDP profile definitions |
+| `bench/src/lib/internal-utils.ts` | CLI engine command resolution (d8/v8.cmd/node), stdout JSON parser (scan backwards), bench_results validation |
+| `bench/src/lib/metrics.ts` | Metric registry (displayName, unit, category) keyed by MetricKey |
+| `bench/src/lib/pizza-walkthrough.ts` | Simplified walkthrough: navigate to home page, wait for render, return wall-clock duration |
+
+### Files to Modify
+
+| File | Change |
+|------|--------|
+| `bench/src/stages/measure.ts` | Replace stub with full implementation |
+| `src/empty-browser/wwwroot/main.mjs` | Add `globalThis.bench_complete = true` |
+| `src/empty-blazor/wwwroot/main.mjs` | Add `globalThis.bench_complete = true` |
+| `src/blazing-pizza/wwwroot/main.mjs` | Add `globalThis.bench_complete = true` |
+| `src/microbenchmarks/wwwroot/main.mjs` | Add `globalThis.bench_complete = true` |
+
+### Implementation Order
+
+1. **App changes** — Add `bench_complete` signal to all 4 apps
+2. **`bench/src/lib/throttle-profiles.ts`** — Simple data, no dependencies
+3. **`bench/src/lib/metrics.ts`** — Metric registry
+4. **`bench/src/lib/internal-utils.ts`** — CLI engine helpers
+5. **`bench/src/lib/measure-utils.ts`** — Static server, file sizes, result builder
+6. **`bench/src/lib/pizza-walkthrough.ts`** — Playwright walkthrough (depends on measure-utils for server)
+7. **`bench/src/stages/measure.ts`** — Main orchestrator (depends on all lib files)
+
+### Architecture Notes
+
+- **Playwright** is an external dependency (not bundled by rollup). Import via `await import('playwright')` at runtime.
+- **CDP** (Chrome DevTools Protocol) is accessed through Playwright's `context.newCDPSession(page)`. Chrome-only features: `downloadSizeTotal`, `memoryPeak`, network/CPU throttling.
+- **Retry loop** wraps the entire browser lifecycle per `{engine, profile}` pair. Server persists across retries.
+- **Failure isolation**: One failed `{engine, profile}` logs and continues. Only if ALL measurements fail does the stage throw.
+- **Integrity verification**: Compare `{fileCount, totalBytes}` from manifest before measuring each app×preset.
+- **Result filenames**: `{runtimeCommitDateTime}_{hash7}_{runtime}_{preset}_{profile}_{engine}_{app}.json`
