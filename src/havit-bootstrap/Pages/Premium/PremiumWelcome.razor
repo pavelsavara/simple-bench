@@ -92,22 +92,3 @@
 		</div>
 	</div>
 </div>
-
-@if (NavigationManager.Uri.Contains("utm_"))
-{
-	<script>
-		gtag("event", "purchase", {
-			transaction_id: "@Guid.NewGuid().ToString("n")",
-			value: 19,
-			currency: "USD",
-			items: [
-			 {
-			  item_id: "GitHubPremium19",
-			  item_name: "GitHub Premium Sponsorship $19",
-			  index: 0,
-			  price: 19,
-			  quantity: 1
-			}]
-		});
-	</script>
-}
