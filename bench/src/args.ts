@@ -180,7 +180,7 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
     // that earlier stages populated. CLI args always win for explicit parameters.
     const contextPath = values.context || '';
     let loaded: Partial<BenchContext> = {};
-    if (contextPath) {
+    if (contextPath && existsSync(contextPath)) {
         loaded = await loadContext(contextPath);
     }
 
