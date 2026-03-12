@@ -277,6 +277,21 @@ export async function dockerFixPermissions(image: string, hostDir: string): Prom
 // ── .NET Helpers ─────────────────────────────────────────────────────────────
 
 /**
+ * Run `dotnet restore` with MSBuild arguments.
+ */
+export function dotnetRestore(
+    dotnetBin: string,
+    args: string[],
+    opts?: ExecOptions,
+): Promise<ExecResult> {
+    return exec(dotnetBin, ['restore', ...args], {
+        label: 'dotnet restore',
+        suppressStdout: true,
+        ...opts,
+    });
+}
+
+/**
  * Run `dotnet publish` with MSBuild arguments.
  */
 export function dotnetPublish(

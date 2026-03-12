@@ -7,7 +7,7 @@ import {
     WORKLOAD_PRESETS, NON_WORKLOAD_PRESETS, MONO_ONLY_PRESETS,
     PRESET_MAP, PRESET_CONFIG,
 } from '../enums.js';
-import { dotnetPublish, dotnetWorkloadInstall, dotnetWorkloadList } from '../exec.js';
+import { dotnetRestore, dotnetPublish, dotnetWorkloadInstall, dotnetWorkloadList } from '../exec.js';
 import { banner, info, err } from '../log.js';
 
 // ── Runtime flavor mapping ──────────────────────────────────────────────────
@@ -45,6 +45,25 @@ async function computeIntegrity(dir: string): Promise<{ fileCount: number; total
 }
 
 // ── Publish arg builder ──────────────────────────────────────────────────────
+
+function getRestoreArgs(
+    appDir: string,
+    runtime: Runtime,
+    preset: Preset,
+    buildLabel: string,
+    runtimePackDir?: string,
+): string[] {
+    const args = [
+        appDir,
+        `/p:BenchmarkPreset=${PRESET_MAP[preset]}`,
+        `/p:RuntimeFlavor=${mapRuntimeFlavor(runtime)}`,
+        `/p:BuildLabel=${buildLabel}`,
+    ];
+    if (runtimePackDir) {
+        args.push(`/p:RuntimePackDir=${runtimePackDir}`);
+    }
+    return args;
+}
 
 function getPublishArgs(
     appDir: string,
@@ -97,8 +116,14 @@ async function buildPhase(
                     ctx.buildLabel!, ctx.runtimePackDir,
                 );
 
+                const restoreArgs = getRestoreArgs(
+                    appDir, ctx.runtime, preset,
+                    ctx.buildLabel!, ctx.runtimePackDir,
+                );
+                await dotnetRestore(ctx.dotnetBin!, restoreArgs, { cwd: ctx.repoRoot });
+
                 const startTime = performance.now();
-                await dotnetPublish(ctx.dotnetBin!, publishArgs, { cwd: ctx.repoRoot });
+                await dotnetPublish(ctx.dotnetBin!, ['--no-restore', ...publishArgs], { cwd: ctx.repoRoot });
                 const compileTimeMs = Math.round(performance.now() - startTime);
 
                 await writeFile(
