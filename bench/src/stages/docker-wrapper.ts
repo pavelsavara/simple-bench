@@ -154,7 +154,10 @@ export async function runStagesViaDocker(
             // Persist context for container consumption
             await saveContext(current, contextFile);
 
-            // Build container invocation
+            // Build container invocation.
+            // The Docker image's entrypoint.sh populates /bench/node_modules
+            // with symlinks to /opt/bench-deps/node_modules/*, so ESM import()
+            // resolves packages correctly (it doesn't honour NODE_PATH).
             const cliArgs = buildContainerArgs(current, batch.stages, containerContextFile);
             const cmd = ['tsx', ...cliArgs];
             const env = buildContainerEnv();

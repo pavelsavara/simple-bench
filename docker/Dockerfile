@@ -63,6 +63,12 @@ COPY package.json package-lock.json /opt/bench-deps/
 RUN cd /opt/bench-deps && npm ci && rm -rf /root/.npm
 ENV NODE_PATH=/opt/bench-deps/node_modules
 
+# Entrypoint: symlinks /opt/bench-deps/node_modules/* into /bench/node_modules/
+# so ESM import() resolves packages (it doesn't honour NODE_PATH).
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Stage: browser-bench-measure — JS engines + browsers for running benchmarks
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -102,5 +108,11 @@ ENV NODE_PATH=/opt/bench-deps/node_modules
 ENV PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers
 RUN cd /opt/bench-deps && npx playwright install --with-deps chromium firefox \
     && chmod -R a+rX /opt/pw-browsers
+
+# Entrypoint: symlinks /opt/bench-deps/node_modules/* into /bench/node_modules/
+# so ESM import() resolves packages (it doesn't honour NODE_PATH).
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]
 
 USER benchuser
