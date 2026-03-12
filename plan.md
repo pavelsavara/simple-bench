@@ -26,7 +26,7 @@ Single CLI entry point: `bench --stages <list> [options]`
 
 Enums, routing, constraints: `bench/src/enums.ts`. CLI args + help: `bench/src/args.ts`. Types: `bench/src/context.ts`.
 
-Runs via `tsx` (dev) or bundled `artifacts/bench/bench.mjs` (CI/Docker). Shell wrappers: `bench.sh` / `bench.ps1`.
+Runs via `tsx bench/src/main.ts` (both dev and CI/Docker). Shell wrappers: `bench.sh` / `bench.ps1`.
 
 ## Stage Progress
 
@@ -51,7 +51,7 @@ Default stages (no `--stages`): `acquire-sdk,build,measure`
 
 ## Implementation Steps
 
-1. ✅ Scaffold `bench/` project (package.json, tsconfig, rollup)
+1. ✅ Scaffold `bench/` project (package.json, tsconfig)
 2. ✅ Implement enums + context + args
 3. ✅ Implement exec.ts (cross-platform, Docker/WSL, .NET helpers)
 4. ✅ Implement stage skeleton (registry, runner, log)
@@ -68,7 +68,7 @@ Default stages (no `--stages`): `acquire-sdk,build,measure`
    - [ ] `schedule` — gap detection, workflow dispatch
    - [ ] `transform-views` — view file generation for dashboard
    - [ ] Unit tests
-7. Update Dockerfile — bundle `artifacts/bench/bench.mjs`
+7. Update Dockerfile — pre-install bench/ deps, run via `tsx`
 8. Update CI workflows — replace old script invocations with `bench --stages ...`
 
 ## TODO

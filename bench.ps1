@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     Thin wrapper: checks Node.js, ensures bench/ dependencies are installed,
-    then runs the TypeScript CLI via tsx (dev) or the bundled ESM (if present).
+    then runs the TypeScript CLI via tsx.
 
 .EXAMPLE
     ./bench.ps1 --stages acquire-sdk,build,measure

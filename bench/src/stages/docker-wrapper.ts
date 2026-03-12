@@ -158,8 +158,8 @@ export async function runStagesViaDocker(
 
             // Build container invocation.
             // The Docker image's entrypoint.sh populates /bench/node_modules
-            // with symlinks to /opt/bench-deps/node_modules/*, so ESM import()
-            // resolves packages correctly (it doesn't honour NODE_PATH).
+            // and /bench/bench/node_modules with symlinks to the image's
+            // pre-installed packages, so ESM import() resolves correctly.
             const cliArgs = buildContainerArgs(current, batch.stages, containerContextFile);
             const cmd = ['tsx', ...cliArgs];
             const env = buildContainerEnv();
@@ -169,9 +169,12 @@ export async function runStagesViaDocker(
                 cwd: '/bench',
                 env,
                 // Hide host's node_modules (may contain incompatible platform-specific
-                // binaries). Container resolves npm packages via NODE_PATH from the
-                // image's /opt/bench-deps/node_modules instead.
-                extraArgs: ['--tmpfs', '/bench/node_modules'],
+                // binaries). Container resolves npm packages via entrypoint.sh symlinks
+                // from the image's pre-installed /opt/bench-deps/ and /opt/bench-cli-deps/.
+                extraArgs: [
+                    '--tmpfs', '/bench/node_modules',
+                    '--tmpfs', '/bench/bench/node_modules',
+                ],
                 label: `${batch.target}: ${stageNames}`,
             };
 

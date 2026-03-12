@@ -729,7 +729,7 @@ Microbenchmarks use the same `main*.mjs` entry file pattern as external apps (no
 
 ### Architecture Notes
 
-- **Playwright** is an external dependency (not bundled by rollup). Import via `await import('playwright')` at runtime.
+- **Playwright** is an external dependency. Import via `await import('playwright')` at runtime.
 - **CDP** (Chrome DevTools Protocol) is accessed through Playwright's `context.newCDPSession(page)`. Chrome-only features: `downloadSizeTotal`, `memoryPeak`, network/CPU throttling.
 - **Retry loop** wraps the entire browser lifecycle per `{engine, profile}` pair. Server persists across retries.
 - **Failure isolation**: One failed `{engine, profile}` logs and continues. Only if ALL measurements fail does the stage throw.

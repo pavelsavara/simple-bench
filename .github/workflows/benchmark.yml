@@ -51,7 +51,7 @@ jobs:
       - name: Build all apps
         shell: bash
         run: |
-          node /opt/bench/bench.mjs \
+          npx --prefix bench tsx bench/src/main.ts \
             --stages check-out-cache,enumerate-daily-packs,enumerate-release-packs,update-cache,acquire-sdk,build \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
             --sdk-channel "${{ inputs.sdk_channel || '11.0' }}" \
@@ -129,6 +129,10 @@ jobs:
       matrix:
         include: ${{ fromJSON(needs.build.outputs.matrix) }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          clean: false
+
       - name: Export container env to GitHub Actions
         shell: bash
         run: echo "ARTIFACTS_DIR=${ARTIFACTS_DIR:-artifacts}" >> "$GITHUB_ENV"
@@ -154,7 +158,7 @@ jobs:
       - name: Run measurements
         shell: bash
         run: |
-          node /opt/bench/bench.mjs \
+          npx --prefix bench tsx bench/src/main.ts \
             --stages measure \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
             --app "${{ matrix.app }}" \

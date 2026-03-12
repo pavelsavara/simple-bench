@@ -5,15 +5,14 @@
 ```
 ├── docs/                          # Documentation (this directory)
 ├── docker/
-│   ├── Dockerfile                 # Multi-stage: base → browser-bench-build, browser-bench-measure
+│   ├── Dockerfile                 # Multi-stage: base → bench-cli-deps, browser-bench-build, browser-bench-measure
 │   ├── package-build.json         # Node package for build image (no deps)
 │   └── package-measure.json       # Node package for measure image (playwright 1.58.2)
 ├── bench.sh                       # Shell wrapper: builds CLI if needed, runs bench
 ├── bench.ps1                      # PowerShell wrapper: builds CLI if needed, runs bench
 ├── bench/
-│   ├── package.json               # Separate from root. Deps: typescript, tsx, rollup
+│   ├── package.json               # Separate from root. Deps: typescript, tsx
 │   ├── tsconfig.json              # strict, ESNext, NodeNext module resolution
-│   ├── rollup.config.mjs          # Bundle src/main.ts → artifacts/bench/bench.mjs (ESM)
 │   └── src/
 │       ├── main.ts                # Entry point: parseArgs → buildContext → runStages
 │       ├── args.ts                # CLI argument parsing, validation, help text

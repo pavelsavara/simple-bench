@@ -35,7 +35,7 @@
 1. Checkout `gh-pages` branch
 2. Checkout `main` (sparse: `bench/`) into `repo/`
 3. Download all artifacts from benchmark run
-4. `node repo/artifacts/bench/bench.mjs --stages consolidate /tmp/artifacts/ data/`
+4. `npx --prefix bench tsx bench/src/main.ts --stages consolidate /tmp/artifacts/ data/`
 5. Commit + push if changes detected
 
 **Known issue — partial result loss:** If any measure job fails, benchmark.yml conclusion is `failure` → consolidate.yml does not trigger → successful partial results sit in GHA artifacts and never reach gh-pages. The consolidation script itself handles partial input gracefully (skips invalid JSONs), so the fix is to change the trigger condition to also consolidate on `failure`.

@@ -34,18 +34,13 @@ RUN mkdir -p $ARTIFACTS_DIR/sdks $ARTIFACTS_DIR/publish $ARTIFACTS_DIR/results $
 WORKDIR /bench
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Stage: bench-cli — build the bench CLI bundle from TypeScript source
+# Stage: bench-cli-deps — pre-install bench/ CLI dependencies
 # Isolated so that bench/ source changes don't invalidate external-dep layers.
 # BuildKit builds this in parallel with the downstream stages.
 # ═══════════════════════════════════════════════════════════════════════════════
-FROM base AS bench-cli
-COPY bench/ /tmp/bench-build/
-RUN cd /tmp/bench-build \
-    && npm ci \
-    && npm run build \
-    && mkdir -p /opt/bench \
-    && cp /tmp/artifacts/bench/bench.mjs /opt/bench/bench.mjs \
-    && rm -rf /tmp/bench-build /tmp/artifacts
+FROM base AS bench-cli-deps
+COPY bench/package.json bench/package-lock.json /opt/bench-cli-deps/
+RUN cd /opt/bench-cli-deps && npm ci && rm -rf /root/.npm
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Stage: browser-bench-build — .NET SDK prerequisites for building WASM apps
@@ -69,14 +64,15 @@ COPY package.json package-lock.json /opt/bench-deps/
 RUN cd /opt/bench-deps && npm ci && rm -rf /root/.npm
 ENV NODE_PATH=/opt/bench-deps/node_modules
 
-# Entrypoint: symlinks /opt/bench-deps/node_modules/* into /bench/node_modules/
-# so ESM import() resolves packages (it doesn't honour NODE_PATH).
+# Entrypoint: symlinks pre-installed node_modules into /bench/node_modules/
+# and /bench/bench/node_modules/ so ESM import() resolves packages correctly
+# (it doesn't honour NODE_PATH). This handles volume-mounted host repos.
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["entrypoint.sh"]
 
-# Bench CLI — copied last so bench/ source changes don't bust earlier layers
-COPY --from=bench-cli /opt/bench /opt/bench
+# Bench CLI deps — pre-installed so bench/ source runs via tsx without npm ci
+COPY --from=bench-cli-deps /opt/bench-cli-deps/node_modules /opt/bench-cli-deps/node_modules
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Stage: browser-bench-measure — JS engines + browsers for running benchmarks
@@ -118,13 +114,14 @@ ENV PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers
 RUN cd /opt/bench-deps && npx playwright install --with-deps chromium firefox \
     && chmod -R a+rX /opt/pw-browsers
 
-# Entrypoint: symlinks /opt/bench-deps/node_modules/* into /bench/node_modules/
-# so ESM import() resolves packages (it doesn't honour NODE_PATH).
+# Entrypoint: symlinks pre-installed node_modules into /bench/node_modules/
+# and /bench/bench/node_modules/ so ESM import() resolves packages correctly
+# (it doesn't honour NODE_PATH). This handles volume-mounted host repos.
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["entrypoint.sh"]
 
-# Bench CLI — copied last so bench/ source changes don't bust earlier layers
-COPY --from=bench-cli /opt/bench /opt/bench
+# Bench CLI deps — pre-installed so bench/ source runs via tsx without npm ci
+COPY --from=bench-cli-deps /opt/bench-cli-deps/node_modules /opt/bench-cli-deps/node_modules
 
 USER benchuser
