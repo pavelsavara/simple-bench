@@ -36,6 +36,17 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
             'clone', '--branch', 'gh-pages', '--single-branch', '--depth', '1',
             remoteUrl, ghPagesDir,
         ]);
+
+        // Propagate any extraheader auth from the main checkout so push works in CI
+        const extraHeader = await execCapture('git', [
+            '-C', ctx.repoRoot, 'config', '--get', 'http.https://github.com/.extraheader',
+        ], { throwOnError: false });
+        if (extraHeader) {
+            await exec('git', [
+                '-C', ghPagesDir, 'config',
+                'http.https://github.com/.extraheader', extraHeader,
+            ]);
+        }
     }
 
     // Seed artifacts with cached pack lists (only when missing)

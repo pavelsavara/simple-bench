@@ -45,8 +45,12 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         await exec('git', ['-C', ghPagesDir, 'config', 'user.name', 'github-actions[bot]']);
         await exec('git', ['-C', ghPagesDir, 'config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
         await exec('git', ['-C', ghPagesDir, 'commit', '-m', `Update cache ${new Date().toISOString().slice(0, 10)}`]);
-        await exec('git', ['-C', ghPagesDir, 'push']);
-        info('Cache updated and pushed to gh-pages');
+        if (ctx.dryRun) {
+            info('Cache committed locally (dry-run — skipping push)');
+        } else {
+            await exec('git', ['-C', ghPagesDir, 'push']);
+            info('Cache updated and pushed to gh-pages');
+        }
     } else {
         info('Cache unchanged — nothing to push');
     }
