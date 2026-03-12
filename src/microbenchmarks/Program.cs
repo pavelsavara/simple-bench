@@ -14,6 +14,6 @@ partial class MicroBenchmarkApp
         return Task.FromResult(0);
     }
 
-    [JSImport("bench.setManagedReady", "main.js")]
+    [JSImport("bench.setManagedReady", "main.mjs")]
     internal static partial void SetManagedReady();
 }

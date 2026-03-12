@@ -11,7 +11,7 @@ async function outer() {
         .withApplicationArguments("start")
         .create();
 
-    setModuleImports('main.js', {
+    setModuleImports('main.mjs', {
         bench: {
             setManagedReady: () => { globalThis.dotnet_managed_ready = performance.now(); }
         }

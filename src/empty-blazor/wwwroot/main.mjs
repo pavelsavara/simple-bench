@@ -1,29 +1,44 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-globalThis.js_loaded = performance.now();
-
-navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' });
-
 function setManagedReady() {
     globalThis.dotnet_managed_ready = performance.now();
-    globalThis.timings = {
-        'time-to-create-dotnet': globalThis.js_loaded - globalThis.dotnet_created,
-        'time-to-reach-managed': globalThis.js_loaded - globalThis.dotnet_managed_ready
+    globalThis.bench_results = {
+        'time-to-create-dotnet': Math.round(globalThis.dotnet_created - globalThis.js_loaded),
+        'time-to-reach-managed': Math.round(globalThis.dotnet_managed_ready - globalThis.js_loaded),
+    };
+    const isBrowser = typeof globalThis.window !== 'undefined';
+    if (isBrowser) {
+        const el = globalThis.document?.getElementById('status');
+        if (el) {
+            el.textContent = JSON.stringify(globalThis.bench_results, null, 2);
+        }
+    } else {
+        console.log(JSON.stringify(globalThis.bench_results));
     }
 }
 
-await Blazor.start({
-    configureRuntime: dotnet => {
-        dotnet.withEnvironmentVariable("CONFIGURE_RUNTIME", "true");
-    },
-    onDotNetReady: () => {
-        globalThis.dotnet_created = performance.now();
-        const { setModuleImports } = globalThis.getDotnetRuntime(0);
-        setModuleImports('main.js', {
-            bench: {
-                setManagedReady,
-            }
-        });
-    }
-});
+async function outer() {
+    globalThis.js_loaded = performance.now();
+
+    await Blazor.start({
+        configureRuntime: dotnet => {
+            dotnet.withModuleConfig({
+                onRuntimeInitialized: () => {
+                    console.log("Blazor runtime initialized");
+                },
+                onDotnetReady: () => {
+                    globalThis.dotnet_created = performance.now();
+                    const { setModuleImports } = globalThis.getDotnetRuntime(0);
+                    setModuleImports('main.mjs', {
+                        bench: {
+                            setManagedReady
+                        }
+                    });
+                }
+            });
+        }
+    });
+}
+
+await outer();
