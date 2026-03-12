@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-builder.RootComponents.Add<BlazingPizza.Client.Routes>("#app");
+builder.RootComponents.Add<BlazingPizza.Client.App>("#app");
 builder.RootComponents.Add<Microsoft.AspNetCore.Components.Web.HeadOutlet>("head::after");
 
 builder.Services.AddScoped<IRepository, InMemoryRepository>();
