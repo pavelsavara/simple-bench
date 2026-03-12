@@ -106,6 +106,23 @@ export const MONO_ONLY_PRESETS = new Set<Preset>([
     Preset.NoJiterp,
 ]);
 
+/** Apps that use Blazor (DOM-dependent, no CLI engine support). */
+export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazingPizza, App.HavitBlazor]);
+
+/**
+ * Returns a reason string if the app+preset combination should be skipped,
+ * or null if the combination is valid.
+ */
+export function shouldSkipMeasurement(app: App, preset: Preset): string | null {
+    if (BLAZOR_APPS.has(app) && preset === Preset.NoReflectionEmit) {
+        return `Blazor app '${app}' is not supported with preset '${preset}'`;
+    }
+    if (BLAZOR_APPS.has(app) && preset === Preset.Invariant) {
+        return `Blazor app '${app}' is not supported with preset '${preset}'`;
+    }
+    return null;
+}
+
 // ── Preset → MSBuild Mapping ─────────────────────────────────────────────────
 
 /** Maps CLI preset to MSBuild BenchmarkPreset property value */

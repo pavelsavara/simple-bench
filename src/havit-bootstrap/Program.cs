@@ -16,6 +16,8 @@ public class Program
 		CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
 		CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
+		builder.RootComponents.Add<Havit.Blazor.Documentation.App>("#app");
+
 		builder.Services.AddHxServices();
 		builder.Services.AddHxMessenger();
 		builder.Services.AddHxMessageBoxHost();

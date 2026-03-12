@@ -3,13 +3,25 @@
   <PropertyGroup>
     <BenchmarkPreset Condition="'$(BenchmarkPreset)' == ''">DevLoop</BenchmarkPreset>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <!-- Net10 and above -->
-    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+    <WasmFingerprintAssets>false</WasmFingerprintAssets>
+    <BlazorFingerprintBlazorJs>false</BlazorFingerprintBlazorJs>
   </PropertyGroup>
 
-  <!-- TODO 
-<TrimMode>link</TrimMode>
--->
+  <!-- consider
+    <TrimMode>link</TrimMode>
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+    <EnableDiagnostics>true</EnableDiagnostics>
+    <WasmNativeStrip>false</WasmNativeStrip>
+    <WasmNativeDebugSymbols>true</WasmNativeDebugSymbols>
+    <WasmEnableHotReload>false</WasmEnableHotReload>
+    <WasmEnableWebcil>false</WasmEnableWebcil>
+    <CompressionEnabled>false</CompressionEnabled>
+
+  <ItemGroup>
+    <StaticWebAssetFingerprintPattern Include="JS" Pattern="*.js" Expression="#[.{fingerprint}]!" />
+    <StaticWebAssetFingerprintPattern Include="MJS" Pattern="*.mjs" Expression="#[.{fingerprint}]!" />
+  </ItemGroup>
+  -->
 
   <!-- Presets -->
   <PropertyGroup Condition="'$(BenchmarkPreset)' == 'DevLoop'">
@@ -23,11 +35,6 @@
     <DebugSymbols>true</DebugSymbols>
     <CompressionEnabled>false</CompressionEnabled>
     <WasmEnableWebcil>false</WasmEnableWebcil>
-    <!-- TODO 
-    <EnableDiagnostics>true</EnableDiagnostics>
-    <WasmNativeStrip>false</WasmNativeStrip>
-    <WasmNativeDebugSymbols>true</WasmNativeDebugSymbols>
-    -->
     <WasmIncludeFullIcuData>true</WasmIncludeFullIcuData>
 
     <EnableAggressiveTrimming>false</EnableAggressiveTrimming>
