@@ -19,6 +19,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
+# tsx — global install for running TypeScript source via volume mount (--via-docker)
+RUN npm install -g tsx
+
 # Common environment
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 ENV DOTNET_NOLOGO=1
@@ -53,9 +56,12 @@ RUN apt-get update && apt-get install -y \
 ENV DOTNET_ROOT=/opt/dotnet
 ENV PATH="${DOTNET_ROOT}:${PATH}"
 
-# Pre-install npm dependencies so CI and local-docker-bench don't need npm ci
-COPY package.json package-lock.json ./
-RUN npm ci && rm -rf /root/.npm
+# Pre-install npm dependencies to /opt/bench-deps/ (not /bench/) so they
+# survive volume mounting of the host repo at /bench in --via-docker mode.
+# Host node_modules may contain incompatible platform-specific binaries.
+COPY package.json package-lock.json /opt/bench-deps/
+RUN cd /opt/bench-deps && npm ci && rm -rf /root/.npm
+ENV NODE_PATH=/opt/bench-deps/node_modules
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Stage: browser-bench-measure — JS engines + browsers for running benchmarks
@@ -85,14 +91,16 @@ RUN npm install -g jsvu@3.0.3 \
     && ln -sf /opt/jsvu/bin/v8 /usr/local/bin/d8 \
     && chmod -R a+rX /opt/jsvu
 
-# Pre-install npm dependencies (playwright is the key dependency)
-COPY package.json package-lock.json ./
-RUN npm ci && rm -rf /root/.npm \
-    && chmod -R a+rX /bench/node_modules
+# Pre-install npm dependencies to /opt/bench-deps/ (not /bench/) so they
+# survive volume mounting of the host repo at /bench in --via-docker mode.
+COPY package.json package-lock.json /opt/bench-deps/
+RUN cd /opt/bench-deps && npm ci && rm -rf /root/.npm \
+    && chmod -R a+rX /opt/bench-deps/node_modules
+ENV NODE_PATH=/opt/bench-deps/node_modules
 
 # Playwright browsers — install to /opt/pw-browsers so any user can access them
 ENV PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers
-RUN npx playwright install --with-deps chromium firefox \
+RUN cd /opt/bench-deps && npx playwright install --with-deps chromium firefox \
     && chmod -R a+rX /opt/pw-browsers
 
 USER benchuser

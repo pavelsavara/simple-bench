@@ -206,7 +206,7 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
     const effectiveProfiles = profiles.length > 0 ? profiles
         : [...Object.values(Profile)];
 
-    const repoRoot = loaded.repoRoot ?? findRepoRoot();
+    const repoRoot = process.env['REPO_ROOT'] ?? loaded.repoRoot ?? findRepoRoot();
     const artifactsDir = process.env['ARTIFACTS_DIR'] ?? loaded.artifactsDir ?? resolve(repoRoot, 'artifacts');
 
     const ctx: BenchContext = {

@@ -38,9 +38,9 @@ registerStage(Stage.Consolidate, consolidate);
 registerStage(Stage.Schedule, schedule);
 registerStage(Stage.TransformViews, transformViews);
 
-// ── Runner ───────────────────────────────────────────────────────────────────
+// ── Direct Runner (no docker wrapping) ───────────────────────────────────────
 
-export async function runStages(ctx: BenchContext): Promise<BenchContext> {
+async function runStagesDirect(ctx: BenchContext): Promise<BenchContext> {
     let current = ctx;
     for (const stage of current.stages) {
         const handler = stageHandlers.get(stage);
@@ -53,4 +53,14 @@ export async function runStages(ctx: BenchContext): Promise<BenchContext> {
         current = await handler(current);
     }
     return current;
+}
+
+// ── Public Runner ────────────────────────────────────────────────────────────
+
+export async function runStages(ctx: BenchContext): Promise<BenchContext> {
+    if (ctx.viaDocker && !ctx.isDocker) {
+        const { runStagesViaDocker } = await import('./docker-wrapper.js');
+        return runStagesViaDocker(ctx, runStagesDirect);
+    }
+    return runStagesDirect(ctx);
 }

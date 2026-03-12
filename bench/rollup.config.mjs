@@ -7,6 +7,7 @@ export default {
         file: '../artifacts/bench/bench.mjs',
         format: 'es',
         sourcemap: true,
+        inlineDynamicImports: true,
     },
     plugins: [
         resolve(),
