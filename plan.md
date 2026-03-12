@@ -32,6 +32,7 @@ Runs via `tsx` (dev) or bundled `artifacts/bench/bench.mjs` (CI/Docker). Shell w
 
 | Stage | Status | Description |
 |-------|--------|-------------|
+| `check-out-cache` | ✅ done | Checkout/pull gh-pages branch, seed artifacts with cached pack lists |
 | `enumerate-commits` | ✅ done | Enumerate dotnet/runtime commits via GitHub API |
 | `enumerate-daily-packs` | ✅ done | Catalog .NET 11 daily runtime packs from NuGet feed |
 | `enumerate-release-packs` | ✅ done | Catalog .NET 8/9/10 GA release packs from release metadata |
@@ -42,6 +43,7 @@ Runs via `tsx` (dev) or bundled `artifacts/bench/bench.mjs` (CI/Docker). Shell w
 | `consolidate` | stub | Merge result JSONs into gh-pages data/ directory |
 | `schedule` | stub | Detect untested runtime commits, dispatch benchmark workflows |
 | `transform-views` | stub | Build pre-aggregated view files for dashboard |
+| `update-cache` | ✅ done | Copy updated pack/commit lists to gh-pages cache, commit and push |
 
 Shared HTTP utilities: `bench/src/lib/http.ts` (fetchJson, headOk, GitHub auth, mapConcurrent).
 

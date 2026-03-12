@@ -10,6 +10,7 @@ import { banner, info, debug } from '../log.js';
 type ContainerTarget = 'host' | 'build' | 'measure';
 
 const STAGE_CONTAINER: Record<Stage, ContainerTarget> = {
+    [Stage.CheckOutPages]: 'host',
     [Stage.DockerImage]: 'host',
     [Stage.EnumerateCommits]: 'build',
     [Stage.EnumerateDailyPacks]: 'build',
@@ -20,6 +21,7 @@ const STAGE_CONTAINER: Record<Stage, ContainerTarget> = {
     [Stage.Consolidate]: 'host',
     [Stage.Schedule]: 'host',
     [Stage.TransformViews]: 'host',
+    [Stage.UpdateCache]: 'host',
 };
 
 // ── Stage Batching ───────────────────────────────────────────────────────────

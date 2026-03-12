@@ -16,6 +16,7 @@ export function registerStage(stage: Stage, handler: StageFn): void {
 
 // ── Register All Stages ──────────────────────────────────────────────────────
 
+import { run as checkOutPages } from './check-out-cache.js';
 import { run as dockerImage } from './docker-image.js';
 import { run as acquireSdk } from './acquire-sdk.js';
 import { run as build } from './build.js';
@@ -26,7 +27,9 @@ import { run as enumerateCommits } from './enumerate-commits.js';
 import { run as enumerateDailyPacks } from './enumerate-daily-packs.js';
 import { run as enumerateReleasePacks } from './enumerate-release-packs.js';
 import { run as transformViews } from './transform-views.js';
+import { run as updateCache } from './update-cache.js';
 
+registerStage(Stage.CheckOutPages, checkOutPages);
 registerStage(Stage.EnumerateCommits, enumerateCommits);
 registerStage(Stage.EnumerateDailyPacks, enumerateDailyPacks);
 registerStage(Stage.EnumerateReleasePacks, enumerateReleasePacks);
@@ -37,6 +40,7 @@ registerStage(Stage.Measure, measure);
 registerStage(Stage.Consolidate, consolidate);
 registerStage(Stage.Schedule, schedule);
 registerStage(Stage.TransformViews, transformViews);
+registerStage(Stage.UpdateCache, updateCache);
 
 // ── Direct Runner (no docker wrapping) ───────────────────────────────────────
 

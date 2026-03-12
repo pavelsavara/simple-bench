@@ -37,6 +37,7 @@ export enum App {
 }
 
 export enum Stage {
+    CheckOutPages = 'check-out-cache',
     DockerImage = 'docker-image',
     EnumerateCommits = 'enumerate-commits',
     EnumerateDailyPacks = 'enumerate-daily-packs',
@@ -47,6 +48,7 @@ export enum Stage {
     Consolidate = 'consolidate',
     Schedule = 'schedule',
     TransformViews = 'transform-views',
+    UpdateCache = 'update-cache',
 }
 
 export enum MetricKey {
