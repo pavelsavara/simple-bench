@@ -10,7 +10,7 @@ import {
     getEnginesForApp, getProfilesForEngine,
 } from '../enums.js';
 import { isWindows } from '../exec.js';
-import { banner, info, err } from '../log.js';
+import { banner, info, err, debug } from '../log.js';
 import {
     startStaticServer, measureFileSizes, verifyIntegrity,
     buildResultJson, buildResultFilename,
@@ -32,12 +32,25 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     let totalMeasurements = 0;
     let totalFailures = 0;
 
+    if (ctx.verbose) {
+        debug(`Engines: ${effectiveEngines.join(', ')}`);
+        debug(`Profiles: ${effectiveProfiles.join(', ')}`);
+        debug(`Apps: ${ctx.apps.join(', ')}`);
+        debug(`Presets: ${ctx.presets.join(', ')}`);
+        debug(`Build manifest entries: ${ctx.buildManifest.length}`);
+        debug(`Dry run: ${ctx.dryRun}, headless: ${ctx.headless}, timeout: ${ctx.timeout}ms, retries: ${ctx.retries}`);
+    }
+
     for (const entry of ctx.buildManifest) {
         // Apply app/preset filters
         if (!ctx.apps.includes(entry.app)) continue;
         if (!ctx.presets.includes(entry.preset)) continue;
 
         banner(`Measure ${entry.app} / ${entry.preset}`);
+        if (ctx.verbose) {
+            debug(`publishDir: ${entry.publishDir}`);
+            debug(`runtime: ${entry.runtime}, compileTimeMs: ${entry.compileTimeMs}`);
+        }
 
         // Integrity verification
         const integrityCheck = await verifyIntegrity(entry.publishDir, entry.integrity);
@@ -53,9 +66,13 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
         const webRoot = join(entry.publishDir, 'wwwroot');
         const isInternal = APP_CONFIG[entry.app].internal;
+        if (ctx.verbose) debug(`webRoot: ${webRoot}, isInternal: ${isInternal}`);
 
         // Measure file sizes (once per app×preset, shared across engines)
         const fileSizes = isInternal ? null : await measureFileSizes(webRoot);
+        if (ctx.verbose && fileSizes) {
+            debug(`File sizes — total: ${fileSizes.diskSizeTotal}, native: ${fileSizes.diskSizeNative}, assemblies: ${fileSizes.diskSizeAssemblies}`);
+        }
         const compileTime = entry.compileTimeMs;
 
         // Engine × profile loop
@@ -159,12 +176,16 @@ async function measureBrowser(
     const srv = await startStaticServer(webRoot);
     const pageUrl = `http://127.0.0.1:${srv.port}/`;
     info(`    Serving on ${pageUrl}`);
+    if (ctx.verbose) {
+        debug(`Browser: ${engine}, CDP: ${useCDP}, warmRuns: ${warmRuns}, timeout: ${timeout}ms, retries: ${maxRetries}`);
+    }
 
     let lastError: Error | null = null;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
         if (attempt > 0) info(`    Retry ${attempt}/${maxRetries}...`);
 
+        if (ctx.verbose) debug(`Launching browser (headless=${ctx.headless})...`);
         const browser = await browserType.launch({ headless: ctx.headless });
         try {
             const context = await browser.newContext();
@@ -228,17 +249,21 @@ async function measureBrowser(
             }
 
             // Cold load
+            if (ctx.verbose) debug(`Cold load: navigating to ${pageUrl}`);
             await page.goto(pageUrl, { timeout, waitUntil: 'load' });
+            if (ctx.verbose) debug(`Cold load: page loaded, waiting for bench_complete...`);
             await page.waitForFunction(
                 () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
                 null,
                 { timeout },
             );
+            if (ctx.verbose) debug(`Cold load: bench_complete detected`);
 
             const coldResults: Record<string, number> = await page.evaluate(
                 () => (globalThis as Record<string, unknown>).bench_results as Record<string, number>,
             );
             const timeToReachManagedCold = coldResults['time-to-reach-managed'] ?? null;
+            if (ctx.verbose) debug(`Cold results: ${JSON.stringify(coldResults)}`);
 
             // Collect performance.timing for cold load
             const perfTiming = await page.evaluate(() => {
@@ -257,7 +282,9 @@ async function measureBrowser(
             if (!isInternal) {
                 let warmMin = Infinity;
                 for (let i = 0; i < warmRuns; i++) {
+                    if (ctx.verbose) debug(`Warm load ${i + 1}/${warmRuns}: reloading...`);
                     await page.reload({ timeout, waitUntil: 'load' });
+                    if (ctx.verbose) debug(`Warm load ${i + 1}/${warmRuns}: waiting for bench_complete...`);
                     await page.waitForFunction(
                         () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
                         null,
@@ -267,6 +294,7 @@ async function measureBrowser(
                         () => (globalThis as Record<string, unknown>).bench_results as Record<string, number>,
                     );
                     const warm = warmResults['time-to-reach-managed'];
+                    if (ctx.verbose) debug(`Warm load ${i + 1}/${warmRuns}: time-to-reach-managed=${warm}`);
                     if (warm != null && warm < warmMin) warmMin = warm;
                 }
                 timeToReachManaged = Number.isFinite(warmMin) ? warmMin : null;
@@ -275,7 +303,9 @@ async function measureBrowser(
             // Pizza walkthrough (blazing-pizza only, browser engines, desktop profile)
             let pizzaWalkthru: number | null = null;
             if (entry.app === A.BlazingPizza && profile === 'desktop') {
-                pizzaWalkthru = await runPizzaWalkthrough(page, pageUrl, timeout);
+                if (ctx.verbose) debug(`Running pizza walkthrough...`);
+                pizzaWalkthru = await runPizzaWalkthrough(page, pageUrl, timeout, ctx.verbose);
+                if (ctx.verbose) debug(`Pizza walkthrough completed: ${pizzaWalkthru}ms`);
             }
 
             // Stop memory sampling + settle
@@ -287,10 +317,12 @@ async function measureBrowser(
                 await client.send('Network.disable');
             }
 
+            if (ctx.verbose) debug(`Closing browser and server...`);
             await page.close();
             await context.close();
             await srv.close();
             await browser.close();
+            if (ctx.verbose) debug(`Cleanup complete`);
 
             // Assemble metrics
             if (isInternal) {
@@ -316,12 +348,12 @@ async function measureBrowser(
             };
         } catch (e) {
             lastError = e instanceof Error ? e : new Error(String(e));
-            await browser.close();
-            if (!isTimeoutError(lastError)) {
+            try { await browser.close(); } catch { /* ignore */ }
+            if (attempt >= maxRetries) {
                 await srv.close();
                 throw lastError;
             }
-            info(`    Timeout: ${lastError.message}`);
+            info(`    Attempt ${attempt + 1} failed: ${lastError.message}`);
         }
     }
 
@@ -388,12 +420,6 @@ async function measureCli(
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
-
-function isTimeoutError(e: Error): boolean {
-    return e.name === 'TimeoutError'
-        || e.message.includes('Timeout')
-        || e.message.includes('timeout');
-}
 
 function sleep(ms: number): Promise<void> {
     return new Promise(r => setTimeout(r, ms));

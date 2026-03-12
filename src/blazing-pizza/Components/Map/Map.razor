@@ -15,10 +15,10 @@ The map
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		Console.WriteLine("OnAfterRender");
-		await JSRuntime.InvokeVoidAsync(
+		/*await JSRuntime.InvokeVoidAsync(
 				"deliveryMap.showOrUpdate",
 				elementId,
-				Markers);
+				Markers);*/
 
 		await base.OnAfterRenderAsync(firstRender);
 	}

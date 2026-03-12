@@ -40,7 +40,7 @@ Filters (comma-separated, restrict what gets built/measured):
                            Valid: ${ALL_PROFILES.join(', ')}
 
 Measurement:
-  --retries <n>            Max retries on timeout (default: 3)
+  --retries <n>            Max retries on timeout (default: 0)
   --timeout <ms>           Per-measurement timeout (default: 300000)
   --warm-runs <n>          Warm reload iterations (default: 3)
   --no-headless            Launch browsers in headed mode
@@ -92,7 +92,7 @@ const ARG_OPTIONS = {
     'profile': { type: 'string' as const, default: '' },
 
     // Measurement
-    'retries': { type: 'string' as const, default: '3' },
+    'retries': { type: 'string' as const, default: '0' },
     'timeout': { type: 'string' as const, default: '300000' },
     'warm-runs': { type: 'string' as const, default: '3' },
     'no-headless': { type: 'boolean' as const, default: false },

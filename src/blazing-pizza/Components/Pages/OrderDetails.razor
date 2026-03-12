@@ -82,6 +82,7 @@
 		pollingCancellationToken = new CancellationTokenSource();
 		while (!pollingCancellationToken.IsCancellationRequested)
 		{
+			await Task.Yield();
 
 			try
 			{
