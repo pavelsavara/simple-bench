@@ -15,6 +15,7 @@
     <WasmNativeDebugSymbols>true</WasmNativeDebugSymbols>
     <WasmEnableHotReload>false</WasmEnableHotReload>
     <WasmEnableWebcil>false</WasmEnableWebcil>
+    <CompressionEnabled>false</CompressionEnabled>
 
   <ItemGroup>
     <StaticWebAssetFingerprintPattern Include="JS" Pattern="*.js" Expression="#[.{fingerprint}]!" />

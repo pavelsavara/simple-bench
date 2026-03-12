@@ -117,6 +117,9 @@ export function shouldSkipMeasurement(app: App, preset: Preset): string | null {
     if (BLAZOR_APPS.has(app) && preset === Preset.NoReflectionEmit) {
         return `Blazor app '${app}' is not supported with preset '${preset}'`;
     }
+    if (BLAZOR_APPS.has(app) && preset === Preset.Invariant) {
+        return `Blazor app '${app}' is not supported with preset '${preset}'`;
+    }
     return null;
 }
 

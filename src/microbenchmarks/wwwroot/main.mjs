@@ -23,6 +23,10 @@ async function outer() {
 
     await inner({ setModuleImports, getAssemblyExports, runMain, exit }, globalThis.bench_results, globalThis.bench_samples);
 
+    if (isBrowser) {
+        exit(0);
+    }
+
     globalThis.dotnet_exit = performance.now();
 
     Object.assign(globalThis.bench_results, {
@@ -40,6 +44,10 @@ async function outer() {
         }
     } else {
         console.log(JSON.stringify({ results: globalThis.bench_results, samples: globalThis.bench_samples }));
+    }
+
+    if (!isBrowser) {
+        exit(0);
     }
 }
 
@@ -80,8 +88,6 @@ async function inner({ setModuleImports, getAssemblyExports, runMain, exit }, re
 
     // Exception Handling: recursive Fibonacci throw/catch (100 iterations per call)
     samples['exception-ops'] = runBenchSampled(() => exports.ExceptionBench.ThrowCatch(42));
-
-    exit(0);
 }
 
 // ── Sampling & statistics ───────────────────────────────────────────────────

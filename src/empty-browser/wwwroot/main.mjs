@@ -20,7 +20,11 @@ async function outer() {
     globalThis.dotnet_created = performance.now();
     globalThis.bench_results = {};
 
-    await inner({ setModuleImports, getAssemblyExports, runMain, exit }, globalThis.bench_results);
+    await inner({ setModuleImports, getAssemblyExports, runMain }, globalThis.bench_results);
+
+    if (isBrowser) {
+        exit(0);
+    }
 
     globalThis.dotnet_exit = performance.now();
 
@@ -40,11 +44,14 @@ async function outer() {
     } else {
         console.log(JSON.stringify(globalThis.bench_results));
     }
+
+    if (!isBrowser) {
+        exit(0);
+    }
 }
 
-async function inner({ setModuleImports, getAssemblyExports, runMain, exit }, results) {
+async function inner({ setModuleImports, getAssemblyExports, runMain }, results) {
     await runMain("EmptyBrowser", []);
-    exit(0);
 }
 
 await outer();
