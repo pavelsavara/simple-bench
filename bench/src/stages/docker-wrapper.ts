@@ -182,8 +182,12 @@ export async function runStagesViaDocker(
 
             await dockerRun(image, cmd, dockerOpts);
 
-            // Fix permissions on Docker-created artifacts
-            await fixArtifactPermissions(ctx.artifactsDir);
+            // Fix permissions on Docker-created artifacts (only on Linux;
+            // WSL bind-mounts inherit host permissions so this is a no-op
+            // on Windows and just hangs due to slow container spin-up).
+            if (ctx.platform === 'linux') {
+                await fixArtifactPermissions(ctx.artifactsDir);
+            }
 
             // Load updated context from container
             current = await loadContext(contextFile);

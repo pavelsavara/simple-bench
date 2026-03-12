@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { type BenchContext } from '../context.js';
-import { dockerBuild } from '../exec.js';
+import { dockerBuild, dockerImageExists } from '../exec.js';
 import { banner, info } from '../log.js';
 
 // ── Image Constants ──────────────────────────────────────────────────────────
@@ -20,16 +20,32 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         return ctx;
     }
 
-    banner('Docker image build');
-
     const dockerfile = join(ctx.repoRoot, 'docker', 'Dockerfile');
     const buildContext = ctx.repoRoot;
 
-    info(`Building ${BUILD_IMAGE}...`);
-    await dockerBuild(BUILD_IMAGE, 'browser-bench-build', dockerfile, buildContext);
+    const buildExists = await dockerImageExists(BUILD_IMAGE);
+    const measureExists = await dockerImageExists(MEASURE_IMAGE);
 
-    info(`Building ${MEASURE_IMAGE}...`);
-    await dockerBuild(MEASURE_IMAGE, 'browser-bench-measure', dockerfile, buildContext);
+    if (buildExists && measureExists) {
+        info('Docker images already exist — skipping build (use --skip-docker-build=false or delete images to force)');
+        return ctx;
+    }
+
+    banner('Docker image build');
+
+    if (!buildExists) {
+        info(`Building ${BUILD_IMAGE}...`);
+        await dockerBuild(BUILD_IMAGE, 'browser-bench-build', dockerfile, buildContext);
+    } else {
+        info(`${BUILD_IMAGE} already exists — skipping`);
+    }
+
+    if (!measureExists) {
+        info(`Building ${MEASURE_IMAGE}...`);
+        await dockerBuild(MEASURE_IMAGE, 'browser-bench-measure', dockerfile, buildContext);
+    } else {
+        info(`${MEASURE_IMAGE} already exists — skipping`);
+    }
 
     info('Docker images ready');
     return ctx;

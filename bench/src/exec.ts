@@ -193,6 +193,21 @@ export function dockerBuild(
 }
 
 /**
+ * Check whether a Docker image exists locally.
+ */
+export async function dockerImageExists(tag: string): Promise<boolean> {
+    try {
+        const result = await dockerExec(
+            ['image', 'inspect', tag],
+            { stdio: 'pipe', throwOnError: false },
+        );
+        return result.exitCode === 0;
+    } catch {
+        return false;
+    }
+}
+
+/**
  * Run a command inside a Docker container with volume mounts and env vars.
  */
 export function dockerRun(
