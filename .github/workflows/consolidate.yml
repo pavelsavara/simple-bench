@@ -17,11 +17,11 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: gh-pages
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event.workflow_run.head_branch || 'main' }}
           path: repo
@@ -30,14 +30,14 @@ jobs:
             package.json
             package-lock.json
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
 
       - name: Install dependencies
         run: cd repo && npm ci
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           run-id: ${{ github.event.workflow_run.id }}
           path: /tmp/artifacts/
