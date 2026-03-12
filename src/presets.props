@@ -3,9 +3,11 @@
   <PropertyGroup>
     <BenchmarkPreset Condition="'$(BenchmarkPreset)' == ''">DevLoop</BenchmarkPreset>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- Net10 and above -->
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
   </PropertyGroup>
 
-<!-- TODO 
+  <!-- TODO 
 <TrimMode>link</TrimMode>
 -->
 
@@ -29,7 +31,7 @@
     <WasmIncludeFullIcuData>true</WasmIncludeFullIcuData>
 
     <EnableAggressiveTrimming>false</EnableAggressiveTrimming>
-    <PublishTrimmed>true</PublishTrimmed>
+    <PublishTrimmed>false</PublishTrimmed>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NoWorkload'">
@@ -76,7 +78,7 @@
 
     <InvariantGlobalization>true</InvariantGlobalization>
     <InvariantTimeZone>true</InvariantTimeZone>
-    
+
     <EnableDiagnostics>false</EnableDiagnostics>
     <MetricsSupport>false</MetricsSupport>
     <EventSourceSupport>false</EventSourceSupport>
@@ -85,7 +87,7 @@
     <PredefinedCulturesOnly>true</PredefinedCulturesOnly>
     <StackTraceLineNumberSupport>false</StackTraceLineNumberSupport>
     <WasmEmitSymbolMap>false</WasmEmitSymbolMap>
-    
+
     <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
     <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>full</TrimMode>

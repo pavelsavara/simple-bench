@@ -1,6 +1,45 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+import { dotnet, exit } from './_framework/dotnet.js'
+
+async function outer() {
+    const isBrowser = typeof globalThis.window !== 'undefined';
+    globalThis.js_loaded = performance.now();
+
+    const { setModuleImports, getAssemblyExports, runMain } = await dotnet
+        .withApplicationArguments("start")
+        .create();
+
+    setModuleImports('main.js', {
+        bench: {
+            setManagedReady: () => { globalThis.dotnet_managed_ready = performance.now(); }
+        }
+    });
+
+    globalThis.dotnet_created = performance.now();
+    globalThis.bench_results = {};
+
+    await inner({ setModuleImports, getAssemblyExports, runMain, exit }, globalThis.bench_results);
+
+    globalThis.dotnet_exit = performance.now();
+
+    Object.assign(globalThis.bench_results, {
+        'time-to-create-dotnet': Math.round(globalThis.dotnet_created - globalThis.js_loaded),
+        'time-to-reach-managed': Math.round(globalThis.dotnet_managed_ready - globalThis.js_loaded),
+        'time-to-exit': Math.round(globalThis.dotnet_exit - globalThis.js_loaded),
+    });
+
+    if (isBrowser) {
+        const el = globalThis.document?.getElementById('status');
+        if (el) {
+            el.textContent = JSON.stringify(globalThis.bench_results, null, 2);
+        }
+    } else {
+        console.log(JSON.stringify(globalThis.bench_results));
+    }
+}
+
 /**
  * Microbenchmark driver — collects multiple samples, filters outliers via IQR.
  *
@@ -21,59 +60,25 @@
  * leaving 5-6 samples for a stable median. This balances runtime (~14s per benchmark)
  * against statistical robustness.
  */
-
-import { dotnet } from './_framework/dotnet.js';
-
-const isBrowser = typeof globalThis.window !== 'undefined';
 const SAMPLE_COUNT = 7;        // total samples (including 1 warm-up)
 const SAMPLE_DURATION_MS = 2000; // duration per sample window
 
-const { setModuleImports, getAssemblyExports, runMain } = await dotnet
-    .withApplicationArguments("start")
-    .create();
+async function inner({ setModuleImports, getAssemblyExports, runMain, exit }, results) {
+    await runMain("MicroBenchmarks", []);
 
-setModuleImports('bench-driver.mjs', {
-    bench: {
-        setBenchReady: () => { globalThis.bench_ready = performance.now(); }
-    }
-});
+    const exports = await getAssemblyExports("MicroBenchmarks");
 
-await runMain("MicroBenchmarks", []);
+    // JS Interop: tight loop calling [JSExport] Ping
+    results['js-interop-ops'] = runBenchSampled(() => exports.JsInteropBench.Ping(42));
 
-// ── Run benchmarks ──────────────────────────────────────────────────────────
+    // JSON Parse: tight loop calling [JSExport] ParseJson
+    const sampleJson = JSON.stringify({ count: 42, name: "benchmark", items: [1, 2, 3] });
+    results['json-parse-ops'] = runBenchSampled(() => exports.JsonBench.ParseJson(sampleJson));
 
-const exports = await getAssemblyExports("MicroBenchmarks");
-const results = {};
+    // Exception Handling: recursive Fibonacci throw/catch (100 iterations per call)
+    results['exception-ops'] = runBenchSampled(() => exports.ExceptionBench.ThrowCatch(42));
 
-// JS Interop: tight loop calling [JSExport] Ping
-results['js-interop-ops'] = runBenchSampled(() => exports.JsInteropBench.Ping(42));
-
-// JSON Parse: tight loop calling [JSExport] ParseJson
-const sampleJson = JSON.stringify({ count: 42, name: "benchmark", items: [1, 2, 3] });
-results['json-parse-ops'] = runBenchSampled(() => exports.JsonBench.ParseJson(sampleJson));
-
-// Exception Handling: recursive Fibonacci throw/catch (100 iterations per call)
-results['exception-ops'] = runBenchSampled(() => exports.ExceptionBench.ThrowCatch(42));
-
-// ── Report results ──────────────────────────────────────────────────────────
-
-// Browser: set on globalThis for Playwright to read
-globalThis.bench_results = results;
-globalThis.bench_complete = performance.now();
-
-// Update page (if in browser)
-if (isBrowser) {
-    const el = globalThis.document?.getElementById('status');
-    if (el) {
-        el.textContent = `Done: interop=${results['js-interop-ops']} ops/s, `
-            + `json=${results['json-parse-ops']} ops/s, `
-            + `exception=${results['exception-ops']} ops/s`;
-    }
-}
-
-// CLI: output JSON to stdout (for d8, node)
-if (!isBrowser) {
-    console.log(JSON.stringify(results));
+    exit(0);
 }
 
 // ── Sampling & statistics ───────────────────────────────────────────────────
@@ -134,3 +139,5 @@ function median(values) {
         ? sorted[mid]
         : (sorted[mid - 1] + sorted[mid]) / 2;
 }
+
+await outer();
