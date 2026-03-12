@@ -140,6 +140,20 @@ jobs:
         shell: bash
         run: echo "ARTIFACTS_DIR=${ARTIFACTS_DIR:-artifacts}" >> "$GITHUB_ENV"
 
+      - name: Symlink pre-installed node_modules into workspace
+        shell: bash
+        run: |
+          # The container image pre-installs deps to /opt/bench-deps/ and
+          # /opt/bench-cli-deps/. The entrypoint symlinks them into /bench/,
+          # but GHA checks out to $GITHUB_WORKSPACE. Create symlinks here too.
+          mkdir -p node_modules bench/node_modules
+          for src in /opt/bench-deps/node_modules/*; do
+            [ -e "$src" ] && ln -sf "$src" node_modules/ 2>/dev/null
+          done
+          for src in /opt/bench-cli-deps/node_modules/*; do
+            [ -e "$src" ] && ln -sf "$src" bench/node_modules/ 2>/dev/null
+          done
+
       - name: Download bench context
         uses: actions/download-artifact@v4
         with:
