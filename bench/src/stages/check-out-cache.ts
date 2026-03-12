@@ -27,6 +27,8 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     } else {
         // CI or first local checkout — clone the gh-pages branch
         info('gh-pages/ not found — cloning gh-pages branch');
+        // Mark the repo as safe to avoid "dubious ownership" errors in containers
+        await exec('git', ['config', '--global', '--add', 'safe.directory', ctx.repoRoot], { throwOnError: false });
         const remoteUrl = await execCapture('git', ['remote', 'get-url', 'origin'], {
             cwd: ctx.repoRoot,
         });
