@@ -6,6 +6,7 @@ import {
     Runtime as R,
     WORKLOAD_PRESETS, NON_WORKLOAD_PRESETS, MONO_ONLY_PRESETS,
     PRESET_MAP, PRESET_CONFIG,
+    shouldSkipMeasurement,
 } from '../enums.js';
 import { dotnetRestore, dotnetPublish, dotnetWorkloadInstall, dotnetWorkloadList } from '../exec.js';
 import { banner, info, err } from '../log.js';
@@ -100,6 +101,12 @@ async function buildPhase(
         for (const preset of presets) {
             if (MONO_ONLY_PRESETS.has(preset) && ctx.runtime === R.CoreCLR) {
                 info(`Skipping ${app}/${preset}: ${preset} is mono-only`);
+                continue;
+            }
+
+            const skipReason = shouldSkipMeasurement(app, preset);
+            if (skipReason) {
+                info(`Skipping ${app}/${preset}: ${skipReason}`);
                 continue;
             }
 

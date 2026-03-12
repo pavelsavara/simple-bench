@@ -60,9 +60,6 @@ node_modules/
 test-results/
 playwright-report/
 
-# Benchmark data (lives on gh-pages branch)
-data/
-
 # gh-pages worktree
 gh-pages/
 dist/

@@ -8,6 +8,7 @@ import {
     APP_CONFIG, BROWSER_ENGINES,
     MetricKey,
     getEnginesForApp, getProfilesForEngine,
+    shouldSkipMeasurement,
 } from '../enums.js';
 import { isWindows } from '../exec.js';
 import { banner, info, err, debug } from '../log.js';
@@ -17,8 +18,9 @@ import {
     findEntryFile,
 } from '../lib/measure-utils.js';
 import { PROFILES } from '../lib/throttle-profiles.js';
-import { getEngineCommand, parseCliOutput, validateBenchResults } from '../lib/internal-utils.js';
+import { getEngineCommand, parseCliOutput } from '../lib/internal-utils.js';
 import { runPizzaWalkthrough } from '../lib/pizza-walkthrough.js';
+import { type SampleStats, computeStats, formatStats } from '../lib/stats.js';
 
 // ── Stage Entry Point ────────────────────────────────────────────────────────
 
@@ -45,6 +47,12 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         // Apply app/preset filters
         if (!ctx.apps.includes(entry.app)) continue;
         if (!ctx.presets.includes(entry.preset)) continue;
+
+        const skipReason = shouldSkipMeasurement(entry.app, entry.preset);
+        if (skipReason) {
+            info(`Skipping ${entry.app}/${entry.preset}: ${skipReason}`);
+            continue;
+        }
 
         banner(`Measure ${entry.app} / ${entry.preset}`);
         if (ctx.verbose) {
@@ -326,12 +334,29 @@ async function measureBrowser(
 
             // Assemble metrics
             if (isInternal) {
+                const benchSamples: Record<string, number[]> = await page.evaluate(
+                    () => (globalThis as Record<string, unknown>).bench_samples as Record<string, number[]>,
+                );
+
+                const internalKeys = ['js-interop-ops', 'json-parse-ops', 'exception-ops'] as const;
+                const statsMap: Record<string, SampleStats> = {};
+                for (const key of internalKeys) {
+                    if (benchSamples[key]?.length > 0) {
+                        statsMap[key] = computeStats(benchSamples[key]);
+                    }
+                }
+
+                info('    ═══ Benchmark Statistical Summary ═══');
+                for (const [name, s] of Object.entries(statsMap)) {
+                    info(formatStats(name, s));
+                }
+
                 return {
                     [MetricKey.CompileTime]: compileTime,
                     [MetricKey.MemoryPeak]: useCDP ? (memoryPeak || null) : null,
-                    [MetricKey.JsInteropOps]: coldResults['js-interop-ops'] ?? null,
-                    [MetricKey.JsonParseOps]: coldResults['json-parse-ops'] ?? null,
-                    [MetricKey.ExceptionOps]: coldResults['exception-ops'] ?? null,
+                    [MetricKey.JsInteropOps]: statsMap['js-interop-ops'] ? Math.round(statsMap['js-interop-ops'].median) : null,
+                    [MetricKey.JsonParseOps]: statsMap['json-parse-ops'] ? Math.round(statsMap['json-parse-ops'].median) : null,
+                    [MetricKey.ExceptionOps]: statsMap['exception-ops'] ? Math.round(statsMap['exception-ops'].median) : null,
                 };
             }
 
@@ -390,20 +415,41 @@ async function measureCli(
     });
     const wallTimeMs = performance.now() - startTime;
 
-    const cliResults = parseCliOutput(stdout);
+    const cliParsed = parseCliOutput(stdout);
 
     if (isInternal) {
-        validateBenchResults(cliResults, ['js-interop-ops', 'json-parse-ops', 'exception-ops']);
+        const { samples: cliSamples } = cliParsed as { results: Record<string, number>; samples: Record<string, number[]> };
+
+        const internalKeys = ['js-interop-ops', 'json-parse-ops', 'exception-ops'] as const;
+        const statsMap: Record<string, SampleStats> = {};
+        for (const key of internalKeys) {
+            if (cliSamples[key]?.length > 0) {
+                statsMap[key] = computeStats(cliSamples[key]);
+            }
+        }
+
+        info('    ═══ Benchmark Statistical Summary ═══');
+        for (const [name, s] of Object.entries(statsMap)) {
+            info(formatStats(name, s));
+        }
+
+        for (const key of internalKeys) {
+            if (!statsMap[key]) {
+                throw new Error(`No samples found for '${key}' in CLI output. Output:\n${stdout}`);
+            }
+        }
+
         return {
             [MetricKey.CompileTime]: compileTime,
             [MetricKey.MemoryPeak]: null,
-            [MetricKey.JsInteropOps]: cliResults['js-interop-ops'],
-            [MetricKey.JsonParseOps]: cliResults['json-parse-ops'],
-            [MetricKey.ExceptionOps]: cliResults['exception-ops'],
+            [MetricKey.JsInteropOps]: Math.round(statsMap['js-interop-ops'].median),
+            [MetricKey.JsonParseOps]: Math.round(statsMap['json-parse-ops'].median),
+            [MetricKey.ExceptionOps]: Math.round(statsMap['exception-ops'].median),
         };
     }
 
     // External CLI: timing from bench_results or wall-clock fallback
+    const cliResults = cliParsed as Record<string, number>;
     const timeToReachManaged = cliResults['time-to-reach-managed'] ?? wallTimeMs;
 
     return {

@@ -37,7 +37,7 @@ export function getEngineCommand(engine: Engine): EngineCommand {
  * Scans from the last line backwards because .NET may emit diagnostic
  * output before the benchmark results JSON line.
  */
-export function parseCliOutput(stdout: string): Record<string, number> {
+export function parseCliOutput(stdout: string): Record<string, unknown> {
     const lines = stdout.split('\n');
     for (let i = lines.length - 1; i >= 0; i--) {
         const trimmed = lines[i].trim();

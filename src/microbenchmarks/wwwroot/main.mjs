@@ -19,8 +19,9 @@ async function outer() {
 
     globalThis.dotnet_created = performance.now();
     globalThis.bench_results = {};
+    globalThis.bench_samples = {};
 
-    await inner({ setModuleImports, getAssemblyExports, runMain, exit }, globalThis.bench_results);
+    await inner({ setModuleImports, getAssemblyExports, runMain, exit }, globalThis.bench_results, globalThis.bench_samples);
 
     globalThis.dotnet_exit = performance.now();
 
@@ -35,10 +36,10 @@ async function outer() {
     if (isBrowser) {
         const el = globalThis.document?.getElementById('status');
         if (el) {
-            el.textContent = JSON.stringify(globalThis.bench_results, null, 2);
+            el.textContent = JSON.stringify({ results: globalThis.bench_results, samples: globalThis.bench_samples }, null, 2);
         }
     } else {
-        console.log(JSON.stringify(globalThis.bench_results));
+        console.log(JSON.stringify({ results: globalThis.bench_results, samples: globalThis.bench_samples }));
     }
 }
 
@@ -65,20 +66,20 @@ async function outer() {
 const SAMPLE_COUNT = 7;        // total samples (including 1 warm-up)
 const SAMPLE_DURATION_MS = 2000; // duration per sample window
 
-async function inner({ setModuleImports, getAssemblyExports, runMain, exit }, results) {
+async function inner({ setModuleImports, getAssemblyExports, runMain, exit }, results, samples) {
     await runMain("MicroBenchmarks", []);
 
     const exports = await getAssemblyExports("MicroBenchmarks");
 
     // JS Interop: tight loop calling [JSExport] Ping
-    results['js-interop-ops'] = runBenchSampled(() => exports.JsInteropBench.Ping(42));
+    samples['js-interop-ops'] = runBenchSampled(() => exports.JsInteropBench.Ping(42));
 
     // JSON Parse: tight loop calling [JSExport] ParseJson
     const sampleJson = JSON.stringify({ count: 42, name: "benchmark", items: [1, 2, 3] });
-    results['json-parse-ops'] = runBenchSampled(() => exports.JsonBench.ParseJson(sampleJson));
+    samples['json-parse-ops'] = runBenchSampled(() => exports.JsonBench.ParseJson(sampleJson));
 
     // Exception Handling: recursive Fibonacci throw/catch (100 iterations per call)
-    results['exception-ops'] = runBenchSampled(() => exports.ExceptionBench.ThrowCatch(42));
+    samples['exception-ops'] = runBenchSampled(() => exports.ExceptionBench.ThrowCatch(42));
 
     exit(0);
 }
@@ -87,7 +88,7 @@ async function inner({ setModuleImports, getAssemblyExports, runMain, exit }, re
 
 /**
  * Collect SAMPLE_COUNT samples, discard warm-up, filter outliers via IQR,
- * return median ops/sec.
+ * return the filtered samples array (ops/sec values).
  */
 function runBenchSampled(fn) {
     const allSamples = [];
@@ -97,7 +98,7 @@ function runBenchSampled(fn) {
     // Discard first sample (warm-up)
     const samples = allSamples.slice(1);
     const filtered = filterOutliersIQR(samples);
-    return Math.round(median(filtered.length > 0 ? filtered : samples));
+    return filtered.length > 0 ? filtered : samples;
 }
 
 /** Run fn in a tight loop for durationMs; return ops/sec. */
@@ -131,15 +132,6 @@ function percentile(sorted, p) {
     const hi = Math.ceil(idx);
     if (lo === hi) return sorted[lo];
     return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
-}
-
-/** Median of an array. */
-function median(values) {
-    const sorted = [...values].sort((a, b) => a - b);
-    const mid = Math.floor(sorted.length / 2);
-    return sorted.length % 2 !== 0
-        ? sorted[mid]
-        : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
 await outer();
