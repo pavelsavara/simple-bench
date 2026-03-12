@@ -43,7 +43,7 @@ jobs:
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           clean: false
 
@@ -92,7 +92,7 @@ jobs:
           echo "Build matrix: $MATRIX" >&2
 
       - name: Upload bench context
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: bench-context
@@ -101,7 +101,7 @@ jobs:
           retention-days: 7
 
       - name: Upload results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: build-results
@@ -110,7 +110,7 @@ jobs:
           retention-days: 7
 
       - name: Upload all builds
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always() && steps.matrix.outputs.matrix != '[]'
         with:
           name: all-builds
@@ -132,7 +132,7 @@ jobs:
       matrix:
         include: ${{ fromJSON(needs.build.outputs.matrix) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           clean: false
 
@@ -155,19 +155,19 @@ jobs:
           done
 
       - name: Download bench context
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: bench-context
           path: ${{ env.ARTIFACTS_DIR }}
 
       - name: Download results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: build-results
           path: ${{ env.ARTIFACTS_DIR }}/results
 
       - name: Download builds
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: all-builds
           path: ${{ env.ARTIFACTS_DIR }}/publish
@@ -186,7 +186,7 @@ jobs:
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
 
       - name: Upload results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: results-${{ matrix.app }}-${{ matrix.preset }}
