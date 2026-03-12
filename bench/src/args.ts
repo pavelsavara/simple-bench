@@ -47,6 +47,7 @@ Measurement:
 
 Docker (only with --via-docker):
   --skip-docker-build      Reuse existing Docker images
+  --force-docker-build     Rebuild Docker images even if they exist
 
 Consolidation:
   --artifacts-dir <path>   CI artifacts input directory
@@ -99,6 +100,7 @@ const ARG_OPTIONS = {
 
     // Docker
     'skip-docker-build': { type: 'boolean' as const, default: false },
+    'force-docker-build': { type: 'boolean' as const, default: false },
 
     // Consolidation
     'artifacts-dir': { type: 'string' as const, default: '' },
@@ -237,6 +239,7 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
 
         // Docker
         skipDockerBuild: values['skip-docker-build'] ?? false,
+        forceDockerBuild: values['force-docker-build'] ?? false,
 
         // Consolidation
         artifactsInputDir: values['artifacts-dir'] || undefined,

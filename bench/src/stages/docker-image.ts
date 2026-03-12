@@ -23,11 +23,11 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     const dockerfile = join(ctx.repoRoot, 'docker', 'Dockerfile');
     const buildContext = ctx.repoRoot;
 
-    const buildExists = await dockerImageExists(BUILD_IMAGE);
-    const measureExists = await dockerImageExists(MEASURE_IMAGE);
+    const buildExists = !ctx.forceDockerBuild && await dockerImageExists(BUILD_IMAGE);
+    const measureExists = !ctx.forceDockerBuild && await dockerImageExists(MEASURE_IMAGE);
 
     if (buildExists && measureExists) {
-        info('Docker images already exist — skipping build (use --skip-docker-build=false or delete images to force)');
+        info('Docker images already exist — skipping build (use --force-docker-build or delete images to force)');
         return ctx;
     }
 

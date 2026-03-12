@@ -3,6 +3,7 @@
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Stage: base — shared foundation for both build and measure images
+# External dependencies only; no local source so downstream layers stay cached.
 # ═══════════════════════════════════════════════════════════════════════════════
 FROM ubuntu:24.04 AS base
 
@@ -32,7 +33,12 @@ RUN mkdir -p $ARTIFACTS_DIR/sdks $ARTIFACTS_DIR/publish $ARTIFACTS_DIR/results $
 
 WORKDIR /bench
 
-# Build the bench CLI bundle from TypeScript source
+# ═══════════════════════════════════════════════════════════════════════════════
+# Stage: bench-cli — build the bench CLI bundle from TypeScript source
+# Isolated so that bench/ source changes don't invalidate external-dep layers.
+# BuildKit builds this in parallel with the downstream stages.
+# ═══════════════════════════════════════════════════════════════════════════════
+FROM base AS bench-cli
 COPY bench/ /tmp/bench-build/
 RUN cd /tmp/bench-build \
     && npm ci \
@@ -68,6 +74,9 @@ ENV NODE_PATH=/opt/bench-deps/node_modules
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["entrypoint.sh"]
+
+# Bench CLI — copied last so bench/ source changes don't bust earlier layers
+COPY --from=bench-cli /opt/bench /opt/bench
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Stage: browser-bench-measure — JS engines + browsers for running benchmarks
@@ -114,5 +123,8 @@ RUN cd /opt/bench-deps && npx playwright install --with-deps chromium firefox \
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 ENTRYPOINT ["entrypoint.sh"]
+
+# Bench CLI — copied last so bench/ source changes don't bust earlier layers
+COPY --from=bench-cli /opt/bench /opt/bench
 
 USER benchuser

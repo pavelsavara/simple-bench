@@ -58,6 +58,7 @@ export interface BenchContext {
 
     // ── Docker ──
     skipDockerBuild: boolean;
+    forceDockerBuild: boolean;
 
     // ── Consolidation ──
     artifactsInputDir?: string;
