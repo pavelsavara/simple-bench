@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "runtimeCommitDateTime": "2023-10-31T14:37:06Z",
+    "sdkVersion": "8.0.100",
+    "runtimeGitHash": "5535e31a712343a63f5d7d796cd874e563e5ac14",
+    "sdkGitHash": "e9d13cbe7e8c1d52ce276a8655f52a87e1017c46",
+    "vmrGitHash": "e9d13cbe7e8c1d52ce276a8655f52a87e1017c46",
+    "runtime": "mono",
+    "preset": "aot",
+    "profile": "desktop",
+    "engine": "firefox",
+    "app": "havit-bootstrap",
+    "benchmarkDateTime": "2026-03-13T13:59:22.968Z",
+    "warmRunCount": 3,
+    "ciRunId": "23052656574",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23052656574"
+  },
+  "metrics": {
+    "compile-time": 296035,
+    "disk-size-total": 67422655,
+    "disk-size-native": 23553114,
+    "disk-size-assemblies": 6485547,
+    "time-to-reach-managed-warm": 1512,
+    "time-to-reach-managed-cold": 1940
+  }
+}

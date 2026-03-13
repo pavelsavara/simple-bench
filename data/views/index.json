@@ -1,7 +1,9 @@
 {
-  "lastUpdated": "2026-03-13T13:37:06.305Z",
+  "lastUpdated": "2026-03-13T14:00:10.377Z",
   "activeRelease": "net11",
-  "releases": [],
+  "releases": [
+    "net8"
+  ],
   "weeks": [
     "2026-03-09"
   ],
@@ -12,6 +14,23 @@
     "micro-benchmarks"
   ],
   "metrics": {
+    "empty-blazor": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "disk-size-total",
+      "download-size-total",
+      "memory-peak",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm"
+    ],
+    "micro-benchmarks": [
+      "compile-time",
+      "exception-ops",
+      "js-interop-ops",
+      "json-parse-ops",
+      "memory-peak"
+    ],
     "blazing-pizza": [
       "compile-time",
       "disk-size-assemblies",
@@ -20,16 +39,6 @@
       "download-size-total",
       "memory-peak",
       "pizza-walkthrough",
-      "time-to-reach-managed-cold",
-      "time-to-reach-managed-warm"
-    ],
-    "empty-blazor": [
-      "compile-time",
-      "disk-size-assemblies",
-      "disk-size-native",
-      "disk-size-total",
-      "download-size-total",
-      "memory-peak",
       "time-to-reach-managed-cold",
       "time-to-reach-managed-warm"
     ],
@@ -43,13 +52,6 @@
       "memory-peak",
       "time-to-reach-managed-cold",
       "time-to-reach-managed-warm"
-    ],
-    "micro-benchmarks": [
-      "compile-time",
-      "exception-ops",
-      "js-interop-ops",
-      "json-parse-ops",
-      "memory-peak"
     ]
   },
   "dimensions": {
