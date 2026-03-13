@@ -1,0 +1,26 @@
+{
+  "meta": {
+    "runtimeCommitDateTime": "2026-02-18T18:36:50Z",
+    "sdkVersion": "10.0.200",
+    "runtimeGitHash": "081d220c0a773ffb7c6bea6b48727833576a65ef",
+    "sdkGitHash": "9396d43dc6d7b16db3af666867585c4f4db99628",
+    "vmrGitHash": "40cd698e5cfb2d90f436889726ee01f48d99f3ab",
+    "runtime": "mono",
+    "preset": "no-workload",
+    "profile": "mobile",
+    "engine": "chrome",
+    "app": "empty-browser",
+    "benchmarkDateTime": "2026-03-12T23:47:19.259Z",
+    "warmRunCount": 3
+  },
+  "metrics": {
+    "compile-time": 1947,
+    "disk-size-total": 11945502,
+    "disk-size-native": 3002101,
+    "disk-size-assemblies": 1176148,
+    "download-size-total": 20480376,
+    "time-to-reach-managed-warm": 2237,
+    "time-to-reach-managed-cold": 2349,
+    "memory-peak": 5982544
+  }
+}
