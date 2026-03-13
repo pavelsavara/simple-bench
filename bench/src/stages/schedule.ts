@@ -2,8 +2,8 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
 import { type BenchContext } from '../context.js';
-import { exec } from '../exec.js';
 import { banner, info, debug } from '../log.js';
+import { GITHUB_API, githubHeaders, resolveGitHubToken } from '../lib/http.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -64,24 +64,33 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     const toDispatch = candidates.slice(0, ctx.maxDispatches);
     info(`Will dispatch ${toDispatch.length} of ${candidates.length} untested packs`);
 
-    // 5. Dispatch
+    // 5. Dispatch via GitHub REST API
     const repo = ctx.repo || 'pavelsavara/simple-bench';
+    const token = await resolveGitHubToken();
+    if (!token && !ctx.dryRun) {
+        throw new Error('No GitHub token available — set GITHUB_TOKEN or GH_TOKEN');
+    }
 
     for (const pack of toDispatch) {
-        const ghArgs = [
-            'workflow', 'run', 'benchmark.yml',
-            '--repo', repo,
-            '--ref', ctx.branch,
-            '-f', `sdk_version=${pack.sdkVersion}`,
-        ];
-
         if (ctx.dryRun) {
-            info(`[dry-run] gh ${ghArgs.join(' ')}`);
+            info(`[dry-run] workflow_dispatch benchmark.yml ref=${ctx.branch} sdk_version=${pack.sdkVersion}`);
             continue;
         }
 
         info(`Dispatching benchmark for sdk_version=${pack.sdkVersion}`);
-        await exec('gh', ghArgs);
+        const url = `${GITHUB_API}/repos/${repo}/actions/workflows/benchmark.yml/dispatches`;
+        const resp = await fetch(url, {
+            method: 'POST',
+            headers: githubHeaders(token),
+            body: JSON.stringify({
+                ref: ctx.branch,
+                inputs: { sdk_version: pack.sdkVersion },
+            }),
+        });
+        if (!resp.ok) {
+            const body = await resp.text().catch(() => '');
+            throw new Error(`Failed to dispatch workflow (${resp.status}): ${body.slice(0, 200)}`);
+        }
     }
 
     return ctx;
