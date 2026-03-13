@@ -64,10 +64,8 @@ Default stages (no `--stages`): `acquire-sdk,build,measure`
    - [x] `build` — app×preset iteration, dotnet publish, workload install, build-manifest
    - [x] `acquire-sdk` — dotnet-install scripts, pack catalog lookup, runtime pack override
    - [x] `measure` — browser + CLI measurement, result JSON writing
-   - [ ] `consolidate` — merge results into gh-pages data/
-   - [ ] `schedule` — gap detection, workflow dispatch
-   - [ ] `transform-views` — view file generation for dashboard
-   - [ ] Unit tests
+   - [x] `transform-views` — view file generation for dashboard
+   - [x] `schedule` — gap detection, workflow dispatch
 7. Update Dockerfile — pre-install bench/ deps, run via `tsx`
 8. Update CI workflows — replace old script invocations with `bench --stages ...`
 

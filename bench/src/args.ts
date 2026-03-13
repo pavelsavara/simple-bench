@@ -54,8 +54,7 @@ Consolidation:
   --data-dir <path>        gh-pages data/ output directory
 
 Scheduling:
-  --max-dispatches <n>     Max workflow dispatches (default: 3)
-  --recent <n>             Consider N most recent packs (default: 30)
+  --max-dispatches <n>     Max workflow dispatches (default: 1)
   --repo <owner/name>      GitHub repository (default: auto-detect)
   --branch <name>          Branch for dispatch (default: main)
 
@@ -107,8 +106,7 @@ const ARG_OPTIONS = {
     'data-dir': { type: 'string' as const, default: '' },
 
     // Scheduling
-    'max-dispatches': { type: 'string' as const, default: '3' },
-    'recent': { type: 'string' as const, default: '30' },
+    'max-dispatches': { type: 'string' as const, default: '1' },
     'repo': { type: 'string' as const, default: '' },
     'branch': { type: 'string' as const, default: 'main' },
 
@@ -247,7 +245,6 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
 
         // Scheduling
         maxDispatches: parseIntStrict(values['max-dispatches']!, 'max-dispatches'),
-        recent: parseIntStrict(values.recent!, 'recent'),
         repo: values.repo || undefined,
         branch: values.branch!,
 

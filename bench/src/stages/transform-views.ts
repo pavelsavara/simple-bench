@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { existsSync } from 'node:fs';
 import { type BenchContext } from '../context.js';
 import { banner, info, debug } from '../log.js';
+import { ensureGhPagesCheckout } from '../lib/gh-pages-checkout.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -59,6 +60,11 @@ interface LoadedResult {
 // ── Stage Entry ──────────────────────────────────────────────────────────────
 
 export async function run(ctx: BenchContext): Promise<BenchContext> {
+    // Ensure gh-pages is checked out (measure pipeline may not run check-out-cache)
+    if (!ctx.dataDir) {
+        await ensureGhPagesCheckout(ctx.repoRoot, ctx.verbose);
+    }
+
     const dataDir = ctx.dataDir || join(ctx.repoRoot, 'gh-pages', 'data');
 
     await consolidateResults(ctx, dataDir);
