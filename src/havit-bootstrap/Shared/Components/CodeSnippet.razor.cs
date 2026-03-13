@@ -20,6 +20,10 @@ public partial class CodeSnippet : ComponentBase
 
 			using (Stream stream = typeof(CodeSnippet).Assembly.GetManifestResourceStream(resourceName))
 			{
+				if (stream == null){
+					_code = $"Error: Resource '{resourceName}' not found.";
+					return;
+				}
 				using (StreamReader reader = new StreamReader(stream))
 				{
 					_code = await reader.ReadToEndAsync();
