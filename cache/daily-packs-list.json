@@ -2,8 +2,8 @@
   "feed": "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet11/nuget/v3/index.json",
   "major": 11,
   "months": 3,
-  "fetchedAt": "2026-03-12T20:18:03.781Z",
-  "totalPacks": 150,
+  "fetchedAt": "2026-03-13T05:08:03.591Z",
+  "totalPacks": 149,
   "packs": [
     {
       "sdkVersion": "11.0.100-preview.3.26162.108",
@@ -1940,19 +1940,6 @@
       "aspnetCoreVersion": "11.0.0-alpha.1.25614.102",
       "runtimePackVersion": "11.0.0-alpha.1.25614.102",
       "workloadVersion": "11.0.0-alpha.1.25614.102",
-      "bootstrapSdkVersion": "10.0.100"
-    },
-    {
-      "sdkVersion": "11.0.100-alpha.1.25613.101",
-      "runtimeGitHash": "bce6119e41ecfbcf630c369836770669604c22c6",
-      "aspnetCoreGitHash": "c5f8422073be4a98c9cf3f75c58f9a0d59fdf073",
-      "sdkGitHash": "6a6992f5fc42dbd06cd24f3a7db40013035d3965",
-      "vmrGitHash": "dc803dea8a5917a87a812a05bae596c299368a43",
-      "runtimeCommitDateTime": "2025-12-05T23:55:08Z",
-      "aspnetCoreCommitDateTime": "2025-12-12T00:18:44Z",
-      "aspnetCoreVersion": "11.0.0-alpha.1.25613.101",
-      "runtimePackVersion": "11.0.0-alpha.1.25613.101",
-      "workloadVersion": "11.0.0-alpha.1.25613.101",
       "bootstrapSdkVersion": "10.0.100"
     }
   ]
