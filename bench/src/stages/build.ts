@@ -95,6 +95,7 @@ async function buildPhase(
     ctx: BenchContext,
     presets: Preset[],
     succeeded: BuildManifestEntry[],
+    failed: string[],
 ): Promise<void> {
     for (const app of ctx.apps) {
         const appDir = join(ctx.repoRoot, 'src', app);
@@ -144,6 +145,7 @@ async function buildPhase(
                 succeeded.push({ app: app as App, preset, runtime: ctx.runtime, compileTimeMs, integrity, publishDir });
             } catch (e) {
                 err(`Build failed for ${app}/${preset}: ${e instanceof Error ? e.message : e}`);
+                failed.push(`${app}/${preset}`);
             }
         }
     }
@@ -181,11 +183,12 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     }
 
     const succeeded: BuildManifestEntry[] = [];
+    const failed: string[] = [];
 
     // Phase A: Non-workload presets (before wasm-tools install)
     if (nonWorkloadPresets.length > 0) {
         banner('Build non-workload presets');
-        await buildPhase(ctx, nonWorkloadPresets, succeeded);
+        await buildPhase(ctx, nonWorkloadPresets, succeeded, failed);
     }
 
     // Phase: Install workload (only if workload presets are requested)
@@ -208,11 +211,15 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
         // Phase B: Workload presets
         banner('Build workload presets');
-        await buildPhase(ctx, workloadPresets, succeeded);
+        await buildPhase(ctx, workloadPresets, succeeded, failed);
     }
 
     if (succeeded.length === 0) {
         throw new Error('All builds failed — nothing to measure');
+    }
+    if (failed.length > 0) {
+        info(`${succeeded.length} builds succeeded, ${failed.length} failed`);
+        throw new Error(`Build failed for: ${failed.join(', ')}`);
     }
     info(`${succeeded.length} builds succeeded`);
 
