@@ -17,7 +17,6 @@ interface ReleasePackEntry extends SdkInfo {
 
 interface ReleasePacksList {
     channels: string[];
-    fetchedAt: string;
     totalPacks: number;
     packs: ReleasePackEntry[];
 }
@@ -368,7 +367,6 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     const result: ReleasePacksList = {
         channels,
-        fetchedAt: new Date().toISOString(),
         totalPacks: allPacks.length,
         packs: allPacks,
     };

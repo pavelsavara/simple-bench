@@ -310,19 +310,27 @@ async function measureBrowser(
             }
 
             // Pizza walkthrough (blazing-pizza only, chrome, desktop profile)
-            let pizzaWalkthru: number | null = null;
+            let pizzaWalkthrough: number | null = null;
             if (entry.app === A.BlazingPizza && profile === 'desktop' && engine === E.Chrome) {
                 if (ctx.verbose) debug(`Running pizza walkthrough...`);
-                pizzaWalkthru = await runPizzaWalkthrough(page, pageUrl, timeout, ctx.verbose);
-                if (ctx.verbose) debug(`Pizza walkthrough completed: ${pizzaWalkthru}ms`);
+                pizzaWalkthrough = await runPizzaWalkthrough(page, pageUrl, timeout, ctx.verbose);
+                if (ctx.verbose) debug(`Pizza walkthrough completed: ${pizzaWalkthrough}ms`);
             }
 
             // Havit walkthrough (havit-bootstrap only, chrome, desktop profile)
-            let havitWalkthru: number | null = null;
-            if (entry.app === A.HavitBlazor && profile === 'desktop' && engine === E.Chrome) {
+            let havitWalkthrough: number | null = null;
+            if (entry.app === A.HavitBootstrap && profile === 'desktop' && engine === E.Chrome) {
                 if (ctx.verbose) debug(`Running havit walkthrough...`);
-                havitWalkthru = await runHavitWalkthrough(page, pageUrl, timeout, ctx.verbose);
-                if (ctx.verbose) debug(`Havit walkthrough completed: ${havitWalkthru}ms`);
+                havitWalkthrough = await runHavitWalkthrough(page, pageUrl, timeout, ctx.verbose);
+                if (ctx.verbose) debug(`Havit walkthrough completed: ${havitWalkthrough}ms`);
+            }
+
+            // Collect internal benchmark samples before closing the page
+            let benchSamples: Record<string, number[]> | null = null;
+            if (isInternal) {
+                benchSamples = await page.evaluate(
+                    () => (globalThis as Record<string, unknown>).bench_samples as Record<string, number[]>,
+                );
             }
 
             // Stop memory sampling + settle
@@ -343,15 +351,12 @@ async function measureBrowser(
 
             // Assemble metrics
             if (isInternal) {
-                const benchSamples: Record<string, number[]> = await page.evaluate(
-                    () => (globalThis as Record<string, unknown>).bench_samples as Record<string, number[]>,
-                );
 
                 const internalKeys = ['js-interop-ops', 'json-parse-ops', 'exception-ops'] as const;
                 const statsMap: Record<string, SampleStats> = {};
                 for (const key of internalKeys) {
-                    if (benchSamples[key]?.length > 0) {
-                        statsMap[key] = computeStats(benchSamples[key]);
+                    if (benchSamples![key]?.length > 0) {
+                        statsMap[key] = computeStats(benchSamples![key]);
                     }
                 }
 
@@ -378,8 +383,8 @@ async function measureBrowser(
                 [MetricKey.TimeToReachManagedWarm]: timeToReachManaged,
                 [MetricKey.TimeToReachManagedCold]: timeToReachManagedCold,
                 [MetricKey.MemoryPeak]: useCDP ? (memoryPeak || null) : null,
-                [MetricKey.PizzaWalkthru]: pizzaWalkthru,
-                [MetricKey.HavitWalkthru]: havitWalkthru,
+                [MetricKey.PizzaWalkthrough]: pizzaWalkthrough,
+                [MetricKey.HavitWalkthrough]: havitWalkthrough,
             };
         } catch (e) {
             lastError = e instanceof Error ? e : new Error(String(e));
@@ -471,7 +476,7 @@ async function measureCli(
         [MetricKey.TimeToReachManagedWarm]: timeToReachManaged,
         [MetricKey.TimeToReachManagedCold]: timeToReachManaged,
         [MetricKey.MemoryPeak]: null,
-        [MetricKey.PizzaWalkthru]: null,
+        [MetricKey.PizzaWalkthrough]: null,
     };
 }
 

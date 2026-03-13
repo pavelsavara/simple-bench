@@ -18,7 +18,7 @@ Defined in [`bench/src/context.ts`](../bench/src/context.ts#L7).
 
 Nightly runtime packs discovered from the Azure DevOps NuGet feed. Each pack extends `SdkInfo` with a `bootstrapSdkVersion` field.
 
-**Fields**: feed, major, months (lookback window), fetchedAt, totalPacks, packs (array of `SdkInfo & { bootstrapSdkVersion }`). Sorted newest-first by Arcade SHORT_DATE.
+**Fields**: feed, major, months (lookback window), totalPacks, packs (array of `SdkInfo & { bootstrapSdkVersion }`). Sorted newest-first by Arcade SHORT_DATE.
 
 Defined in [`bench/src/stages/enumerate-daily-packs.ts`](../bench/src/stages/enumerate-daily-packs.ts#L17).
 
@@ -28,7 +28,7 @@ Defined in [`bench/src/stages/enumerate-daily-packs.ts`](../bench/src/stages/enu
 
 GA release packs discovered from the official .NET releases index. Each pack extends `SdkInfo` with `bootstrapSdkVersion` and `releaseDate`.
 
-**Fields**: channels, fetchedAt, totalPacks, packs (array of `SdkInfo & { bootstrapSdkVersion, releaseDate }`). Sorted by major descending, then release date descending.
+**Fields**: channels, totalPacks, packs (array of `SdkInfo & { bootstrapSdkVersion, releaseDate }`). Sorted by major descending, then release date descending.
 
 Defined in [`bench/src/stages/enumerate-release-packs.ts`](../bench/src/stages/enumerate-release-packs.ts#L18).
 
@@ -38,7 +38,7 @@ Defined in [`bench/src/stages/enumerate-release-packs.ts`](../bench/src/stages/e
 
 Recent dotnet/runtime commit history from the GitHub API.
 
-**Fields**: repo, since, until, fetchedAt, totalCommits, commits (array with sha, message, authorDate, committerDate, author, url).
+**Fields**: repo, since, until, totalCommits, commits (array with sha, message, authorDate, committerDate, author, url).
 
 Defined in [`bench/src/stages/enumerate-commits.ts`](../bench/src/stages/enumerate-commits.ts#L19).
 

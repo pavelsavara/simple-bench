@@ -32,8 +32,8 @@ export enum App {
     EmptyBrowser = 'empty-browser',
     EmptyBlazor = 'empty-blazor',
     BlazingPizza = 'blazing-pizza',
-    Microbenchmarks = 'microbenchmarks',
-    HavitBlazor = 'havit-bootstrap',
+    HavitBootstrap = 'havit-bootstrap',
+    MicroBenchmarks = 'micro-benchmarks',
 }
 
 export enum Stage {
@@ -60,8 +60,8 @@ export enum MetricKey {
     TimeToReachManagedWarm = 'time-to-reach-managed-warm',
     TimeToReachManagedCold = 'time-to-reach-managed-cold',
     MemoryPeak = 'memory-peak',
-    PizzaWalkthru = 'pizza-walkthru',
-    HavitWalkthru = 'havit-walkthru',
+    PizzaWalkthrough = 'pizza-walkthrough',
+    HavitWalkthrough = 'havit-walkthrough',
     JsInteropOps = 'js-interop-ops',
     JsonParseOps = 'json-parse-ops',
     ExceptionOps = 'exception-ops',
@@ -78,10 +78,10 @@ export interface AppConfig {
 
 export const APP_CONFIG: Record<App, AppConfig> = {
     [App.EmptyBrowser]: { browserOnly: false, internal: false },
-    [App.Microbenchmarks]: { browserOnly: false, internal: true },
+    [App.MicroBenchmarks]: { browserOnly: false, internal: true },
     [App.EmptyBlazor]: { browserOnly: true, internal: false },
     [App.BlazingPizza]: { browserOnly: true, internal: false },
-    [App.HavitBlazor]: { browserOnly: true, internal: false },
+    [App.HavitBootstrap]: { browserOnly: true, internal: false },
 };
 
 // ── Preset Constraints ───────────────────────────────────────────────────────
@@ -108,7 +108,10 @@ export const MONO_ONLY_PRESETS = new Set<Preset>([
 ]);
 
 /** Apps that use Blazor (DOM-dependent, no CLI engine support). */
-export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazingPizza, App.HavitBlazor]);
+export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazingPizza, App.HavitBootstrap]);
+export const REDUCE_APPS = new Set<App>([App.EmptyBlazor, App.EmptyBrowser, App.BlazingPizza]);
+export const REDUCE_PRESETS = new Set<Preset>([Preset.NativeRelink, Preset.NoJiterp, Preset.Invariant, Preset.NoReflectionEmit]);
+
 
 /**
  * Returns a reason string if the app+preset combination should be skipped,
@@ -120,6 +123,9 @@ export function shouldSkipMeasurement(app: App, preset: Preset): string | null {
     }
     if (BLAZOR_APPS.has(app) && preset === Preset.Invariant) {
         return `Blazor app '${app}' is not supported with preset '${preset}'`;
+    }
+    if (REDUCE_APPS.has(app) && REDUCE_PRESETS.has(preset)) {
+        return `Blazor app '${app}' with '${preset}' is in reduced matrix `;
     }
     return null;
 }

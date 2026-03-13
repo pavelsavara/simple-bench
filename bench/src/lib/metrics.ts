@@ -17,11 +17,11 @@ export const METRICS: Record<MetricKey, MetricInfo> = {
     [MetricKey.TimeToReachManagedWarm]: { displayName: 'Time to Managed (Warm)', unit: 'ms', category: 'time' },
     [MetricKey.TimeToReachManagedCold]: { displayName: 'Time to Managed (Cold)', unit: 'ms', category: 'time' },
     [MetricKey.MemoryPeak]: { displayName: 'Peak JS Heap', unit: 'bytes', category: 'memory' },
-    [MetricKey.PizzaWalkthru]: { displayName: 'Pizza Walkthrough', unit: 'ms', category: 'time' },
+    [MetricKey.PizzaWalkthrough]: { displayName: 'Pizza Walkthrough', unit: 'ms', category: 'time' },
     [MetricKey.JsInteropOps]: { displayName: 'JS Interop', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.JsonParseOps]: { displayName: 'JSON Parse', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.ExceptionOps]: { displayName: 'Exception Handling', unit: 'ops/sec', category: 'throughput' },
-    [MetricKey.HavitWalkthru]: { displayName: 'Havit Walkthrough', unit: 'ms', category: 'time' },
+    [MetricKey.HavitWalkthrough]: { displayName: 'Havit Walkthrough', unit: 'ms', category: 'time' },
 };
 
 export const EXTERNAL_METRICS: MetricKey[] = [
@@ -33,8 +33,8 @@ export const EXTERNAL_METRICS: MetricKey[] = [
     MetricKey.TimeToReachManagedWarm,
     MetricKey.TimeToReachManagedCold,
     MetricKey.MemoryPeak,
-    MetricKey.PizzaWalkthru,
-    MetricKey.HavitWalkthru,
+    MetricKey.PizzaWalkthrough,
+    MetricKey.HavitWalkthrough,
 ];
 
 export const INTERNAL_METRICS: MetricKey[] = [

@@ -49,14 +49,14 @@ Not all combinations are valid — constraints prune the matrix significantly.
 | `empty-blazor` | Yes | No | Minimal Blazor WebAssembly app |
 | `blazing-pizza` | Yes | No | Blazor pizza ordering app (with walkthrough) |
 | `havit-bootstrap` | Yes | No | Havit Blazor Bootstrap component library |
-| `microbenchmarks` | No | Yes | JS interop / JSON / exception throughput tests |
+| `micro-benchmarks` | No | Yes | JS interop / JSON / exception throughput tests |
 
 ## Constraint Rules
 
 ### 1. Engine constraints by app
 
 - **`browserOnly` apps** (empty-blazor, blazing-pizza, havit-bootstrap) → **browser engines only** (chrome, firefox)
-- **Non-browserOnly apps** (empty-browser, microbenchmarks) → **all engines** (chrome, firefox, v8, node)
+- **Non-browserOnly apps** (empty-browser, micro-benchmarks) → **all engines** (chrome, firefox, v8, node)
 
 ### 2. Profile constraints by engine
 
@@ -81,7 +81,7 @@ These presets break Blazor's runtime reflection requirements.
 ### 5. Internal vs external measurement
 
 - **External apps** → measured via Playwright browser automation or CLI execution
-- **Internal apps** (microbenchmarks) → measured via the same infrastructure but collect throughput metrics instead of load-time metrics
+- **Internal apps** (micro-benchmarks) → measured via the same infrastructure but collect throughput metrics instead of load-time metrics
 
 ## Metrics
 
@@ -97,9 +97,9 @@ These presets break Blazor's runtime reflection requirements.
 | `time-to-reach-managed-warm` | Time to Managed (Warm) | ms | time | Min of N warm reloads, `bench_results['time-to-reach-managed']` |
 | `time-to-reach-managed-cold` | Time to Managed (Cold) | ms | time | First navigation, `bench_results['time-to-reach-managed']` |
 | `memory-peak` | Peak JS Heap | bytes | memory | CDP `Performance.getMetrics` JSHeapUsedSize polling (Chrome only) |
-| `pizza-walkthru` | Pizza Walkthrough | ms | time | Playwright UI automation of order flow (blazing-pizza + desktop only) |
+| `pizza-walkthrough` | Pizza Walkthrough | ms | time | Playwright UI automation of order flow (blazing-pizza + desktop only) |
 
-### Internal metrics (microbenchmarks only)
+### Internal metrics (micro-benchmarks only)
 
 | Key | Display Name | Unit | Category | Source |
 |-----|-------------|------|----------|--------|
@@ -119,10 +119,10 @@ These presets break Blazor's runtime reflection requirements.
 | time-to-reach-managed-warm | ✓ | ✓ | ✓ (or wall-clock) | ✓ (or wall-clock) |
 | time-to-reach-managed-cold | ✓ | ✓ | ✓ (or wall-clock) | ✓ (or wall-clock) |
 | memory-peak | ✓ | null | null | null |
-| pizza-walkthru | ✓ (blazing-pizza + desktop) | ✓ (blazing-pizza + desktop) | null | null |
-| js-interop-ops | ✓ (microbenchmarks) | ✓ (microbenchmarks) | ✓ (microbenchmarks) | ✓ (microbenchmarks) |
-| json-parse-ops | ✓ (microbenchmarks) | ✓ (microbenchmarks) | ✓ (microbenchmarks) | ✓ (microbenchmarks) |
-| exception-ops | ✓ (microbenchmarks) | ✓ (microbenchmarks) | ✓ (microbenchmarks) | ✓ (microbenchmarks) |
+| pizza-walkthrough | ✓ (blazing-pizza + desktop) | ✓ (blazing-pizza + desktop) | null | null |
+| js-interop-ops | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) |
+| json-parse-ops | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) |
+| exception-ops | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) |
 
 ## Valid Combinations Matrix
 
@@ -134,7 +134,7 @@ These presets break Blazor's runtime reflection requirements.
 | empty-blazor | ✓ | ✓ | ✓ | — | — |
 | blazing-pizza | ✓ | ✓ | ✓ | — | — |
 | havit-bootstrap | ✓ | ✓ | ✓ | — | — |
-| microbenchmarks | ✓ | ✓ | ✓ | ✓ | ✓ |
+| micro-benchmarks | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### App × Preset validity
 
@@ -144,7 +144,7 @@ These presets break Blazor's runtime reflection requirements.
 | empty-blazor | ✓ | ✓ | ✓ | ✓ | ✓ | **skip** | **skip** |
 | blazing-pizza | ✓ | ✓ | ✓ | ✓ | ✓ | **skip** | **skip** |
 | havit-bootstrap | ✓ | ✓ | ✓ | ✓ | ✓ | **skip** | **skip** |
-| microbenchmarks | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| micro-benchmarks | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
 ### Runtime × Preset validity
 
@@ -166,7 +166,7 @@ For a single SDK commit with **runtime=mono** (the primary target):
 - **empty-blazor**: 5 presets × 3 engine/profiles = 15 measurements
 - **blazing-pizza**: 5 presets × 3 engine/profiles = 15 measurements
 - **havit-bootstrap**: 5 presets × 3 engine/profiles = 15 measurements
-- **microbenchmarks**: 7 presets × 5 engine/profiles = 35 measurements
+- **micro-benchmarks**: 7 presets × 5 engine/profiles = 35 measurements
 
 **Total per commit (mono)**: ~115 measurements
 

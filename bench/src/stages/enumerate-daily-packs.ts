@@ -18,7 +18,6 @@ interface DailyPacksList {
     feed: string;
     major: number;
     months: number;
-    fetchedAt: string;
     totalPacks: number;
     packs: DailyPackEntry[];
 }
@@ -295,7 +294,6 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         feed: feedUrl,
         major,
         months,
-        fetchedAt: new Date().toISOString(),
         totalPacks: allPacks.length,
         packs: allPacks,
     };
