@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "runtimeCommitDateTime": "2026-03-12T01:31:59Z",
+    "sdkVersion": "11.0.100-preview.3.26162.108",
+    "runtimeGitHash": "b7973489277b74bc5da9d36a0a2883eaa987328f",
+    "sdkGitHash": "5bb7e315bf797af120abf7ed17b7cbd6145b48f6",
+    "vmrGitHash": "e9593819ed84a62923fe87c8d0958025726934c3",
+    "runtime": "mono",
+    "preset": "aot",
+    "profile": "desktop",
+    "engine": "chrome",
+    "app": "blazing-pizza",
+    "benchmarkDateTime": "2026-03-13T05:33:39.506Z",
+    "warmRunCount": 3,
+    "ciRunId": "23037108923",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23037108923"
+  },
+  "metrics": {
+    "compile-time": 199486,
+    "disk-size-total": 41810078,
+    "disk-size-native": 18037863,
+    "disk-size-assemblies": 4101115,
+    "download-size-total": 120850635,
+    "time-to-reach-managed-warm": 367,
+    "time-to-reach-managed-cold": 664,
+    "memory-peak": 22788580,
+    "pizza-walkthru": 4465
+  }
+}
