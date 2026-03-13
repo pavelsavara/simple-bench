@@ -12,14 +12,12 @@ namespace Havit.Blazor.Documentation.Shared.Components.DocColorMode;
 /// The client-side component uses JS to switch the color mode and save the new value to the cookie.
 /// The auto mode is resolved by color-mode-auto.js startup script (see _Layout.cshtml).
 /// </remarks>
-public partial class DocColorModeSwitcher(
-	IDocColorModeProvider docColorModeProvider,
-	IJSRuntime jsRuntime)
+public partial class DocColorModeSwitcher
 {
-	[CascadingParameter] protected ColorMode ColorMode { get; set; }
+	[Inject] private IDocColorModeProvider _docColorModeProvider { get; set; }
+	[Inject] private IJSRuntime _jsRuntime { get; set; }
 
-	private readonly IDocColorModeProvider _docColorModeProvider = docColorModeProvider;
-	private readonly IJSRuntime _jsRuntime = jsRuntime;
+	[CascadingParameter] protected ColorMode ColorMode { get; set; }
 
 	private IJSObjectReference _jsModule;
 

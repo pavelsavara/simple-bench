@@ -4,16 +4,14 @@ using Microsoft.AspNetCore.Components.Routing;
 
 namespace Havit.Blazor.Documentation.Shared.Components;
 
-public partial class OnThisPageNavigation(
-	IDocPageNavigationItemsTracker docPageNavigationItemsHolder,
-	NavigationManager navigationManager) : IDisposable
+public partial class OnThisPageNavigation : IDisposable
 {
+	[Inject] private IDocPageNavigationItemsTracker _docPageNavigationItemsHolder { get; set; }
+	[Inject] private NavigationManager _navigationManager { get; set; }
+
 	[Parameter] public string CssClass { get; set; }
 
 	[Parameter] public RenderFragment ChildContent { get; set; }
-
-	private readonly IDocPageNavigationItemsTracker _docPageNavigationItemsHolder = docPageNavigationItemsHolder;
-	private readonly NavigationManager _navigationManager = navigationManager;
 
 	private List<DocPageNavigationItem> _items;
 

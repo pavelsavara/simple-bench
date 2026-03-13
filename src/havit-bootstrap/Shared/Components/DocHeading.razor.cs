@@ -2,12 +2,10 @@ using Havit.Blazor.Documentation.Services;
 
 namespace Havit.Blazor.Documentation.Shared.Components;
 
-public partial class DocHeading(
-	IDocPageNavigationItemsTracker docPageNavigationItemsTracker,
-	NavigationManager navigationManager)
+public partial class DocHeading
 {
-	private readonly IDocPageNavigationItemsTracker _docPageNavigationItemsTracker = docPageNavigationItemsTracker;
-	private readonly NavigationManager _navigationManager = navigationManager;
+	[Inject] private IDocPageNavigationItemsTracker _docPageNavigationItemsTracker { get; set; }
+	[Inject] private NavigationManager _navigationManager { get; set; }
 
 	/// <summary>
 	/// Id of the section.

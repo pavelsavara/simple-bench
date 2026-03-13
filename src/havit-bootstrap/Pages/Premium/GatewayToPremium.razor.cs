@@ -2,15 +2,14 @@
 
 namespace Havit.Blazor.Documentation.Pages.Premium;
 
-public partial class GatewayToPremium(
-	NavigationManager navigationManager,
-	IJSRuntime jSRuntime) : IAsyncDisposable
+public partial class GatewayToPremium : IAsyncDisposable
 {
+	[Inject] private NavigationManager _navigationManager { get; set; }
+	[Inject] private IJSRuntime _jSRuntime { get; set; }
+
 	[SupplyParameterFromQuery] public string Url { get; set; }
 
 	private const string SkipGatewayPageCookieEnabledValue = "1";
-	private readonly NavigationManager _navigationManager = navigationManager;
-	private readonly IJSRuntime _jSRuntime = jSRuntime;
 
 	private IJSObjectReference _jsModule;
 	private bool _skipGatewayPage = true;

@@ -1,15 +1,14 @@
 namespace Havit.Blazor.Documentation.Pages.GettingStarted;
 
-public partial class GettingStarted(
-	NavigationManager navigationManager)
+public partial class GettingStarted
 {
+	[Inject] private NavigationManager _navigationManager { get; set; }
+
 	[SupplyParameterFromQuery(Name = nameof(SetupModel.TargetFramework))] public string TargetFrameworkQuery { get; set; }
 	[SupplyParameterFromQuery(Name = nameof(SetupModel.ProjectSetup))] public string ProjectSetupQuery { get; set; }
 	[SupplyParameterFromQuery(Name = nameof(SetupModel.BwaRenderMode))] public string BwaRenderModeQuery { get; set; }
 	[SupplyParameterFromQuery(Name = nameof(SetupModel.BootstrapTheme))] public string BootstrapThemeQuery { get; set; }
 	[SupplyParameterFromQuery(Name = nameof(SetupModel.SamplePagesCreated))] public string SamplePagesCreatedQuery { get; set; }
-
-	private readonly NavigationManager _navigationManager = navigationManager;
 
 	private SetupModel _setup = new SetupModel();
 
