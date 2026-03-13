@@ -1,7 +1,9 @@
 {
-  "lastUpdated": "2026-03-13T16:06:22.496Z",
+  "lastUpdated": "2026-03-13T16:55:23.567Z",
   "activeRelease": "net11",
-  "releases": [],
+  "releases": [
+    "net8"
+  ],
   "weeks": [
     "2026-03-09"
   ],
@@ -12,17 +14,6 @@
     "micro-benchmarks"
   ],
   "metrics": {
-    "blazing-pizza": [
-      "compile-time",
-      "disk-size-assemblies",
-      "disk-size-native",
-      "disk-size-total",
-      "download-size-total",
-      "memory-peak",
-      "pizza-walkthrough",
-      "time-to-reach-managed-cold",
-      "time-to-reach-managed-warm"
-    ],
     "empty-blazor": [
       "compile-time",
       "disk-size-assemblies",
@@ -50,6 +41,17 @@
       "js-interop-ops",
       "json-parse-ops",
       "memory-peak"
+    ],
+    "blazing-pizza": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "disk-size-total",
+      "download-size-total",
+      "memory-peak",
+      "pizza-walkthrough",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm"
     ]
   },
   "dimensions": {
