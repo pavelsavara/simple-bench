@@ -176,7 +176,7 @@ jobs:
         shell: bash
         run: |
           npx --prefix bench tsx bench/src/main.ts \
-            --stages measure \
+            --stages measure,transform-views,update-views \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
             --app "${{ matrix.app }}" \
             --preset "${{ matrix.preset }}" \

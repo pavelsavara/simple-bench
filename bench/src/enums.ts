@@ -42,13 +42,13 @@ export enum Stage {
     EnumerateCommits = 'enumerate-commits',
     EnumerateDailyPacks = 'enumerate-daily-packs',
     EnumerateReleasePacks = 'enumerate-release-packs',
+    UpdateCache = 'update-cache',
     AcquireSdk = 'acquire-sdk',
     Build = 'build',
     Measure = 'measure',
-    Consolidate = 'consolidate',
-    Schedule = 'schedule',
     TransformViews = 'transform-views',
-    UpdateCache = 'update-cache',
+    UpdateViews = 'update-views',
+    Schedule = 'schedule',
 }
 
 export enum MetricKey {
