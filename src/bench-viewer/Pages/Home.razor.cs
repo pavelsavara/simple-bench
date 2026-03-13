@@ -21,10 +21,22 @@ public partial class Home : IAsyncDisposable
     private Dictionary<string, List<string>> filterGroups = new();
     private Dictionary<string, HashSet<string>> checkedValues = new();
 
-    // Selected commit point
+    // Selected commit point (shown in right panel)
     private SelectedPointInfo? selectedPoint;
 
-    // Metrics to skip for microbenchmarks (build/disk not meaningful)
+    // Time range state
+    private string currentTimeRange = "all";
+
+    private static readonly Dictionary<string, string> TimeRanges = new()
+    {
+        ["7d"] = "7d",
+        ["30d"] = "30d",
+        ["90d"] = "90d",
+        ["1y"] = "1y",
+        ["all"] = "All",
+    };
+
+    // Metrics to skip for micro-benchmarks (build/disk not meaningful)
     private static readonly HashSet<string> MicrobenchSkipMetrics = new()
     {
         "compile-time", "disk-size-total", "disk-size-native", "disk-size-assemblies","download-size-total"
@@ -34,7 +46,7 @@ public partial class Home : IAsyncDisposable
     private static readonly List<string> AppOrder = new()
     {
         "blazing-pizza", "havit-bootstrap", "bench-viewer", "empty-blazor",
-        "empty-browser", "microbenchmarks"
+        "empty-browser", "micro-benchmarks"
     };
 
     // Preferred metric display order
@@ -67,6 +79,9 @@ public partial class Home : IAsyncDisposable
                 StateHasChanged();
                 return;
             }
+
+            // Register point click callback
+            ChartInterop.RegisterPointClickCallback(OnChartPointClick);
 
             // Initialize filters from dimensions
             filterGroups = new Dictionary<string, List<string>>
@@ -126,11 +141,77 @@ public partial class Home : IAsyncDisposable
         await LoadChartsForCurrentApp();
     }
 
-    private async Task HandleFilterChanged()
+    private async Task HandleFilterChanged((string Group, string Value, bool Checked) args)
     {
+        if (checkedValues.TryGetValue(args.Group, out var set))
+        {
+            if (args.Checked)
+                set.Add(args.Value);
+            else
+                set.Remove(args.Value);
+        }
         var filtersJson = SerializeFilters();
         ChartInterop.ApplyFilters(filtersJson);
         await Task.CompletedTask;
+    }
+
+    private async Task HandleTimeRangeChanged(string range)
+    {
+        if (range == currentTimeRange) return;
+        currentTimeRange = range;
+        ChartInterop.SetTimeRange(range);
+        ChartInterop.DestroyAllCharts();
+        selectedPoint = null;
+        StateHasChanged();
+
+        await Task.Yield();
+        await LoadChartsForCurrentApp();
+    }
+
+    private void OnChartPointClick(string detailJson)
+    {
+        _ = InvokeAsync(async () =>
+        {
+            try
+            {
+                var detail = JsonSerializer.Deserialize<JsonElement>(detailJson);
+                var bucket = detail.GetProperty("bucket").GetString() ?? "";
+                var colIndex = detail.GetProperty("colIndex").GetInt32();
+                var rowKey = detail.GetProperty("rowKey").GetString() ?? "";
+                var metric = detail.GetProperty("metric").GetString() ?? "";
+
+                // Get column metadata for commit info
+                var colJson = ChartInterop.GetColumnMetadata(bucket, colIndex);
+                var col = JsonSerializer.Deserialize<JsonElement>(colJson);
+
+                var point = new SelectedPointInfo
+                {
+                    Date = col.TryGetProperty("runtimeCommitDateTime", out var dt)
+                        ? FormatDate(dt.GetString() ?? "") : "",
+                    SdkVersion = col.TryGetProperty("sdkVersion", out var sdk)
+                        ? sdk.GetString() ?? "" : "",
+                    RuntimeGitHash = col.TryGetProperty("runtimeGitHash", out var rh)
+                        ? rh.GetString() ?? "" : "",
+                    SdkGitHash = col.TryGetProperty("sdkGitHash", out var sh)
+                        ? sh.GetString() ?? "" : "",
+                    VmrGitHash = col.TryGetProperty("vmrGitHash", out var vh)
+                        ? vh.GetString() ?? "" : "",
+                    RowKey = rowKey,
+                };
+
+                // Fetch all metrics for this point
+                var metricsJson = await ChartInterop.GetPointMetrics(currentApp, bucket, rowKey, colIndex);
+                var metricsDict = JsonSerializer.Deserialize<Dictionary<string, double>>(metricsJson);
+                point.Metrics = metricsDict ?? new();
+
+                selectedPoint = point;
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Point click error: {ex.Message}");
+            }
+        });
     }
 
     private async Task LoadChartsForCurrentApp()
@@ -157,7 +238,7 @@ public partial class Home : IAsyncDisposable
     private List<string> GetFilteredMetrics(string app)
     {
         var metrics = viewIndex?.Metrics.TryGetValue(app, out var m) == true ? m : new();
-        if (app == "microbenchmarks")
+        if (app == "micro-benchmarks")
             metrics = metrics.Where(k => !MicrobenchSkipMetrics.Contains(k)).ToList();
         // Sort by preferred order
         metrics.Sort((a, b) =>
@@ -224,6 +305,7 @@ public partial class Home : IAsyncDisposable
         public string RuntimeGitHash { get; set; } = "";
         public string SdkGitHash { get; set; } = "";
         public string VmrGitHash { get; set; } = "";
+        public string RowKey { get; set; } = "";
         public Dictionary<string, double> Metrics { get; set; } = new();
     }
 }

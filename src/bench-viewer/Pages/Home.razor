@@ -24,52 +24,6 @@
                          CheckedValues="@checkedValues"
                          CurrentApp="@currentApp"
                          OnFilterChanged="@HandleFilterChanged" />
-
-            @if (selectedPoint != null)
-            {
-                <div class="commit-panel px-3 py-2 border-top mt-2">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <strong class="small">Commit Detail</strong>
-                        <button class="btn btn-sm btn-link p-0" @onclick="ClearSelection">Clear</button>
-                    </div>
-                    <div class="small">
-                        <div><strong>Date:</strong> @selectedPoint.Date</div>
-                        <div><strong>SDK:</strong> @selectedPoint.SdkVersion</div>
-                        @if (!string.IsNullOrEmpty(selectedPoint.VmrGitHash))
-                        {
-                            <div>
-                                <a href="https://github.com/dotnet/dotnet/commit/@selectedPoint.VmrGitHash" target="_blank" rel="noopener">
-                                    VMR @@ @selectedPoint.VmrGitHash[..Math.Min(7, selectedPoint.VmrGitHash.Length)]
-                                </a>
-                            </div>
-                        }
-                        @if (!string.IsNullOrEmpty(selectedPoint.RuntimeGitHash))
-                        {
-                            <div>
-                                <a href="https://github.com/dotnet/runtime/commit/@selectedPoint.RuntimeGitHash" target="_blank" rel="noopener">
-                                    Runtime @@ @selectedPoint.RuntimeGitHash[..Math.Min(7, selectedPoint.RuntimeGitHash.Length)]
-                                </a>
-                            </div>
-                        }
-                        @if (!string.IsNullOrEmpty(selectedPoint.SdkGitHash))
-                        {
-                            <div>
-                                <a href="https://github.com/dotnet/sdk/commit/@selectedPoint.SdkGitHash" target="_blank" rel="noopener">
-                                    SDK @@ @selectedPoint.SdkGitHash[..Math.Min(7, selectedPoint.SdkGitHash.Length)]
-                                </a>
-                            </div>
-                        }
-                        @if (selectedPoint.Metrics.Count > 0)
-                        {
-                            <hr class="my-1" />
-                            @foreach (var kv in selectedPoint.Metrics)
-                            {
-                                <div>@GetMetricDisplay(kv.Key): @FormatMetricValue(kv.Key, kv.Value)</div>
-                            }
-                        }
-                    </div>
-                </div>
-            }
         }
     </div>
 </aside>
@@ -89,8 +43,17 @@
     }
     else if (viewIndex != null)
     {
-        <div class="tabs-header px-3 pt-3">
+        <div class="tabs-header px-3 pt-3 d-flex justify-content-between align-items-end">
             <AppTabs Apps="@viewIndex.Apps" ActiveApp="@currentApp" OnAppChanged="@HandleAppChanged" />
+            <div class="time-range-selector mb-1">
+                @foreach (var range in TimeRanges)
+                {
+                    <button class="btn btn-sm @(currentTimeRange == range.Key ? "btn-primary" : "btn-outline-secondary") me-1"
+                            @onclick="() => HandleTimeRangeChanged(range.Key)">
+                        @range.Value
+                    </button>
+                }
+            </div>
         </div>
 
         <div class="charts-area px-3 py-2">
@@ -114,3 +77,55 @@
         </div>
     }
 </main>
+
+@if (selectedPoint != null)
+{
+    <aside class="detail-panel">
+        <div class="detail-panel-header d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+            <strong class="small">Commit Detail</strong>
+            <button class="btn btn-sm btn-link p-0" @onclick="ClearSelection">✕</button>
+        </div>
+        <div class="detail-panel-body px-3 py-2 small">
+            <div class="mb-2">
+                <div><strong>Date:</strong> @selectedPoint.Date</div>
+                <div><strong>SDK:</strong> @selectedPoint.SdkVersion</div>
+                <div><strong>Row:</strong> @selectedPoint.RowKey</div>
+            </div>
+            <div class="mb-2">
+                @if (!string.IsNullOrEmpty(selectedPoint.VmrGitHash))
+                {
+                    <div>
+                        <a href="https://github.com/dotnet/dotnet/commit/@selectedPoint.VmrGitHash" target="_blank" rel="noopener">
+                            VMR @@ @selectedPoint.VmrGitHash[..Math.Min(7, selectedPoint.VmrGitHash.Length)]
+                        </a>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(selectedPoint.RuntimeGitHash))
+                {
+                    <div>
+                        <a href="https://github.com/dotnet/runtime/commit/@selectedPoint.RuntimeGitHash" target="_blank" rel="noopener">
+                            Runtime @@ @selectedPoint.RuntimeGitHash[..Math.Min(7, selectedPoint.RuntimeGitHash.Length)]
+                        </a>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(selectedPoint.SdkGitHash))
+                {
+                    <div>
+                        <a href="https://github.com/dotnet/sdk/commit/@selectedPoint.SdkGitHash" target="_blank" rel="noopener">
+                            SDK @@ @selectedPoint.SdkGitHash[..Math.Min(7, selectedPoint.SdkGitHash.Length)]
+                        </a>
+                    </div>
+                }
+            </div>
+            @if (selectedPoint.Metrics.Count > 0)
+            {
+                <hr class="my-1" />
+                <div class="mb-1"><strong>All Metrics:</strong></div>
+                @foreach (var kv in selectedPoint.Metrics)
+                {
+                    <div>@GetMetricDisplay(kv.Key): @FormatMetricValue(kv.Key, kv.Value)</div>
+                }
+            }
+        </div>
+    </aside>
+}

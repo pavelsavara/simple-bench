@@ -161,6 +161,32 @@ code {
     min-width: 0;
 }
 
+.detail-panel {
+    width: 300px;
+    min-width: 300px;
+    background: #fff;
+    border-left: 1px solid #dee2e6;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+}
+
+.detail-panel-header {
+    background: #f8f9fa;
+}
+
+.detail-panel-body {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.time-range-selector {
+    white-space: nowrap;
+}
+
 .chart-container {
     position: relative;
     height: 300px;

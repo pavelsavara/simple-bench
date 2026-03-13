@@ -1,6 +1,6 @@
 # UI Plan — Blazor WASM Benchmark Dashboard
 
-> **Status**: IN PROGRESS — decisions finalized, incremental implementation underway
+> **Status**: Phase 1+2+3 COMPLETE — all features implemented, deployment config remaining
 
 ## Goal
 
@@ -8,22 +8,22 @@ Replace the placeholder `gh-pages/index.html` dashboard with a Blazor WebAssembl
 
 ---
 
-## Open Questions
+## Decisions (Finalized)
 
-| # | Question | Options | Decision |
-|---|----------|---------|----------|
-| 1 | **Data source URL** | Data at `/blazor_coreclr_demo/data` (copied/symlinked into app subfolder) | **B** |
-| 2 | **Charting library** | Chart.js via JS functions called from C# `[JSImport]` interop. JS fetches raw data segments and renders charts. | **A — JS interop** |
-| 3 | **Benchmark instrumentation** | Keep — bench-viewer is also a benchmarked app (secondary role) | **A — Keep both** |
-| 4 | **UI layout** | Replicate the `docs/ui.md` mockup (sidebar filters, app tabs, two-zone charts) | **A — Replicate mockup** |
-| 5 | **CSS framework** | Bootstrap (already scaffolded) | **A — Bootstrap** |
-| 6 | **Service worker** | Remove | **B — Remove** |
-| 7 | **Build toolchain** | Use existing arrangements in `src/` folder. net8+ compatible. | **Existing setup** |
-| 8 | **Phasing** | Incremental | **B — Incremental** |
+| # | Question | Decision |
+|---|----------|----------|
+| 1 | **Data source URL** | JS fetches from remote views URL (currently hardcoded) |
+| 2 | **Charting library** | Chart.js via `[JSImport]` interop — JS fetches data and renders charts |
+| 3 | **Benchmark instrumentation** | Keep — bench-viewer is also a benchmarked app (secondary role) |
+| 4 | **UI layout** | Left sidebar filters + center app tabs/charts + right detail panel (3-column) |
+| 5 | **CSS framework** | Bootstrap 5 (CSS only, no JS components) |
+| 6 | **Service worker** | Removed |
+| 7 | **Build toolchain** | Existing `src/` folder arrangements, net8+ compatible |
+| 8 | **Phasing** | Incremental — jumped from Phase 1 directly to Phase 2 |
 
 ---
 
-## Architecture (Preliminary)
+## Architecture
 
 ### Data Flow
 
@@ -34,7 +34,7 @@ gh-pages/data/views/{week}/{app}_{metric}.json  ← pivot data: rowKey → value
 gh-pages/data/views/releases/{netN}/...  ← same structure for GA releases
 ```
 
-The Blazor app fetches these JSON files via `HttpClient` at runtime.
+Data is fetched entirely by JS (`chart-interop.mjs`) via `fetch()`. The C# side only receives serialized index metadata through `[JSImport]` interop — no `HttpClient` usage for data.
 
 ### View JSON Schema Summary
 
@@ -78,58 +78,82 @@ The Blazor app fetches these JSON files via `HttpClient` at runtime.
 
 Row keys are `{runtime}/{preset}/{profile}/{engine}`. Values array is parallel to `header.columns[]`.
 
-### Proposed Project Structure
+### Actual Project Structure
 
 ```
 src/bench-viewer/
-├── BenchViewer.csproj
-├── Program.cs
-├── App.razor / App.razor.cs
-├── _Imports.razor
+├── BenchViewer.csproj          # Targets net8+, Blazor WASM
+├── Program.cs                  # Standard Blazor WASM bootstrap (HttpClient registered but unused)
+├── App.razor                   # Router + Layout + NotFound
+├── App.razor.cs                # OnInitialized → SetManagedReady() JSImport (benchmark timing)
+├── _Imports.razor              # Namespace declarations
 │
-├── Models/                    # DTOs for deserialized view JSON
-│   ├── ViewIndex.cs
-│   ├── ViewHeader.cs
-│   └── ViewData.cs
+├── Models/                     # DTOs for deserialized view JSON
+│   ├── ViewIndex.cs            # index.json: apps, metrics, dimensions, weeks, releases
+│   ├── ViewHeader.cs           # header.json: columns (git hashes, dates, SDK versions)
+│   └── MetricInfo.cs           # Hardcoded metric catalog (display names, units, categories)
 │
-├── Services/
-│   └── BenchDataService.cs    # HttpClient wrapper — fetches & caches view JSON
+├── Interop/
+│   └── ChartInterop.cs         # C# [JSImport] facades → chart-interop.mjs functions
 │
 ├── Layout/
-│   ├── MainLayout.razor       # App shell (sidebar + content area)
-│   └── MainLayout.razor.css
+│   ├── MainLayout.razor        # Minimal shell: <div class="page">@Body
+│   └── MainLayout.razor.css    # Defers to wwwroot/css/app.css
 │
 ├── Pages/
-│   ├── Dashboard.razor        # Main page — app tabs, metric charts/tables
-│   └── Dashboard.razor.cs     # Code-behind with filter state, data loading
+│   ├── Home.razor              # Dashboard: sidebar + app tabs + charts area (~130 lines)
+│   ├── Home.razor.cs           # Page logic: data loading, filtering, formatting (~260 lines)
+│   └── NotFound.razor          # Simple 404 fallback
 │
-├── Components/                # Reusable UI components
-│   ├── AppTabs.razor          # Tab bar for switching apps
-│   ├── FilterPanel.razor      # Sidebar: runtime/preset/profile/engine checkboxes
-│   ├── MetricChart.razor      # Single metric visualization (chart or table)
-│   ├── TimeRangeSelector.razor # Week/release bucket selector
-│   └── MetricTable.razor      # Tabular fallback for metric data
+├── Components/
+│   ├── AppTabs.razor           # Bootstrap nav-tabs for app selection
+│   └── FilterPanel.razor       # Collapsible filter groups with dynamic engine visibility
 │
 ├── wwwroot/
-│   ├── index.html             # Entry point with <base href="/blazor_coreclr_demo/">
-│   ├── css/app.css
-│   └── ...
+│   ├── index.html              # SPA entry point (base href="/", Chart.js script tags)
+│   ├── main.mjs                # Blazor startup, module registration, benchmark timing
+│   ├── chart-interop.mjs       # ~600 lines: data fetching, Chart.js rendering, filtering
+│   ├── css/app.css             # Full dashboard layout (sidebar, responsive, charts)
+│   └── lib/
+│       ├── bootstrap/          # Bootstrap 5 CSS
+│       └── chartjs/            # Chart.js 4.x, zoom plugin, date-fns adapter, Hammer.js
 │
 └── Properties/
     └── launchSettings.json
 ```
 
-### Key Design Decisions (Pending)
+### What Changed From the Original Plan
 
-1. **Metric display name mapping** — The TypeScript `metrics.ts` defines display names and units. These need to be duplicated in C# or fetched as a static JSON resource.
+| Planned | Actual | Reason |
+|---------|--------|--------|
+| `Services/BenchDataService.cs` (HttpClient) | `chart-interop.mjs` (JS fetch) | All data loading moved to JS side for efficiency |
+| `Pages/Dashboard.razor` | `Pages/Home.razor` | Renamed to Home |
+| `Components/MetricChart.razor` | Canvas elements in Home.razor | Charts managed entirely by JS, no per-chart Blazor component |
+| `Components/TimeRangeSelector.razor` | Inline buttons in tabs-header | Simple enough to embed in Home.razor |
+| `Components/MetricTable.razor` | Not implemented | Skipped table view, went straight to charts |
+| `Models/ViewData.cs` | Not needed | Data parsed and rendered entirely in JS |
 
-2. **Row key parsing** — Each data row key like `mono/no-workload/desktop/chrome` must be parsed into 4 dimension values for filtering.
+### Design Decisions (Resolved)
 
-3. **Column alignment** — Values arrays are positionally aligned to `header.columns[]`. The UI must join these for rendering.
+1. **Metric display name mapping** — Hardcoded in `Models/MetricInfo.cs` as a static dictionary (13 metrics with display name, unit, category).
 
-4. **Multi-bucket view** — Timeline charts need to load data across multiple week buckets. The UI should either:
-   - Load all week headers + merge columns (expensive for many weeks)
-   - Load one bucket at a time (simpler, paginated)
+2. **Row key parsing** — Done in JS (`parseRowKey()` in `chart-interop.mjs`). Splits `"runtime/preset/profile/engine"` into 4 fields. C# receives filter state as serialized JSON.
+
+3. **Column alignment** — Handled entirely in JS. `chart-interop.mjs` merges data arrays from multiple buckets, aligning each value with its corresponding column's datetime/SDK version.
+
+4. **Multi-bucket view** — Loads ALL week headers and ALL release headers upfront during `initDashboard()`. Per-metric data files loaded on demand per app. Release data shown as a "frozen zone" (category axis) and weekly data as an "active zone" (time axis), separated by a dashed vertical line.
+
+### Chart.js Integration Details
+
+**Visual encoding** — Each dataset (dimension combination) is styled by 4 properties:
+- **Border color** → engine: chrome=#F4B400, firefox=#EA4335, v8=#4285F4, node=#34A853
+- **Dash pattern** → preset: no-workload=solid, aot=[10,5], devloop=[5,5], etc.
+- **Point marker** → runtime: mono=triangle, coreclr=circle
+- **Line width** → profile: desktop=1, mobile=2
+
+**Two-zone charts** — Release data (frozen zone, left) + weekly nightly data (active zone, right), separated by a custom `frozenZonePlugin` vertical dashed line.
+
+**Interactivity** — Zoom (Ctrl+scroll, pinch), pan (Shift+scroll), tooltips (SDK version + date + value), chart point click → C# callback → right-side detail panel with commit links and all metric values. Timeline range selector (7d/30d/90d/1y/All) filters week data by cutoff date.
 
 ---
 
@@ -161,43 +185,88 @@ GitHub Pages needs a `404.html` that redirects to `index.html` for client-side r
 
 ---
 
-## Metric Display Metadata (to port from TypeScript)
+## Metric Display Metadata (ported to C#)
 
-| Key | Display Name | Unit | Category |
-|-----|-------------|------|----------|
-| `compile-time` | Compile Time | ms | time |
-| `disk-size-total` | Disk Size (Total) | bytes | size |
-| `disk-size-native` | Disk Size (WASM) | bytes | size |
-| `disk-size-assemblies` | Disk Size (DLLs) | bytes | size |
-| `download-size-total` | Download Size (Total) | bytes | size |
-| `time-to-reach-managed-warm` | Time to Managed (Warm) | ms | time |
-| `time-to-reach-managed-cold` | Time to Managed (Cold) | ms | time |
-| `memory-peak` | Peak JS Heap | bytes | memory |
-| `pizza-walkthru` | Pizza Walkthrough | ms | time |
-| `js-interop-ops` | JS Interop | ops/sec | throughput |
-| `json-parse-ops` | JSON Parse | ops/sec | throughput |
-| `exception-ops` | Exception Handling | ops/sec | throughput |
+Implemented in `Models/MetricInfo.cs`. All 13 metrics ported:
+
+| Key | Display Name | Unit | Category | Status |
+|-----|-------------|------|----------|--------|
+| `compile-time` | Compile Time | ms | time | ✅ |
+| `disk-size-total` | Disk Size (Total) | bytes | size | ✅ |
+| `disk-size-native` | Disk Size (WASM) | bytes | size | ✅ |
+| `disk-size-assemblies` | Disk Size (DLLs) | bytes | size | ✅ |
+| `download-size-total` | Download Size (Total) | bytes | size | ✅ |
+| `time-to-reach-managed-warm` | Time to Managed (Warm) | ms | time | ✅ |
+| `time-to-reach-managed-cold` | Time to Managed (Cold) | ms | time | ✅ |
+| `memory-peak` | Peak JS Heap | bytes | memory | ✅ |
+| `pizza-walkthrough` | Pizza Walkthrough | ms | time | ✅ |
+| `js-interop-ops` | JS Interop | ops/sec | throughput | ✅ |
+| `json-parse-ops` | JSON Parse | ops/sec | throughput | ✅ |
+| `exception-ops` | Exception Handling | ops/sec | throughput | ✅ |
+| `havit-walkthrough` | Havit Walkthrough | ms | time | ✅ |
 
 ---
 
-## Phased Implementation (Proposed)
+## Implementation Progress
 
-### Phase 1: Data Loading + Table View
-- Create `Models/` DTOs, `BenchDataService`
-- Fetch `views/index.json` on startup
-- Single-page dashboard: dropdown for app, dropdown for week/release bucket
-- Load header + metric data files
-- Render metric values in simple HTML tables
-- Filter by dimension checkboxes (runtime, preset, profile, engine)
+### Phase 1: Data Loading + Table View — ✅ COMPLETE (table view skipped)
+- ✅ Create `Models/` DTOs (`ViewIndex`, `ViewHeader`, `MetricInfo`)
+- ✅ Fetch `views/index.json` on startup (via JS `initDashboard()`)
+- ✅ Single-page dashboard with app tabs
+- ✅ Load header + metric data files (all buckets, all metrics per app)
+- ⏭️ Render metric values in HTML tables — **Skipped**, went directly to charts
+- ✅ Filter by dimension checkboxes (runtime, preset, profile, engine)
 
-### Phase 2: Charts
-- Integrate charting (Chart.js interop or Blazor-native)
-- Time-series charts across multiple week buckets
-- Proper axis labels, units, formatting
+### Phase 2: Charts — ✅ COMPLETE
+- ✅ Chart.js integration via `[JSImport]` interop (~600 lines JS)
+- ✅ Time-series line charts across all week + release buckets
+- ✅ Proper axis labels, units, value formatting
+- ✅ Legend with dimension-aware styling (color/dash/marker/width)
+- ✅ Tooltips with SDK version, commit date, metric value
+- ✅ Zoom (Ctrl+scroll, pinch) and pan (Shift+scroll)
+- ✅ Two-zone layout: frozen releases (left) + active weekly (right)
+- ✅ Custom frozen-zone separator plugin
 
-### Phase 3: Polish
-- App tab bar matching docs/ui.md layout
-- Sidebar filter panel
-- Timeline range selector (7d/30d/90d/1y/All)
-- Responsive layout
-- URL-driven state (query params for filters)
+### Phase 3: Polish — ✅ COMPLETE
+- ✅ App tab bar (Bootstrap nav-tabs)
+- ✅ Sidebar filter panel with collapsible groups
+- ✅ Dynamic engine visibility (hide v8/node for Blazor apps)
+- ✅ Responsive layout (sidebar collapses at 768px)
+- ✅ Metric filtering (hide build metrics for microbenchmarks)
+- ✅ Chart point click → right-side detail panel (JS callback → C# → panel with commit links + all metrics)
+- ✅ Timeline range selector (7d/30d/90d/1y/All)
+- ✅ 404.html for SPA routing fallback
+- ✅ All 13 metrics in MetricInfo.cs catalog
+
+### Remaining Work
+
+| Item | Priority | Description |
+|------|----------|-------------|
+| Configure base href | High | `index.html` uses `<base href="/">` — needs `/blazor_coreclr_demo/` for GitHub Pages |
+| Make data URL configurable | Medium | Currently hardcoded to `pavelsavara.github.io/simple-bench/data/views` in `Home.razor.cs` |
+
+---
+
+## E2E Integration Test Scenarios
+
+Tests use Playwright against the built bench-viewer app served locally.
+
+### Build Command
+```bash
+.\bench.ps1 --verbose --sdk-channel 10.0 --app bench-viewer --preset devloop --stages acquire-sdk,build
+```
+
+### Test Scenarios
+
+| # | Scenario | Steps | Assertions |
+|---|----------|-------|------------|
+| 1 | **Dashboard loads** | Navigate to `/` | Loading spinner appears, then app tabs visible; at least one chart canvas rendered |
+| 2 | **Data fetched from remote** | Navigate to `/` and wait for charts | Network requests to `pavelsavara.github.io/simple-bench/data/views/index.json` succeed; `viewIndex` populated |
+| 3 | **App tab switching** | Click different app tab | Previous charts destroyed; new charts rendered for selected app |
+| 4 | **Filter checkboxes** | Uncheck "mono" runtime | Chart datasets for mono hidden; re-check restores them |
+| 5 | **Time range selector** | Click "30d" button | Charts reload with only data from last 30 days; "30d" button has active styling |
+| 6 | **Chart zoom** | Ctrl+scroll on a chart | Chart x-axis range narrows (zoom in) or widens (zoom out) |
+| 7 | **Chart point click** | Click a data point on a chart | Right-side detail panel appears with commit hash links, SDK version, date, and all metric values |
+| 8 | **Detail panel dismiss** | Click "✕" on detail panel | Panel disappears |
+| 9 | **Scrolling** | Scroll main content vertically | Sidebar and tabs-header remain sticky; charts scroll |
+| 10 | **Engine visibility** | Switch to a Blazor app (empty-blazor) | v8 and node checkboxes hidden in filter panel |

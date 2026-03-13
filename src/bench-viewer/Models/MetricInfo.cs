@@ -29,5 +29,6 @@ public class MetricInfo
         ["js-interop-ops"] = new("js-interop-ops", "JS Interop", "ops/sec", "throughput"),
         ["json-parse-ops"] = new("json-parse-ops", "JSON Parse", "ops/sec", "throughput"),
         ["exception-ops"] = new("exception-ops", "Exception Handling", "ops/sec", "throughput"),
+        ["havit-walkthrough"] = new("havit-walkthrough", "Havit Walkthrough", "ms", "time"),
     };
 }

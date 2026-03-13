@@ -8,6 +8,8 @@ const cache = {};          // { url: json }
 const charts = {};         // { canvasId: Chart instance }
 let viewIndex = null;
 let loadGeneration = 0;    // guards against concurrent loadAppCharts calls
+let currentTimeRange = 'all';   // '7d', '30d', '90d', '1y', 'all'
+let pointClickCallback = null;  // C# callback for chart point clicks
 
 // ── Series Encoding ──────────────────────────────────────────────────────────
 
@@ -51,6 +53,7 @@ const METRIC_UNITS = {
     'js-interop-ops': 'ops/sec',
     'json-parse-ops': 'ops/sec',
     'exception-ops': 'ops/sec',
+    'havit-walkthrough': 'ms',
 };
 
 const METRIC_DISPLAY = {
@@ -66,6 +69,7 @@ const METRIC_DISPLAY = {
     'js-interop-ops': 'JS Interop',
     'json-parse-ops': 'JSON Parse',
     'exception-ops': 'Exception Handling',
+    'havit-walkthrough': 'Havit Walkthrough',
 };
 
 // Build-time metrics are identical across engines/profiles — only show chrome/desktop
@@ -73,7 +77,7 @@ const BUILD_METRICS = new Set([
     'compile-time', 'disk-size-total', 'disk-size-native', 'disk-size-assemblies', 'download-size-total',
 ]);
 
-// Metrics to skip for microbenchmarks (not meaningful for internal throughput tests)
+// Metrics to skip for micro-benchmarks (not meaningful for internal throughput tests)
 const MICROBENCH_SKIP_METRICS = new Set([
     'compile-time', 'disk-size-total', 'disk-size-native', 'disk-size-assemblies', 'download-size-total',
 ]);
@@ -151,6 +155,14 @@ function makeDatasetStyle(rowKey) {
     };
 }
 
+function getTimeRangeCutoff() {
+    if (currentTimeRange === 'all') return null;
+    const now = new Date();
+    const days = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 }[currentTimeRange];
+    if (!days) return null;
+    return new Date(now.getTime() - days * 86400000);
+}
+
 // ── Chart.js Plugin: Frozen release zone separator ───────────────────────────
 
 const frozenZonePlugin = {
@@ -225,7 +237,15 @@ export async function loadAppCharts(app, filtersJson) {
     }
 
     const weekBuckets = [];
+    const cutoff = getTimeRangeCutoff();
     for (const week of viewIndex.weeks) {
+        // Filter week buckets by time range
+        if (cutoff) {
+            const weekDate = new Date(week);
+            // Skip entire week bucket if its Monday is before the cutoff
+            // (allow 7 days grace since the week spans Mon-Sun)
+            if (weekDate < new Date(cutoff.getTime() - 7 * 86400000)) continue;
+        }
         const header = await fetchJson(`${dataBaseUrl}/${week}/header.json`);
         if (header) weekBuckets.push({ path: week, header, type: 'week', label: week });
     }
@@ -236,8 +256,8 @@ export async function loadAppCharts(app, filtersJson) {
         // Abort if a newer loadAppCharts call has started
         if (gen !== loadGeneration) return JSON.stringify(rendered);
 
-        // Skip build/disk metrics for microbenchmarks
-        if (app === 'microbenchmarks' && MICROBENCH_SKIP_METRICS.has(metric)) continue;
+        // Skip build/disk metrics for micro-benchmarks
+        if (app === 'micro-benchmarks' && MICROBENCH_SKIP_METRICS.has(metric)) continue;
 
         const canvasId = `chart-${app}-${metric}`;
         const canvas = document.getElementById(canvasId);
@@ -299,14 +319,20 @@ export async function loadAppCharts(app, filtersJson) {
 
                 const points = values.map((v, i) => {
                     const col = bucket.header.columns[i];
+                    if (!col) return null;
+                    // Filter by time range cutoff
+                    if (cutoff && col.runtimeCommitDateTime) {
+                        const ptDate = new Date(col.runtimeCommitDateTime);
+                        if (ptDate < cutoff) return null;
+                    }
                     return {
-                        x: col ? col.runtimeCommitDateTime : null,
+                        x: col.runtimeCommitDateTime,
                         y: v,
                         _colIndex: i,
                         _bucket: bucket.path,
                         _bucketType: 'week',
                     };
-                }).filter(p => p.x != null && p.y != null);
+                }).filter(p => p != null && p.x != null && p.y != null);
 
                 if (points.length === 0) continue;
 
@@ -469,9 +495,13 @@ export async function loadAppCharts(app, filtersJson) {
                         value: pt.y,
                         metric: metric,
                     };
-                    // Dispatch custom event for Blazor to pick up
+                    const detailJson = JSON.stringify(detail);
+                    // Call C# callback if registered, otherwise dispatch DOM event
+                    if (pointClickCallback) {
+                        try { pointClickCallback(detailJson); } catch (e) { console.warn('Point click callback error:', e); }
+                    }
                     document.dispatchEvent(new CustomEvent('chartPointClick', {
-                        detail: JSON.stringify(detail),
+                        detail: detailJson,
                     }));
                 },
             },
@@ -580,4 +610,28 @@ export function destroyChart(canvasId) {
         charts[canvasId].destroy();
         delete charts[canvasId];
     }
+}
+
+/**
+ * Set the time range filter for week data.
+ * @param {string} range - '7d', '30d', '90d', '1y', or 'all'
+ */
+export function setTimeRange(range) {
+    currentTimeRange = range;
+}
+
+/**
+ * Register a callback from C# to be invoked when a chart point is clicked.
+ * @param {Function} callback - C# [JSExport] callback: (detailJson: string) => void
+ */
+export function registerPointClickCallback(callback) {
+    pointClickCallback = callback;
+}
+
+/**
+ * Get the currently active time range.
+ * @returns {string}
+ */
+export function getTimeRange() {
+    return currentTimeRange;
 }
