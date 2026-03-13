@@ -111,8 +111,8 @@ export const MONO_ONLY_PRESETS = new Set<Preset>([
 ]);
 
 /** Apps that use Blazor (DOM-dependent, no CLI engine support). */
-export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazingPizza, App.HavitBootstrap]);
-export const REDUCE_APPS = new Set<App>([App.EmptyBlazor, App.EmptyBrowser, App.BlazingPizza]);
+export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazingPizza, App.HavitBootstrap, App.BenchViewer]);
+export const REDUCE_APPS = new Set<App>([App.EmptyBlazor, App.EmptyBrowser, App.BlazingPizza, App.BenchViewer]);
 export const REDUCE_PRESETS = new Set<Preset>([Preset.NativeRelink, Preset.NoJiterp, Preset.Invariant, Preset.NoReflectionEmit]);
 
 
