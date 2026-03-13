@@ -287,28 +287,32 @@ async function buildViews(ctx: BenchContext, dataDir: string): Promise<void> {
 
     if (ctx.verbose) debug(`Loaded ${allResults.length} results from ${allMonths.length} months`);
 
-    // Determine active release (highest SDK major)
-    const sdkMajors = [...new Set(allResults.map(r => getSdkMajor(r.sdkVersion)))];
-    const activeReleaseMajor = Math.max(...sdkMajors);
-    const activeRelease = `net${activeReleaseMajor}`;
+    // Split results: daily builds (prerelease SDK) vs GA releases (stable SDK)
+    const dailyResults = allResults.filter(r => isDailyBuild(r.sdkVersion));
+    const releaseResults = allResults.filter(r => !isDailyBuild(r.sdkVersion));
 
-    if (ctx.verbose) debug(`Active release: ${activeRelease}`);
+    // Week views: only the highest-major daily builds
+    const dailyMajors = [...new Set(dailyResults.map(r => getSdkMajor(r.sdkVersion)))];
+    const activeDailyMajor = dailyMajors.length > 0 ? Math.max(...dailyMajors) : 0;
+    const activeRelease = activeDailyMajor > 0 ? `net${activeDailyMajor}` : '';
+
+    if (ctx.verbose) debug(`Active daily release: ${activeRelease || '(none)'}`);
 
     // Bucket results
     const weekBuckets = new Map<string, LoadedResult[]>();
     const releaseBuckets = new Map<string, LoadedResult[]>();
 
-    for (const result of allResults) {
-        const major = getSdkMajor(result.sdkVersion);
-        if (major < activeReleaseMajor) {
-            const release = `net${major}`;
-            if (!releaseBuckets.has(release)) releaseBuckets.set(release, []);
-            releaseBuckets.get(release)!.push(result);
-        } else {
-            const week = getWeekMonday(result.runtimeCommitDateTime.slice(0, 10));
-            if (!weekBuckets.has(week)) weekBuckets.set(week, []);
-            weekBuckets.get(week)!.push(result);
-        }
+    for (const result of dailyResults) {
+        if (getSdkMajor(result.sdkVersion) !== activeDailyMajor) continue;
+        const week = getWeekMonday(result.runtimeCommitDateTime.slice(0, 10));
+        if (!weekBuckets.has(week)) weekBuckets.set(week, []);
+        weekBuckets.get(week)!.push(result);
+    }
+
+    for (const result of releaseResults) {
+        const release = `net${getSdkMajor(result.sdkVersion)}`;
+        if (!releaseBuckets.has(release)) releaseBuckets.set(release, []);
+        releaseBuckets.get(release)!.push(result);
     }
 
     const viewsDir = join(dataDir, 'views');
@@ -331,7 +335,7 @@ async function buildViews(ctx: BenchContext, dataDir: string): Promise<void> {
     // Write global views index LAST (makes update atomic from UI perspective)
     const viewIndex = buildViewIndex(allResults, activeRelease, weekKeys, releaseKeys);
     await mkdir(viewsDir, { recursive: true });
-    await writeFile(join(viewsDir, 'index.json'), JSON.stringify(viewIndex), 'utf-8');
+    await writeFile(join(viewsDir, 'index.json'), JSON.stringify(viewIndex, null, 2), 'utf-8');
     if (ctx.verbose) debug(`  wrote views/index.json`);
 
     info(`Views: ${weekKeys.length} weeks, ${releaseKeys.length} releases`);
@@ -487,6 +491,10 @@ function buildViewIndex(
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+
+function isDailyBuild(sdkVersion: string): boolean {
+    return sdkVersion.includes('-');
+}
 
 function getSdkMajor(sdkVersion: string): number {
     const major = parseInt(sdkVersion.split('.')[0], 10);

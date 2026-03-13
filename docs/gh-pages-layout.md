@@ -55,11 +55,11 @@ gh-pages/
 
 ### Week Views (`views/{YYYY-MM-DD}/`)
 
-One view per ISO week (keyed by Monday date) for the **active release major** (e.g., net10 daily builds). Each week bucket contains all commits whose `runtimeCommitDateTime` falls within that week.
+One view per ISO week (keyed by Monday date) for **daily/nightly builds** of the highest-major SDK (e.g., net11 previews). Only SDK versions with a prerelease tag (e.g., `11.0.100-preview.3.26162.108`) are included. Each week bucket contains all commits whose `runtimeCommitDateTime` falls within that week. Lower-major daily builds are filtered out.
 
 ### Release Views (`views/releases/{netN}/`)
 
-One view per **older GA release major** (e.g., net9). Contains all GA releases for that major version, ordered by release date.
+One view per **GA release major** (e.g., net9, net10). Contains all GA releases (SDK versions without a prerelease tag) for that major version, sorted by semver (major.minor.patch).
 
 ### View File Format
 

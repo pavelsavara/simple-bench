@@ -158,7 +158,9 @@ Two phases:
 
 **Phase 2 — Build views:**
 - Loads all month indexes
-- Buckets commits into: **weeks** (active release major, ISO week boundaries) or **releases** (older GA majors)
+- Splits results into **daily builds** (SDK version has prerelease tag) vs **GA releases** (stable SDK version)
+- Daily builds: only the highest-major daily builds go into **week views** (ISO week boundaries); lower-major dailies are filtered out
+- GA releases: bucketed by **major version** into release views (e.g., `net9`, `net10`)
 - For each bucket, builds pivot grid: app → metric → rowKey → values[]
 - Writes `header.json` + `{app}_{metric}.json` data files
 - Writes `data/views/index.json`
