@@ -21,13 +21,13 @@ import { run as dockerImage } from './docker-image.js';
 import { run as acquireSdk } from './acquire-sdk.js';
 import { run as build } from './build.js';
 import { run as measure } from './measure.js';
-import { run as consolidate } from './consolidate.js';
 import { run as schedule } from './schedule.js';
 import { run as enumerateCommits } from './enumerate-commits.js';
 import { run as enumerateDailyPacks } from './enumerate-daily-packs.js';
 import { run as enumerateReleasePacks } from './enumerate-release-packs.js';
 import { run as transformViews } from './transform-views.js';
 import { run as updateCache } from './update-cache.js';
+import { run as updateViews } from './update-views.js';
 
 registerStage(Stage.CheckOutPages, checkOutPages);
 registerStage(Stage.EnumerateCommits, enumerateCommits);
@@ -37,10 +37,10 @@ registerStage(Stage.DockerImage, dockerImage);
 registerStage(Stage.AcquireSdk, acquireSdk);
 registerStage(Stage.Build, build);
 registerStage(Stage.Measure, measure);
-registerStage(Stage.Consolidate, consolidate);
 registerStage(Stage.Schedule, schedule);
 registerStage(Stage.TransformViews, transformViews);
 registerStage(Stage.UpdateCache, updateCache);
+registerStage(Stage.UpdateViews, updateViews);
 
 // ── Direct Runner (no docker wrapping) ───────────────────────────────────────
 

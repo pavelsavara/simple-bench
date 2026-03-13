@@ -15,13 +15,13 @@ const STAGE_CONTAINER: Record<Stage, ContainerTarget> = {
     [Stage.EnumerateCommits]: 'build',
     [Stage.EnumerateDailyPacks]: 'build',
     [Stage.EnumerateReleasePacks]: 'build',
+    [Stage.UpdateCache]: 'build',
     [Stage.AcquireSdk]: 'build',
     [Stage.Build]: 'build',
     [Stage.Measure]: 'measure',
-    [Stage.Consolidate]: 'host',
-    [Stage.Schedule]: 'host',
-    [Stage.TransformViews]: 'host',
-    [Stage.UpdateCache]: 'host',
+    [Stage.TransformViews]: 'measure',
+    [Stage.UpdateViews]: 'host',
+    [Stage.Schedule]: 'measure',
 };
 
 // ── Stage Batching ───────────────────────────────────────────────────────────
