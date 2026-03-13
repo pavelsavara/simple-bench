@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "runtimeCommitDateTime": "2023-10-31T14:37:06Z",
+    "runtimeCommitAuthor": "dotnet-bot",
+    "runtimeCommitMessage": "Merge in 'release/8.0' changes",
+    "sdkVersion": "8.0.100",
+    "runtimeGitHash": "5535e31a712343a63f5d7d796cd874e563e5ac14",
+    "aspnetCoreGitHash": "3f1acb59718cadf111a0a796681e3d3509bb3381",
+    "sdkGitHash": "e9d13cbe7e8c1d52ce276a8655f52a87e1017c46",
+    "vmrGitHash": "e9d13cbe7e8c1d52ce276a8655f52a87e1017c46",
+    "aspnetCoreCommitDateTime": "2023-10-31T23:36:13Z",
+    "aspnetCoreVersion": "8.0.0",
+    "runtimePackVersion": "8.0.0",
+    "workloadVersion": "8.0.25",
+    "runtime": "mono",
+    "preset": "no-reflection-emit",
+    "profile": "desktop",
+    "engine": "firefox",
+    "app": "micro-benchmarks",
+    "benchmarkDateTime": "2026-03-13T16:12:57.201Z",
+    "warmRunCount": 3,
+    "ciRunId": "23058835486",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23058835486"
+  },
+  "metrics": {
+    "compile-time": 21347,
+    "js-interop-ops": 768307,
+    "json-parse-ops": 6121,
+    "exception-ops": 27
+  }
+}
