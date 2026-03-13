@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "runtimeCommitDateTime": "2026-03-13T01:37:51Z",
+    "sdkVersion": "11.0.100-preview.3.26163.101",
+    "runtimeGitHash": "281d01cfd353f1ce15208c80b2f148b0d6ce106f",
+    "sdkGitHash": "5bb7e315bf797af120abf7ed17b7cbd6145b48f6",
+    "vmrGitHash": "1b989af698e6e1267434e4d3d25116b4b188b068",
+    "runtime": "mono",
+    "preset": "aot",
+    "profile": "desktop",
+    "engine": "chrome",
+    "app": "havit-bootstrap",
+    "benchmarkDateTime": "2026-03-13T13:32:48.695Z",
+    "warmRunCount": 3,
+    "ciRunId": "23052430182",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23052430182"
+  },
+  "metrics": {
+    "compile-time": 288338,
+    "disk-size-total": 72970724,
+    "disk-size-native": 27397532,
+    "disk-size-assemblies": 7190973,
+    "download-size-total": 203598562,
+    "time-to-reach-managed-warm": 438,
+    "time-to-reach-managed-cold": 781,
+    "memory-peak": 43043576,
+    "havit-walkthrough": 9620
+  }
+}
