@@ -43,6 +43,8 @@ jobs:
     timeout-minutes: 15
     outputs:
       sdk-version: ${{ steps.sdk-version.outputs.sdk-version }}
+      runtime-commit-date: ${{ steps.sdk-version.outputs.runtime-commit-date }}
+      runtime-commit-message: ${{ steps.sdk-version.outputs.runtime-commit-message }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -72,8 +74,13 @@ jobs:
         shell: bash
         run: |
           SDK_VERSION=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.sdkInfo?.sdkVersion || '')")
+          COMMIT_DATE=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); console.log(c.sdkInfo?.runtimeCommitDateTime?.split('T')[0] || '')")
+          COMMIT_MSG=$(node -e "const c=JSON.parse(require('fs').readFileSync('${ARTIFACTS_DIR}/bench-context.json','utf-8')); const m=c.sdkInfo?.runtimeCommitMessage||''; console.log(m.length>60?m.slice(0,60)+'…':m)")
           echo "sdk-version=$SDK_VERSION" >> "$GITHUB_OUTPUT"
+          echo "runtime-commit-date=$COMMIT_DATE" >> "$GITHUB_OUTPUT"
+          echo "runtime-commit-message=$COMMIT_MSG" >> "$GITHUB_OUTPUT"
           echo "SDK version: $SDK_VERSION" >&2
+          echo "Runtime commit: $COMMIT_DATE $COMMIT_MSG" >&2
 
       - name: Upload bench context
         uses: actions/upload-artifact@v7
@@ -86,7 +93,7 @@ jobs:
 
   # ── Job 2: Build all apps ──────────────────────────────────────────────────
   build:
-    name: Build (${{ needs.resolve.outputs.sdk-version }})
+    name: Build (${{ needs.resolve.outputs.sdk-version }}, ${{ needs.resolve.outputs.runtime-commit-date }}, ${{ needs.resolve.outputs.runtime-commit-message }})
     needs: resolve
     runs-on: ubuntu-latest
     container: ghcr.io/${{ github.repository }}/browser-bench-build:latest
@@ -177,7 +184,7 @@ jobs:
 
   # ── Job 3: Measure (matrix: app × preset, all engines per job) ─────────────
   measure:
-    name: Measure ${{ matrix.app }}/${{ matrix.preset }} (${{ needs.resolve.outputs.sdk-version }})
+    name: Measure ${{ matrix.app }}/${{ matrix.preset }}
     needs: [resolve, build]
     if: needs.build.outputs.matrix != '[]' && needs.build.outputs.matrix != ''
     runs-on: ubuntu-latest
@@ -244,7 +251,7 @@ jobs:
 
   # ── Job 3: Aggregate results and update views ──────────────────────────────
   aggregate:
-    name: Aggregate (${{ needs.resolve.outputs.sdk-version }})
+    name: Aggregate
     needs: [resolve, build, measure]
     if: always() && needs.measure.result != 'skipped'
     runs-on: ubuntu-latest
@@ -309,7 +316,7 @@ jobs:
 
   # ── Job 5: Schedule untested SDK versions ──────────────────────────────────
   schedule:
-    name: Schedule (${{ needs.resolve.outputs.sdk-version }})
+    name: Schedule
     needs: [resolve, aggregate]
     if: always() && needs.aggregate.result == 'success'
     runs-on: ubuntu-latest
