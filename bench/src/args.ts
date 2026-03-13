@@ -199,7 +199,8 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
             : [...Object.values(App)];
     const effectivePresets = presets.length > 0 ? presets
         : dryRun ? [Preset.DevLoop]
-            : [...Object.values(Preset)];
+            // TODO enable more
+            : [Preset.NoWorkload, Preset.Aot];
     const effectiveEngines = engines.length > 0 ? engines
         : dryRun ? [Engine.Chrome]
             : [...Object.values(Engine)];
