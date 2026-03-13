@@ -387,11 +387,19 @@ async function writeBucketView(
     ]));
 
     // Build grid: app → metric → rowKey → values[]
+    // For build-time and size metrics, only keep chrome/desktop to avoid redundant rows
+    const BUILD_SIZE_METRICS = new Set([
+        'compile-time', 'disk-size-total', 'disk-size-native',
+        'disk-size-assemblies', 'download-size-total',
+    ]);
     const grid = new Map<string, Map<string, Map<string, (number | null)[]>>>();
 
     for (const r of results) {
         const ci = colIndex.get(columnKey(r))!;
         for (const [metricKey, value] of Object.entries(r.metrics)) {
+            // Only include chrome/desktop for build-time and size metrics
+            if (BUILD_SIZE_METRICS.has(metricKey) && !r.rowKey.endsWith('/desktop/chrome')) continue;
+
             if (!grid.has(r.app)) grid.set(r.app, new Map());
             const metricMap = grid.get(r.app)!;
             if (!metricMap.has(metricKey)) metricMap.set(metricKey, new Map());

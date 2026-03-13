@@ -309,17 +309,17 @@ async function measureBrowser(
                 timeToReachManaged = Number.isFinite(warmMin) ? warmMin : null;
             }
 
-            // Pizza walkthrough (blazing-pizza only, browser engines, desktop profile)
+            // Pizza walkthrough (blazing-pizza only, chrome, desktop profile)
             let pizzaWalkthru: number | null = null;
-            if (entry.app === A.BlazingPizza && profile === 'desktop') {
+            if (entry.app === A.BlazingPizza && profile === 'desktop' && engine === E.Chrome) {
                 if (ctx.verbose) debug(`Running pizza walkthrough...`);
                 pizzaWalkthru = await runPizzaWalkthrough(page, pageUrl, timeout, ctx.verbose);
                 if (ctx.verbose) debug(`Pizza walkthrough completed: ${pizzaWalkthru}ms`);
             }
 
-            // Havit walkthrough (havit-bootstrap only, browser engines, desktop profile)
+            // Havit walkthrough (havit-bootstrap only, chrome, desktop profile)
             let havitWalkthru: number | null = null;
-            if (entry.app === A.HavitBlazor && profile === 'desktop') {
+            if (entry.app === A.HavitBlazor && profile === 'desktop' && engine === E.Chrome) {
                 if (ctx.verbose) debug(`Running havit walkthrough...`);
                 havitWalkthru = await runHavitWalkthrough(page, pageUrl, timeout, ctx.verbose);
                 if (ctx.verbose) debug(`Havit walkthrough completed: ${havitWalkthru}ms`);
