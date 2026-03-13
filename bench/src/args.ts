@@ -195,14 +195,16 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
 
     // Apply dry-run defaults
     const effectiveApps = apps.length > 0 ? apps
-        : dryRun ? [App.EmptyBrowser]
-            : [...Object.values(App)];
+        : dryRun
+            ? [App.MicroBenchmarks]
+            : [App.MicroBenchmarks, App.EmptyBlazor, App.BlazingPizza, App.HavitBootstrap];
     const effectivePresets = presets.length > 0 ? presets
-        : dryRun ? [Preset.DevLoop]
-            // TODO enable more
-            : [Preset.NoWorkload, Preset.Aot];
+        : dryRun
+            ? [Preset.DevLoop]
+            : [...Object.values(Preset)];
     const effectiveEngines = engines.length > 0 ? engines
-        : dryRun ? [Engine.Chrome]
+        : dryRun
+            ? [Engine.Chrome]
             : [...Object.values(Engine)];
     const effectiveProfiles = profiles.length > 0 ? profiles
         : [...Object.values(Profile)];

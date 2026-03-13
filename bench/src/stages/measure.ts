@@ -319,7 +319,7 @@ async function measureBrowser(
 
             // Havit walkthrough (havit-bootstrap only, chrome, desktop profile)
             let havitWalkthrough: number | null = null;
-            if (entry.app === A.HavitBlazor && profile === 'desktop' && engine === E.Chrome) {
+            if (entry.app === A.HavitBootstrap && profile === 'desktop' && engine === E.Chrome) {
                 if (ctx.verbose) debug(`Running havit walkthrough...`);
                 havitWalkthrough = await runHavitWalkthrough(page, pageUrl, timeout, ctx.verbose);
                 if (ctx.verbose) debug(`Havit walkthrough completed: ${havitWalkthrough}ms`);

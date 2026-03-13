@@ -142,7 +142,7 @@ Iterates the build manifest. For each entry × engine × profile:
 
 **Special handling:**
 - `blazing-pizza` app: scripted walkthrough (add items, checkout) for `pizza-walkthrough` metric
-- `microbenchmarks` app: multiple sample runs, reports ops/sec using median
+- `micro-benchmarks` app: multiple sample runs, reports ops/sec using median
 - Firefox: no CDP, so no download-size-total or memory-peak
 
 ### 11. transform-views

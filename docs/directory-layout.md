@@ -59,7 +59,7 @@ simple-bench/
 │   ├── empty-blazor/           # Empty Blazor WebAssembly app
 │   ├── blazing-pizza/          # Full Blazor app (forms, navigation, auth)
 │   ├── havit-bootstrap/        # Large Blazor app with Havit.Blazor components
-│   ├── microbenchmarks/        # Internal perf benchmarks (JS interop, JSON, exceptions)
+│   ├── micro-benchmarks/        # Internal perf benchmarks (JS interop, JSON, exceptions)
 │   └── restore/                # Restore-only project for pre-caching NuGet packages
 │
 ├── docker/                     # ── Docker Build System ─────────────────────────

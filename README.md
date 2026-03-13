@@ -12,7 +12,7 @@ Five sample apps are built with every nightly .NET SDK and measured across Chrom
 | **empty-blazor** | Minimal Blazor WebAssembly app |
 | **blazing-pizza** | Blazor pizza ordering demo (with UI walkthrough timing) |
 | **havit-bootstrap** | Havit Blazor Bootstrap component library |
-| **microbenchmarks** | JS interop, JSON parse, and exception throughput tests |
+| **micro-benchmarks** | JS interop, JSON parse, and exception throughput tests |
 
 Each app is built under 7 preset configurations (debug, release, AOT, native-relink, etc.) and measured for:
 
@@ -21,7 +21,7 @@ Each app is built under 7 preset configurations (debug, release, AOT, native-rel
 - **Download size** — compressed bytes over the wire (Chrome/CDP)
 - **Load time** — cold start and warm reload to managed code entry
 - **Peak JS heap** — memory high-water mark (Chrome/CDP)
-- **Throughput** — JS interop, JSON parse, exception ops/sec (microbenchmarks)
+- **Throughput** — JS interop, JSON parse, exception ops/sec (micro-benchmarks)
 
 See [docs/measurement-matrix.md](docs/measurement-matrix.md) for the full dimension matrix and constraints.
 
@@ -63,7 +63,7 @@ src/                .NET sample apps and MSBuild configuration
   empty-blazor/     Minimal Blazor WebAssembly app
   blazing-pizza/    Blazor pizza ordering demo
   havit-bootstrap/  Havit Blazor Bootstrap app
-  microbenchmarks/  JS interop throughput benchmarks
+  micro-benchmarks/  JS interop throughput benchmarks
   presets.props     MSBuild presets (AOT, NativeRelink, Invariant, etc.)
 docker/             Dockerfile (build + measure images) and entrypoint
 .github/workflows/  CI: benchmark.yml (daily), docker-build.yml, schedule.yml
