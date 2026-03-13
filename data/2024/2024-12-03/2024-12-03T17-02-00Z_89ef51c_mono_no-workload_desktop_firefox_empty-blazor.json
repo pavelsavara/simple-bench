@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "runtimeCommitDateTime": "2024-12-03T17:02:00Z",
+    "runtimeCommitAuthor": "Tom McDonald",
+    "runtimeCommitMessage": "Merged PR 45620: Update DIA to 17.12.0-beta1.24603.5",
+    "sdkVersion": "8.0.405",
+    "runtimeGitHash": "89ef51c5d8f5239345127a1e282e11036e590c8b",
+    "aspnetCoreGitHash": "31d685b2d9a86ca1243014d175a3da813f78e428",
+    "sdkGitHash": "f6ad34c0ba03ad79257a09903033493414af4ffa",
+    "vmrGitHash": "f6ad34c0ba03ad79257a09903033493414af4ffa",
+    "aspnetCoreCommitDateTime": "2024-12-04T05:18:59Z",
+    "aspnetCoreVersion": "8.0.12",
+    "runtimePackVersion": "8.0.12",
+    "workloadVersion": "8.0.25",
+    "runtime": "mono",
+    "preset": "no-workload",
+    "profile": "desktop",
+    "engine": "firefox",
+    "app": "empty-blazor",
+    "benchmarkDateTime": "2026-03-13T22:46:06.227Z",
+    "warmRunCount": 3,
+    "ciRunId": "23072949472",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23072949472"
+  },
+  "metrics": {
+    "compile-time": 25398,
+    "disk-size-total": 23275522,
+    "disk-size-native": 2917782,
+    "disk-size-assemblies": 2679456,
+    "time-to-reach-managed-warm": 1477,
+    "time-to-reach-managed-cold": 1610
+  }
+}
