@@ -310,19 +310,19 @@ async function measureBrowser(
             }
 
             // Pizza walkthrough (blazing-pizza only, chrome, desktop profile)
-            let pizzaWalkthru: number | null = null;
+            let pizzaWalkthrough: number | null = null;
             if (entry.app === A.BlazingPizza && profile === 'desktop' && engine === E.Chrome) {
                 if (ctx.verbose) debug(`Running pizza walkthrough...`);
-                pizzaWalkthru = await runPizzaWalkthrough(page, pageUrl, timeout, ctx.verbose);
-                if (ctx.verbose) debug(`Pizza walkthrough completed: ${pizzaWalkthru}ms`);
+                pizzaWalkthrough = await runPizzaWalkthrough(page, pageUrl, timeout, ctx.verbose);
+                if (ctx.verbose) debug(`Pizza walkthrough completed: ${pizzaWalkthrough}ms`);
             }
 
             // Havit walkthrough (havit-bootstrap only, chrome, desktop profile)
-            let havitWalkthru: number | null = null;
+            let havitWalkthrough: number | null = null;
             if (entry.app === A.HavitBlazor && profile === 'desktop' && engine === E.Chrome) {
                 if (ctx.verbose) debug(`Running havit walkthrough...`);
-                havitWalkthru = await runHavitWalkthrough(page, pageUrl, timeout, ctx.verbose);
-                if (ctx.verbose) debug(`Havit walkthrough completed: ${havitWalkthru}ms`);
+                havitWalkthrough = await runHavitWalkthrough(page, pageUrl, timeout, ctx.verbose);
+                if (ctx.verbose) debug(`Havit walkthrough completed: ${havitWalkthrough}ms`);
             }
 
             // Stop memory sampling + settle
@@ -378,8 +378,8 @@ async function measureBrowser(
                 [MetricKey.TimeToReachManagedWarm]: timeToReachManaged,
                 [MetricKey.TimeToReachManagedCold]: timeToReachManagedCold,
                 [MetricKey.MemoryPeak]: useCDP ? (memoryPeak || null) : null,
-                [MetricKey.PizzaWalkthru]: pizzaWalkthru,
-                [MetricKey.HavitWalkthru]: havitWalkthru,
+                [MetricKey.PizzaWalkthrough]: pizzaWalkthrough,
+                [MetricKey.HavitWalkthrough]: havitWalkthrough,
             };
         } catch (e) {
             lastError = e instanceof Error ? e : new Error(String(e));
@@ -471,7 +471,7 @@ async function measureCli(
         [MetricKey.TimeToReachManagedWarm]: timeToReachManaged,
         [MetricKey.TimeToReachManagedCold]: timeToReachManaged,
         [MetricKey.MemoryPeak]: null,
-        [MetricKey.PizzaWalkthru]: null,
+        [MetricKey.PizzaWalkthrough]: null,
     };
 }
 

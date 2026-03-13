@@ -97,7 +97,7 @@ These presets break Blazor's runtime reflection requirements.
 | `time-to-reach-managed-warm` | Time to Managed (Warm) | ms | time | Min of N warm reloads, `bench_results['time-to-reach-managed']` |
 | `time-to-reach-managed-cold` | Time to Managed (Cold) | ms | time | First navigation, `bench_results['time-to-reach-managed']` |
 | `memory-peak` | Peak JS Heap | bytes | memory | CDP `Performance.getMetrics` JSHeapUsedSize polling (Chrome only) |
-| `pizza-walkthru` | Pizza Walkthrough | ms | time | Playwright UI automation of order flow (blazing-pizza + desktop only) |
+| `pizza-walkthrough` | Pizza Walkthrough | ms | time | Playwright UI automation of order flow (blazing-pizza + desktop only) |
 
 ### Internal metrics (microbenchmarks only)
 
@@ -119,7 +119,7 @@ These presets break Blazor's runtime reflection requirements.
 | time-to-reach-managed-warm | ✓ | ✓ | ✓ (or wall-clock) | ✓ (or wall-clock) |
 | time-to-reach-managed-cold | ✓ | ✓ | ✓ (or wall-clock) | ✓ (or wall-clock) |
 | memory-peak | ✓ | null | null | null |
-| pizza-walkthru | ✓ (blazing-pizza + desktop) | ✓ (blazing-pizza + desktop) | null | null |
+| pizza-walkthrough | ✓ (blazing-pizza + desktop) | ✓ (blazing-pizza + desktop) | null | null |
 | js-interop-ops | ✓ (microbenchmarks) | ✓ (microbenchmarks) | ✓ (microbenchmarks) | ✓ (microbenchmarks) |
 | json-parse-ops | ✓ (microbenchmarks) | ✓ (microbenchmarks) | ✓ (microbenchmarks) | ✓ (microbenchmarks) |
 | exception-ops | ✓ (microbenchmarks) | ✓ (microbenchmarks) | ✓ (microbenchmarks) | ✓ (microbenchmarks) |
