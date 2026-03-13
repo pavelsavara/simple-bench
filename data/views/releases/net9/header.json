@@ -1,0 +1,1 @@
+{"columns":[{"runtimeGitHash":"19c07820cb72aafc554c3bc8fe3c54010f5123f0","runtimeCommitDateTime":"2026-02-19T17:58:18Z","sdkVersion":"9.0.312"}],"apps":{"empty-browser":["compile-time","disk-size-assemblies","disk-size-native","disk-size-total","download-size-total","memory-peak","time-to-reach-managed-cold","time-to-reach-managed-warm"]},"release":"net9"}
