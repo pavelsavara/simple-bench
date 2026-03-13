@@ -1,27 +1,27 @@
 {
   "meta": {
     "runtimeCommitDateTime": "2026-03-12T01:31:59Z",
-    "sdkVersion": "11.0.100-preview.3.26162.108",
+    "sdkVersion": "11.0.100-preview.3.26162.121",
     "runtimeGitHash": "b7973489277b74bc5da9d36a0a2883eaa987328f",
     "sdkGitHash": "5bb7e315bf797af120abf7ed17b7cbd6145b48f6",
-    "vmrGitHash": "e9593819ed84a62923fe87c8d0958025726934c3",
+    "vmrGitHash": "c05989046d48050aeff8498c51f5e14754855411",
     "runtime": "mono",
     "preset": "native-relink",
     "profile": "desktop",
     "engine": "firefox",
     "app": "blazing-pizza",
-    "benchmarkDateTime": "2026-03-13T05:34:32.915Z",
+    "benchmarkDateTime": "2026-03-13T11:44:44.917Z",
     "warmRunCount": 3,
-    "ciRunId": "23037108923",
-    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23037108923"
+    "ciRunId": "23048408708",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23048408708"
   },
   "metrics": {
-    "compile-time": 40753,
-    "disk-size-total": 19969763,
+    "compile-time": 41047,
+    "disk-size-total": 19969152,
     "disk-size-native": 3032467,
     "disk-size-assemblies": 4101115,
-    "time-to-reach-managed-warm": 1577,
-    "time-to-reach-managed-cold": 1623,
-    "pizza-walkthru": 6093
+    "time-to-reach-managed-warm": 1563,
+    "time-to-reach-managed-cold": 1635,
+    "pizza-walkthru": 6117
   }
 }

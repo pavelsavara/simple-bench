@@ -1,28 +1,28 @@
 {
   "meta": {
     "runtimeCommitDateTime": "2026-03-12T01:31:59Z",
-    "sdkVersion": "11.0.100-preview.3.26162.108",
+    "sdkVersion": "11.0.100-preview.3.26162.121",
     "runtimeGitHash": "b7973489277b74bc5da9d36a0a2883eaa987328f",
     "sdkGitHash": "5bb7e315bf797af120abf7ed17b7cbd6145b48f6",
-    "vmrGitHash": "e9593819ed84a62923fe87c8d0958025726934c3",
+    "vmrGitHash": "c05989046d48050aeff8498c51f5e14754855411",
     "runtime": "mono",
     "preset": "native-relink",
     "profile": "desktop",
     "engine": "chrome",
     "app": "empty-blazor",
-    "benchmarkDateTime": "2026-03-13T05:33:50.254Z",
+    "benchmarkDateTime": "2026-03-13T11:45:53.298Z",
     "warmRunCount": 3,
-    "ciRunId": "23037108923",
-    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23037108923"
+    "ciRunId": "23048408708",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23048408708"
   },
   "metrics": {
-    "compile-time": 45783,
-    "disk-size-total": 27795025,
+    "compile-time": 44750,
+    "disk-size-total": 27794306,
     "disk-size-native": 3028354,
     "disk-size-assemblies": 3361999,
     "download-size-total": 31190364,
-    "time-to-reach-managed-warm": 308,
-    "time-to-reach-managed-cold": 510,
-    "memory-peak": 8687220
+    "time-to-reach-managed-warm": 314,
+    "time-to-reach-managed-cold": 520,
+    "memory-peak": 8291804
   }
 }

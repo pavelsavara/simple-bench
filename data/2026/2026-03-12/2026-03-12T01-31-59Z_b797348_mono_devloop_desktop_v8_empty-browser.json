@@ -1,26 +1,26 @@
 {
   "meta": {
     "runtimeCommitDateTime": "2026-03-12T01:31:59Z",
-    "sdkVersion": "11.0.100-preview.3.26162.108",
+    "sdkVersion": "11.0.100-preview.3.26162.121",
     "runtimeGitHash": "b7973489277b74bc5da9d36a0a2883eaa987328f",
     "sdkGitHash": "5bb7e315bf797af120abf7ed17b7cbd6145b48f6",
-    "vmrGitHash": "e9593819ed84a62923fe87c8d0958025726934c3",
+    "vmrGitHash": "c05989046d48050aeff8498c51f5e14754855411",
     "runtime": "mono",
     "preset": "devloop",
     "profile": "desktop",
     "engine": "v8",
     "app": "empty-browser",
-    "benchmarkDateTime": "2026-03-13T05:36:04.991Z",
+    "benchmarkDateTime": "2026-03-13T11:44:44.974Z",
     "warmRunCount": 3,
-    "ciRunId": "23037108923",
-    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23037108923"
+    "ciRunId": "23048408708",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23048408708"
   },
   "metrics": {
-    "compile-time": 3568,
+    "compile-time": 3422,
     "disk-size-total": 27468254,
     "disk-size-native": 3125666,
     "disk-size-assemblies": 20545024,
-    "time-to-reach-managed-warm": 201,
-    "time-to-reach-managed-cold": 201
+    "time-to-reach-managed-warm": 207,
+    "time-to-reach-managed-cold": 207
   }
 }
