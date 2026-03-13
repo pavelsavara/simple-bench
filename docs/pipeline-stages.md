@@ -13,25 +13,26 @@ The bench CLI executes a sequence of stages. Each stage receives a `BenchContext
 | 5 | `enumerate-release-packs` | build | Discover GA release packs, resolve git hashes |
 | 6 | `update-cache` | build | Copy pack/commit lists back to gh-pages/cache, push |
 | 7 | `schedule` | measure | Dispatch GitHub Actions for untested SDK versions |
-| 8 | `acquire-sdk` | build | Resolve target pack, install SDK via dotnet-install |
-| 9 | `build` | build | `dotnet publish` for each app×preset combination |
-| 10 | `measure` | measure | Browser/CLI measurement via Playwright/d8/node |
-| 11 | `transform-views` | measure | Consolidate results into month indexes + pivot views |
-| 12 | `update-views` | host | Commit and push data/ to gh-pages |
+| 8 | `resolve-sdk` | build | Resolve target pack from pack catalogs, build SdkInfo |
+| 9 | `download-sdk` | build | Download SDK via dotnet-install, detect bundled runtime |
+| 10 | `build` | build | `dotnet publish` for each app×preset combination |
+| 11 | `measure` | measure | Browser/CLI measurement via Playwright/d8/node |
+| 12 | `transform-views` | measure | Consolidate results into month indexes + pivot views |
+| 13 | `update-views` | host | Commit and push data/ to gh-pages |
 
 ## Default Pipeline
 
 When invoked without `--stages`, the default stages are:
 
 ```
-acquire-sdk → build → measure → transform-views
+resolve-sdk → download-sdk → build → measure → transform-views
 ```
 
 The CI workflow (`benchmark.yml`) runs the full pipeline:
 
 ```
 check-out-cache → docker-image → enumerate-daily-packs → enumerate-release-packs →
-update-cache → acquire-sdk → build → measure → transform-views → update-views
+update-cache → resolve-sdk → download-sdk → build → measure → transform-views → update-views
 ```
 
 ## Docker Container Architecture
@@ -41,7 +42,7 @@ When `--via-docker` is set (default on Linux CI), stages are classified into thr
 | Target | Docker Image | Stages |
 |--------|-------------|--------|
 | **host** | (none — runs directly) | check-out-cache, docker-image, update-views |
-| **build** | `browser-bench-build` | enumerate-*, update-cache, acquire-sdk, build |
+| **build** | `browser-bench-build` | enumerate-*, update-cache, resolve-sdk, download-sdk, build |
 | **measure** | `browser-bench-measure` | measure, transform-views, schedule |
 
 Consecutive stages with the same target are **batched** into a single container invocation. Context is serialized to `artifacts/docker-context.json` for cross-container handoff.
@@ -104,13 +105,15 @@ Copies `daily-packs-list.json`, `release-packs-list.json`, and `commits-list.jso
 
 Compares pack lists against already-tested SDK versions in `gh-pages/data/`. For each untested pack, dispatches a `benchmark.yml` workflow via `gh workflow run`. Priority: releases oldest→newest, then daily builds latest→oldest. Limited by `--max-dispatches`.
 
-### 8. acquire-sdk
+### 8. resolve-sdk
 
-Resolves which SDK to install based on `--runtime-commit`, `--runtime-pack`, `--sdk-version`, or latest for the configured channel. Downloads via official dotnet-install scripts. Daily builds use the Azure feed (`ci.dot.net/public`); release builds use the default feed.
+Resolves which SDK to target based on `--runtime-commit`, `--runtime-pack`, `--sdk-version`, or latest for the configured channel. Loads pack catalogs from `daily-packs-list.json` and `release-packs-list.json`, resolves the target pack, builds `SdkInfo` (including `source: 'daily' | 'release'`), and computes SDK paths.
 
-After installation, detects the bundled runtime pack version and populates `ctx.sdkInfo`.
+### 9. download-sdk
 
-### 9. build
+Downloads the SDK resolved by `resolve-sdk` via official dotnet-install scripts. Daily builds use the Azure feed (`ci.dot.net/public`); release builds use the default feed. After installation, detects the bundled runtime pack version and restores an override runtime pack if needed. Writes `sdk-info.json`.
+
+### 10. build
 
 Two-phase build process:
 
@@ -122,7 +125,7 @@ Each app×preset combination runs `dotnet publish` with MSBuild properties from 
 
 Writes `build-manifest.json` and `sdk-info.json` to `artifacts/results/{runId}/`.
 
-### 10. measure
+### 11. measure
 
 Iterates the build manifest. For each entry × engine × profile:
 
@@ -145,7 +148,7 @@ Iterates the build manifest. For each entry × engine × profile:
 - `micro-benchmarks` app: multiple sample runs, reports ops/sec using median
 - Firefox: no CDP, so no download-size-total or memory-peak
 
-### 11. transform-views
+### 12. transform-views
 
 Two phases:
 
@@ -165,7 +168,7 @@ Two phases:
 - Writes `header.json` + `{app}_{metric}.json` data files
 - Writes `data/views/index.json`
 
-### 12. update-views
+### 13. update-views
 
 Commits and pushes everything in `gh-pages/data/` that was written by transform-views. Skipped in dry-run mode.
 
@@ -175,7 +178,7 @@ Commits and pushes everything in `gh-pages/data/` that was written by transform-
 
 Three jobs:
 
-1. **build** — Runs in `browser-bench-build` container: enumerate packs, acquire SDK, build apps
+1. **build** — Runs in `browser-bench-build` container: enumerate packs, resolve SDK, download SDK, build apps
 2. **measure** (matrix: desktop + mobile profiles) — Runs in `browser-bench-measure` container: measure all engine×profile combinations
 3. **aggregate** — Runs on host: transform-views, update-views (push to gh-pages)
 

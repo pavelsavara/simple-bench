@@ -5,8 +5,8 @@
 # then runs the TypeScript CLI via tsx.
 #
 # Usage:
-#   ./bench.sh --stages acquire-sdk,build,measure
-#   ./bench.sh --via-docker --stages docker-image,acquire-sdk,build,measure
+#   ./bench.sh --stages resolve-sdk,download-sdk,build,measure
+#   ./bench.sh --via-docker --stages docker-image,resolve-sdk,download-sdk,build,measure
 #   ./bench.sh --dry-run
 #   ./bench.sh --help
 

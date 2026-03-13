@@ -18,7 +18,8 @@ export function registerStage(stage: Stage, handler: StageFn): void {
 
 import { run as checkOutPages } from './check-out-cache.js';
 import { run as dockerImage } from './docker-image.js';
-import { run as acquireSdk } from './acquire-sdk.js';
+import { run as resolveSdk } from './resolve-sdk.js';
+import { run as downloadSdk } from './download-sdk.js';
 import { run as build } from './build.js';
 import { run as measure } from './measure.js';
 import { run as schedule } from './schedule.js';
@@ -34,7 +35,8 @@ registerStage(Stage.EnumerateCommits, enumerateCommits);
 registerStage(Stage.EnumerateDailyPacks, enumerateDailyPacks);
 registerStage(Stage.EnumerateReleasePacks, enumerateReleasePacks);
 registerStage(Stage.DockerImage, dockerImage);
-registerStage(Stage.AcquireSdk, acquireSdk);
+registerStage(Stage.ResolveSdk, resolveSdk);
+registerStage(Stage.DownloadSdk, downloadSdk);
 registerStage(Stage.Build, build);
 registerStage(Stage.Measure, measure);
 registerStage(Stage.Schedule, schedule);

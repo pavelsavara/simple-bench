@@ -39,7 +39,8 @@ simple-bench/
 │           ├── enumerate-release-packs.ts # Discover GA releases → release-packs-list.json
 │           ├── update-cache.ts       # Copy pack lists back to gh-pages/cache/, push
 │           ├── schedule.ts           # Dispatch GitHub Actions for untested SDK versions
-│           ├── acquire-sdk.ts        # Resolve target pack, install SDK via dotnet-install
+│           ├── resolve-sdk.ts        # Resolve target pack from pack catalogs, build SdkInfo
+│           ├── download-sdk.ts       # Download SDK via dotnet-install, detect bundled runtime
 │           ├── build.ts              # dotnet publish for each app×preset combination
 │           ├── measure.ts            # Browser/CLI measurement via Playwright/d8/node
 │           ├── transform-views.ts    # Consolidate results into month indexes + pivot views

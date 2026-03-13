@@ -16,7 +16,7 @@ bench — .NET Browser WASM Benchmark CLI
 Usage: bench [options]
 
 Pipeline control:
-  --stages <list>          Comma-separated stage names (default: acquire-sdk,build,measure,transform-views)
+  --stages <list>          Comma-separated stage names (default: resolve-sdk,download-sdk,build,measure,transform-views)
                            Valid: ${ALL_STAGES.join(', ')}
   --via-docker             Run build/measure stages inside Docker containers
   --context <path>         Load/save BenchContext from JSON file (cross-container handoff)
@@ -73,7 +73,7 @@ General:
 
 const ARG_OPTIONS = {
     // Pipeline control
-    'stages': { type: 'string' as const, default: 'acquire-sdk,build,measure,transform-views' },
+    'stages': { type: 'string' as const, default: 'resolve-sdk,download-sdk,build,measure,transform-views' },
     'via-docker': { type: 'boolean' as const, default: false },
     'context': { type: 'string' as const, default: '' },
     'dry-run': { type: 'boolean' as const, default: false },

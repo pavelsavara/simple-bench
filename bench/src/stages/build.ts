@@ -155,10 +155,10 @@ async function buildPhase(
 
 export async function run(ctx: BenchContext): Promise<BenchContext> {
     // Validate prerequisites
-    if (!ctx.sdkInfo) throw new Error('build stage requires ctx.sdkInfo (run acquire-sdk first)');
-    if (!ctx.sdkDir) throw new Error('build stage requires ctx.sdkDir (run acquire-sdk first)');
-    if (!ctx.dotnetBin) throw new Error('build stage requires ctx.dotnetBin (run acquire-sdk first)');
-    if (!ctx.buildLabel) throw new Error('build stage requires ctx.buildLabel (run acquire-sdk first)');
+    if (!ctx.sdkInfo) throw new Error('build stage requires ctx.sdkInfo (run resolve-sdk first)');
+    if (!ctx.sdkDir) throw new Error('build stage requires ctx.sdkDir (run resolve-sdk first)');
+    if (!ctx.dotnetBin) throw new Error('build stage requires ctx.dotnetBin (run resolve-sdk first)');
+    if (!ctx.buildLabel) throw new Error('build stage requires ctx.buildLabel (run resolve-sdk first)');
 
     const sdkInfoPath = join(ctx.sdkDir, 'sdk-info.json');
 

@@ -34,10 +34,10 @@ See [docs/measurement-matrix.md](docs/measurement-matrix.md) for the full dimens
 │  Job 1: build                                                       │
 │    check-out-cache → enumerate-commits → enumerate-daily-packs      │
 │    → enumerate-release-packs → update-cache → schedule              │
-│    → acquire-sdk → build                                            │
+│    → resolve-sdk → download-sdk → build                             │
 │                                                                     │
 │  Job 2: measure (matrix: 1..N SDK commits from schedule)            │
-│    acquire-sdk → measure → transform-views                          │
+│    download-sdk → measure → transform-views                         │
 │                                                                     │
 │  Job 3: aggregate                                                   │
 │    check-out-cache → update-views (push to gh-pages)                │

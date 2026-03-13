@@ -16,7 +16,8 @@ const STAGE_CONTAINER: Record<Stage, ContainerTarget> = {
     [Stage.EnumerateDailyPacks]: 'build',
     [Stage.EnumerateReleasePacks]: 'build',
     [Stage.UpdateCache]: 'build',
-    [Stage.AcquireSdk]: 'build',
+    [Stage.ResolveSdk]: 'build',
+    [Stage.DownloadSdk]: 'build',
     [Stage.Build]: 'build',
     [Stage.Measure]: 'measure',
     [Stage.TransformViews]: 'measure',
@@ -113,7 +114,7 @@ async function fixArtifactPermissions(artifactsDir: string): Promise<void> {
  *
  * Stages are classified into three targets:
  *   - **host**: runs directly (docker-image, consolidate, schedule, transform-views)
- *   - **build**: runs in BUILD_IMAGE (enumerate-*, acquire-sdk, build)
+ *   - **build**: runs in BUILD_IMAGE (enumerate-*, resolve-sdk, download-sdk, build)
  *   - **measure**: runs in MEASURE_IMAGE (measure)
  *
  * Consecutive stages with the same target are batched into a single container

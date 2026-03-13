@@ -144,7 +144,7 @@ async function resolveVersion(
     // 5. GitHub commit datetimes
     const ghHeaders = githubHeaders(token);
     const [rtCommit, aspCommit] = await Promise.all([
-        fetchJson<{ commit: { committer: { date: string } } }>(
+        fetchJson<{ commit: { message: string; author: { name: string }; committer: { date: string } } }>(
             `${GITHUB_API}/repos/dotnet/runtime/commits/${rtRepo.commitSha}`, ghHeaders,
         ),
         fetchJson<{ commit: { committer: { date: string } } }>(
@@ -178,6 +178,8 @@ async function resolveVersion(
         sdkGitHash: sdkRepo.commitSha,
         vmrGitHash: vmrCommit,
         runtimeCommitDateTime: rtCommit.commit.committer.date,
+        runtimeCommitAuthor: rtCommit.commit.author.name,
+        runtimeCommitMessage: rtCommit.commit.message.split('\n')[0],
         aspnetCoreCommitDateTime: aspCommit.commit.committer.date,
         aspnetCoreVersion: pc.aspnetcore.version,
         runtimePackVersion,

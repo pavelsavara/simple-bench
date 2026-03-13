@@ -27,7 +27,7 @@ import { type SampleStats, computeStats, formatStats } from '../lib/stats.js';
 
 export async function run(ctx: BenchContext): Promise<BenchContext> {
     if (!ctx.buildManifest?.length) throw new Error('measure stage requires ctx.buildManifest (run build first)');
-    if (!ctx.sdkInfo) throw new Error('measure stage requires ctx.sdkInfo (run acquire-sdk first)');
+    if (!ctx.sdkInfo) throw new Error('measure stage requires ctx.sdkInfo (run resolve-sdk first)');
     if (!ctx.resultsDir) throw new Error('measure stage requires ctx.resultsDir (run build first)');
 
     const effectiveEngines = ctx.dryRun ? [E.Chrome] : ctx.engines;
@@ -143,10 +143,17 @@ function buildMeta(
 ): Record<string, unknown> {
     const meta: Record<string, unknown> = {
         runtimeCommitDateTime: ctx.sdkInfo.runtimeCommitDateTime,
+        runtimeCommitAuthor: ctx.sdkInfo.runtimeCommitAuthor,
+        runtimeCommitMessage: ctx.sdkInfo.runtimeCommitMessage,
         sdkVersion: ctx.sdkInfo.sdkVersion,
         runtimeGitHash: ctx.sdkInfo.runtimeGitHash,
+        aspnetCoreGitHash: ctx.sdkInfo.aspnetCoreGitHash,
         sdkGitHash: ctx.sdkInfo.sdkGitHash,
         vmrGitHash: ctx.sdkInfo.vmrGitHash,
+        aspnetCoreCommitDateTime: ctx.sdkInfo.aspnetCoreCommitDateTime,
+        aspnetCoreVersion: ctx.sdkInfo.aspnetCoreVersion,
+        runtimePackVersion: ctx.sdkInfo.runtimePackVersion,
+        workloadVersion: ctx.sdkInfo.workloadVersion,
         runtime: entry.runtime,
         preset: entry.preset,
         profile,

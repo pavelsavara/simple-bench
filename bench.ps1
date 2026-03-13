@@ -7,8 +7,8 @@
     then runs the TypeScript CLI via tsx.
 
 .EXAMPLE
-    ./bench.ps1 --stages acquire-sdk,build,measure
-    ./bench.ps1 --via-docker --stages docker-image,acquire-sdk,build,measure
+    ./bench.ps1 --stages resolve-sdk,download-sdk,build,measure
+    ./bench.ps1 --via-docker --stages docker-image,resolve-sdk,download-sdk,build,measure
     ./bench.ps1 --dry-run
     ./bench.ps1 --help
 #>

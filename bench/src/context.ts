@@ -2,7 +2,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { type App, type Engine, type Preset, type Profile, type Runtime, type Stage } from './enums.js';
 
-// ── SDK Info (populated by acquire-sdk stage) ────────────────────────────────
+// ── SDK Info (populated by resolve-sdk stage) ───────────────────────────────
 
 export interface SdkInfo {
     sdkVersion: string;
@@ -11,10 +11,13 @@ export interface SdkInfo {
     sdkGitHash: string;
     vmrGitHash: string;
     runtimeCommitDateTime: string;
+    runtimeCommitAuthor: string;
+    runtimeCommitMessage: string;
     aspnetCoreCommitDateTime: string;
     aspnetCoreVersion: string;
     runtimePackVersion: string;
     workloadVersion: string;
+    source?: 'daily' | 'release';
 }
 
 // ── Build Manifest Entry (populated by build stage) ──────────────────────────
@@ -86,7 +89,7 @@ export interface BenchContext {
     buildLabel: string;
     runId: string;
 
-    // ── Resolved SDK info (populated by acquire-sdk stage) ──
+    // ── Resolved SDK info (populated by resolve-sdk stage) ──
     sdkInfo: SdkInfo;
 
     // ── Build manifest (populated by build stage) ──

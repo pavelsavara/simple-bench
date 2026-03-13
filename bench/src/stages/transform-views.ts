@@ -19,10 +19,17 @@ interface MonthResultEntry {
 
 interface MonthCommitEntry {
     runtimeGitHash: string;
+    aspnetCoreGitHash: string;
     sdkGitHash: string;
     vmrGitHash: string;
     runtimeCommitDateTime: string;
+    runtimeCommitAuthor: string;
+    runtimeCommitMessage: string;
+    aspnetCoreCommitDateTime: string;
+    aspnetCoreVersion: string;
     sdkVersion: string;
+    runtimePackVersion: string;
+    workloadVersion: string;
     results: MonthResultEntry[];
 }
 
@@ -50,8 +57,17 @@ interface ResultFile {
 
 interface LoadedResult {
     runtimeGitHash: string;
+    aspnetCoreGitHash: string;
+    sdkGitHash: string;
+    vmrGitHash: string;
     runtimeCommitDateTime: string;
+    runtimeCommitAuthor: string;
+    runtimeCommitMessage: string;
+    aspnetCoreCommitDateTime: string;
+    aspnetCoreVersion: string;
     sdkVersion: string;
+    runtimePackVersion: string;
+    workloadVersion: string;
     rowKey: string;
     app: string;
     metrics: Record<string, number>;
@@ -92,10 +108,17 @@ async function consolidateResults(ctx: BenchContext, dataDir: string): Promise<v
 
     const commitGroups = new Map<string, {
         runtimeGitHash: string;
+        aspnetCoreGitHash: string;
         sdkGitHash: string;
         vmrGitHash: string;
         runtimeCommitDateTime: string;
+        runtimeCommitAuthor: string;
+        runtimeCommitMessage: string;
+        aspnetCoreCommitDateTime: string;
+        aspnetCoreVersion: string;
         sdkVersion: string;
+        runtimePackVersion: string;
+        workloadVersion: string;
         results: { filename: string; data: ResultFile }[];
     }>();
 
@@ -119,10 +142,17 @@ async function consolidateResults(ctx: BenchContext, dataDir: string): Promise<v
         if (!commitGroups.has(key)) {
             commitGroups.set(key, {
                 runtimeGitHash: m.runtimeGitHash,
-                sdkGitHash: m.sdkGitHash || '',
-                vmrGitHash: m.vmrGitHash || '',
+                aspnetCoreGitHash: (m.aspnetCoreGitHash as string) || '',
+                sdkGitHash: (m.sdkGitHash as string) || '',
+                vmrGitHash: (m.vmrGitHash as string) || '',
                 runtimeCommitDateTime: m.runtimeCommitDateTime,
+                runtimeCommitAuthor: (m.runtimeCommitAuthor as string) || '',
+                runtimeCommitMessage: (m.runtimeCommitMessage as string) || '',
+                aspnetCoreCommitDateTime: (m.aspnetCoreCommitDateTime as string) || '',
+                aspnetCoreVersion: (m.aspnetCoreVersion as string) || '',
                 sdkVersion: m.sdkVersion,
+                runtimePackVersion: (m.runtimePackVersion as string) || '',
+                workloadVersion: (m.workloadVersion as string) || '',
                 results: [],
             });
         }
@@ -167,10 +197,17 @@ async function consolidateResults(ctx: BenchContext, dataDir: string): Promise<v
         if (!commit) {
             commit = {
                 runtimeGitHash: group.runtimeGitHash,
+                aspnetCoreGitHash: group.aspnetCoreGitHash,
                 sdkGitHash: group.sdkGitHash,
                 vmrGitHash: group.vmrGitHash,
                 runtimeCommitDateTime: group.runtimeCommitDateTime,
+                runtimeCommitAuthor: group.runtimeCommitAuthor,
+                runtimeCommitMessage: group.runtimeCommitMessage,
+                aspnetCoreCommitDateTime: group.aspnetCoreCommitDateTime,
+                aspnetCoreVersion: group.aspnetCoreVersion,
                 sdkVersion: group.sdkVersion,
+                runtimePackVersion: group.runtimePackVersion,
+                workloadVersion: group.workloadVersion,
                 results: [],
             };
             monthIndex.commits.push(commit);
@@ -270,8 +307,17 @@ async function buildViews(ctx: BenchContext, dataDir: string): Promise<void> {
                 const profile = result.profile || 'desktop';
                 allResults.push({
                     runtimeGitHash: commit.runtimeGitHash,
+                    aspnetCoreGitHash: commit.aspnetCoreGitHash || '',
+                    sdkGitHash: commit.sdkGitHash || '',
+                    vmrGitHash: commit.vmrGitHash || '',
                     runtimeCommitDateTime: commit.runtimeCommitDateTime,
+                    runtimeCommitAuthor: commit.runtimeCommitAuthor || '',
+                    runtimeCommitMessage: commit.runtimeCommitMessage || '',
+                    aspnetCoreCommitDateTime: commit.aspnetCoreCommitDateTime || '',
+                    aspnetCoreVersion: commit.aspnetCoreVersion || '',
                     sdkVersion: commit.sdkVersion,
+                    runtimePackVersion: commit.runtimePackVersion || '',
+                    workloadVersion: commit.workloadVersion || '',
                     rowKey: `${result.runtime}/${result.preset}/${profile}/${result.engine}`,
                     app: result.app,
                     metrics: result.metrics,
@@ -354,8 +400,17 @@ async function writeBucketView(
 
     interface Column {
         runtimeGitHash: string;
+        aspnetCoreGitHash: string;
+        sdkGitHash: string;
+        vmrGitHash: string;
         runtimeCommitDateTime: string;
+        runtimeCommitAuthor: string;
+        runtimeCommitMessage: string;
+        aspnetCoreCommitDateTime: string;
+        aspnetCoreVersion: string;
         sdkVersion: string;
+        runtimePackVersion: string;
+        workloadVersion: string;
     }
 
     const columnKey = type === 'week'
@@ -369,8 +424,17 @@ async function writeBucketView(
         if (!columnMap.has(key)) {
             columnMap.set(key, {
                 runtimeGitHash: r.runtimeGitHash,
+                aspnetCoreGitHash: r.aspnetCoreGitHash,
+                sdkGitHash: r.sdkGitHash,
+                vmrGitHash: r.vmrGitHash,
                 runtimeCommitDateTime: r.runtimeCommitDateTime,
+                runtimeCommitAuthor: r.runtimeCommitAuthor,
+                runtimeCommitMessage: r.runtimeCommitMessage,
+                aspnetCoreCommitDateTime: r.aspnetCoreCommitDateTime,
+                aspnetCoreVersion: r.aspnetCoreVersion,
                 sdkVersion: r.sdkVersion,
+                runtimePackVersion: r.runtimePackVersion,
+                workloadVersion: r.workloadVersion,
             });
         }
     }

@@ -32,7 +32,7 @@ This is **simple-bench**, a .NET Browser WebAssembly benchmark suite. It builds 
 cd bench && npm install
 
 # Run specific stages (e.g., build + measure for one SDK)
-npx tsx src/main.ts --stage acquire-sdk,build,measure --runtime mono --preset no-workload --engine chrome --app empty-browser
+npx tsx src/main.ts --stage resolve-sdk,download-sdk,build,measure --runtime mono --preset no-workload --engine chrome --app empty-browser
 
 # Dry run (single quick measurement)
 npx tsx src/main.ts --stage measure --dry-run

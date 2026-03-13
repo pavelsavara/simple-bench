@@ -195,7 +195,7 @@ async function resolveRelease(
     const ghHeaders = githubHeaders(token);
 
     const [rtCommit, aspCommit] = await Promise.all([
-        fetchJson<{ commit: { committer: { date: string } } }>(
+        fetchJson<{ commit: { message: string; author: { name: string }; committer: { date: string } } }>(
             `${GITHUB_API}/repos/dotnet/runtime/commits/${runtimeGitHash}`, ghHeaders,
         ),
         fetchJson<{ commit: { committer: { date: string } } }>(
@@ -230,6 +230,8 @@ async function resolveRelease(
         sdkGitHash,
         vmrGitHash,
         runtimeCommitDateTime: rtCommit.commit.committer.date,
+        runtimeCommitAuthor: rtCommit.commit.author.name,
+        runtimeCommitMessage: rtCommit.commit.message.split('\n')[0],
         aspnetCoreCommitDateTime: aspCommit.commit.committer.date,
         aspnetCoreVersion: pc.aspnetcore.version,
         runtimePackVersion: runtimeVersion,
