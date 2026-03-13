@@ -1,0 +1,31 @@
+name: Schedule
+on:
+  workflow_dispatch:
+
+jobs:
+  schedule:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          clean: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        shell: bash
+        run: npm ci --prefix bench
+
+      - name: Run schedule stage
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          npx --prefix bench tsx bench/src/main.ts \
+            --stages check-out-cache,enumerate-daily-packs,enumerate-release-packs,schedule

@@ -176,7 +176,7 @@ jobs:
         shell: bash
         run: |
           npx --prefix bench tsx bench/src/main.ts \
-            --stages measure,transform-views,update-views \
+            --stages measure \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
             --app "${{ matrix.app }}" \
             --preset "${{ matrix.preset }}" \
@@ -190,6 +190,77 @@ jobs:
         if: always()
         with:
           name: results-${{ matrix.app }}-${{ matrix.preset }}
-          path: ${{ env.ARTIFACTS_DIR }}/results/*.json
+          path: ${{ env.ARTIFACTS_DIR }}/results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # ── Job 3: Aggregate results and update views ──────────────────────────────
+  aggregate:
+    needs: [build, measure]
+    if: always() && needs.measure.result != 'skipped'
+    runs-on: ubuntu-latest
+    container: ghcr.io/${{ github.repository }}/browser-bench-build:latest
+    permissions:
+      contents: write
+      packages: read
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          clean: false
+
+      - name: Export container env to GitHub Actions
+        shell: bash
+        run: echo "ARTIFACTS_DIR=${ARTIFACTS_DIR:-artifacts}" >> "$GITHUB_ENV"
+
+      - name: Symlink pre-installed node_modules into workspace
+        shell: bash
+        run: |
+          mkdir -p node_modules bench/node_modules
+          for src in /opt/bench-deps/node_modules/*; do
+            [ -e "$src" ] && ln -sf "$src" node_modules/ 2>/dev/null
+          done
+          for src in /opt/bench-cli-deps/node_modules/*; do
+            [ -e "$src" ] && ln -sf "$src" bench/node_modules/ 2>/dev/null
+          done
+
+      - name: Download bench context
+        uses: actions/download-artifact@v8
+        with:
+          name: bench-context
+          path: ${{ env.ARTIFACTS_DIR }}
+
+      - name: Download build results
+        uses: actions/download-artifact@v8
+        with:
+          name: build-results
+          path: ${{ env.ARTIFACTS_DIR }}/results
+
+      - name: Download all measurement results
+        uses: actions/download-artifact@v8
+        with:
+          pattern: results-*
+          path: ${{ env.ARTIFACTS_DIR }}/results
+          merge-multiple: true
+
+      - name: List collected results
+        shell: bash
+        run: find "${ARTIFACTS_DIR}/results" -name '*.json' | head -50
+
+      - name: Transform and update views
+        shell: bash
+        run: |
+          npx --prefix bench tsx bench/src/main.ts \
+            --stages transform-views,update-views \
+            --context "${ARTIFACTS_DIR}/bench-context.json" \
+            --runtime mono \
+            ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
+
+      - name: Upload final results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: final-results
+          path: ${{ env.ARTIFACTS_DIR }}/results/
           if-no-files-found: ignore
           retention-days: 7

@@ -66,7 +66,6 @@ export interface BenchContext {
 
     // ── Scheduling ──
     maxDispatches: number;
-    recent: number;
     repo?: string;
     branch: string;
 
