@@ -9,7 +9,7 @@ partial class MicroBenchmarkApp
 {
     public static Task<int> Main()
     {
-        Console.WriteLine("Microbenchmarks ready");
+        Console.WriteLine("micro-benchmarks ready");
         SetManagedReady();
         return Task.FromResult(0);
     }
