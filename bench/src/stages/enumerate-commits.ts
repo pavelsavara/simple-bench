@@ -20,7 +20,6 @@ interface CommitsList {
     repo: string;
     since: string;
     until: string;
-    fetchedAt: string;
     totalCommits: number;
     commits: CommitEntry[];
 }
@@ -159,7 +158,6 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         repo: REPO,
         since: sinceISO,
         until: untilISO,
-        fetchedAt: now.toISOString(),
         totalCommits: commits.length,
         commits,
     };
