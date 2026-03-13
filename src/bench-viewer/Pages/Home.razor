@@ -1,0 +1,116 @@
+﻿@page "/"
+@using System.Text.Json
+@using System.Runtime.InteropServices.JavaScript
+@using BenchViewer.Interop
+@using BenchViewer.Components
+@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
+@inject IWebAssemblyHostEnvironment HostEnv
+@implements IAsyncDisposable
+
+<PageTitle>.NET WASM Benchmark Dashboard</PageTitle>
+
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h6 class="mb-0">.NET WASM Benchmarks</h6>
+        @if (viewIndex != null)
+        {
+            <small class="text-muted">Updated: @FormatDate(viewIndex.LastUpdated)</small>
+        }
+    </div>
+    <div class="sidebar-body">
+        @if (viewIndex != null)
+        {
+            <FilterPanel FilterGroups="@filterGroups"
+                         CheckedValues="@checkedValues"
+                         CurrentApp="@currentApp"
+                         OnFilterChanged="@HandleFilterChanged" />
+
+            @if (selectedPoint != null)
+            {
+                <div class="commit-panel px-3 py-2 border-top mt-2">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <strong class="small">Commit Detail</strong>
+                        <button class="btn btn-sm btn-link p-0" @onclick="ClearSelection">Clear</button>
+                    </div>
+                    <div class="small">
+                        <div><strong>Date:</strong> @selectedPoint.Date</div>
+                        <div><strong>SDK:</strong> @selectedPoint.SdkVersion</div>
+                        @if (!string.IsNullOrEmpty(selectedPoint.VmrGitHash))
+                        {
+                            <div>
+                                <a href="https://github.com/dotnet/dotnet/commit/@selectedPoint.VmrGitHash" target="_blank" rel="noopener">
+                                    VMR @@ @selectedPoint.VmrGitHash[..Math.Min(7, selectedPoint.VmrGitHash.Length)]
+                                </a>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(selectedPoint.RuntimeGitHash))
+                        {
+                            <div>
+                                <a href="https://github.com/dotnet/runtime/commit/@selectedPoint.RuntimeGitHash" target="_blank" rel="noopener">
+                                    Runtime @@ @selectedPoint.RuntimeGitHash[..Math.Min(7, selectedPoint.RuntimeGitHash.Length)]
+                                </a>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(selectedPoint.SdkGitHash))
+                        {
+                            <div>
+                                <a href="https://github.com/dotnet/sdk/commit/@selectedPoint.SdkGitHash" target="_blank" rel="noopener">
+                                    SDK @@ @selectedPoint.SdkGitHash[..Math.Min(7, selectedPoint.SdkGitHash.Length)]
+                                </a>
+                            </div>
+                        }
+                        @if (selectedPoint.Metrics.Count > 0)
+                        {
+                            <hr class="my-1" />
+                            @foreach (var kv in selectedPoint.Metrics)
+                            {
+                                <div>@GetMetricDisplay(kv.Key): @FormatMetricValue(kv.Key, kv.Value)</div>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</aside>
+
+<main class="main-content">
+    @if (loading)
+    {
+        <div class="d-flex justify-content-center align-items-center p-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (error != null)
+    {
+        <div class="alert alert-warning m-3">@error</div>
+    }
+    else if (viewIndex != null)
+    {
+        <div class="tabs-header px-3 pt-3">
+            <AppTabs Apps="@viewIndex.Apps" ActiveApp="@currentApp" OnAppChanged="@HandleAppChanged" />
+        </div>
+
+        <div class="charts-area px-3 py-2">
+            @foreach (var metric in currentMetrics)
+            {
+                <div class="chart-container mb-3">
+                    <canvas id="chart-@currentApp-@metric"></canvas>
+                </div>
+            }
+
+            @if (currentMetrics.Count == 0)
+            {
+                <div class="text-muted p-3">No metrics available for this app.</div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-muted p-5 text-center">
+            No benchmark data yet. Run the CI pipeline to collect data.
+        </div>
+    }
+</main>
