@@ -17,9 +17,10 @@
   </Target>
 
   <ItemGroup>
-    <ProjectReference Include="blazing-pizza\BlazingPizza.Client.csproj" />
     <ProjectReference Include="empty-blazor\EmptyBlazor.csproj" />
     <ProjectReference Include="empty-browser\EmptyBrowser.csproj" />
+    <ProjectReference Include="bench-viewer\BenchViewer.csproj" />
+    <ProjectReference Include="blazing-pizza\BlazingPizza.Client.csproj" />
     <ProjectReference Include="havit-bootstrap\HavitBootstrap.csproj" />
     <ProjectReference Include="micro-benchmarks\MicroBenchmarks.csproj" />
   </ItemGroup>
