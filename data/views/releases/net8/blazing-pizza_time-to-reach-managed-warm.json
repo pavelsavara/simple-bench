@@ -1,1 +1,1 @@
-{"mono/aot/desktop/firefox":[1204,1203],"mono/aot/mobile/chrome":[985,983],"mono/devloop/desktop/firefox":[2092,2127],"mono/devloop/mobile/chrome":[1642,1730],"mono/no-workload/desktop/firefox":[1505,1565],"mono/no-workload/mobile/chrome":[1168,1228]}
+{"mono/aot/desktop/firefox":[1204,1203,1195],"mono/aot/mobile/chrome":[985,983,971],"mono/devloop/desktop/firefox":[2092,2127,2136],"mono/devloop/mobile/chrome":[1642,1730,1682],"mono/no-workload/desktop/firefox":[1505,1565,1107],"mono/no-workload/mobile/chrome":[1168,1228,1095]}
