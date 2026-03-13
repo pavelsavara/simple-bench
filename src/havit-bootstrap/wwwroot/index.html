@@ -36,6 +36,22 @@
         <span class="dismiss">🗙</span>
     </div>
     <script src="./bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script>
+        // Guard Bootstrap components against null _element during Blazor SPA transitions.
+        // When navigating away, Blazor removes DOM elements while Bootstrap transition
+        // callbacks are still pending, causing "Cannot read properties of null ('classList')".
+        (function () {
+            var Toast = bootstrap && bootstrap.Toast;
+            if (!Toast || !Toast.prototype._queueCallback) return;
+            var origQueueCb = Toast.prototype._queueCallback;
+            Toast.prototype._queueCallback = function (callback, element, isAnimated) {
+                var self = this;
+                return origQueueCb.call(this, function () {
+                    if (self._element) callback.call(self);
+                }, element, isAnimated);
+            };
+        })();
+    </script>
     <script src="./echarts.min.js" crossorigin="anonymous"></script>
     <script src="./prism.min.js" crossorigin="anonymous"></script>
     <script src="./prism-autoloader.min.js" crossorigin="anonymous"></script>
