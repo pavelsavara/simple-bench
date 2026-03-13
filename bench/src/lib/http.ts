@@ -54,20 +54,41 @@ export function githubHeaders(token?: string): Record<string, string> {
 
 /**
  * Fetch JSON from a URL. Returns null on 404.
- * Throws on rate-limit (403/429) and other server errors.
+ * Retries with exponential backoff on rate-limit (403/429).
+ * Throws after max retries.
  */
 export async function fetchJson<T>(url: string, headers?: Record<string, string>): Promise<T | null> {
-    const resp = await fetch(url, { headers });
-    if (resp.ok) return await resp.json() as T;
+    const maxRetries = 5;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        const resp = await fetch(url, { headers });
+        if (resp.ok) return await resp.json() as T;
 
-    if (resp.status === 404) return null;
+        if (resp.status === 404) return null;
 
-    if (resp.status === 403 || resp.status === 429) {
-        const body = await resp.text().catch(() => '');
-        throw new Error(`Rate limited (${resp.status}) fetching ${url}: ${body.slice(0, 200)}`);
+        if (resp.status === 403 || resp.status === 429) {
+            const body = await resp.text().catch(() => '');
+            if (attempt === maxRetries) {
+                throw new Error(`Rate limited (${resp.status}) fetching ${url}: ${body.slice(0, 200)}`);
+            }
+            // Use Retry-After header, X-RateLimit-Reset, or exponential backoff
+            let delaySec = Math.pow(2, attempt + 1); // 2, 4, 8, 16, 32
+            const retryAfter = resp.headers.get('Retry-After');
+            const rateLimitReset = resp.headers.get('X-RateLimit-Reset');
+            if (retryAfter) {
+                delaySec = Math.max(parseInt(retryAfter, 10) || delaySec, 1);
+            } else if (rateLimitReset) {
+                const resetTime = parseInt(rateLimitReset, 10) * 1000;
+                const waitMs = resetTime - Date.now();
+                if (waitMs > 0 && waitMs < 120_000) delaySec = Math.ceil(waitMs / 1000);
+            }
+            info(`Rate limited (${resp.status}), retrying in ${delaySec}s (attempt ${attempt + 1}/${maxRetries})...`);
+            await new Promise(r => setTimeout(r, delaySec * 1000));
+            continue;
+        }
+
+        // Other errors — return null (transient / unknown)
+        return null;
     }
-
-    // Other errors — return null (transient / unknown)
     return null;
 }
 
