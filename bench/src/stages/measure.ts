@@ -325,6 +325,14 @@ async function measureBrowser(
                 if (ctx.verbose) debug(`Havit walkthrough completed: ${havitWalkthrough}ms`);
             }
 
+            // Collect internal benchmark samples before closing the page
+            let benchSamples: Record<string, number[]> | null = null;
+            if (isInternal) {
+                benchSamples = await page.evaluate(
+                    () => (globalThis as Record<string, unknown>).bench_samples as Record<string, number[]>,
+                );
+            }
+
             // Stop memory sampling + settle
             if (useCDP && client) {
                 await sleep(2000);
@@ -343,15 +351,12 @@ async function measureBrowser(
 
             // Assemble metrics
             if (isInternal) {
-                const benchSamples: Record<string, number[]> = await page.evaluate(
-                    () => (globalThis as Record<string, unknown>).bench_samples as Record<string, number[]>,
-                );
 
                 const internalKeys = ['js-interop-ops', 'json-parse-ops', 'exception-ops'] as const;
                 const statsMap: Record<string, SampleStats> = {};
                 for (const key of internalKeys) {
-                    if (benchSamples[key]?.length > 0) {
-                        statsMap[key] = computeStats(benchSamples[key]);
+                    if (benchSamples![key]?.length > 0) {
+                        statsMap[key] = computeStats(benchSamples![key]);
                     }
                 }
 
