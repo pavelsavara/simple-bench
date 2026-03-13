@@ -20,6 +20,7 @@ import {
 import { PROFILES } from '../lib/throttle-profiles.js';
 import { getEngineCommand, parseCliOutput } from '../lib/internal-utils.js';
 import { runPizzaWalkthrough } from '../lib/pizza-walkthrough.js';
+import { runHavitWalkthrough } from '../lib/havit-walkthrough.js';
 import { type SampleStats, computeStats, formatStats } from '../lib/stats.js';
 
 // ── Stage Entry Point ────────────────────────────────────────────────────────
@@ -316,6 +317,14 @@ async function measureBrowser(
                 if (ctx.verbose) debug(`Pizza walkthrough completed: ${pizzaWalkthru}ms`);
             }
 
+            // Havit walkthrough (havit-bootstrap only, browser engines, desktop profile)
+            let havitWalkthru: number | null = null;
+            if (entry.app === A.HavitBlazor && profile === 'desktop') {
+                if (ctx.verbose) debug(`Running havit walkthrough...`);
+                havitWalkthru = await runHavitWalkthrough(page, pageUrl, timeout, ctx.verbose);
+                if (ctx.verbose) debug(`Havit walkthrough completed: ${havitWalkthru}ms`);
+            }
+
             // Stop memory sampling + settle
             if (useCDP && client) {
                 await sleep(2000);
@@ -370,6 +379,7 @@ async function measureBrowser(
                 [MetricKey.TimeToReachManagedCold]: timeToReachManagedCold,
                 [MetricKey.MemoryPeak]: useCDP ? (memoryPeak || null) : null,
                 [MetricKey.PizzaWalkthru]: pizzaWalkthru,
+                [MetricKey.HavitWalkthru]: havitWalkthru,
             };
         } catch (e) {
             lastError = e instanceof Error ? e : new Error(String(e));

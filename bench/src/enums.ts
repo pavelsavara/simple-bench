@@ -61,6 +61,7 @@ export enum MetricKey {
     TimeToReachManagedCold = 'time-to-reach-managed-cold',
     MemoryPeak = 'memory-peak',
     PizzaWalkthru = 'pizza-walkthru',
+    HavitWalkthru = 'havit-walkthru',
     JsInteropOps = 'js-interop-ops',
     JsonParseOps = 'json-parse-ops',
     ExceptionOps = 'exception-ops',
