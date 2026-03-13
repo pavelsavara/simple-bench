@@ -2,7 +2,7 @@
   "feed": "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet11/nuget/v3/index.json",
   "major": 11,
   "months": 3,
-  "fetchedAt": "2026-03-13T01:13:59.766Z",
+  "fetchedAt": "2026-03-13T01:52:38.504Z",
   "totalPacks": 149,
   "packs": [
     {
