@@ -21,6 +21,7 @@ export const METRICS: Record<MetricKey, MetricInfo> = {
     [MetricKey.JsInteropOps]: { displayName: 'JS Interop', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.JsonParseOps]: { displayName: 'JSON Parse', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.ExceptionOps]: { displayName: 'Exception Handling', unit: 'ops/sec', category: 'throughput' },
+    [MetricKey.HavitWalkthru]: { displayName: 'Havit Walkthrough', unit: 'ms', category: 'time' },
 };
 
 export const EXTERNAL_METRICS: MetricKey[] = [
@@ -33,6 +34,7 @@ export const EXTERNAL_METRICS: MetricKey[] = [
     MetricKey.TimeToReachManagedCold,
     MetricKey.MemoryPeak,
     MetricKey.PizzaWalkthru,
+    MetricKey.HavitWalkthru,
 ];
 
 export const INTERNAL_METRICS: MetricKey[] = [

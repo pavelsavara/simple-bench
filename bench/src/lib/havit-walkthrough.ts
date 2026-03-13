@@ -25,23 +25,20 @@ type PlaywrightPage = {
 
 /**
  * Pages to visit via sidebar navigation.
- * Each entry: [sidebar link href suffix, URL pattern to wait for, selector to confirm page loaded].
+ * Each entry: [category button name, sidebar link href, URL pattern, content selector].
+ *
+ * The sidebar uses Bootstrap collapse: child links are hidden until their parent
+ * category button is clicked.  Each link also exists in a dropdown-menu duplicate,
+ * so we target only the collapse-section copy with :not(.dropdown-item).
  */
-const SIDEBAR_PAGES: Array<[string, RegExp, string]> = [
-    // Forms category
-    ['/components/HxInputText', /\/components\/HxInputText/, 'h1'],
-    // Buttons & Indicators
-    ['/components/HxButton', /\/components\/HxButton/, 'h1'],
-    // Data & Grid
-    ['/components/HxGrid', /\/components\/HxGrid/, 'h1'],
-    // Layout & Typography
-    ['/components/HxAccordion', /\/components\/HxAccordion/, 'h1'],
-    // Navigation
-    ['/components/HxSidebar', /\/components\/HxSidebar/, 'h1'],
-    // Modals & Interactions
-    ['/components/HxModal', /\/components\/HxModal/, 'h1'],
-    // Concepts
-    ['/concepts/defaults-and-settings', /\/concepts\/defaults-and-settings/, 'h1'],
+const SIDEBAR_PAGES: Array<[string, string, RegExp, string]> = [
+    ['Forms', '/components/HxInputText', /\/components\/HxInputText/, 'h1'],
+    ['Buttons & Indicators', '/components/HxButton', /\/components\/HxButton/, 'h1'],
+    ['Data & Grid', '/components/HxGrid', /\/components\/HxGrid/, 'h1'],
+    ['Layout & Typography', '/components/HxAccordion', /\/components\/HxAccordion/, 'h1'],
+    ['Navigation', '/components/HxSidebar', /\/components\/HxSidebar/, 'h1'],
+    ['Modals & Interactions', '/components/HxModal', /\/components\/HxModal/, 'h1'],
+    ['Concepts', '/concepts/defaults-and-settings', /\/concepts\/defaults-and-settings/, 'h1'],
 ];
 
 /**
@@ -76,9 +73,31 @@ export async function runHavitWalkthrough(
     log('getting-started loaded');
 
     // ── Step 2: Visit pages via sidebar links ────────────────────────────
-    for (const [href, urlPattern, contentSelector] of SIDEBAR_PAGES) {
+    for (const [category, href, urlPattern, contentSelector] of SIDEBAR_PAGES) {
+        // Expand the category's collapse section by matching inner text
+        log(`expanding category: ${category}`);
+        await page.evaluate((cat: string) => {
+            const buttons = document.querySelectorAll<HTMLAnchorElement>(
+                '.hx-sidebar-item a[role="button"]',
+            );
+            for (const btn of buttons) {
+                const inner = btn.querySelector('.hx-sidebar-item-navlink-content-inner');
+                if (inner && inner.textContent?.trim() === cat) {
+                    btn.click();
+                    return;
+                }
+            }
+        }, category);
+        // Wait for the collapse section link to become visible
+        await page.waitForSelector(
+            `a.nav-link.hx-sidebar-item:not(.dropdown-item)[href="${href}"]`,
+            { timeout: t, state: 'visible' },
+        );
         log(`clicking sidebar link: ${href}`);
-        await page.click(`.doc-sidebar a[href="${href}"]`, { timeout: t });
+        await page.click(
+            `a.nav-link.hx-sidebar-item:not(.dropdown-item)[href="${href}"]`,
+            { timeout: t },
+        );
         await page.waitForURL(urlPattern, { timeout: t });
         await page.waitForSelector(`.doc-content ${contentSelector}`, { timeout: t });
         log(`loaded: ${href}`);
