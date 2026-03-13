@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "runtimeCommitDateTime": "2024-05-17T17:16:28Z",
+    "runtimeCommitAuthor": "Matt Mitchell",
+    "runtimeCommitMessage": "Merged PR 39680: Update to arcade with emsdk 225841",
+    "sdkVersion": "8.0.302",
+    "runtimeGitHash": "3b8b000a0e115700b18265d8ec8c6307056dc94d",
+    "aspnetCoreGitHash": "b8139c5ee58f1708b0e3368a1b241400edd6cbc4",
+    "sdkGitHash": "2f67447c504e79e71919f9a13c59617896999586",
+    "vmrGitHash": "2f67447c504e79e71919f9a13c59617896999586",
+    "aspnetCoreCommitDateTime": "2024-05-20T03:56:00Z",
+    "aspnetCoreVersion": "8.0.6",
+    "runtimePackVersion": "8.0.6",
+    "workloadVersion": "8.0.25",
+    "runtime": "mono",
+    "preset": "no-jiterp",
+    "profile": "desktop",
+    "engine": "v8",
+    "app": "micro-benchmarks",
+    "benchmarkDateTime": "2026-03-13T19:24:19.691Z",
+    "warmRunCount": 3,
+    "ciRunId": "23066229132",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23066229132"
+  },
+  "metrics": {
+    "compile-time": 31621,
+    "js-interop-ops": 2268755,
+    "json-parse-ops": 24788,
+    "exception-ops": 330
+  }
+}
