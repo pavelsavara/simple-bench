@@ -30,14 +30,17 @@ public partial class GatewayToPremium(
 
 	private async Task RedirectToPremiumContentIfCookieIsSet()
 	{
-		if (RendererInfo.IsInteractive)
+#if NET9_0_OR_GREATER
+		if (!RendererInfo.IsInteractive)
 		{
-			await EnsureJsModuleAsync();
-			string skipGatewayPage = await _jsModule.InvokeAsync<string>("getSkipGatewayPage");
-			if (skipGatewayPage == SkipGatewayPageCookieEnabledValue)
-			{
-				_navigationManager.NavigateTo(Url);
-			}
+			return;
+		}
+#endif
+		await EnsureJsModuleAsync();
+		string skipGatewayPage = await _jsModule.InvokeAsync<string>("getSkipGatewayPage");
+		if (skipGatewayPage == SkipGatewayPageCookieEnabledValue)
+		{
+			_navigationManager.NavigateTo(Url);
 		}
 	}
 

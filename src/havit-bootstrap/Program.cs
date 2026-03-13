@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using System.Globalization;
 using Havit.Blazor.Documentation.DemoData;
+using Havit.Blazor.Documentation.Services;
+using Havit.Blazor.Documentation.Shared.Components;
 using Havit.Blazor.Documentation.Shared.Components.DocColorMode;
 using Havit.Blazor.Documentation.Pages.Showcase.Data;
 
@@ -32,6 +34,12 @@ public class Program
 		});
 
 		builder.Services.AddTransient<IDemoDataService, DemoDataService>();
+
+		builder.Services.AddSingleton<IDocPageNavigationItemsTracker, DocPageNavigationItemsTracker>();
+		builder.Services.AddScoped<DocHeadContentTracker>();
+
+		builder.Services.AddSingleton<IApiDocModelBuilder, ApiDocModelBuilder>();
+		builder.Services.AddSingleton<IApiDocModelProvider, ApiDocModelProvider>();
 
 		await builder.Build().RunAsync();
 	}
