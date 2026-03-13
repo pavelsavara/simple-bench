@@ -1,5 +1,6 @@
 import { type BenchContext } from '../context.js';
 import { commitAndPush } from '../lib/git-push.js';
+import { info } from '../log.js';
 
 // ── Stage: update-views ──────────────────────────────────────────────────────
 //
@@ -10,9 +11,14 @@ import { commitAndPush } from '../lib/git-push.js';
 // run first.
 
 export async function run(ctx: BenchContext): Promise<BenchContext> {
+    if (ctx.dryRun) {
+        info('Skipping update-views (dry-run)');
+        return ctx;
+    }
+
     await commitAndPush({
         repoRoot: ctx.repoRoot,
-        dryRun: ctx.dryRun,
+        dryRun: false,
         addPaths: ['data/'],
         commitMessage: `Update views ${new Date().toISOString().slice(0, 10)}`,
         label: 'Views',
