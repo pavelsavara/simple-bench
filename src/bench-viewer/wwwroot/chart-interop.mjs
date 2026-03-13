@@ -10,6 +10,7 @@ let viewIndex = null;
 let loadGeneration = 0;    // guards against concurrent loadAppCharts calls
 let currentTimeRange = 'all';   // '7d', '30d', '90d', '1y', 'all'
 let pointClickCallback = null;  // C# callback for chart point clicks
+let showReleases = true;         // Whether to show GA release data on charts
 
 // ── Series Encoding ──────────────────────────────────────────────────────────
 
@@ -169,15 +170,20 @@ const frozenZonePlugin = {
     id: 'frozenZone',
     beforeDraw(chart) {
         const meta = chart.options.plugins.frozenZone;
-        if (!meta || !meta.dividerX) return;
+        if (!meta || !meta.dividerDate) return;
+        const xScale = chart.scales.x;
+        if (!xScale) return;
+        const x = xScale.getPixelForValue(new Date(meta.dividerDate));
+        if (x == null || isNaN(x)) return;
         const { ctx, chartArea } = chart;
+        if (x < chartArea.left || x > chartArea.right) return;
         ctx.save();
         ctx.strokeStyle = '#ccc';
         ctx.lineWidth = 2;
         ctx.setLineDash([4, 4]);
         ctx.beginPath();
-        ctx.moveTo(meta.dividerX, chartArea.top);
-        ctx.lineTo(meta.dividerX, chartArea.bottom);
+        ctx.moveTo(x, chartArea.top);
+        ctx.lineTo(x, chartArea.bottom);
         ctx.stroke();
         ctx.restore();
     }
@@ -266,40 +272,54 @@ export async function loadAppCharts(app, filtersJson) {
         const datasets = [];
         const allRowKeys = new Set();
 
-        // ── Release data (frozen zone) ──
-        for (const bucket of releaseBuckets) {
-            // Skip if this bucket's header doesn't list this app+metric
-            const bucketMetrics = bucket.header.apps?.[app];
-            if (!bucketMetrics || !bucketMetrics.includes(metric)) continue;
+        // ── Release data (frozen zone) with synthetic dates ──
+        // Compute synthetic dates per release bucket:
+        // Use the first column's runtimeCommitDateTime as baseline,
+        // then +1 day for each subsequent release in the same major.
+        const frozenPointsByRow = {};  // rowKey → points[]
 
-            const dataUrl = `${dataBaseUrl}/${bucket.path}/${app}_${metric}.json`;
-            const metricData = await fetchJson(dataUrl);
-            if (!metricData) continue;
+        if (showReleases) {
+            for (const bucket of releaseBuckets) {
+                const bucketMetrics = bucket.header.apps?.[app];
+                if (!bucketMetrics || !bucketMetrics.includes(metric)) continue;
 
-            for (const [rowKey, values] of Object.entries(metricData)) {
-                allRowKeys.add(rowKey);
-                if (!isRowVisible(rowKey, filters, metric)) continue;
+                const dataUrl = `${dataBaseUrl}/${bucket.path}/${app}_${metric}.json`;
+                const metricData = await fetchJson(dataUrl);
+                if (!metricData) continue;
 
-                const points = values.map((v, i) => {
-                    const col = bucket.header.columns[i];
-                    return {
-                        x: col ? col.sdkVersion : `${bucket.label}-${i}`,
-                        y: v,
-                        _colIndex: i,
-                        _bucket: bucket.path,
-                        _bucketType: 'release',
-                    };
-                }).filter(p => p.y != null);
-
-                if (points.length === 0) continue;
-
-                datasets.push({
-                    label: `${formatRowLabel(rowKey, metric)} (${bucket.label})`,
-                    data: points,
-                    ...makeDatasetStyle(rowKey),
-                    _rowKey: rowKey,
-                    _zone: 'frozen',
+                // Compute synthetic dates for this bucket's columns
+                const cols = bucket.header.columns || [];
+                const baseDate = cols[0]?.runtimeCommitDateTime
+                    ? new Date(cols[0].runtimeCommitDateTime) : null;
+                const syntheticDates = cols.map((col, i) => {
+                    if (!baseDate) return null;
+                    return new Date(baseDate.getTime() + i * 86400000).toISOString();
                 });
+
+                for (const [rowKey, values] of Object.entries(metricData)) {
+                    allRowKeys.add(rowKey);
+                    if (!isRowVisible(rowKey, filters, metric)) continue;
+
+                    const points = values.map((v, i) => {
+                        const col = cols[i];
+                        const synthDate = syntheticDates[i];
+                        if (!synthDate) return null;
+                        return {
+                            x: synthDate,
+                            y: v,
+                            _colIndex: i,
+                            _bucket: bucket.path,
+                            _bucketType: 'release',
+                            _sdkVersion: col?.sdkVersion || bucket.label,
+                            _releaseLabel: bucket.label,
+                        };
+                    }).filter(p => p != null && p.y != null);
+
+                    if (points.length === 0) continue;
+
+                    if (!frozenPointsByRow[rowKey]) frozenPointsByRow[rowKey] = [];
+                    frozenPointsByRow[rowKey].push(...points);
+                }
             }
         }
 
@@ -354,45 +374,69 @@ export async function loadAppCharts(app, filtersJson) {
             }
         }
 
-        if (datasets.length === 0) continue;
+        // ── Merge frozen (release) points into active datasets ──
+        // For each rowKey with frozen data, prepend to matching active dataset
+        // or create standalone dataset. Insert null gap to break the line.
+        const mergedDatasets = [];
+        const consumedFrozenRows = new Set();
 
-        // Sort active zone data by date
         for (const ds of datasets) {
-            if (ds._zone === 'active') {
-                ds.data.sort((a, b) => new Date(a.x) - new Date(b.x));
+            if (ds._zone !== 'active') continue;
+            ds.data.sort((a, b) => new Date(a.x) - new Date(b.x));
+
+            const frozenPts = frozenPointsByRow[ds._rowKey];
+            if (frozenPts && frozenPts.length > 0) {
+                frozenPts.sort((a, b) => new Date(a.x) - new Date(b.x));
+                // Insert null-y gap point between last frozen and first active
+                const lastFrozen = new Date(frozenPts[frozenPts.length - 1].x);
+                const firstActive = new Date(ds.data[0].x);
+                const gapDate = new Date((lastFrozen.getTime() + firstActive.getTime()) / 2).toISOString();
+                ds.data = [...frozenPts, { x: gapDate, y: null }, ...ds.data];
+                consumedFrozenRows.add(ds._rowKey);
             }
+            mergedDatasets.push(ds);
         }
+
+        // Add standalone datasets for frozen-only rows (no active data)
+        for (const [rowKey, points] of Object.entries(frozenPointsByRow)) {
+            if (consumedFrozenRows.has(rowKey)) continue;
+            if (points.length === 0) continue;
+            points.sort((a, b) => new Date(a.x) - new Date(b.x));
+            mergedDatasets.push({
+                label: formatRowLabel(rowKey, metric),
+                data: points,
+                ...makeDatasetStyle(rowKey),
+                _rowKey: rowKey,
+                _zone: 'frozen',
+            });
+        }
+
+        if (mergedDatasets.length === 0) continue;
 
         const unit = METRIC_UNITS[metric] || '';
         const displayName = METRIC_DISPLAY[metric] || metric;
 
-        // Determine if we have both zones
-        const hasFrozen = datasets.some(d => d._zone === 'frozen');
-        const hasActive = datasets.some(d => d._zone === 'active');
-
-        // For simplicity in Phase 1: render active zone as time chart,
-        // frozen zone as category points on the left
-        // We use a single linear chart with all data converted to dates
-        // Release data uses synthetic dates before the active range
-
-        let chartDatasets;
-        let xAxisType;
-
-        if (hasActive && !hasFrozen) {
-            // Pure time chart
-            chartDatasets = datasets.filter(d => d._zone === 'active');
-            xAxisType = 'time';
-        } else if (hasFrozen && !hasActive) {
-            // Pure category chart
-            chartDatasets = datasets.filter(d => d._zone === 'frozen');
-            xAxisType = 'category';
-        } else {
-            // Both: use time for active, show frozen separately
-            // Phase 1: just show active data as time chart
-            chartDatasets = datasets.filter(d => d._zone === 'active');
-            if (chartDatasets.length === 0) chartDatasets = datasets.filter(d => d._zone === 'frozen');
-            xAxisType = chartDatasets[0]?._zone === 'active' ? 'time' : 'category';
+        // Compute frozen zone divider date (midpoint between last release and first active point)
+        let lastReleaseDate = null;
+        let firstActiveDate = null;
+        for (const ds of mergedDatasets) {
+            for (const pt of ds.data) {
+                if (pt.y == null) continue;
+                if (pt._bucketType === 'release') {
+                    const d = new Date(pt.x);
+                    if (!lastReleaseDate || d > lastReleaseDate) lastReleaseDate = d;
+                } else if (pt._bucketType === 'week') {
+                    const d = new Date(pt.x);
+                    if (!firstActiveDate || d < firstActiveDate) firstActiveDate = d;
+                }
+            }
         }
+        let dividerDate = null;
+        if (lastReleaseDate && firstActiveDate) {
+            dividerDate = new Date((lastReleaseDate.getTime() + firstActiveDate.getTime()) / 2).toISOString();
+        }
+
+        const chartDatasets = mergedDatasets;
 
         const config = {
             type: 'line',
@@ -426,7 +470,7 @@ export async function loadAppCharts(app, filtersJson) {
                                 if (!items.length) return '';
                                 const pt = items[0].raw;
                                 if (pt._bucketType === 'release') {
-                                    return `SDK: ${pt.x}`;
+                                    return `Release: ${pt._sdkVersion || pt._releaseLabel}`;
                                 }
                                 return `Date: ${new Date(pt.x).toLocaleDateString()}`;
                             },
@@ -455,19 +499,16 @@ export async function loadAppCharts(app, filtersJson) {
                             mode: 'x',
                         },
                     },
-                    frozenZone: {},
+                    frozenZone: dividerDate ? { dividerDate } : {},
                 },
                 scales: {
-                    x: xAxisType === 'time' ? {
+                    x: {
                         type: 'time',
                         time: {
                             unit: 'day',
                             tooltipFormat: 'MMM d, yyyy',
                         },
                         title: { display: true, text: 'Date' },
-                    } : {
-                        type: 'category',
-                        title: { display: true, text: 'SDK Version' },
                     },
                     y: {
                         title: { display: true, text: unit },
@@ -634,4 +675,12 @@ export function registerPointClickCallback(callback) {
  */
 export function getTimeRange() {
     return currentTimeRange;
+}
+
+/**
+ * Set whether to show GA release data on charts.
+ * @param {boolean} show
+ */
+export function setShowReleases(show) {
+    showReleases = !!show;
 }

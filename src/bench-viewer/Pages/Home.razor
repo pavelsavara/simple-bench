@@ -20,6 +20,16 @@
     <div class="sidebar-body">
         @if (viewIndex != null)
         {
+            <div class="px-3 py-2 border-bottom">
+                <div class="form-check form-check-sm">
+                    <input class="form-check-input" type="checkbox" id="show-releases"
+                           checked="@showReleases"
+                           @onchange="e => HandleShowReleasesChanged((bool)e.Value!)" />
+                    <label class="form-check-label small" for="show-releases">
+                        Show GA releases
+                    </label>
+                </div>
+            </div>
             <FilterPanel FilterGroups="@filterGroups"
                          CheckedValues="@checkedValues"
                          CurrentApp="@currentApp"

@@ -36,4 +36,7 @@ public static partial class ChartInterop
 
     [JSImport("getTimeRange", ModuleName)]
     internal static partial string GetTimeRange();
+
+    [JSImport("setShowReleases", ModuleName)]
+    internal static partial void SetShowReleases(bool show);
 }
