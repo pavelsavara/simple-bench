@@ -1,4 +1,6 @@
-﻿namespace Havit.Blazor.Documentation.Shared;
+﻿using Havit.Blazor.Documentation.Shared.Components;
+
+namespace Havit.Blazor.Documentation.Shared;
 
 public partial class MainLayout
 {
@@ -8,6 +10,13 @@ public partial class MainLayout
 	[Inject] protected NavigationManager NavigationManager { get; set; }
 
 	private string _title;
+
+	private DocHeadContentTracker _docHeadContentTracker;
+
+	protected override void OnInitialized()
+	{
+		_docHeadContentTracker = new DocHeadContentTracker(NavigationManager);
+	}
 
 	protected override void OnParametersSet()
 	{
