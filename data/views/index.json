@@ -1,15 +1,16 @@
 {
-  "lastUpdated": "2026-03-14T19:33:26.416Z",
+  "lastUpdated": "2026-03-14T20:23:59.353Z",
   "activeRelease": "",
   "releases": [
-    "net8"
+    "net10"
   ],
   "weeks": [],
   "apps": [
     "blazing-pizza",
     "empty-blazor",
     "havit-bootstrap",
-    "micro-benchmarks"
+    "micro-benchmarks",
+    "mud-blazor"
   ],
   "metrics": {
     "blazing-pizza": [
@@ -60,6 +61,19 @@
       "time-to-create-dotnet-warm",
       "time-to-exit-cold",
       "time-to-exit-warm",
+      "wasm-memory-size"
+    ],
+    "mud-blazor": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-total",
+      "memory-peak",
+      "mud-walkthrough",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
       "wasm-memory-size"
     ]
   },
