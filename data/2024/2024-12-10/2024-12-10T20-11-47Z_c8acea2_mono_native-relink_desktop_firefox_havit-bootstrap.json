@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "runtimeCommitDateTime": "2024-12-10T20:11:47Z",
+    "runtimeCommitAuthor": "Mirroring",
+    "runtimeCommitMessage": "Merge commit '756e62050722c168cd3b753be73b7cbcd93f06d6'",
+    "sdkVersion": "9.0.102",
+    "runtimeGitHash": "c8acea22626efab11c13778c028975acdc34678f",
+    "aspnetCoreGitHash": "4442a188f9200a57635373dcd640893c0e8dcc78",
+    "sdkGitHash": "cb83cd4923f0973ae11dfb5602737493bf165210",
+    "vmrGitHash": "cb83cd4923f0973ae11dfb5602737493bf165210",
+    "aspnetCoreCommitDateTime": "2024-12-11T05:57:30Z",
+    "aspnetCoreVersion": "9.0.1",
+    "runtimePackVersion": "9.0.1",
+    "workloadVersion": "9.0.14",
+    "runtime": "mono",
+    "preset": "native-relink",
+    "profile": "desktop",
+    "engine": "firefox",
+    "app": "havit-bootstrap",
+    "benchmarkDateTime": "2026-03-14T05:01:37.641Z",
+    "warmRunCount": 3,
+    "ciRunId": "23080619524",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23080619524"
+  },
+  "metrics": {
+    "compile-time": 51716,
+    "disk-size-total": 38407897,
+    "disk-size-native": 2848959,
+    "disk-size-assemblies": 7022165,
+    "time-to-reach-managed-warm": 893,
+    "time-to-reach-managed-cold": 1130
+  }
+}
