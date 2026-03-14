@@ -75,12 +75,12 @@ const METRIC_DISPLAY = {
 
 // Build-time metrics are identical across engines/profiles — only show chrome/desktop
 const BUILD_METRICS = new Set([
-    'compile-time', 'disk-size-total', 'disk-size-native', 'disk-size-assemblies', 'download-size-total',
+    'compile-time', 'disk-size-native', 'disk-size-assemblies', 'download-size-total',
 ]);
 
 // Metrics to skip for micro-benchmarks (not meaningful for internal throughput tests)
 const MICROBENCH_SKIP_METRICS = new Set([
-    'compile-time', 'disk-size-total', 'disk-size-native', 'disk-size-assemblies', 'download-size-total',
+    'compile-time', 'disk-size-native', 'disk-size-assemblies', 'download-size-total',
 ]);
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -125,6 +125,9 @@ function isRowVisible(rowKey, filters, metric) {
     // Build-time metrics: only show chrome/desktop (values are identical across engines)
     if (BUILD_METRICS.has(metric)) {
         if (d.engine !== 'chrome' || d.profile !== 'desktop') return false;
+        // Skip engine/profile filters — always display if runtime and preset match
+        return filters.runtimes.includes(d.runtime)
+            && filters.presets.includes(d.preset);
     }
     return filters.runtimes.includes(d.runtime)
         && filters.presets.includes(d.preset)
@@ -293,7 +296,7 @@ export async function loadAppCharts(app, filtersJson) {
                     ? new Date(cols[0].runtimeCommitDateTime) : null;
                 const syntheticDates = cols.map((col, i) => {
                     if (!baseDate) return null;
-                    return new Date(baseDate.getTime() + i * 86400000).toISOString();
+                    return new Date(baseDate.getTime() + i * 7 * 86400000).toISOString();
                 });
 
                 for (const [rowKey, values] of Object.entries(metricData)) {
