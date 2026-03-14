@@ -1,22 +1,21 @@
 {
-  "lastUpdated": "2026-03-14T22:56:48.473Z",
-  "activeRelease": "net11",
-  "releases": [
-    "net10",
-    "net8",
-    "net9"
+  "columns": [
+    {
+      "runtimeGitHash": "19c07820cb72aafc554c3bc8fe3c54010f5123f0",
+      "aspnetCoreGitHash": "baa6b294e728e6171378b4e8c52e42e7c4d4ed63",
+      "sdkGitHash": "c45411d3fd7049c50a8bd4391ecb9ff7080fc519",
+      "vmrGitHash": "c45411d3fd7049c50a8bd4391ecb9ff7080fc519",
+      "runtimeCommitDateTime": "2026-02-19T17:58:18Z",
+      "runtimeCommitAuthor": "Tanner Gooding",
+      "runtimeCommitMessage": "#124513 - Guard Base64Url.DecodeFromChars against non-ASCII input (#124540)",
+      "aspnetCoreCommitDateTime": "2026-02-20T05:57:52Z",
+      "aspnetCoreVersion": "9.0.14",
+      "sdkVersion": "9.0.312",
+      "runtimePackVersion": "9.0.14",
+      "workloadVersion": "9.0.14"
+    }
   ],
-  "weeks": [
-    "2026-03-09"
-  ],
-  "apps": [
-    "blazing-pizza",
-    "empty-blazor",
-    "havit-bootstrap",
-    "micro-benchmarks",
-    "mud-blazor"
-  ],
-  "metrics": {
+  "apps": {
     "blazing-pizza": [
       "compile-time",
       "disk-size-assemblies",
@@ -81,28 +80,5 @@
       "wasm-memory-size"
     ]
   },
-  "dimensions": {
-    "runtimes": [
-      "mono"
-    ],
-    "presets": [
-      "aot",
-      "devloop",
-      "invariant",
-      "native-relink",
-      "no-jiterp",
-      "no-reflection-emit",
-      "no-workload"
-    ],
-    "profiles": [
-      "desktop",
-      "mobile"
-    ],
-    "engines": [
-      "chrome",
-      "firefox",
-      "node",
-      "v8"
-    ]
-  }
+  "release": "net9"
 }
