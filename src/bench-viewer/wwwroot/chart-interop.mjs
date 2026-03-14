@@ -96,6 +96,23 @@ const MICROBENCH_SKIP_METRICS = new Set([
     'compile-time', 'disk-size-native', 'disk-size-assemblies', 'download-size-total',
 ]);
 
+// Release tick spacing: feature band (hundreds digit × 100) × 12h + service release (last 2 digits) × 24h
+// e.g. 8.0.100 → band=100, svc=0; 8.0.302 → band=300, svc=2; 8.0.406 → band=400, svc=6
+const RELEASE_BAND_INTERVAL_MS = 12 * 3600000;     // 12 hours per band unit (band 100 = 50 days)
+const RELEASE_SERVICE_INTERVAL_MS = 24 * 3600000;   // 24 hours per service release
+
+function parseSdkPatch(sdkVersion) {
+    const parts = sdkVersion.split('.');
+    if (parts.length < 3) return 0;
+    return parseInt(parts[2].split('-')[0], 10) || 0;
+}
+
+function releasePatchOffsetMs(patch) {
+    const band = Math.floor(patch / 100) * 100;  // 100, 200, 300, 400
+    const service = patch % 100;                   // 0, 1, 2, ...
+    return band * RELEASE_BAND_INTERVAL_MS + service * RELEASE_SERVICE_INTERVAL_MS;
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 async function fetchJson(url) {
@@ -188,21 +205,23 @@ const frozenZonePlugin = {
     id: 'frozenZone',
     beforeDraw(chart) {
         const meta = chart.options.plugins.frozenZone;
-        if (!meta || !meta.dividerDate) return;
+        if (!meta || !meta.dividerDates || !meta.dividerDates.length) return;
         const xScale = chart.scales.x;
         if (!xScale) return;
-        const x = xScale.getPixelForValue(new Date(meta.dividerDate));
-        if (x == null || isNaN(x)) return;
         const { ctx, chartArea } = chart;
-        if (x < chartArea.left || x > chartArea.right) return;
         ctx.save();
         ctx.strokeStyle = '#ccc';
         ctx.lineWidth = 2;
         ctx.setLineDash([4, 4]);
-        ctx.beginPath();
-        ctx.moveTo(x, chartArea.top);
-        ctx.lineTo(x, chartArea.bottom);
-        ctx.stroke();
+        for (const d of meta.dividerDates) {
+            const x = xScale.getPixelForValue(new Date(d));
+            if (x == null || isNaN(x)) continue;
+            if (x < chartArea.left || x > chartArea.right) continue;
+            ctx.beginPath();
+            ctx.moveTo(x, chartArea.top);
+            ctx.lineTo(x, chartArea.bottom);
+            ctx.stroke();
+        }
         ctx.restore();
     }
 };
@@ -290,10 +309,9 @@ export async function loadAppCharts(app, filtersJson) {
         const datasets = [];
         const allRowKeys = new Set();
 
-        // ── Release data (frozen zone) with synthetic dates ──
-        // Compute synthetic dates per release bucket:
-        // Use the first column's runtimeCommitDateTime as baseline,
-        // then +1 day for each subsequent release in the same major.
+        // ── Release data (frozen zone) ──
+        // First release in each major anchors at its runtimeCommitDateTime.
+        // Subsequent releases offset by (patch - firstPatch) * 4 hours.
         const frozenPointsByRow = {};  // rowKey → points[]
 
         if (showReleases) {
@@ -305,13 +323,18 @@ export async function loadAppCharts(app, filtersJson) {
                 const metricData = await fetchJson(dataUrl);
                 if (!metricData) continue;
 
-                // Compute synthetic dates for this bucket's columns
+                // Compute tick dates: anchor on first column's runtimeCommitDateTime,
+                // offset subsequent columns by (patch - firstPatch) * 4h
                 const cols = bucket.header.columns || [];
-                const baseDate = cols[0]?.runtimeCommitDateTime
-                    ? new Date(cols[0].runtimeCommitDateTime) : null;
-                const syntheticDates = cols.map((col, i) => {
-                    if (!baseDate) return null;
-                    return new Date(baseDate.getTime() + i * 7 * 86400000).toISOString();
+                const firstCol = cols[0];
+                const anchorDate = firstCol?.runtimeCommitDateTime
+                    ? new Date(firstCol.runtimeCommitDateTime) : null;
+                const firstPatch = firstCol ? parseSdkPatch(firstCol.sdkVersion) : 0;
+                const firstOffset = releasePatchOffsetMs(firstPatch);
+                const tickDates = cols.map((col) => {
+                    if (!anchorDate) return null;
+                    const patch = parseSdkPatch(col.sdkVersion);
+                    return new Date(anchorDate.getTime() + releasePatchOffsetMs(patch) - firstOffset).toISOString();
                 });
 
                 for (const [rowKey, values] of Object.entries(metricData)) {
@@ -320,10 +343,10 @@ export async function loadAppCharts(app, filtersJson) {
 
                     const points = values.map((v, i) => {
                         const col = cols[i];
-                        const synthDate = syntheticDates[i];
-                        if (!synthDate) return null;
+                        const tickDate = tickDates[i];
+                        if (!tickDate) return null;
                         return {
-                            x: synthDate,
+                            x: tickDate,
                             y: v,
                             _colIndex: i,
                             _bucket: bucket.path,
@@ -395,7 +418,7 @@ export async function loadAppCharts(app, filtersJson) {
 
         // ── Merge frozen (release) points into active datasets ──
         // For each rowKey with frozen data, prepend to matching active dataset
-        // or create standalone dataset. Insert null gap to break the line.
+        // or create standalone dataset.
         const mergedDatasets = [];
         const consumedFrozenRows = new Set();
 
@@ -406,11 +429,7 @@ export async function loadAppCharts(app, filtersJson) {
             const frozenPts = frozenPointsByRow[ds._rowKey];
             if (frozenPts && frozenPts.length > 0) {
                 frozenPts.sort((a, b) => new Date(a.x) - new Date(b.x));
-                // Insert null-y gap point between last frozen and first active
-                const lastFrozen = new Date(frozenPts[frozenPts.length - 1].x);
-                const firstActive = new Date(ds.data[0].x);
-                const gapDate = new Date((lastFrozen.getTime() + firstActive.getTime()) / 2).toISOString();
-                ds.data = [...frozenPts, { x: gapDate, y: null }, ...ds.data];
+                ds.data = [...frozenPts, ...ds.data];
                 consumedFrozenRows.add(ds._rowKey);
             }
             mergedDatasets.push(ds);
@@ -435,38 +454,60 @@ export async function loadAppCharts(app, filtersJson) {
         const unit = METRIC_UNITS[metric] || '';
         const displayName = METRIC_DISPLAY[metric] || metric;
 
-        // Compute frozen zone divider date (midpoint between last release and first active point)
-        let lastReleaseDate = null;
+        // Compute divider dates between each major release bucket and between releases and daily
+        // Group date ranges by _releaseLabel for release points
+        const releaseLabelRanges = new Map(); // label → { min, max }
         let firstActiveDate = null;
         for (const ds of mergedDatasets) {
             for (const pt of ds.data) {
                 if (pt.y == null) continue;
-                if (pt._bucketType === 'release') {
-                    const d = new Date(pt.x);
-                    if (!lastReleaseDate || d > lastReleaseDate) lastReleaseDate = d;
+                if (pt._bucketType === 'release' && pt._releaseLabel) {
+                    const d = new Date(pt.x).getTime();
+                    const range = releaseLabelRanges.get(pt._releaseLabel);
+                    if (!range) {
+                        releaseLabelRanges.set(pt._releaseLabel, { min: d, max: d });
+                    } else {
+                        if (d < range.min) range.min = d;
+                        if (d > range.max) range.max = d;
+                    }
                 } else if (pt._bucketType === 'week') {
-                    const d = new Date(pt.x);
+                    const d = new Date(pt.x).getTime();
                     if (!firstActiveDate || d < firstActiveDate) firstActiveDate = d;
                 }
             }
         }
-        let dividerDate = null;
-        if (lastReleaseDate && firstActiveDate) {
-            dividerDate = new Date((lastReleaseDate.getTime() + firstActiveDate.getTime()) / 2).toISOString();
+        const dividerDates = [];
+        const sortedLabels = [...releaseLabelRanges.entries()]
+            .sort((a, b) => a[1].min - b[1].min);
+        // Dividers between adjacent major release buckets
+        for (let i = 0; i < sortedLabels.length - 1; i++) {
+            const prevMax = sortedLabels[i][1].max;
+            const nextMin = sortedLabels[i + 1][1].min;
+            dividerDates.push(new Date((prevMax + nextMin) / 2).toISOString());
+        }
+        // Divider between last release and first daily
+        if (sortedLabels.length > 0 && firstActiveDate) {
+            const lastMax = sortedLabels[sortedLabels.length - 1][1].max;
+            dividerDates.push(new Date((lastMax + firstActiveDate) / 2).toISOString());
         }
 
         const chartDatasets = mergedDatasets;
 
-        // Build date → sdkVersion lookup for x-axis labels
-        const dateToSdk = new Map();
+        // Build exact tick → sdkVersion map; warn and throw on duplicate ticks
+        const tickToSdk = new Map();
         for (const ds of chartDatasets) {
             for (const pt of ds.data) {
-                if (pt._sdkVersion && pt.x) dateToSdk.set(pt.x, pt._sdkVersion);
+                if (!pt._sdkVersion || !pt.x) continue;
+                const ts = new Date(pt.x).getTime();
+                const existing = tickToSdk.get(ts);
+                if (existing && existing !== pt._sdkVersion) {
+                    const msg = `Duplicate tick at ${pt.x}: existing '${existing}', new '${pt._sdkVersion}'`;
+                    console.warn(msg);
+                    throw new Error(msg);
+                }
+                tickToSdk.set(ts, pt._sdkVersion);
             }
         }
-        const sdkLookup = [...dateToSdk.entries()]
-            .map(([d, v]) => [new Date(d).getTime(), v])
-            .sort((a, b) => a[0] - b[0]);
 
         const config = {
             type: 'line',
@@ -529,29 +570,22 @@ export async function loadAppCharts(app, filtersJson) {
                             mode: 'x',
                         },
                     },
-                    frozenZone: dividerDate ? { dividerDate } : {},
+                    frozenZone: dividerDates.length > 0 ? { dividerDates } : {},
                 },
                 scales: {
                     x: {
                         type: 'time',
                         time: {
-                            unit: 'day',
                             tooltipFormat: 'MMM d, yyyy',
                         },
                         title: { display: true, text: 'SDK Version' },
                         ticks: {
+                            source: 'data',
                             callback(value) {
-                                if (!sdkLookup.length) return '';
                                 const ts = typeof value === 'number' ? value : new Date(value).getTime();
-                                // Find nearest sdkVersion for this tick
-                                let best = sdkLookup[0];
-                                let bestDist = Math.abs(ts - best[0]);
-                                for (let i = 1; i < sdkLookup.length; i++) {
-                                    const dist = Math.abs(ts - sdkLookup[i][0]);
-                                    if (dist < bestDist) { best = sdkLookup[i]; bestDist = dist; }
-                                }
+                                const ver = tickToSdk.get(ts);
+                                if (!ver) return '';
                                 // Shorten: e.g. "11.0.100-preview.3.26153.117" → "preview.3.26153"
-                                const ver = best[1];
                                 const m = ver.match(/-(\w+\.\d+\.\d+)/);
                                 return m ? m[1] : ver;
                             },
