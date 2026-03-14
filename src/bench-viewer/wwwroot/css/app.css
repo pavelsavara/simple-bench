@@ -9,13 +9,29 @@ h1:focus {
 
 a,
 .btn-link {
-    color: #0071c1;
+    color: #512bd4;
 }
 
 .btn-primary {
     color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+    background-color: #512bd4;
+    border-color: #4724b8;
+}
+
+.btn-primary:hover {
+    background-color: #4724b8;
+    border-color: #3f1fa5;
+}
+
+.btn-outline-primary {
+    color: #512bd4;
+    border-color: #512bd4;
+}
+
+.btn-outline-primary:hover {
+    background-color: #512bd4;
+    border-color: #512bd4;
+    color: #fff;
 }
 
 .btn:focus,
@@ -23,7 +39,7 @@ a,
 .btn-link.nav-link:focus,
 .form-control:focus,
 .form-check-input:focus {
-    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #7c4dff;
 }
 
 .content {
@@ -91,7 +107,7 @@ a,
 }
 
 .loading-progress circle:last-child {
-    stroke: #1b6ec2;
+    stroke: #512bd4;
     stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
     transition: stroke-dasharray 0.05s ease-in-out;
 }
@@ -132,8 +148,8 @@ code {
 .sidebar {
     width: 260px;
     min-width: 260px;
-    background: #f8f9fa;
-    border-right: 1px solid #dee2e6;
+    background: #1a1a2e;
+    color: #d7d7d7;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -142,10 +158,30 @@ code {
     top: 0;
 }
 
+.sidebar a {
+    color: #d7d7d7;
+}
+
+.sidebar a:hover {
+    color: #fff;
+}
+
+.sidebar .form-check-label {
+    color: #d7d7d7;
+}
+
+.sidebar .text-muted {
+    color: #9e9e9e !important;
+}
+
 .sidebar-header {
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid #dee2e6;
-    background: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-header h6 {
+    color: #fff;
 }
 
 .sidebar-body {
@@ -154,11 +190,26 @@ code {
     padding: 0.5rem 0;
 }
 
+.sidebar .border-bottom {
+    border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.sidebar .form-check-input {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.sidebar .form-check-input:checked {
+    background-color: #512bd4;
+    border-color: #512bd4;
+}
+
 .main-content {
     flex: 1;
     overflow-x: hidden;
     padding: 0;
     min-width: 0;
+    background: #f5f5f5;
 }
 
 .detail-panel {
@@ -187,7 +238,7 @@ code {
     padding: 0.25rem 0;
 }
 
-.commit-info-block + hr + .commit-info-block {
+.commit-info-block+hr+.commit-info-block {
     opacity: 0.85;
 }
 
@@ -217,6 +268,30 @@ code {
     z-index: 10;
 }
 
+.nav-tabs .nav-link.active {
+    color: #fff;
+    background-color: #512bd4;
+    border-color: #512bd4;
+    border-radius: 0.375rem 0.375rem 0 0;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link {
+    color: #666;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #512bd4;
+}
+
+.filter-group-header {
+    color: #d7d7d7;
+}
+
+.filter-group-header strong {
+    color: #e0e0e0;
+}
+
 @media (max-width: 767.98px) {
     .page {
         flex-direction: column;
@@ -227,7 +302,6 @@ code {
         min-width: 100%;
         height: auto;
         position: static;
-        border-right: none;
-        border-bottom: 1px solid #dee2e6;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 }
