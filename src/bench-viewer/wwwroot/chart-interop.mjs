@@ -578,6 +578,7 @@ export async function loadAppCharts(app, filtersJson) {
                         time: {
                             tooltipFormat: 'MMM d, yyyy',
                         },
+                        grid: { display: false },
                         title: { display: true, text: 'SDK Version' },
                         ticks: {
                             source: 'data',
@@ -589,7 +590,8 @@ export async function loadAppCharts(app, filtersJson) {
                                 const m = ver.match(/-(\w+\.\d+\.\d+)/);
                                 return m ? m[1] : ver;
                             },
-                            maxRotation: 45,
+                            maxRotation: 90,
+                            minRotation: 90,
                             autoSkip: true,
                         },
                     },
