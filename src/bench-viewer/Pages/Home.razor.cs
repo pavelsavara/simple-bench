@@ -59,8 +59,10 @@ public partial class Home : IAsyncDisposable
         "pizza-walkthrough", "havit-walkthrough",
         "json-parse-ops", "js-interop-ops", "exception-ops",
         "time-to-reach-managed-cold", "time-to-reach-managed-warm",
+        "time-to-create-dotnet-cold", "time-to-create-dotnet-warm",
+        "time-to-exit-cold", "time-to-exit-warm",
         "download-size-total", "disk-size-native", "disk-size-assemblies",
-        "memory-peak", "compile-time"
+        "wasm-memory-size", "memory-peak", "compile-time"
     };
 
     private bool initialized;

@@ -280,10 +280,16 @@ async function measureBrowser(
                 () => (globalThis as Record<string, unknown>).bench_results as Record<string, number>,
             );
             const firstColdTime = coldResults['time-to-reach-managed'] ?? null;
+            const firstColdCreateDotnet = coldResults['time-to-create-dotnet'] ?? null;
+            const firstColdWasmMemSize = coldResults['wasm-memory-size'] ?? null;
+            const firstColdTimeToExit = coldResults['time-to-exit'] ?? null;
             if (ctx.verbose) debug(`Cold results: ${JSON.stringify(coldResults)}`);
 
             // Additional cold loads in fresh contexts (median-of-N)
             const coldTimes: number[] = firstColdTime != null ? [firstColdTime] : [];
+            const coldCreateDotnetTimes: number[] = firstColdCreateDotnet != null ? [firstColdCreateDotnet] : [];
+            const coldExitTimes: number[] = firstColdTimeToExit != null ? [firstColdTimeToExit] : [];
+            const wasmMemorySizes: number[] = firstColdWasmMemSize != null ? [firstColdWasmMemSize] : [];
             if (!isInternal) {
                 const throttle = PROFILES[profile];
                 for (let i = 1; i < warmRuns; i++) {
@@ -313,6 +319,12 @@ async function measureBrowser(
                         const ct = cr['time-to-reach-managed'];
                         if (ctx.verbose) debug(`Cold load ${i + 1}/${warmRuns}: time-to-reach-managed=${ct}`);
                         if (ct != null) coldTimes.push(ct);
+                        const ccd = cr['time-to-create-dotnet'];
+                        if (ccd != null) coldCreateDotnetTimes.push(ccd);
+                        const cte = cr['time-to-exit'];
+                        if (cte != null) coldExitTimes.push(cte);
+                        const cwm = cr['wasm-memory-size'];
+                        if (cwm != null) wasmMemorySizes.push(cwm);
                     } finally {
                         await coldPage.close();
                         await coldCtx.close();
@@ -328,6 +340,8 @@ async function measureBrowser(
 
             // Warm loads (external apps only, median-of-N)
             let timeToReachManaged: number | null = null;
+            const warmCreateDotnetTimes: number[] = [];
+            const warmExitTimes: number[] = [];
             if (!isInternal) {
                 const warmTimes: number[] = [];
                 for (let i = 0; i < warmRuns; i++) {
@@ -345,6 +359,12 @@ async function measureBrowser(
                     const warm = warmResults['time-to-reach-managed'];
                     if (ctx.verbose) debug(`Warm load ${i + 1}/${warmRuns}: time-to-reach-managed=${warm}`);
                     if (warm != null) warmTimes.push(warm);
+                    const warmCd = warmResults['time-to-create-dotnet'];
+                    if (warmCd != null) warmCreateDotnetTimes.push(warmCd);
+                    const warmTe = warmResults['time-to-exit'];
+                    if (warmTe != null) warmExitTimes.push(warmTe);
+                    const warmWm = warmResults['wasm-memory-size'];
+                    if (warmWm != null) wasmMemorySizes.push(warmWm);
                 }
                 timeToReachManaged = warmTimes.length > 0
                     ? median([...warmTimes].sort((a, b) => a - b))
@@ -353,6 +373,22 @@ async function measureBrowser(
                     debug(`Warm times: [${warmTimes.join(', ')}] → median=${timeToReachManaged}`);
                 }
             }
+
+            const timeToCreateDotnetCold = coldCreateDotnetTimes.length > 0
+                ? median([...coldCreateDotnetTimes].sort((a, b) => a - b))
+                : null;
+            const timeToCreateDotnetWarm = warmCreateDotnetTimes.length > 0
+                ? median([...warmCreateDotnetTimes].sort((a, b) => a - b))
+                : null;
+            const timeToExitCold = coldExitTimes.length > 0
+                ? median([...coldExitTimes].sort((a, b) => a - b))
+                : null;
+            const timeToExitWarm = warmExitTimes.length > 0
+                ? median([...warmExitTimes].sort((a, b) => a - b))
+                : null;
+            const wasmMemorySize = wasmMemorySizes.length > 0
+                ? Math.max(...wasmMemorySizes)
+                : null;
 
             // Pizza walkthrough (blazing-pizza only, chrome, desktop profile) — median-of-N
             let pizzaWalkthrough: number | null = null;
@@ -421,10 +457,16 @@ async function measureBrowser(
                 for (const [name, s] of Object.entries(statsMap)) {
                     info(formatStats(name, s));
                 }
+                if (timeToCreateDotnetCold != null) info(`    time-to-create-dotnet-cold: ${Math.round(timeToCreateDotnetCold)} ms`);
+                if (timeToExitCold != null) info(`    time-to-exit-cold: ${Math.round(timeToExitCold)} ms`);
+                if (wasmMemorySize != null) info(`    wasm-memory-size: ${wasmMemorySize} bytes`);
 
                 return {
                     [MetricKey.CompileTime]: compileTime,
                     [MetricKey.MemoryPeak]: useCDP ? (memoryPeak || null) : null,
+                    [MetricKey.TimeToCreateDotnetCold]: timeToCreateDotnetCold,
+                    [MetricKey.TimeToExitCold]: timeToExitCold,
+                    [MetricKey.WasmMemorySize]: wasmMemorySize,
                     [MetricKey.JsInteropOps]: statsMap['js-interop-ops'] ? Math.round(statsMap['js-interop-ops'].median) : null,
                     [MetricKey.JsonParseOps]: statsMap['json-parse-ops'] ? Math.round(statsMap['json-parse-ops'].median) : null,
                     [MetricKey.ExceptionOps]: statsMap['exception-ops'] ? Math.round(statsMap['exception-ops'].median) : null,
@@ -438,6 +480,11 @@ async function measureBrowser(
                 [MetricKey.DownloadSizeTotal]: useCDP ? (downloadSizeTotal || null) : null,
                 [MetricKey.TimeToReachManagedWarm]: timeToReachManaged,
                 [MetricKey.TimeToReachManagedCold]: timeToReachManagedCold,
+                [MetricKey.TimeToCreateDotnetWarm]: timeToCreateDotnetWarm,
+                [MetricKey.TimeToCreateDotnetCold]: timeToCreateDotnetCold,
+                [MetricKey.TimeToExitWarm]: timeToExitWarm,
+                [MetricKey.TimeToExitCold]: timeToExitCold,
+                [MetricKey.WasmMemorySize]: wasmMemorySize,
                 [MetricKey.MemoryPeak]: useCDP ? (memoryPeak || null) : null,
                 [MetricKey.PizzaWalkthrough]: pizzaWalkthrough,
                 [MetricKey.HavitWalkthrough]: havitWalkthrough,
@@ -489,7 +536,10 @@ async function measureCli(
     const cliParsed = parseCliOutput(stdout);
 
     if (isInternal) {
-        const { samples: cliSamples } = cliParsed as { results: Record<string, number>; samples: Record<string, number[]> };
+        const { results: cliInternalResults, samples: cliSamples } = cliParsed as { results: Record<string, number>; samples: Record<string, number[]> };
+        const timeToCreateDotnet = cliInternalResults['time-to-create-dotnet'] ?? null;
+        const wasmMemorySize = cliInternalResults['wasm-memory-size'] ?? null;
+        const timeToExit = cliInternalResults['time-to-exit'] ?? null;
 
         const internalKeys = ['js-interop-ops', 'json-parse-ops', 'exception-ops'] as const;
         const statsMap: Record<string, SampleStats> = {};
@@ -503,6 +553,9 @@ async function measureCli(
         for (const [name, s] of Object.entries(statsMap)) {
             info(formatStats(name, s));
         }
+        if (timeToCreateDotnet != null) info(`    time-to-create-dotnet: ${Math.round(timeToCreateDotnet)} ms`);
+        if (timeToExit != null) info(`    time-to-exit: ${Math.round(timeToExit)} ms`);
+        if (wasmMemorySize != null) info(`    wasm-memory-size: ${wasmMemorySize} bytes`);
 
         for (const key of internalKeys) {
             if (!statsMap[key]) {
@@ -513,6 +566,11 @@ async function measureCli(
         return {
             [MetricKey.CompileTime]: compileTime,
             [MetricKey.MemoryPeak]: null,
+            [MetricKey.TimeToCreateDotnetWarm]: timeToCreateDotnet,
+            [MetricKey.TimeToCreateDotnetCold]: timeToCreateDotnet,
+            [MetricKey.TimeToExitWarm]: timeToExit,
+            [MetricKey.TimeToExitCold]: timeToExit,
+            [MetricKey.WasmMemorySize]: wasmMemorySize,
             [MetricKey.JsInteropOps]: Math.round(statsMap['js-interop-ops'].median),
             [MetricKey.JsonParseOps]: Math.round(statsMap['json-parse-ops'].median),
             [MetricKey.ExceptionOps]: Math.round(statsMap['exception-ops'].median),
@@ -522,6 +580,9 @@ async function measureCli(
     // External CLI: timing from bench_results or wall-clock fallback
     const cliResults = cliParsed as Record<string, number>;
     const timeToReachManaged = cliResults['time-to-reach-managed'] ?? wallTimeMs;
+    const timeToCreateDotnet = cliResults['time-to-create-dotnet'] ?? null;
+    const wasmMemorySize = cliResults['wasm-memory-size'] ?? null;
+    const timeToExit = cliResults['time-to-exit'] ?? null;
 
     return {
         [MetricKey.CompileTime]: compileTime,
@@ -530,6 +591,11 @@ async function measureCli(
         [MetricKey.DownloadSizeTotal]: null,
         [MetricKey.TimeToReachManagedWarm]: timeToReachManaged,
         [MetricKey.TimeToReachManagedCold]: timeToReachManaged,
+        [MetricKey.TimeToCreateDotnetWarm]: timeToCreateDotnet,
+        [MetricKey.TimeToCreateDotnetCold]: timeToCreateDotnet,
+        [MetricKey.TimeToExitWarm]: timeToExit,
+        [MetricKey.TimeToExitCold]: timeToExit,
+        [MetricKey.WasmMemorySize]: wasmMemorySize,
         [MetricKey.MemoryPeak]: null,
         [MetricKey.PizzaWalkthrough]: null,
     };

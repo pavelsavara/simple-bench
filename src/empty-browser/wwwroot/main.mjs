@@ -31,6 +31,7 @@ async function outer() {
     Object.assign(globalThis.bench_results, {
         'time-to-create-dotnet': Math.round(globalThis.dotnet_created - globalThis.js_loaded),
         'time-to-reach-managed': Math.round(globalThis.dotnet_managed_ready - globalThis.js_loaded),
+        'wasm-memory-size': globalThis.getDotnetRuntime(0).Module.HEAPU8.byteLength,
         'time-to-exit': Math.round(globalThis.dotnet_exit - globalThis.js_loaded),
     });
 

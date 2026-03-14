@@ -93,8 +93,13 @@ These presets break Blazor's runtime reflection requirements.
 | `disk-size-native` | Disk Size (WASM) | bytes | size | `dotnet.native.wasm.br` file in `_framework/` |
 | `disk-size-assemblies` | Disk Size (DLLs) | bytes | size | `*.dll.br` files in `_framework/` |
 | `download-size-total` | Download Size (Total) | bytes | size | CDP `Network.loadingFinished` sum (Chrome only) |
-| `time-to-reach-managed-warm` | Time to Managed (Warm) | ms | time | Min of N warm reloads, `bench_results['time-to-reach-managed']` |
-| `time-to-reach-managed-cold` | Time to Managed (Cold) | ms | time | First navigation, `bench_results['time-to-reach-managed']` |
+| `time-to-reach-managed-warm` | Time to Managed (Warm) | ms | time | Median of N warm reloads, `bench_results['time-to-reach-managed']` |
+| `time-to-reach-managed-cold` | Time to Managed (Cold) | ms | time | Median of N cold loads, `bench_results['time-to-reach-managed']` |
+| `time-to-create-dotnet-warm` | Time to Create Dotnet (Warm) | ms | time | Median of N warm reloads, `bench_results['time-to-create-dotnet']` |
+| `time-to-create-dotnet-cold` | Time to Create Dotnet (Cold) | ms | time | Median of N cold loads, `bench_results['time-to-create-dotnet']` |
+| `time-to-exit-warm` | Time to Exit (Warm) | ms | time | Median of N warm reloads, `bench_results['time-to-exit']` (non-Blazor only) |
+| `time-to-exit-cold` | Time to Exit (Cold) | ms | time | Median of N cold loads, `bench_results['time-to-exit']` (non-Blazor only) |
+| `wasm-memory-size` | WASM Memory Size | bytes | memory | Max across all loads, `bench_results['wasm-memory-size']` |
 | `memory-peak` | Peak JS Heap | bytes | memory | CDP `Performance.getMetrics` JSHeapUsedSize polling (Chrome only) |
 | `pizza-walkthrough` | Pizza Walkthrough | ms | time | Playwright UI automation of order flow (blazing-pizza + desktop only) |
 
@@ -104,6 +109,9 @@ These presets break Blazor's runtime reflection requirements.
 |-----|-------------|------|----------|--------|
 | `compile-time` | Compile Time | ms | time | `dotnet publish` wall clock |
 | `memory-peak` | Peak JS Heap | bytes | memory | CDP polling (Chrome only) |
+| `time-to-create-dotnet-cold` | Time to Create Dotnet (Cold) | ms | time | From cold load, `bench_results['time-to-create-dotnet']` |
+| `time-to-exit-cold` | Time to Exit (Cold) | ms | time | From cold load, `bench_results['time-to-exit']` |
+| `wasm-memory-size` | WASM Memory Size | bytes | memory | From cold load, `bench_results['wasm-memory-size']` |
 | `js-interop-ops` | JS Interop | ops/sec | throughput | Median of samples: JS → C# [JSExport] tight loop |
 | `json-parse-ops` | JSON Parse | ops/sec | throughput | Median of samples: JS passes JSON to C# deserializer |
 | `exception-ops` | Exception Handling | ops/sec | throughput | Median of samples: JS → C# throw/catch loop |
@@ -117,6 +125,11 @@ These presets break Blazor's runtime reflection requirements.
 | download-size-total | ✓ | null | null | null |
 | time-to-reach-managed-warm | ✓ | ✓ | ✓ (or wall-clock) | ✓ (or wall-clock) |
 | time-to-reach-managed-cold | ✓ | ✓ | ✓ (or wall-clock) | ✓ (or wall-clock) |
+| time-to-create-dotnet-warm | ✓ | ✓ | ✓ | ✓ |
+| time-to-create-dotnet-cold | ✓ | ✓ | ✓ | ✓ |
+| time-to-exit-warm | ✓ (non-Blazor) | ✓ (non-Blazor) | ✓ | ✓ |
+| time-to-exit-cold | ✓ (non-Blazor) | ✓ (non-Blazor) | ✓ | ✓ |
+| wasm-memory-size | ✓ | ✓ | ✓ | ✓ |
 | memory-peak | ✓ | null | null | null |
 | pizza-walkthrough | ✓ (blazing-pizza + desktop) | ✓ (blazing-pizza + desktop) | null | null |
 | js-interop-ops | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) |
