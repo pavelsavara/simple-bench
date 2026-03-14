@@ -6,7 +6,7 @@ jobs:
   schedule:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       actions: write
     timeout-minutes: 10
     steps:

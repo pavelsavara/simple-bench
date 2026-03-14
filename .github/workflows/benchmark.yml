@@ -322,7 +322,7 @@ jobs:
     runs-on: ubuntu-latest
     container: ghcr.io/${{ github.repository }}/browser-bench-build:latest
     permissions:
-      contents: read
+      contents: write
       actions: write
       packages: read
     timeout-minutes: 10

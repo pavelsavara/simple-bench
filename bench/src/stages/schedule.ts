@@ -1,9 +1,16 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
 import { type BenchContext } from '../context.js';
-import { banner, info, debug } from '../log.js';
+import { banner, info, debug, err } from '../log.js';
 import { GITHUB_API, githubHeaders, resolveGitHubToken } from '../lib/http.js';
+import { exec } from '../exec.js';
+
+// ── Constants ────────────────────────────────────────────────────────────────
+
+const LOCK_DIR = 'cache/locks';
+const LOCK_TTL_MS = 48 * 60 * 60 * 1000; // 48 hours
+const MAX_PUSH_RETRIES = 3;
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -31,25 +38,33 @@ interface DataIndex {
 export async function run(ctx: BenchContext): Promise<BenchContext> {
     banner('Schedule');
 
+    const ghPagesDir = join(ctx.repoRoot, 'gh-pages');
+
     // 1. Build the set of already-tested SDK versions from gh-pages data
-    const dataDir = join(ctx.repoRoot, 'gh-pages', 'data');
+    const dataDir = join(ghPagesDir, 'data');
     const testedSdkVersions = await buildTestedSet(dataDir, ctx.verbose);
     info(`Found ${testedSdkVersions.size} already-tested SDK versions`);
 
-    // 2. Load pack lists from artifacts (populated by enumerate stages)
+    // 2. Build the set of in-progress (locked) SDK versions
+    const lockedSdkVersions = await buildLockedSet(ghPagesDir, ctx.verbose);
+    info(`Found ${lockedSdkVersions.size} locked (in-progress) SDK versions`);
+
+    // 3. Load pack lists from artifacts (populated by enumerate stages)
     const releasePacks = await loadPacks(join(ctx.artifactsDir, 'release-packs-list.json'));
     const dailyPacks = await loadPacks(join(ctx.artifactsDir, 'daily-packs-list.json'));
 
-    // 3. Filter to untested packs
-    const untestedReleases = releasePacks.filter(p => !testedSdkVersions.has(p.sdkVersion));
-    const untestedDaily = dailyPacks.filter(p => !testedSdkVersions.has(p.sdkVersion));
+    // 4. Filter to untested and unlocked packs
+    const untestedReleases = releasePacks.filter(p =>
+        !testedSdkVersions.has(p.sdkVersion) && !lockedSdkVersions.has(p.sdkVersion));
+    const untestedDaily = dailyPacks.filter(p =>
+        !testedSdkVersions.has(p.sdkVersion) && !lockedSdkVersions.has(p.sdkVersion));
 
     if (ctx.verbose) {
-        debug(`Release packs: ${releasePacks.length} total, ${untestedReleases.length} untested`);
-        debug(`Daily packs: ${dailyPacks.length} total, ${untestedDaily.length} untested`);
+        debug(`Release packs: ${releasePacks.length} total, ${untestedReleases.length} untested+unlocked`);
+        debug(`Daily packs: ${dailyPacks.length} total, ${untestedDaily.length} untested+unlocked`);
     }
 
-    // 4. Priority: releases oldest→newest, then daily builds latest→oldest
+    // 5. Priority: releases oldest→newest, then daily builds latest→oldest
     //    (release-packs-list already has newest first; daily-packs-list has newest first)
     const candidates = [
         ...untestedReleases.reverse(),   // oldest → newest
@@ -57,14 +72,14 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     ];
 
     if (candidates.length === 0) {
-        info('All packs already tested — nothing to dispatch');
+        info('All packs already tested or locked — nothing to dispatch');
         return ctx;
     }
 
     const toDispatch = candidates.slice(0, ctx.maxDispatches);
     info(`Will dispatch ${toDispatch.length} of ${candidates.length} untested packs`);
 
-    // 5. Dispatch via GitHub REST API
+    // 6. Dispatch via GitHub REST API
     const repo = ctx.repo || 'pavelsavara/simple-bench';
     const token = await resolveGitHubToken();
     if (!token && !ctx.dryRun) {
@@ -72,8 +87,22 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     }
 
     for (const pack of toDispatch) {
+        // Create lock file locally (even in dry-run, so repeated dry-runs see the lock)
+        const created = await createLockFile(ghPagesDir, pack.sdkVersion, ctx);
+        if (!created) {
+            info(`Skipping ${pack.sdkVersion} — already locked by another scheduler`);
+            continue;
+        }
+
         if (ctx.dryRun) {
             info(`[dry-run] workflow_dispatch benchmark.yml ref=${ctx.branch} sdk_version=${pack.sdkVersion}`);
+            continue;
+        }
+
+        // Push lock to gh-pages before dispatching (so concurrent schedulers see it)
+        const pushed = await pushLockFile(ghPagesDir, pack.sdkVersion, ctx);
+        if (!pushed) {
+            info(`Skipping ${pack.sdkVersion} — another scheduler locked it concurrently`);
             continue;
         }
 
@@ -96,7 +125,171 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     return ctx;
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── Lock Helpers ─────────────────────────────────────────────────────────────
+
+interface LockFile {
+    dispatchedAt: string;
+    ciRunId?: string;
+}
+
+/**
+ * Scan gh-pages/cache/locks/ and return SDK versions with non-expired lock files.
+ * Lock files older than LOCK_TTL_MS (48h) are treated as expired (stuck/failed runs).
+ */
+async function buildLockedSet(ghPagesDir: string, verbose?: boolean): Promise<Set<string>> {
+    const locked = new Set<string>();
+    const locksDir = join(ghPagesDir, LOCK_DIR);
+
+    if (!existsSync(locksDir)) {
+        if (verbose) debug('No cache/locks/ directory — no active locks');
+        return locked;
+    }
+
+    const now = Date.now();
+    const entries = await readdir(locksDir);
+
+    for (const entry of entries) {
+        if (!entry.endsWith('.lock')) continue;
+
+        const lockPath = join(locksDir, entry);
+        try {
+            const content: LockFile = JSON.parse(await readFile(lockPath, 'utf-8'));
+            const dispatchedAt = new Date(content.dispatchedAt).getTime();
+
+            if (now - dispatchedAt > LOCK_TTL_MS) {
+                if (verbose) debug(`Lock expired: ${entry} (dispatched ${content.dispatchedAt})`);
+                continue; // Expired — treat as unlocked
+            }
+
+            const sdkVersion = entry.replace(/\.lock$/, '');
+            locked.add(sdkVersion);
+            if (verbose) debug(`Lock active: ${sdkVersion} (dispatched ${content.dispatchedAt})`);
+        } catch {
+            if (verbose) debug(`Ignoring malformed lock file: ${entry}`);
+        }
+    }
+
+    return locked;
+}
+
+/**
+ * Create a lock file locally for the given SDK version.
+ * Checks for existing non-expired locks (including from git after a pull).
+ * Returns true if the lock was written locally, false if already locked.
+ */
+async function createLockFile(
+    ghPagesDir: string,
+    sdkVersion: string,
+    ctx: BenchContext,
+): Promise<boolean> {
+    const locksDir = join(ghPagesDir, LOCK_DIR);
+    await mkdir(locksDir, { recursive: true });
+
+    const lockFile = join(locksDir, `${sdkVersion}.lock`);
+
+    // Check if lock already exists locally (from a previous dry-run or pulled from remote)
+    if (existsSync(lockFile)) {
+        try {
+            const existing: LockFile = JSON.parse(await readFile(lockFile, 'utf-8'));
+            const age = Date.now() - new Date(existing.dispatchedAt).getTime();
+            if (age <= LOCK_TTL_MS) {
+                info(`Lock already exists for ${sdkVersion} (by run ${existing.ciRunId ?? 'unknown'})`);
+                return false;
+            }
+            if (ctx.verbose) debug(`Overwriting expired lock for ${sdkVersion}`);
+        } catch {
+            // Malformed lock — overwrite it
+        }
+    }
+
+    const lockContent: LockFile = {
+        dispatchedAt: new Date().toISOString(),
+        ciRunId: ctx.ciRunId,
+    };
+    await writeFile(lockFile, JSON.stringify(lockContent, null, 2), 'utf-8');
+    info(`Lock file created for ${sdkVersion}`);
+    return true;
+}
+
+/**
+ * Commit and push an already-created lock file to gh-pages.
+ * Uses pull-recheck-push with retries to handle concurrent schedulers.
+ * Returns true if the lock was successfully pushed, false if another scheduler got it first.
+ */
+async function pushLockFile(
+    ghPagesDir: string,
+    sdkVersion: string,
+    ctx: BenchContext,
+): Promise<boolean> {
+    const lockRelPath = join(LOCK_DIR, `${sdkVersion}.lock`);
+    const lockAbsPath = join(ghPagesDir, lockRelPath);
+
+    for (let attempt = 1; attempt <= MAX_PUSH_RETRIES; attempt++) {
+        // Pull latest to see if someone else created this lock
+        await exec('git', ['-C', ghPagesDir, 'pull', '--rebase'], { throwOnError: false });
+
+        // Re-check: another scheduler may have pushed this lock while we were writing ours
+        if (existsSync(lockAbsPath)) {
+            try {
+                const existing: LockFile = JSON.parse(await readFile(lockAbsPath, 'utf-8'));
+                // If the lock is from someone else (different ciRunId) and not expired, bail
+                if (existing.ciRunId !== ctx.ciRunId) {
+                    const age = Date.now() - new Date(existing.dispatchedAt).getTime();
+                    if (age <= LOCK_TTL_MS) {
+                        info(`Lock taken by another scheduler for ${sdkVersion} (run ${existing.ciRunId ?? 'unknown'})`);
+                        return false;
+                    }
+                    if (ctx.verbose) debug(`Overwriting expired lock for ${sdkVersion}`);
+                }
+            } catch {
+                // Malformed lock — overwrite it
+            }
+        }
+
+        // Re-write lock file (pull --rebase may have replaced it)
+        const lockContent: LockFile = {
+            dispatchedAt: new Date().toISOString(),
+            ciRunId: ctx.ciRunId,
+        };
+        await writeFile(lockAbsPath, JSON.stringify(lockContent, null, 2), 'utf-8');
+
+        // Configure git user
+        await exec('git', ['-C', ghPagesDir, 'config', 'user.name', 'github-actions[bot]']);
+        await exec('git', ['-C', ghPagesDir, 'config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
+
+        // Stage and commit
+        await exec('git', ['-C', ghPagesDir, 'add', lockRelPath]);
+        const { exitCode: diffCode } = await exec('git', ['-C', ghPagesDir, 'diff', '--cached', '--quiet'], {
+            throwOnError: false,
+        });
+        if (diffCode === 0) {
+            // No staged changes — lock content already matches git (we own it)
+            info(`Lock for ${sdkVersion} already in git`);
+            return true;
+        }
+        await exec('git', ['-C', ghPagesDir, 'commit', '-m', `Lock ${sdkVersion}`]);
+
+        // Push
+        const { exitCode: pushCode } = await exec('git', ['-C', ghPagesDir, 'push'], {
+            throwOnError: false,
+        });
+        if (pushCode === 0) {
+            info(`Lock pushed for ${sdkVersion}`);
+            return true;
+        }
+
+        // Push failed (likely concurrent push) — retry
+        if (attempt < MAX_PUSH_RETRIES) {
+            info(`Push failed (attempt ${attempt}/${MAX_PUSH_RETRIES}) — pulling and retrying`);
+            await exec('git', ['-C', ghPagesDir, 'reset', '--soft', 'HEAD~1'], { throwOnError: false });
+        }
+    }
+
+    err(`Failed to push lock for ${sdkVersion} after ${MAX_PUSH_RETRIES} attempts`);
+    return false;
+}
+
+// ── Data Helpers ─────────────────────────────────────────────────────────────
 
 async function buildTestedSet(dataDir: string, verbose?: boolean): Promise<Set<string>> {
     const tested = new Set<string>();
