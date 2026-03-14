@@ -407,7 +407,7 @@ async function writeBucketView(
     if (type === 'week') header.week = label;
     else header.release = label;
 
-    await writeFile(join(dir, 'header.json'), JSON.stringify(header), 'utf-8');
+    await writeFile(join(dir, 'header.json'), JSON.stringify(header, null, 2), 'utf-8');
     if (ctx.verbose) debug(`  wrote header.json`);
 
     if (ctx.verbose) {

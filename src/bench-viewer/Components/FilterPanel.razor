@@ -64,7 +64,7 @@
         if (group == "engines")
         {
             // v8 and node hidden for blazor apps
-            if (CurrentApp is "empty-blazor" or "blazing-pizza" or "havit-bootstrap" or "bench-viewer")
+            if (CurrentApp is "empty-blazor" or "blazing-pizza" or "havit-bootstrap" or "bench-viewer" or "mud-blazor")
             {
                 if (value is "v8" or "node") return false;
             }

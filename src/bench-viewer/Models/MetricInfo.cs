@@ -29,10 +29,11 @@ public class MetricInfo
         ["time-to-exit-cold"] = new("time-to-exit-cold", "Time to Exit (Cold)", "ms", "time"),
         ["wasm-memory-size"] = new("wasm-memory-size", "WASM Memory Size", "bytes", "memory"),
         ["memory-peak"] = new("memory-peak", "Peak JS Heap", "bytes", "memory"),
-        ["pizza-walkthrough"] = new("pizza-walkthrough", "Pizza Walkthrough", "ms", "time"),
+        ["pizza-walkthrough"] = new("pizza-walkthrough", "Blazing Pizza Walkthrough", "ms", "time"),
+        ["havit-walkthrough"] = new("havit-walkthrough", "Havit Bootstrap Walkthrough", "ms", "time"),
+        ["mud-walkthrough"] = new("mud-walkthrough", "MudBlazor Walkthrough", "ms", "time"),
         ["js-interop-ops"] = new("js-interop-ops", "JS Interop", "ops/sec", "throughput"),
         ["json-parse-ops"] = new("json-parse-ops", "JSON Parse", "ops/sec", "throughput"),
         ["exception-ops"] = new("exception-ops", "Exception Handling", "ops/sec", "throughput"),
-        ["havit-walkthrough"] = new("havit-walkthrough", "Havit Walkthrough", "ms", "time"),
     };
 }

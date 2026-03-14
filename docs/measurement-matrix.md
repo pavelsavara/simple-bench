@@ -102,6 +102,8 @@ These presets break Blazor's runtime reflection requirements.
 | `wasm-memory-size` | WASM Memory Size | bytes | memory | Max across all loads, `bench_results['wasm-memory-size']` |
 | `memory-peak` | Peak JS Heap | bytes | memory | CDP `Performance.getMetrics` JSHeapUsedSize polling (Chrome only) |
 | `pizza-walkthrough` | Pizza Walkthrough | ms | time | Playwright UI automation of order flow (blazing-pizza + desktop only) |
+| `havit-walkthrough` | Havit Walkthrough | ms | time | Playwright UI automation |
+| `mud-walkthrough` | Havit Walkthrough | ms | time | Playwright UI automation |
 
 ### Internal metrics (micro-benchmarks only)
 
@@ -132,6 +134,8 @@ These presets break Blazor's runtime reflection requirements.
 | wasm-memory-size | ✓ | ✓ | ✓ | ✓ |
 | memory-peak | ✓ | null | null | null |
 | pizza-walkthrough | ✓ (blazing-pizza + desktop) | ✓ (blazing-pizza + desktop) | null | null |
+| havit-walkthrough | ✓ (havit-bootstrap + desktop) | ✓ (havit-bootstrap + desktop) | null | null |
+| mud-walkthrough | ✓ (mud-blazor + desktop) | ✓ (mud-blazor + desktop) | null | null |
 | js-interop-ops | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) |
 | json-parse-ops | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) |
 | exception-ops | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) |
@@ -155,6 +159,7 @@ These presets break Blazor's runtime reflection requirements.
 | empty-browser | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | empty-blazor | ✓ | ✓ | ✓ | ✓ | ✓ | **skip** | **skip** |
 | blazing-pizza | ✓ | ✓ | ✓ | ✓ | ✓ | **skip** | **skip** |
+| mud-blazor | ✓ | ✓ | ✓ | ✓ | ✓ | **skip** | **skip** |
 | havit-bootstrap | ✓ | ✓ | ✓ | ✓ | ✓ | **skip** | **skip** |
 | micro-benchmarks | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 

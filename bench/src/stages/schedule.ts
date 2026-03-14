@@ -120,13 +120,20 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
         info(`Dispatching benchmark for sdk_version=${pack.sdkVersion}`);
         const url = `${GITHUB_API}/repos/${repo}/actions/workflows/benchmark.yml/dispatches`;
+        const payload = {
+            ref: ctx.branch,
+            inputs: {
+                sdk_version: pack.sdkVersion,
+            },
+        } as any;
+        if (ctx.sdkChannel) {
+            payload.inputs.sdk_channel = ctx.sdkChannel;
+        }
+
         const resp = await fetch(url, {
             method: 'POST',
             headers: githubHeaders(token),
-            body: JSON.stringify({
-                ref: ctx.branch,
-                inputs: { sdk_version: pack.sdkVersion },
-            }),
+            body: JSON.stringify(payload),
         });
         if (!resp.ok) {
             const body = await resp.text().catch(() => '');

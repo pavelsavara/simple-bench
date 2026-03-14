@@ -56,10 +56,11 @@ const METRIC_UNITS = {
     'wasm-memory-size': 'bytes',
     'memory-peak': 'bytes',
     'pizza-walkthrough': 'ms',
+    'havit-walkthrough': 'ms',
+    'mud-walkthrough': 'ms',
     'js-interop-ops': 'ops/sec',
     'json-parse-ops': 'ops/sec',
     'exception-ops': 'ops/sec',
-    'havit-walkthrough': 'ms',
 };
 
 const METRIC_DISPLAY = {
@@ -75,11 +76,12 @@ const METRIC_DISPLAY = {
     'time-to-exit-cold': 'Time to Exit (Cold)',
     'wasm-memory-size': 'WASM Linear Memory Size',
     'memory-peak': 'Peak JS Heap',
-    'pizza-walkthrough': 'Pizza Walkthrough',
+    'pizza-walkthrough': 'Blazing Pizza Walkthrough',
+    'havit-walkthrough': 'Havit Bootstrap Walkthrough',
+    'mud-walkthrough': 'MudBlazor Walkthrough',
     'js-interop-ops': 'JS Interop',
     'json-parse-ops': 'JSON Parse',
     'exception-ops': 'Exception Handling',
-    'havit-walkthrough': 'Havit Walkthrough',
 };
 
 // Build-time metrics are identical across engines/profiles — only show chrome/desktop
@@ -89,7 +91,7 @@ const BUILD_METRICS = new Set([
 
 // Walkthrough metrics are only collected for chrome/desktop — same filtering as build metrics
 const WALKTHROUGH_METRICS = new Set([
-    'pizza-walkthrough', 'havit-walkthrough',
+    'pizza-walkthrough', 'havit-walkthrough', 'mud-walkthrough',
 ]);
 
 // Metrics to skip for micro-benchmarks (not meaningful for internal throughput tests)

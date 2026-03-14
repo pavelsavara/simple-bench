@@ -144,7 +144,9 @@ Iterates the build manifest. For each entry × engine × profile:
 3. Parse stdout JSON for `time-to-reach-managed`
 
 **Special handling:**
-- `blazing-pizza` app: scripted walkthrough (add items, checkout) for `pizza-walkthrough` metric
+- `blazing-pizza` app: scripted walkthrough for `pizza-walkthrough` metric
+- `havit-bootstrap` app:scripted walkthrough for `havit-walkthrough` metric
+- `mud-blazor` app:scripted walkthrough for `mud-walkthrough` metric
 - `micro-benchmarks` app: multiple sample runs, reports ops/sec using median
 - Firefox: no CDP, so no download-size-total or memory-peak
 
