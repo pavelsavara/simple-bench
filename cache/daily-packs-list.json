@@ -2,7 +2,7 @@
   "feed": "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet11/nuget/v3/index.json",
   "major": 11,
   "months": 3,
-  "totalPacks": 152,
+  "totalPacks": 150,
   "packs": [
     {
       "sdkVersion": "11.0.100-preview.3.26163.109",
@@ -2252,36 +2252,6 @@
       "aspnetCoreVersion": "11.0.0-alpha.1.25615.104",
       "runtimePackVersion": "11.0.0-alpha.1.25615.104",
       "workloadVersion": "11.0.0-alpha.1.25615.104",
-      "bootstrapSdkVersion": "10.0.100"
-    },
-    {
-      "sdkVersion": "11.0.100-alpha.1.25614.103",
-      "runtimeGitHash": "bce6119e41ecfbcf630c369836770669604c22c6",
-      "aspnetCoreGitHash": "c5f8422073be4a98c9cf3f75c58f9a0d59fdf073",
-      "sdkGitHash": "6a6992f5fc42dbd06cd24f3a7db40013035d3965",
-      "vmrGitHash": "6f5eb62f23cc44054bd8d0f946aa18c38724d7fe",
-      "runtimeCommitDateTime": "2025-12-05T23:55:08Z",
-      "runtimeCommitAuthor": "Copilot",
-      "runtimeCommitMessage": "Increase HostActivation test hang dump timeout to 8 minutes for OSX CI (#122171)",
-      "aspnetCoreCommitDateTime": "2025-12-12T00:18:44Z",
-      "aspnetCoreVersion": "11.0.0-alpha.1.25614.103",
-      "runtimePackVersion": "11.0.0-alpha.1.25614.103",
-      "workloadVersion": "11.0.0-alpha.1.25614.103",
-      "bootstrapSdkVersion": "10.0.100"
-    },
-    {
-      "sdkVersion": "11.0.100-alpha.1.25614.102",
-      "runtimeGitHash": "bce6119e41ecfbcf630c369836770669604c22c6",
-      "aspnetCoreGitHash": "c5f8422073be4a98c9cf3f75c58f9a0d59fdf073",
-      "sdkGitHash": "6a6992f5fc42dbd06cd24f3a7db40013035d3965",
-      "vmrGitHash": "dc803dea8a5917a87a812a05bae596c299368a43",
-      "runtimeCommitDateTime": "2025-12-05T23:55:08Z",
-      "runtimeCommitAuthor": "Copilot",
-      "runtimeCommitMessage": "Increase HostActivation test hang dump timeout to 8 minutes for OSX CI (#122171)",
-      "aspnetCoreCommitDateTime": "2025-12-12T00:18:44Z",
-      "aspnetCoreVersion": "11.0.0-alpha.1.25614.102",
-      "runtimePackVersion": "11.0.0-alpha.1.25614.102",
-      "workloadVersion": "11.0.0-alpha.1.25614.102",
       "bootstrapSdkVersion": "10.0.100"
     }
   ]
