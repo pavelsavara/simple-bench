@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "runtimeCommitDateTime": "2023-10-31T14:37:06Z",
+    "runtimeCommitAuthor": "dotnet-bot",
+    "runtimeCommitMessage": "Merge in 'release/8.0' changes",
+    "sdkVersion": "8.0.100",
+    "runtimeGitHash": "5535e31a712343a63f5d7d796cd874e563e5ac14",
+    "aspnetCoreGitHash": "3f1acb59718cadf111a0a796681e3d3509bb3381",
+    "sdkGitHash": "e9d13cbe7e8c1d52ce276a8655f52a87e1017c46",
+    "vmrGitHash": "e9d13cbe7e8c1d52ce276a8655f52a87e1017c46",
+    "aspnetCoreCommitDateTime": "2023-10-31T23:36:13Z",
+    "aspnetCoreVersion": "8.0.0",
+    "runtimePackVersion": "8.0.0",
+    "workloadVersion": "8.0.25",
+    "runtime": "mono",
+    "preset": "devloop",
+    "profile": "desktop",
+    "engine": "firefox",
+    "app": "havit-bootstrap",
+    "benchmarkDateTime": "2026-03-14T16:16:21.930Z",
+    "warmRunCount": 5,
+    "ciRunId": "23091220634",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23091220634"
+  },
+  "metrics": {
+    "compile-time": 7487,
+    "disk-size-native": 2914861,
+    "disk-size-assemblies": 24361672,
+    "time-to-reach-managed-warm": 2073,
+    "time-to-reach-managed-cold": 2588,
+    "time-to-create-dotnet-warm": 335,
+    "time-to-create-dotnet-cold": 839,
+    "wasm-memory-size": 72548352
+  }
+}
