@@ -97,10 +97,10 @@ const MICROBENCH_SKIP_METRICS = new Set([
     'compile-time', 'disk-size-native', 'disk-size-assemblies', 'download-size-total',
 ]);
 
-// Release tick spacing: feature band (hundreds digit × 100) × 12h + service release (last 2 digits) × 24h
+// Release tick spacing: feature band (hundreds digit × 100) × 12h + service release (last 2 digits) × 48h
 // e.g. 8.0.100 → band=100, svc=0; 8.0.302 → band=300, svc=2; 8.0.406 → band=400, svc=6
 const RELEASE_BAND_INTERVAL_MS = 12 * 3600000;     // 12 hours per band unit (band 100 = 50 days)
-const RELEASE_SERVICE_INTERVAL_MS = 24 * 3600000;   // 24 hours per service release
+const RELEASE_SERVICE_INTERVAL_MS = 48 * 3600000;   // 48 hours per service release
 
 function parseSdkPatch(sdkVersion) {
     const parts = sdkVersion.split('.');
