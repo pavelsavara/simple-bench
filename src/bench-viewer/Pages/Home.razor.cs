@@ -95,11 +95,14 @@ public partial class Home : IAsyncDisposable
                 ["engines"] = viewIndex.Dimensions.Engines,
             };
 
-            // Check all by default
-            checkedValues = filterGroups.ToDictionary(
-                g => g.Key,
-                g => new HashSet<string>(g.Value)
-            );
+            // Check all by default, except specific groups with preferred defaults
+            checkedValues = new Dictionary<string, HashSet<string>>
+            {
+                ["runtimes"] = new HashSet<string>(filterGroups["runtimes"]),
+                ["presets"] = new HashSet<string> { "no-workload" },
+                ["profiles"] = new HashSet<string> { "mobile" },
+                ["engines"] = new HashSet<string> { "chrome" },
+            };
 
             // Sort apps by preferred order
             viewIndex.Apps.Sort((a, b) =>
