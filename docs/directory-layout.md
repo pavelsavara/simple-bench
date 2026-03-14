@@ -43,7 +43,7 @@ simple-bench/
 │           ├── download-sdk.ts       # Download SDK via dotnet-install, detect bundled runtime
 │           ├── build.ts              # dotnet publish for each app×preset combination
 │           ├── measure.ts            # Browser/CLI measurement via Playwright/d8/node
-│           ├── transform-views.ts    # Consolidate results into month indexes + pivot views
+│           ├── transform-views.ts    # Build/update pivot views from artifacts/results
 │           ├── update-views.ts       # Commit and push data/ to gh-pages
 │           ├── docker-image.ts       # Build Docker images (build + measure)
 │           ├── docker-wrapper.ts     # Orchestrate stage batches across Docker containers

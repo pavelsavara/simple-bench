@@ -16,14 +16,7 @@ gh-pages/
 │   ├── release-packs-list.json # Cached copy of artifacts/release-packs-list.json
 │   └── commits-list.json       # Cached copy of artifacts/commits-list.json
 │
-└── data/                       # ── Benchmark Data ──────────────────────────────
-    ├── index.json              # Master index: lastUpdated + list of months
-    ├── {YYYY-MM}.json          # Month index (one per month with results)
-    │
-    ├── {YYYY}/                 # ── Per-Date Result Files ───────────────────────
-    │   └── {YYYY-MM-DD}/       # Date directory
-    │       └── {timestamp}_{hash7}_{runtime}_{preset}_{profile}_{engine}_{app}.json
-    │
+└── data/                       # ── Published Benchmark Views ───────────────────
     └── views/                  # ── Pre-computed Pivot Views ────────────────────
         ├── index.json          # View index: activeRelease, weeks, releases, apps, metrics, dimensions
         │
@@ -40,10 +33,8 @@ gh-pages/
 ## Data Flow
 
 1. **transform-views** reads `artifacts/results/` JSON files
-2. Copies them to `data/{YYYY}/{YYYY-MM-DD}/`
-3. Updates the month index `data/{YYYY-MM}.json` with new commits and results
-4. Updates `data/index.json` with the list of active months
-5. Builds pivot views under `data/views/` for the dashboard
+2. Merges them with any existing `data/views/` buckets already present in `gh-pages/`
+3. Writes refreshed pivot views under `data/views/` for the dashboard
 
 ## Cache Flow
 

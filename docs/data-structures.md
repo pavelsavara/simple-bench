@@ -56,29 +56,13 @@ Defined in [`bench/src/context.ts`](../bench/src/context.ts#L22).
 
 ## Result File (individual measurement)
 
-Written to `artifacts/results/{runId}/` and copied to `gh-pages/data/{YYYY}/{YYYY-MM-DD}/`.
+Written to `artifacts/results/{runId}/` and consumed by `transform-views` when rebuilding `gh-pages/data/views/`.
 
 **Filename**: `{runtimeCommitDateTime}_{hash:7}_{runtime}_{preset}_{profile}_{engine}_{app}.json`
 
 **Structure**: `{ meta, metrics }` where `meta` contains SDK identity + dimension values (runtime, preset, profile, engine, app, benchmarkDateTime, warmRunCount) and `metrics` contains measured values keyed by `MetricKey`.
 
 Built by [`buildResultJson()`](../bench/src/lib/measure-utils.ts#L174) and [`buildResultFilename()`](../bench/src/lib/measure-utils.ts#L208). Metric keys defined in [`bench/src/enums.ts`](../bench/src/enums.ts#L62).
-
----
-
-## MonthIndex (`data/{YYYY-MM}.json`)
-
-Groups all measurement results for one calendar month. Each commit entry contains SDK identity fields plus a `results[]` array of per-measurement summaries (dimension values + file path + inline metrics).
-
-Defined in [`bench/src/stages/transform-views.ts`](../bench/src/stages/transform-views.ts#L29) and [`bench/src/stages/schedule.ts`](../bench/src/stages/schedule.ts#L16).
-
----
-
-## DataIndex (`data/index.json`)
-
-Master index: `{ lastUpdated, months[] }` listing all month files with data.
-
-Defined in [`bench/src/stages/schedule.ts`](../bench/src/stages/schedule.ts#L25).
 
 ---
 

@@ -7,37 +7,6 @@ import { ensureBranchCheckout } from '../lib/branch-checkout.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-interface MonthResultEntry {
-    runtime: string;
-    preset: string;
-    profile: string;
-    engine: string;
-    app: string;
-    file: string;
-    metrics: Record<string, number>;
-}
-
-interface MonthCommitEntry {
-    runtimeGitHash: string;
-    aspnetCoreGitHash: string;
-    sdkGitHash: string;
-    vmrGitHash: string;
-    runtimeCommitDateTime: string;
-    runtimeCommitAuthor: string;
-    runtimeCommitMessage: string;
-    aspnetCoreCommitDateTime: string;
-    aspnetCoreVersion: string;
-    sdkVersion: string;
-    runtimePackVersion: string;
-    workloadVersion: string;
-    results: MonthResultEntry[];
-}
-
-interface MonthIndex {
-    month: string;
-    commits: MonthCommitEntry[];
-}
-
 interface ResultFile {
     meta: {
         runtimeCommitDateTime: string;
@@ -116,48 +85,31 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     // Ensure gh-pages is checked out (measure pipeline may not run check-out-data)
     await ensureBranchCheckout(ctx.repoRoot, 'gh-pages', 'gh-pages', ctx.verbose);
 
-    const dataDir = join(ctx.repoRoot, 'gh-pages', 'data');
-    const rawDir = join(dataDir, 'raw');
-    const viewsDir = join(dataDir, 'views');
-
-    await consolidateResults(ctx, rawDir);
-    await buildViews(ctx, rawDir, viewsDir);
+    const viewsDir = join(ctx.repoRoot, 'gh-pages', 'data', 'views');
+    const results = await loadResults(ctx);
+    await buildViews(ctx, results, viewsDir);
 
     return ctx;
 }
 
-// ── Phase 1: Consolidate ─────────────────────────────────────────────────────
+// ── Result Loading ───────────────────────────────────────────────────────────
 
-async function consolidateResults(ctx: BenchContext, dataDir: string): Promise<void> {
-    banner('Consolidate results');
+async function loadResults(ctx: BenchContext): Promise<LoadedResult[]> {
+    banner('Load results');
 
     const resultsDir = ctx.artifactsInputDir || ctx.resultsDir;
     if (!resultsDir || !existsSync(resultsDir)) {
-        info('No results directory — skipping consolidation');
-        return;
+        info('No results directory — skipping view generation');
+        return [];
     }
 
     const resultFiles = await findResultFiles(resultsDir);
     if (resultFiles.length === 0) {
         info('No result files found');
-        return;
+        return [];
     }
 
-    const commitGroups = new Map<string, {
-        runtimeGitHash: string;
-        aspnetCoreGitHash: string;
-        sdkGitHash: string;
-        vmrGitHash: string;
-        runtimeCommitDateTime: string;
-        runtimeCommitAuthor: string;
-        runtimeCommitMessage: string;
-        aspnetCoreCommitDateTime: string;
-        aspnetCoreVersion: string;
-        sdkVersion: string;
-        runtimePackVersion: string;
-        workloadVersion: string;
-        results: { filename: string; data: ResultFile }[];
-    }>();
+    const results: LoadedResult[] = [];
 
     for (const { path: filepath, filename } of resultFiles) {
         const raw = await readFile(filepath, 'utf-8');
@@ -175,110 +127,28 @@ async function consolidateResults(ctx: BenchContext, dataDir: string): Promise<v
             throw new Error(`Missing or unknown sdkVersion in ${filename}`);
         }
 
-        const key = m.runtimeGitHash;
-        if (!commitGroups.has(key)) {
-            commitGroups.set(key, {
-                runtimeGitHash: m.runtimeGitHash,
-                aspnetCoreGitHash: (m.aspnetCoreGitHash as string) || '',
-                sdkGitHash: (m.sdkGitHash as string) || '',
-                vmrGitHash: (m.vmrGitHash as string) || '',
-                runtimeCommitDateTime: m.runtimeCommitDateTime,
-                runtimeCommitAuthor: (m.runtimeCommitAuthor as string) || '',
-                runtimeCommitMessage: (m.runtimeCommitMessage as string) || '',
-                aspnetCoreCommitDateTime: (m.aspnetCoreCommitDateTime as string) || '',
-                aspnetCoreVersion: (m.aspnetCoreVersion as string) || '',
-                sdkVersion: m.sdkVersion,
-                runtimePackVersion: (m.runtimePackVersion as string) || '',
-                workloadVersion: (m.workloadVersion as string) || '',
-                results: [],
-            });
-        }
-        commitGroups.get(key)!.results.push({ filename, data });
+        const profile = m.profile || 'desktop';
+        results.push({
+            runtimeGitHash: m.runtimeGitHash,
+            aspnetCoreGitHash: (m.aspnetCoreGitHash as string) || '',
+            sdkGitHash: (m.sdkGitHash as string) || '',
+            vmrGitHash: (m.vmrGitHash as string) || '',
+            runtimeCommitDateTime: m.runtimeCommitDateTime,
+            runtimeCommitAuthor: (m.runtimeCommitAuthor as string) || '',
+            runtimeCommitMessage: (m.runtimeCommitMessage as string) || '',
+            aspnetCoreCommitDateTime: (m.aspnetCoreCommitDateTime as string) || '',
+            aspnetCoreVersion: (m.aspnetCoreVersion as string) || '',
+            sdkVersion: m.sdkVersion,
+            runtimePackVersion: (m.runtimePackVersion as string) || '',
+            workloadVersion: (m.workloadVersion as string) || '',
+            rowKey: `${m.runtime}/${m.preset}/${profile}/${m.engine}`,
+            app: m.app,
+            metrics: data.metrics,
+        });
     }
 
-    await mkdir(dataDir, { recursive: true });
-
-    for (const [, group] of commitGroups) {
-        const date = group.runtimeCommitDateTime.slice(0, 10);
-        const year = date.slice(0, 4);
-        const month = date.slice(0, 7);
-
-        const targetDir = join(dataDir, year, date);
-        await mkdir(targetDir, { recursive: true });
-
-        const indexResults: MonthResultEntry[] = [];
-        for (const { filename, data } of group.results) {
-            const resultPath = join(targetDir, filename);
-            await writeFile(resultPath, JSON.stringify(data, null, 2), 'utf-8');
-            if (ctx.verbose) debug(`  wrote ${year}/${date}/${filename}`);
-            indexResults.push({
-                runtime: data.meta.runtime,
-                preset: data.meta.preset,
-                profile: data.meta.profile,
-                engine: data.meta.engine,
-                app: data.meta.app,
-                file: `${year}/${date}/${filename}`,
-                metrics: data.metrics,
-            });
-        }
-
-        const monthFile = join(dataDir, `${month}.json`);
-        let monthIndex: MonthIndex;
-        if (existsSync(monthFile)) {
-            monthIndex = JSON.parse(await readFile(monthFile, 'utf-8'));
-        } else {
-            monthIndex = { month, commits: [] };
-        }
-
-        let commit = monthIndex.commits.find(c => c.runtimeGitHash === group.runtimeGitHash);
-        if (!commit) {
-            commit = {
-                runtimeGitHash: group.runtimeGitHash,
-                aspnetCoreGitHash: group.aspnetCoreGitHash,
-                sdkGitHash: group.sdkGitHash,
-                vmrGitHash: group.vmrGitHash,
-                runtimeCommitDateTime: group.runtimeCommitDateTime,
-                runtimeCommitAuthor: group.runtimeCommitAuthor,
-                runtimeCommitMessage: group.runtimeCommitMessage,
-                aspnetCoreCommitDateTime: group.aspnetCoreCommitDateTime,
-                aspnetCoreVersion: group.aspnetCoreVersion,
-                sdkVersion: group.sdkVersion,
-                runtimePackVersion: group.runtimePackVersion,
-                workloadVersion: group.workloadVersion,
-                results: [],
-            };
-            monthIndex.commits.push(commit);
-        }
-
-        const existingFiles = new Set(commit.results.map(r => r.file));
-        for (const r of indexResults) {
-            if (!existingFiles.has(r.file)) {
-                commit.results.push(r);
-            }
-        }
-
-        monthIndex.commits.sort((a, b) =>
-            a.runtimeCommitDateTime.localeCompare(b.runtimeCommitDateTime));
-
-        await writeFile(monthFile, JSON.stringify(monthIndex, null, 2), 'utf-8');
-        if (ctx.verbose) debug(`  wrote ${month}.json (${commit.results.length} results)`);
-    }
-
-    // Update data/index.json
-    const monthNames = (await readdir(dataDir))
-        .filter(f => /^\d{4}-\d{2}\.json$/.test(f))
-        .map(f => f.replace('.json', ''))
-        .sort();
-
-    const indexPath = join(dataDir, 'index.json');
-    await writeFile(
-        indexPath,
-        JSON.stringify({ lastUpdated: new Date().toISOString(), months: monthNames }, null, 2),
-        'utf-8',
-    );
-    if (ctx.verbose) debug(`  wrote index.json (${monthNames.length} months)`);
-
-    info(`Consolidated ${resultFiles.length} results from ${commitGroups.size} commits`);
+    if (ctx.verbose) debug(`Loaded ${results.length} results from ${resultFiles.length} files`);
+    return results;
 }
 
 async function findResultFiles(dir: string): Promise<{ path: string; filename: string }[]> {
@@ -309,66 +179,15 @@ function requireField(value: unknown, name: string, filename: string): asserts v
     }
 }
 
-// ── Phase 2: Build Views ─────────────────────────────────────────────────────
+// ── Build Views ──────────────────────────────────────────────────────────────
 
-async function buildViews(ctx: BenchContext, rawDir: string, viewsDir: string): Promise<void> {
+async function buildViews(ctx: BenchContext, allResults: LoadedResult[], viewsDir: string): Promise<void> {
     banner('Build views');
-
-    let monthFileNames: string[];
-    try {
-        monthFileNames = (await readdir(rawDir))
-            .filter(f => /^\d{4}-\d{2}\.json$/.test(f))
-            .sort();
-    } catch {
-        info('No raw data directory — skipping view generation');
-        return;
-    }
-
-    if (monthFileNames.length === 0) {
-        info('No month indexes found — skipping view generation');
-        return;
-    }
-
-    const allMonths: MonthIndex[] = [];
-    for (const f of monthFileNames) {
-        allMonths.push(JSON.parse(await readFile(join(rawDir, f), 'utf-8')));
-    }
-
-    const allResults: LoadedResult[] = [];
-    for (const month of allMonths) {
-        for (const commit of month.commits) {
-            for (const result of commit.results) {
-                // Skip legacy entries where metrics is a string[]
-                if (Array.isArray(result.metrics)) continue;
-
-                const profile = result.profile || 'desktop';
-                allResults.push({
-                    runtimeGitHash: commit.runtimeGitHash,
-                    aspnetCoreGitHash: commit.aspnetCoreGitHash || '',
-                    sdkGitHash: commit.sdkGitHash || '',
-                    vmrGitHash: commit.vmrGitHash || '',
-                    runtimeCommitDateTime: commit.runtimeCommitDateTime,
-                    runtimeCommitAuthor: commit.runtimeCommitAuthor || '',
-                    runtimeCommitMessage: commit.runtimeCommitMessage || '',
-                    aspnetCoreCommitDateTime: commit.aspnetCoreCommitDateTime || '',
-                    aspnetCoreVersion: commit.aspnetCoreVersion || '',
-                    sdkVersion: commit.sdkVersion,
-                    runtimePackVersion: commit.runtimePackVersion || '',
-                    workloadVersion: commit.workloadVersion || '',
-                    rowKey: `${result.runtime}/${result.preset}/${profile}/${result.engine}`,
-                    app: result.app,
-                    metrics: result.metrics,
-                });
-            }
-        }
-    }
 
     if (allResults.length === 0) {
         info('No results to build views from');
         return;
     }
-
-    if (ctx.verbose) debug(`Loaded ${allResults.length} results from ${allMonths.length} months`);
 
     // Split results: daily builds (prerelease SDK) vs GA releases (stable SDK)
     const dailyResults = allResults.filter(r => isDailyBuild(r.sdkVersion));

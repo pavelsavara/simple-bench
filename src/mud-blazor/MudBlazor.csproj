@@ -7,7 +7,7 @@
     <RootNamespace>MudBlazor.Docs</RootNamespace>
     <AssemblyName>MudBlazor.Docs</AssemblyName>
     <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
-    <NoWarn>$(NoWarn);CS8669;CS8632;CS0618;CS8603;CS8625;CS8618;CS8601;BL0007;CS8714;CS8602;CS8604;CS8600;CS8769;CS8622;CS8605;CS8619;CS8621;CS8767;RZ10012;CS8765;CS8620;CS1998</NoWarn>
+    <NoWarn>$(NoWarn);CS8669;CS8632;CS0618;CS8603;CS8625;CS8618;CS8601;BL0007;CS8714;CS8602;CS8604;CS8600;CS8769;CS8622;CS8605;CS8619;CS8621;CS8767;RZ10012;CS8765;CS8620;CS1998;CS0414</NoWarn>
   </PropertyGroup>
 
   <!-- MudBlazor core -->

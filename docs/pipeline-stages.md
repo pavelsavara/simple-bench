@@ -17,7 +17,7 @@ The bench CLI executes a sequence of stages. Each stage receives a `BenchContext
 | 9 | `download-sdk` | build | Download SDK via dotnet-install, detect bundled runtime |
 | 10 | `build` | build | `dotnet publish` for each app×preset combination |
 | 11 | `measure` | measure | Browser/CLI measurement via Playwright/d8/node |
-| 12 | `transform-views` | measure | Consolidate results into month indexes + pivot views |
+| 12 | `transform-views` | measure | Build/update pivot views from `artifacts/results` |
 | 13 | `update-views` | host | Commit and push data/ to gh-pages |
 
 ## Default Pipeline
@@ -150,17 +150,11 @@ Iterates the build manifest. For each entry × engine × profile:
 
 ### 12. transform-views
 
-Two phases:
+Reads result JSON files from `artifacts/results/` and builds/updates the published pivot views in `gh-pages/data/views/`.
 
-**Phase 1 — Consolidate results:**
-- Reads result JSON files from `artifacts/results/`
-- Groups by `runtimeGitHash`
-- Copies files to `gh-pages/data/{YYYY}/{YYYY-MM-DD}/`
-- Updates month index `data/{YYYY-MM}.json`
-- Updates `data/index.json`
-
-**Phase 2 — Build views:**
-- Loads all month indexes
+The stage:
+- Loads the current run's result files directly from `artifacts/results/`
+- Merges them with any existing bucket data already present under `gh-pages/data/views/`
 - Splits results into **daily builds** (SDK version has prerelease tag) vs **GA releases** (stable SDK version)
 - Daily builds: only the highest-major daily builds go into **week views** (ISO week boundaries); lower-major dailies are filtered out
 - GA releases: bucketed by **major version** into release views (e.g., `net9`, `net10`)
@@ -170,7 +164,7 @@ Two phases:
 
 ### 13. update-views
 
-Commits and pushes everything in `gh-pages/data/` that was written by transform-views. Skipped in dry-run mode.
+Commits and pushes `gh-pages/data/views/` after `transform-views`. Skipped in dry-run mode.
 
 ## CI Workflows
 

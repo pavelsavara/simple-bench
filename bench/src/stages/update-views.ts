@@ -4,8 +4,8 @@ import { info } from '../log.js';
 
 // ── Stage: update-views ──────────────────────────────────────────────────────
 //
-// Commits and pushes everything that transform-views wrote into gh-pages/data/
-// (month indexes, result files, and view JSON files).
+// Commits and pushes the view JSON files that transform-views wrote into
+// gh-pages/data/views/.
 //
 // Requires check-out-data (gh-pages/ must exist) and transform-views to have
 // run first.
