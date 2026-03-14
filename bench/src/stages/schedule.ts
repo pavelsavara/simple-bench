@@ -63,11 +63,24 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         debug(`Daily packs: ${dailyPacks.length} total, ${untestedDaily.length} untested+unlocked`);
     }
 
-    // 5. Priority: releases oldest→newest, then daily builds latest→oldest
+    // 5. Filter by channel major if --sdk-channel was specified
+    const channelMajor = parseInt(ctx.sdkChannel.split('.')[0], 10);
+    const filterByMajor = (p: PackEntry) => {
+        const major = parseInt(p.sdkVersion.split('.')[0], 10);
+        return major === channelMajor;
+    };
+    const filteredReleases = isNaN(channelMajor) ? untestedReleases : untestedReleases.filter(filterByMajor);
+    const filteredDaily = isNaN(channelMajor) ? untestedDaily : untestedDaily.filter(filterByMajor);
+
+    if (ctx.verbose && !isNaN(channelMajor)) {
+        debug(`Filtered to major ${channelMajor}: ${filteredReleases.length} releases, ${filteredDaily.length} daily`);
+    }
+
+    // 6. Priority: releases oldest→newest, then daily builds latest→oldest
     //    (release-packs-list already has newest first; daily-packs-list has newest first)
     const candidates = [
-        ...untestedReleases.reverse(),   // oldest → newest
-        ...untestedDaily,                 // already latest → oldest
+        ...filteredReleases.reverse(),   // oldest → newest
+        ...filteredDaily,                 // already latest → oldest
     ];
 
     if (candidates.length === 0) {
@@ -78,7 +91,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     const toDispatch = candidates.slice(0, ctx.maxDispatches);
     info(`Will dispatch ${toDispatch.length} of ${candidates.length} untested packs`);
 
-    // 6. Dispatch via GitHub REST API
+    // 7. Dispatch via GitHub REST API
     const repo = ctx.repo || 'pavelsavara/simple-bench';
     const token = await resolveGitHubToken();
     if (!token && !ctx.dryRun) {
