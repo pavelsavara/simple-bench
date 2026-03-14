@@ -90,8 +90,8 @@ These presets break Blazor's runtime reflection requirements.
 | Key | Display Name | Unit | Category | Source |
 |-----|-------------|------|----------|--------|
 | `compile-time` | Compile Time | ms | time | `dotnet publish` wall clock |
-| `disk-size-native` | Disk Size (WASM) | bytes | size | `*.wasm` files in `_framework/` |
-| `disk-size-assemblies` | Disk Size (DLLs) | bytes | size | `*.dll` files in `_framework/` |
+| `disk-size-native` | Disk Size (WASM) | bytes | size | `dotnet.native.wasm.br` file in `_framework/` |
+| `disk-size-assemblies` | Disk Size (DLLs) | bytes | size | `*.dll.br` files in `_framework/` |
 | `download-size-total` | Download Size (Total) | bytes | size | CDP `Network.loadingFinished` sum (Chrome only) |
 | `time-to-reach-managed-warm` | Time to Managed (Warm) | ms | time | Min of N warm reloads, `bench_results['time-to-reach-managed']` |
 | `time-to-reach-managed-cold` | Time to Managed (Cold) | ms | time | First navigation, `bench_results['time-to-reach-managed']` |

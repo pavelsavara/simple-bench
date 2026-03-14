@@ -9,6 +9,7 @@ import {
     MetricKey,
     getEnginesForApp, getProfilesForEngine,
     shouldSkipMeasurement,
+    Preset,
 } from '../enums.js';
 import { isWindows } from '../exec.js';
 import { banner, info, err, debug } from '../log.js';
@@ -78,7 +79,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         if (ctx.verbose) debug(`webRoot: ${webRoot}, isInternal: ${isInternal}`);
 
         // Measure file sizes (once per app×preset, shared across engines)
-        const fileSizes = isInternal ? null : await measureFileSizes(webRoot);
+        const fileSizes = isInternal ? null : await measureFileSizes(webRoot, entry.preset !== Preset.DevLoop);
         if (ctx.verbose && fileSizes) {
             debug(`File sizes — native: ${fileSizes.diskSizeNative}, assemblies: ${fileSizes.diskSizeAssemblies}`);
         }

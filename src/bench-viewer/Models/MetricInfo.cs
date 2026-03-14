@@ -18,8 +18,8 @@ public class MetricInfo
     public static readonly Dictionary<string, MetricInfo> All = new()
     {
         ["compile-time"] = new("compile-time", "Compile Time", "ms", "time"),
-        ["disk-size-native"] = new("disk-size-native", "Disk Size (WASM)", "bytes", "size"),
-        ["disk-size-assemblies"] = new("disk-size-assemblies", "Disk Size (DLLs)", "bytes", "size"),
+        ["disk-size-native"] = new("disk-size-native", "Disk Size (dotnet.native.wasm.br)", "bytes", "size"),
+        ["disk-size-assemblies"] = new("disk-size-assemblies", "Disk Size (*.dll.br)", "bytes", "size"),
         ["download-size-total"] = new("download-size-total", "Download Size (Total)", "bytes", "size"),
         ["time-to-reach-managed-warm"] = new("time-to-reach-managed-warm", "Time to Managed (Warm)", "ms", "time"),
         ["time-to-reach-managed-cold"] = new("time-to-reach-managed-cold", "Time to Managed (Cold)", "ms", "time"),

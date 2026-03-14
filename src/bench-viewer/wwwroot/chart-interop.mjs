@@ -58,8 +58,8 @@ const METRIC_UNITS = {
 
 const METRIC_DISPLAY = {
     'compile-time': 'Compile Time (s)',
-    'disk-size-native': 'Disk Size (WASM)',
-    'disk-size-assemblies': 'Disk Size (DLLs)',
+    'disk-size-native': 'Naive runtime binary size - brotli (bytes)',
+    'disk-size-assemblies': 'Assemblies size - brotli (bytes)',
     'download-size-total': 'Download Size (Total)',
     'time-to-reach-managed-warm': 'Time to Managed (Warm)',
     'time-to-reach-managed-cold': 'Time to Managed (Cold)',

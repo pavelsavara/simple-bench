@@ -106,7 +106,7 @@ export function startStaticServer(webRoot: string, port = 0): Promise<StaticServ
  * - wasm: *.wasm files in _framework/
  * - dlls: *.dll files in _framework/
  */
-export async function measureFileSizes(webRoot: string): Promise<FileSizes> {
+export async function measureFileSizes(webRoot: string, compressed: boolean): Promise<FileSizes> {
     let diskSizeNative = 0;
     let diskSizeAssemblies = 0;
 
@@ -122,12 +122,19 @@ export async function measureFileSizes(webRoot: string): Promise<FileSizes> {
         const inFramework = relativePath.includes('_framework');
 
         if (inFramework) {
-            if (entry.name.startsWith('dotnet.native') && entry.name.endsWith('.wasm')) {
-                diskSizeNative += s.size;
-            } else if (entry.name.endsWith('.dll') || entry.name.endsWith('.wasm')) {
-                diskSizeAssemblies += s.size;
+            if (compressed) {
+                if (entry.name.startsWith('dotnet.native') && entry.name.endsWith('.wasm.br')) {
+                    diskSizeNative += s.size;
+                } else if (entry.name.endsWith('.dll.br') || entry.name.endsWith('.wasm.br')) {
+                    diskSizeAssemblies += s.size;
+                }
+            } else {
+                if (entry.name.startsWith('dotnet.native') && entry.name.endsWith('.wasm')) {
+                    diskSizeNative += s.size;
+                } else if (entry.name.endsWith('.dll') || entry.name.endsWith('.wasm')) {
+                    diskSizeAssemblies += s.size;
+                }
             }
-
         }
     }
 
