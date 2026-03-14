@@ -31,6 +31,9 @@ public partial class Home : IAsyncDisposable
     // Show GA release data
     private bool showReleases = true;
 
+    // Show daily release data
+    private bool showDailyReleases = true;
+
     private static readonly Dictionary<string, string> TimeRanges = new()
     {
         ["7d"] = "7d",
@@ -183,6 +186,19 @@ public partial class Home : IAsyncDisposable
     {
         showReleases = show;
         ChartInterop.SetShowReleases(show);
+        ChartInterop.DestroyAllCharts();
+        selectedPoint = null;
+        previousPoint = null;
+        StateHasChanged();
+
+        await Task.Yield();
+        await LoadChartsForCurrentApp();
+    }
+
+    private async Task HandleShowDailyReleasesChanged(bool show)
+    {
+        showDailyReleases = show;
+        ChartInterop.SetShowDailyReleases(show);
         ChartInterop.DestroyAllCharts();
         selectedPoint = null;
         previousPoint = null;

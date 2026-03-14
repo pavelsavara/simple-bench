@@ -39,4 +39,7 @@ public static partial class ChartInterop
 
     [JSImport("setShowReleases", ModuleName)]
     internal static partial void SetShowReleases(bool show);
+
+    [JSImport("setShowDailyReleases", ModuleName)]
+    internal static partial void SetShowDailyReleases(bool show);
 }

@@ -29,6 +29,14 @@
                         Show GA releases
                     </label>
                 </div>
+                <div class="form-check form-check-sm mt-1">
+                    <input class="form-check-input" type="checkbox" id="show-daily-releases"
+                           checked="@showDailyReleases"
+                           @onchange="e => HandleShowDailyReleasesChanged((bool)e.Value!)" />
+                    <label class="form-check-label small" for="show-daily-releases">
+                        Show daily releases
+                    </label>
+                </div>
             </div>
             <FilterPanel FilterGroups="@filterGroups"
                          CheckedValues="@checkedValues"
