@@ -76,6 +76,11 @@ const BUILD_METRICS = new Set([
     'compile-time', 'disk-size-native', 'disk-size-assemblies', 'download-size-total',
 ]);
 
+// Walkthrough metrics are only collected for chrome/desktop — same filtering as build metrics
+const WALKTHROUGH_METRICS = new Set([
+    'pizza-walkthrough', 'havit-walkthrough',
+]);
+
 // Metrics to skip for micro-benchmarks (not meaningful for internal throughput tests)
 const MICROBENCH_SKIP_METRICS = new Set([
     'compile-time', 'disk-size-native', 'disk-size-assemblies', 'download-size-total',
@@ -120,8 +125,8 @@ function parseRowKey(key) {
 
 function isRowVisible(rowKey, filters, metric) {
     const d = parseRowKey(rowKey);
-    // Build-time metrics: only show chrome/desktop (values are identical across engines)
-    if (BUILD_METRICS.has(metric)) {
+    // Build-time and walkthrough metrics: only show chrome/desktop (values are identical or only collected there)
+    if (BUILD_METRICS.has(metric) || WALKTHROUGH_METRICS.has(metric)) {
         if (d.engine !== 'chrome' || d.profile !== 'desktop') return false;
         // Skip engine/profile filters — always display if runtime and preset match
         return filters.runtimes.includes(d.runtime)
@@ -134,8 +139,8 @@ function isRowVisible(rowKey, filters, metric) {
 }
 
 function formatRowLabel(rowKey, metric) {
-    if (BUILD_METRICS.has(metric)) {
-        // Strip redundant /desktop/chrome for build-time and disk-size metrics
+    if (BUILD_METRICS.has(metric) || WALKTHROUGH_METRICS.has(metric)) {
+        // Strip redundant /desktop/chrome for build-time, disk-size, and walkthrough metrics
         const d = parseRowKey(rowKey);
         return `${d.runtime}/${d.preset}`;
     }

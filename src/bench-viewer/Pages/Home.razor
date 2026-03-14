@@ -96,46 +96,163 @@
             <button class="btn btn-sm btn-link p-0" @onclick="ClearSelection">✕</button>
         </div>
         <div class="detail-panel-body px-3 py-2 small">
-            <div class="mb-2">
-                <div><strong>Date:</strong> @selectedPoint.Date</div>
-                <div><strong>SDK:</strong> @selectedPoint.SdkVersion</div>
-                <div><strong>Row:</strong> @selectedPoint.RowKey</div>
+            @* ── Current (latest click) ── *@
+            <div class="commit-info-block mb-2">
+                @RenderCommitInfo(selectedPoint, expanded: true)
             </div>
-            <div class="mb-2">
-                @if (!string.IsNullOrEmpty(selectedPoint.VmrGitHash))
+
+            @if (previousPoint != null)
+            {
+                @* ── Diff link ── *@
+                @if (!string.IsNullOrEmpty(selectedPoint.RuntimeGitHash) && !string.IsNullOrEmpty(previousPoint.RuntimeGitHash)
+                    && selectedPoint.RuntimeGitHash != previousPoint.RuntimeGitHash)
                 {
-                    <div>
-                        <a href="https://github.com/dotnet/dotnet/commit/@selectedPoint.VmrGitHash" target="_blank" rel="noopener">
-                            VMR @@ @selectedPoint.VmrGitHash[..Math.Min(7, selectedPoint.VmrGitHash.Length)]
+                    <div class="mb-2 text-center">
+                        <a href="https://github.com/dotnet/runtime/compare/@previousPoint.RuntimeGitHash...@selectedPoint.RuntimeGitHash"
+                           target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary w-100">
+                            ⇕ Compare runtime commits
                         </a>
                     </div>
                 }
-                @if (!string.IsNullOrEmpty(selectedPoint.RuntimeGitHash))
+
+                <hr class="my-1" />
+
+                @* ── Previous click ── *@
+                <div class="commit-info-block mb-2">
+                    @RenderCommitInfo(previousPoint, expanded: false)
+                </div>
+            }
+        </div>
+    </aside>
+}
+
+@code {
+    private RenderFragment RenderCommitInfo(SelectedPointInfo point, bool expanded) => __builder =>
+    {
+        <div class="mb-1">
+            <div class="fw-bold text-muted mb-1" style="font-size: 0.75rem;">
+                @if (!string.IsNullOrEmpty(point.RuntimeCommitMessage))
                 {
-                    <div>
-                        <a href="https://github.com/dotnet/runtime/commit/@selectedPoint.RuntimeGitHash" target="_blank" rel="noopener">
-                            Runtime @@ @selectedPoint.RuntimeGitHash[..Math.Min(7, selectedPoint.RuntimeGitHash.Length)]
-                        </a>
-                    </div>
+                    @TruncateMessage(point.RuntimeCommitMessage, 80)
                 }
-                @if (!string.IsNullOrEmpty(selectedPoint.SdkGitHash))
+                else
                 {
-                    <div>
-                        <a href="https://github.com/dotnet/sdk/commit/@selectedPoint.SdkGitHash" target="_blank" rel="noopener">
-                            SDK @@ @selectedPoint.SdkGitHash[..Math.Min(7, selectedPoint.SdkGitHash.Length)]
-                        </a>
-                    </div>
+                    <span>@point.Date</span>
                 }
             </div>
-            @if (selectedPoint.Metrics.Count > 0)
+        </div>
+
+        <table class="table table-sm table-borderless mb-1" style="font-size: 0.8rem;">
+            <tbody>
+                <tr>
+                    <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Date</td>
+                    <td class="py-0">@point.Date</td>
+                </tr>
+                @if (!string.IsNullOrEmpty(point.RuntimeCommitAuthor))
+                {
+                    <tr>
+                        <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Author</td>
+                        <td class="py-0">@point.RuntimeCommitAuthor</td>
+                    </tr>
+                }
+                <tr>
+                    <td class="text-muted py-0 pe-2" style="white-space:nowrap;">SDK</td>
+                    <td class="py-0" style="word-break:break-all;">@point.SdkVersion</td>
+                </tr>
+                <tr>
+                    <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Row</td>
+                    <td class="py-0">@point.RowKey</td>
+                </tr>
+                @if (!string.IsNullOrEmpty(point.RuntimePackVersion))
+                {
+                    <tr>
+                        <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Runtime Pack</td>
+                        <td class="py-0" style="word-break:break-all;">@point.RuntimePackVersion</td>
+                    </tr>
+                }
+                @if (!string.IsNullOrEmpty(point.AspnetCoreVersion))
+                {
+                    <tr>
+                        <td class="text-muted py-0 pe-2" style="white-space:nowrap;">ASP.NET Core</td>
+                        <td class="py-0" style="word-break:break-all;">@point.AspnetCoreVersion</td>
+                    </tr>
+                }
+                @if (!string.IsNullOrEmpty(point.WorkloadVersion))
+                {
+                    <tr>
+                        <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Workload</td>
+                        <td class="py-0" style="word-break:break-all;">@point.WorkloadVersion</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="mb-1" style="font-size: 0.8rem;">
+            @if (!string.IsNullOrEmpty(point.RuntimeGitHash))
+            {
+                <div>
+                    <a href="https://github.com/dotnet/runtime/commit/@point.RuntimeGitHash" target="_blank" rel="noopener">
+                        Runtime @@@Short(point.RuntimeGitHash)
+                    </a>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(point.VmrGitHash))
+            {
+                <div>
+                    <a href="https://github.com/dotnet/dotnet/commit/@point.VmrGitHash" target="_blank" rel="noopener">
+                        VMR @@@Short(point.VmrGitHash)
+                    </a>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(point.SdkGitHash))
+            {
+                <div>
+                    <a href="https://github.com/dotnet/sdk/commit/@point.SdkGitHash" target="_blank" rel="noopener">
+                        SDK @@@Short(point.SdkGitHash)
+                    </a>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(point.AspnetCoreGitHash))
+            {
+                <div>
+                    <a href="https://github.com/dotnet/aspnetcore/commit/@point.AspnetCoreGitHash" target="_blank" rel="noopener">
+                        ASP.NET @@@Short(point.AspnetCoreGitHash)
+                    </a>
+                </div>
+            }
+        </div>
+
+        @if (point.Metrics.Count > 0)
+        {
+            @if (expanded)
             {
                 <hr class="my-1" />
-                <div class="mb-1"><strong>All Metrics:</strong></div>
-                @foreach (var kv in selectedPoint.Metrics)
+                <div class="mb-1"><strong>Metrics:</strong></div>
+                @foreach (var kv in point.Metrics)
                 {
                     <div>@GetMetricDisplay(kv.Key): @FormatMetricValue(kv.Key, kv.Value)</div>
                 }
             }
-        </div>
-    </aside>
+            else
+            {
+                <details class="mt-1">
+                    <summary class="fw-bold" style="cursor:pointer; font-size:0.8rem;">Metrics</summary>
+                    <div class="mt-1">
+                        @foreach (var kv in point.Metrics)
+                        {
+                            <div>@GetMetricDisplay(kv.Key): @FormatMetricValue(kv.Key, kv.Value)</div>
+                        }
+                    </div>
+                </details>
+            }
+        }
+    };
+
+    private static string TruncateMessage(string msg, int max)
+    {
+        // Take first line only
+        var idx = msg.IndexOfAny(new[] { '\r', '\n' });
+        if (idx >= 0) msg = msg[..idx];
+        return msg.Length <= max ? msg : msg[..(max - 1)] + "…";
+    }
 }

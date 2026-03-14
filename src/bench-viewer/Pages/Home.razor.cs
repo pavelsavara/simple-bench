@@ -21,8 +21,9 @@ public partial class Home : IAsyncDisposable
     private Dictionary<string, List<string>> filterGroups = new();
     private Dictionary<string, HashSet<string>> checkedValues = new();
 
-    // Selected commit point (shown in right panel)
+    // Selected commit points (shown in right panel) — FIFO, max 2
     private SelectedPointInfo? selectedPoint;
+    private SelectedPointInfo? previousPoint;
 
     // Time range state
     private string currentTimeRange = "all";
@@ -141,6 +142,7 @@ public partial class Home : IAsyncDisposable
         currentApp = app;
         currentMetrics = GetFilteredMetrics(app);
         selectedPoint = null;
+        previousPoint = null;
         StateHasChanged();
 
         await Task.Yield();
@@ -168,6 +170,7 @@ public partial class Home : IAsyncDisposable
         ChartInterop.SetTimeRange(range);
         ChartInterop.DestroyAllCharts();
         selectedPoint = null;
+        previousPoint = null;
         StateHasChanged();
 
         await Task.Yield();
@@ -180,6 +183,7 @@ public partial class Home : IAsyncDisposable
         ChartInterop.SetShowReleases(show);
         ChartInterop.DestroyAllCharts();
         selectedPoint = null;
+        previousPoint = null;
         StateHasChanged();
 
         await Task.Yield();
@@ -204,6 +208,8 @@ public partial class Home : IAsyncDisposable
 
                 var point = new SelectedPointInfo
                 {
+                    Bucket = bucket,
+                    ColIndex = colIndex,
                     Date = col.TryGetProperty("runtimeCommitDateTime", out var dt)
                         ? FormatDate(dt.GetString() ?? "") : "",
                     SdkVersion = col.TryGetProperty("sdkVersion", out var sdk)
@@ -214,6 +220,20 @@ public partial class Home : IAsyncDisposable
                         ? sh.GetString() ?? "" : "",
                     VmrGitHash = col.TryGetProperty("vmrGitHash", out var vh)
                         ? vh.GetString() ?? "" : "",
+                    AspnetCoreGitHash = col.TryGetProperty("aspnetCoreGitHash", out var ah)
+                        ? ah.GetString() ?? "" : "",
+                    RuntimeCommitAuthor = col.TryGetProperty("runtimeCommitAuthor", out var ra)
+                        ? ra.GetString() ?? "" : "",
+                    RuntimeCommitMessage = col.TryGetProperty("runtimeCommitMessage", out var rm)
+                        ? rm.GetString() ?? "" : "",
+                    AspnetCoreCommitDateTime = col.TryGetProperty("aspnetCoreCommitDateTime", out var acd)
+                        ? FormatDate(acd.GetString() ?? "") : "",
+                    AspnetCoreVersion = col.TryGetProperty("aspnetCoreVersion", out var av)
+                        ? av.GetString() ?? "" : "",
+                    RuntimePackVersion = col.TryGetProperty("runtimePackVersion", out var rpv)
+                        ? rpv.GetString() ?? "" : "",
+                    WorkloadVersion = col.TryGetProperty("workloadVersion", out var wv)
+                        ? wv.GetString() ?? "" : "",
                     RowKey = rowKey,
                 };
 
@@ -221,6 +241,19 @@ public partial class Home : IAsyncDisposable
                 var metricsJson = await ChartInterop.GetPointMetrics(currentApp, bucket, rowKey, colIndex);
                 var metricsDict = JsonSerializer.Deserialize<Dictionary<string, double>>(metricsJson);
                 point.Metrics = metricsDict ?? new();
+
+                // FIFO: push current to previous, set new as current
+                // Also override previous point's rowKey to match the new one
+                if (selectedPoint != null)
+                {
+                    previousPoint = selectedPoint;
+                    previousPoint.RowKey = rowKey;
+                    // Re-fetch metrics for previous point with the new rowKey
+                    var prevMetricsJson = await ChartInterop.GetPointMetrics(
+                        currentApp, previousPoint.Bucket, rowKey, previousPoint.ColIndex);
+                    var prevMetrics = JsonSerializer.Deserialize<Dictionary<string, double>>(prevMetricsJson);
+                    previousPoint.Metrics = prevMetrics ?? new();
+                }
 
                 selectedPoint = point;
                 StateHasChanged();
@@ -273,14 +306,18 @@ public partial class Home : IAsyncDisposable
     private void ClearSelection()
     {
         selectedPoint = null;
+        previousPoint = null;
     }
 
     private string FormatDate(string isoDate)
     {
         if (DateTime.TryParse(isoDate, out var dt))
-            return dt.ToString("yyyy-MM-dd");
+            return dt.ToString("yyyy-MM-dd HH:mm");
         return isoDate;
     }
+
+    private static string Short(string? hash) =>
+        string.IsNullOrEmpty(hash) ? "" : hash[..Math.Min(7, hash.Length)];
 
     private string GetMetricDisplay(string key)
     {
@@ -318,11 +355,20 @@ public partial class Home : IAsyncDisposable
     // Model for selected point display
     private class SelectedPointInfo
     {
+        public string Bucket { get; set; } = "";
+        public int ColIndex { get; set; }
         public string Date { get; set; } = "";
         public string SdkVersion { get; set; } = "";
         public string RuntimeGitHash { get; set; } = "";
         public string SdkGitHash { get; set; } = "";
         public string VmrGitHash { get; set; } = "";
+        public string AspnetCoreGitHash { get; set; } = "";
+        public string RuntimeCommitAuthor { get; set; } = "";
+        public string RuntimeCommitMessage { get; set; } = "";
+        public string AspnetCoreCommitDateTime { get; set; } = "";
+        public string AspnetCoreVersion { get; set; } = "";
+        public string RuntimePackVersion { get; set; } = "";
+        public string WorkloadVersion { get; set; } = "";
         public string RowKey { get; set; } = "";
         public Dictionary<string, double> Metrics { get; set; } = new();
     }
