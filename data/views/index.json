@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-14T11:23:35.777Z",
+  "lastUpdated": "2026-03-14T11:48:45.181Z",
   "activeRelease": "net11",
   "releases": [
     "net10",
@@ -23,8 +23,11 @@
       "disk-size-total",
       "download-size-total",
       "memory-peak",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
       "time-to-reach-managed-cold",
-      "time-to-reach-managed-warm"
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
     ],
     "havit-bootstrap": [
       "compile-time",
@@ -34,15 +37,23 @@
       "download-size-total",
       "havit-walkthrough",
       "memory-peak",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
       "time-to-reach-managed-cold",
-      "time-to-reach-managed-warm"
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
     ],
     "micro-benchmarks": [
       "compile-time",
       "exception-ops",
       "js-interop-ops",
       "json-parse-ops",
-      "memory-peak"
+      "memory-peak",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-exit-cold",
+      "time-to-exit-warm",
+      "wasm-memory-size"
     ],
     "blazing-pizza": [
       "compile-time",
@@ -52,8 +63,11 @@
       "download-size-total",
       "memory-peak",
       "pizza-walkthrough",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
       "time-to-reach-managed-cold",
-      "time-to-reach-managed-warm"
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
     ]
   },
   "dimensions": {
