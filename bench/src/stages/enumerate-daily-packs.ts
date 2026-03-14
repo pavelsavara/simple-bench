@@ -208,6 +208,26 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     banner('Enumerate daily packs');
 
     const outputPath = join(ctx.artifactsDir, 'daily-packs-list.json');
+
+    // Skip refresh if an explicit SDK version is given and already in either pack list
+    if (ctx.sdkVersion && !ctx.forceEnumerate) {
+        const cached = await loadExisting(outputPath);
+        if (cached?.packs.some(p => p.sdkVersion === ctx.sdkVersion)) {
+            info(`SDK version '${ctx.sdkVersion}' already in cached daily packs — skipping refresh`);
+            return ctx;
+        }
+        const releasePath = join(ctx.artifactsDir, 'release-packs-list.json');
+        if (existsSync(releasePath)) {
+            try {
+                const releaseData = JSON.parse(await readFile(releasePath, 'utf-8')) as { packs: Array<{ sdkVersion: string }> };
+                if (releaseData.packs?.some(p => p.sdkVersion === ctx.sdkVersion)) {
+                    info(`SDK version '${ctx.sdkVersion}' found in cached release packs — skipping daily refresh`);
+                    return ctx;
+                }
+            } catch { /* ignore corrupt file */ }
+        }
+    }
+
     const major = ctx.major;
     const months = ctx.months;
     const feedUrl = `${NUGET_FEED_BASE}/dotnet${major}/nuget/v3/index.json`;

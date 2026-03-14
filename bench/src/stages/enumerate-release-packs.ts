@@ -261,6 +261,26 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     banner('Enumerate release packs');
 
     const outputPath = join(ctx.artifactsDir, 'release-packs-list.json');
+
+    // Skip refresh if an explicit SDK version is given and already in either pack list
+    if (ctx.sdkVersion && !ctx.forceEnumerate) {
+        const cached = await loadExisting(outputPath);
+        if (cached?.packs.some(p => p.sdkVersion === ctx.sdkVersion)) {
+            info(`SDK version '${ctx.sdkVersion}' already in cached release packs — skipping refresh`);
+            return ctx;
+        }
+        const dailyPath = join(ctx.artifactsDir, 'daily-packs-list.json');
+        if (existsSync(dailyPath)) {
+            try {
+                const dailyData = JSON.parse(await readFile(dailyPath, 'utf-8')) as { packs: Array<{ sdkVersion: string }> };
+                if (dailyData.packs?.some(p => p.sdkVersion === ctx.sdkVersion)) {
+                    info(`SDK version '${ctx.sdkVersion}' found in cached daily packs — skipping release refresh`);
+                    return ctx;
+                }
+            } catch { /* ignore corrupt file */ }
+        }
+    }
+
     const releaseMajors = ctx.releaseMajors;
     const channels = releaseMajors.map(m => `${m}.0`);
 
