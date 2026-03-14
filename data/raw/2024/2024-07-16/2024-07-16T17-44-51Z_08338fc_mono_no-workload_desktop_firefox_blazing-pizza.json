@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "runtimeCommitDateTime": "2024-07-16T17:44:51Z",
+    "runtimeCommitAuthor": "Mirroring",
+    "runtimeCommitMessage": "Merge commit '2d5c0b720cf0c7244996512dabcb504acdbaa221'",
+    "sdkVersion": "8.0.402",
+    "runtimeGitHash": "08338fcaa5c9b9a8190abb99222fed12aaba956c",
+    "aspnetCoreGitHash": "954f61dd38b33caa2b736c73530bd5a294174437",
+    "sdkGitHash": "a18c56e8652eaf21556eb3a329c4e0101299eb20",
+    "vmrGitHash": "a18c56e8652eaf21556eb3a329c4e0101299eb20",
+    "aspnetCoreCommitDateTime": "2024-07-19T22:20:50Z",
+    "aspnetCoreVersion": "8.0.8",
+    "runtimePackVersion": "8.0.8",
+    "workloadVersion": "8.0.25",
+    "runtime": "mono",
+    "preset": "no-workload",
+    "profile": "desktop",
+    "engine": "firefox",
+    "app": "blazing-pizza",
+    "benchmarkDateTime": "2026-03-14T17:33:49.209Z",
+    "warmRunCount": 5,
+    "ciRunId": "23092512446",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23092512446"
+  },
+  "metrics": {
+    "compile-time": 20028,
+    "disk-size-native": 951258,
+    "disk-size-assemblies": 1137924,
+    "time-to-reach-managed-warm": 1506,
+    "time-to-reach-managed-cold": 1660,
+    "time-to-create-dotnet-warm": 217,
+    "time-to-create-dotnet-cold": 355,
+    "wasm-memory-size": 48627712
+  }
+}
