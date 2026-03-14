@@ -1,10 +1,10 @@
 {
-  "lastUpdated": "2026-03-14T17:58:14.811Z",
+  "lastUpdated": "2026-03-14T19:30:13.287Z",
   "activeRelease": "net11",
-  "releases": [
-    "net8"
+  "releases": [],
+  "weeks": [
+    "2026-03-09"
   ],
-  "weeks": [],
   "apps": [
     "blazing-pizza",
     "empty-blazor",
