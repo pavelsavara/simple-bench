@@ -48,12 +48,13 @@ export function startStaticServer(webRoot: string, port = 0): Promise<StaticServ
 
     return new Promise((resolveP, reject) => {
         const server: Server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
+            let filePath: string | undefined;
             try {
                 let urlPath = new URL(req.url || '/', `http://localhost`).pathname;
                 if (urlPath === '/') urlPath = '/index.html';
 
                 // Path traversal protection
-                const filePath = normalize(join(root, urlPath));
+                filePath = normalize(join(root, urlPath));
                 if (!filePath.startsWith(root)) {
                     res.writeHead(403);
                     res.end('Forbidden');
@@ -92,6 +93,24 @@ export function startStaticServer(webRoot: string, port = 0): Promise<StaticServ
             } catch (e: unknown) {
                 const code = (e as NodeJS.ErrnoException).code;
                 if (code === 'ENOENT' || code === 'EISDIR') {
+                    // SPA fallback: serve index.html for extensionless paths
+                    // (standard Blazor WASM / SPA hosting behaviour)
+                    if (filePath != null && !extname(filePath)) {
+                        try {
+                            const fallback = join(root, 'index.html');
+                            const content = await readFile(fallback);
+                            res.writeHead(200, {
+                                'Content-Type': 'text/html',
+                                'Content-Length': content.length,
+                                'Cross-Origin-Opener-Policy': 'same-origin',
+                                'Cross-Origin-Embedder-Policy': 'require-corp',
+                                'Timing-Allow-Origin': '*',
+                                'Cache-Control': 'no-cache',
+                            });
+                            res.end(content);
+                            return;
+                        } catch { /* index.html not found, fall through to 404 */ }
+                    }
                     res.writeHead(404);
                     res.end('Not Found');
                 } else {

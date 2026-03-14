@@ -31,62 +31,22 @@ namespace MudBlazor.Docs.Services
 
         public async Task<GithubContributors[]> GetContributorsAsync()
         {
-            try
-            {
-                var result = await _http.GetFromJsonAsync<GithubContributors[]>("repos/MudBlazor/MudBlazor/contributors?per_page=100", _jsonSerializerOptions);
-                return result ?? Array.Empty<GithubContributors>();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return Array.Empty<GithubContributors>();
-            }
+            return Array.Empty<GithubContributors>();
         }
 
         public async Task<GitHubReleases[]> GetReleasesAsync()
         {
-            try
-            {
-                var result = await _http.GetFromJsonAsync<GitHubReleases[]>("repos/MudBlazor/MudBlazor/releases?per_page=100", _jsonSerializerOptions);
-                return result ?? Array.Empty<GitHubReleases>();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return Array.Empty<GitHubReleases>();
-            }
+            return Array.Empty<GitHubReleases>();
         }
 
         public async Task<GitHubRepository?> GetRepositoryAsync(string owner, string repo)
         {
-            try
-            {
-                var result = await _http.GetFromJsonAsync<GitHubRepository>($"repos/{owner}/{repo}", _jsonSerializerOptions);
-                return result;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
                 return null;
-            }
         }
 
         public async Task<int> GetContributorsCountAsync(string owner, string repo)
         {
-            try
-            {
-                var result = await _http.GetAsync($"repos/{owner}/{repo}/contributors?per_page=1&anon=true");
-                var value = result.Headers.GetValues("Link").FirstOrDefault();
-                value = value?.Substring(value.LastIndexOf("page=", StringComparison.Ordinal) + 5);
-                value = value?.Substring(0, value.LastIndexOf(">;", StringComparison.Ordinal));
-
-                return value is not null ? int.Parse(value) : 0;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return 0;
-            }
+            return 0;
         }
 
         public void Dispose()

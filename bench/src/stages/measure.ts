@@ -22,6 +22,7 @@ import { PROFILES } from '../lib/throttle-profiles.js';
 import { getEngineCommand, parseCliOutput } from '../lib/internal-utils.js';
 import { runPizzaWalkthrough } from '../lib/pizza-walkthrough.js';
 import { runHavitWalkthrough } from '../lib/havit-walkthrough.js';
+import { runMudWalkthrough } from '../lib/mud-walkthrough.js';
 import { type SampleStats, computeStats, formatStats, median } from '../lib/stats.js';
 
 // ── Stage Entry Point ────────────────────────────────────────────────────────
@@ -50,7 +51,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         if (!ctx.apps.includes(entry.app)) continue;
         if (!ctx.presets.includes(entry.preset)) continue;
 
-        const skipReason = shouldSkipMeasurement(entry.app, entry.preset);
+        const skipReason = shouldSkipMeasurement(entry.app, entry.preset, ctx);
         if (skipReason) {
             info(`Skipping ${entry.app}/${entry.preset}: ${skipReason}`);
             continue;
@@ -418,6 +419,20 @@ async function measureBrowser(
                 if (ctx.verbose) debug(`Havit walkthrough times: [${havitTimes.join(', ')}] → median=${havitWalkthrough}ms`);
             }
 
+            // Mud walkthrough (mud-blazor only, chrome, desktop profile) — median-of-N
+            let mudWalkthrough: number | null = null;
+            if (entry.app === A.MudBlazor && profile === 'desktop' && engine === E.Chrome) {
+                const mudTimes: number[] = [];
+                for (let i = 0; i < warmRuns; i++) {
+                    if (ctx.verbose) debug(`Mud walkthrough ${i + 1}/${warmRuns}...`);
+                    const t = await runMudWalkthrough(page, pageUrl, timeout, ctx.verbose);
+                    mudTimes.push(t);
+                    if (ctx.verbose) debug(`Mud walkthrough ${i + 1}/${warmRuns}: ${t}ms`);
+                }
+                mudWalkthrough = Math.round(median([...mudTimes].sort((a, b) => a - b)));
+                if (ctx.verbose) debug(`Mud walkthrough times: [${mudTimes.join(', ')}] → median=${mudWalkthrough}ms`);
+            }
+
             // Collect internal benchmark samples before closing the page
             let benchSamples: Record<string, number[]> | null = null;
             if (isInternal) {
@@ -488,6 +503,7 @@ async function measureBrowser(
                 [MetricKey.MemoryPeak]: useCDP ? (memoryPeak || null) : null,
                 [MetricKey.PizzaWalkthrough]: pizzaWalkthrough,
                 [MetricKey.HavitWalkthrough]: havitWalkthrough,
+                [MetricKey.MudWalkthrough]: mudWalkthrough,
             };
         } catch (e) {
             lastError = e instanceof Error ? e : new Error(String(e));

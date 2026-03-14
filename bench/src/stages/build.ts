@@ -100,12 +100,7 @@ async function buildPhase(
     for (const app of ctx.apps) {
         const appDir = join(ctx.repoRoot, 'src', app);
         for (const preset of presets) {
-            if (MONO_ONLY_PRESETS.has(preset) && ctx.runtime === R.CoreCLR) {
-                info(`Skipping ${app}/${preset}: ${preset} is mono-only`);
-                continue;
-            }
-
-            const skipReason = shouldSkipMeasurement(app, preset);
+            const skipReason = shouldSkipMeasurement(app, preset, ctx);
             if (skipReason) {
                 info(`Skipping ${app}/${preset}: ${skipReason}`);
                 continue;

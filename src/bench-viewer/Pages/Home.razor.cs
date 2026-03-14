@@ -56,7 +56,7 @@ public partial class Home : IAsyncDisposable
     // Preferred metric display order
     private static readonly List<string> MetricOrder = new()
     {
-        "pizza-walkthrough", "havit-walkthrough",
+        "pizza-walkthrough", "havit-walkthrough", "mud-walkthrough",
         "json-parse-ops", "js-interop-ops", "exception-ops",
         "time-to-reach-managed-cold", "time-to-reach-managed-warm",
         "time-to-create-dotnet-cold", "time-to-create-dotnet-warm",

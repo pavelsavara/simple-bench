@@ -30,16 +30,7 @@ namespace MudBlazor.Docs.Services
 
         public async Task<NugetPackage?> GetPackageAsync(string packageName)
         {
-            try
-            {
-                var result = await _http.GetFromJsonAsync<NugetResponse>($"query?q=packageid:{packageName}&take=1", _jsonSerializerOptions);
-                return result?.Data.FirstOrDefault();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return null;
-            }
+            return null;
         }
 
         public void Dispose()

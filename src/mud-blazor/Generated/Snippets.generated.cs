@@ -2774,8 +2774,6 @@ namespace MudBlazor.Docs.Models
 
         public const string HeatMapExample4 = @"@using MudBlazor.Utilities
 
-<link href=""https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"" rel=""stylesheet"" />
-
 <MudGrid>
     <MudItem xs=""2"" Class=""d-flex align-center"">
         <MudRadioGroup T=""Position"" Value=""_showLegendPosition"" ValueChanged=""@((Position value) => ShowLegendPositionChanged(value))"" Class=""d-flex flex-column align-center justify-center"">
@@ -3050,8 +3048,6 @@ namespace MudBlazor.Docs.Models
 }";
 
         public const string HeatMapExample6 = @"@using MudBlazor.Utilities
-
-<link href=""https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"" rel=""stylesheet"" />
 
 <MudPaper Class=""pa-4"">
     <MudChart T=""int"" ChartType=""ChartType.HeatMap"" ChartSeries=""@_series"" ChartOptions=""@_options""
@@ -9454,7 +9450,7 @@ else
 
         public const string MudElementChangingExample = @"<MudElement HtmlTag=""@htmlTag""
             Class=""reset-style""
-            href=""https://mudblazor.com""
+            href=""https://""
             value=""@($""The underlying tag is '{htmlTag}'"")"">
     The underlying tag is '@htmlTag'
 </MudElement>
@@ -12061,7 +12057,7 @@ else
     }
 }";
 
-        public const string IconButtonFontIconExample = @"<link href=""https://use.fontawesome.com/releases/v5.14.0/css/all.css"" rel=""stylesheet"">
+        public const string IconButtonFontIconExample = @"<link href=""https:///releases/v5.14.0/css/all.css"" rel=""stylesheet"">
 
 <MudIconButton Icon=""fas fa-atom"" Color=""Color.Error"" />
 <MudIconButton Icon=""fas fa-fighter-jet"" Color=""Color.Dark"" />
@@ -12107,7 +12103,7 @@ else
 <MudIcon Icon=""@Icons.Custom.Uncategorized.Radioactive"" Color=""Color.Error"" />
 <MudIcon Icon=""@Icons.Custom.Uncategorized.Radioactive"" Color=""Color.Dark"" />";
 
-        public const string IconsFontAwesomeExample = @"<link href=""https://use.fontawesome.com/releases/v5.14.0/css/all.css"" rel=""stylesheet"">
+        public const string IconsFontAwesomeExample = @"<link href=""https:///releases/v5.14.0/css/all.css"" rel=""stylesheet"">
 
 <MudIcon Icon=""fas fa-database"" Color=""Color.Primary"" />
 <MudIcon Icon=""fas fa-home"" Color=""Color.Secondary"" />
@@ -12115,7 +12111,7 @@ else
 <MudIconButton Icon=""fas fa-sync-alt"" />
 <MudButton StartIcon=""fas fa-paper-plane"" Color=""Color.Info"" Variant=""Variant.Filled"">Send</MudButton>";
 
-        public const string IconsFontMaterialSymbolsSyntaxExample = @"<link href=""https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"" rel=""stylesheet"" />
+        public const string IconsFontMaterialSymbolsSyntaxExample = @"
 
 <MudIcon Icon=""material-symbols-outlined/database"" Color=""Color.Primary""/>
 <MudIcon Icon=""material-symbols-outlined/home"" Color=""Color.Secondary""/>
@@ -12248,7 +12244,7 @@ else
 
         public const string ImageUsageExample = @"<MudImage Src=""images/mony.jpg"" Alt=""Mony the dog"" Elevation=""25"" Class=""rounded-lg""/>";
 
-        public const string LinkIconExample = @"<MudLink Href=""https://mudblazor.com/"" StartIcon=""@Icons.Material.Filled.Home"">Home</MudLink>
+        public const string LinkIconExample = @"<MudLink Href=""https:///"" StartIcon=""@Icons.Material.Filled.Home"">Home</MudLink>
 <MudLink Href=""https://github.com/MudBlazor/MudBlazor"" Target=""_blank"" EndIcon=""@Icons.Custom.Brands.GitHub"">GitHub</MudLink>
 <MudLink Href=""/"" StartIcon=""@Icons.Material.Filled.Link"" EndIcon=""@Icons.Material.Filled.OpenInNew"">Internal Link</MudLink>";
 
@@ -13200,7 +13196,7 @@ else
     }
 </style>";
 
-        public const string NavMenuIconExample = @"<link href=""https://use.fontawesome.com/releases/v5.14.0/css/all.css"" rel=""stylesheet"">
+        public const string NavMenuIconExample = @"<link href=""https:///releases/v5.14.0/css/all.css"" rel=""stylesheet"">
 
 
 <MudPaper Width=""250px"" Class=""d-inline-flex py-3"" Elevation=""0"">
@@ -14998,13 +14994,13 @@ else
 
         public const string SelectPresentationExample = @"<MudSelect @bind-Value=""country"" Label=""With render fragements"" Variant=""Variant.Outlined"">
     <MudSelectItem Value=""@(""Austria"")"">
-        <img src=""https://upload.wikimedia.org/wikipedia/commons/4/41/Flag_of_Austria.svg"" height=""14"" class=""mr-1"" /> Austria
+        <img src=""wikipedia/commons/4/41/Flag_of_Austria.svg"" height=""14"" class=""mr-1"" /> Austria
     </MudSelectItem>
     <MudSelectItem Value=""@(""Hungary"")"">
-        <img src=""https://upload.wikimedia.org/wikipedia/commons/0/00/Flag_of_Hungary.png"" height=""14"" class=""mr-1"" /> Hungary
+        <img src=""wikipedia/commons/0/00/Flag_of_Hungary.png"" height=""14"" class=""mr-1"" /> Hungary
     </MudSelectItem>
     <MudSelectItem Value=""@(""Sweden"")"">
-        <img src=""https://upload.wikimedia.org/wikipedia/commons/4/4b/Flag_of_Sweden_fixed.svg"" height=""14"" class=""mr-1"" /> Sweden
+        <img src=""wikipedia/commons/4/4b/Flag_of_Sweden_fixed.svg"" height=""14"" class=""mr-1"" /> Sweden
     </MudSelectItem>
 </MudSelect>
 
@@ -15016,13 +15012,13 @@ else
 
 <MudSelect @bind-Value=""country"" Label=""Austria not representable"" Variant=""Variant.Outlined"">
     <MudSelectItem Value=""@(""Germany"")"">
-        <img src=""https://upload.wikimedia.org/wikipedia/en/b/ba/Flag_of_Germany.svg"" height=""14"" class=""mr-1"" /> Germany
+        <img src=""wikipedia/en/b/ba/Flag_of_Germany.svg"" height=""14"" class=""mr-1"" /> Germany
     </MudSelectItem>
     <MudSelectItem Value=""@(""Hungary"")"">
-        <img src=""https://upload.wikimedia.org/wikipedia/commons/0/00/Flag_of_Hungary.png"" height=""14"" class=""mr-1"" /> Hungary
+        <img src=""wikipedia/commons/0/00/Flag_of_Hungary.png"" height=""14"" class=""mr-1"" /> Hungary
     </MudSelectItem>
     <MudSelectItem Value=""@(""Sweden"")"">
-        <img src=""https://upload.wikimedia.org/wikipedia/commons/4/4b/Flag_of_Sweden_fixed.svg"" height=""14"" class=""mr-1"" /> Sweden
+        <img src=""wikipedia/commons/4/4b/Flag_of_Sweden_fixed.svg"" height=""14"" class=""mr-1"" /> Sweden
     </MudSelectItem>
 </MudSelect>
 
@@ -22043,13 +22039,13 @@ MudGlobal.UnhandledExceptionHandler = (exception) => Console.WriteLine(exception
 @* Needed for snackbars *@
 <MudSnackbarProvider />";
 
-        public const string InstallationManualCssFontsExample = @"<link href=""https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"" rel=""stylesheet"" />
+        public const string InstallationManualCssFontsExample = @"
 <link href=""@Assets[""_content/MudBlazor/MudBlazor.min.css""]"" rel=""stylesheet"" />";
 
-        public const string InstallationManualCssFontsExampleNet8 = @"<link href=""https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"" rel=""stylesheet"" />
+        public const string InstallationManualCssFontsExampleNet8 = @"
 <link href=""_content/MudBlazor/MudBlazor.min.css?v=@(MudBlazor.Metadata.Version)"" rel=""stylesheet"" />";
 
-        public const string InstallationManualCssFontsExampleWasmStandalone = @"<link href=""https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"" rel=""stylesheet"" />
+        public const string InstallationManualCssFontsExampleWasmStandalone = @"
 <!-- Important: Increment the version parameter whenever you update MudBlazor to prevent caching issues -->
 <link href=""_content/MudBlazor/MudBlazor.min.css?v=1"" rel=""stylesheet"" />";
 

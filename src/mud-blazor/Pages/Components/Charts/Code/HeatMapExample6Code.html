@@ -1,8 +1,9 @@
 <div class="mud-codeblock">
-<div class="html"><pre>
+    <div class="html">
+        <pre>
 <span class="atSign">&#64;</span>using MudBlazor.Utilities
 
-<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">link</span> <span class="htmlAttributeName">href</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined</span><span class="quot">&quot;</span> <span class="htmlAttributeName">rel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">stylesheet</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
+<span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">link</span> <span class="htmlAttributeName">href</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"></span><span class="quot">&quot;</span> <span class="htmlAttributeName">rel</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">stylesheet</span><span class="quot">&quot;</span> <span class="htmlTagDelimiter">/&gt;</span>
 
 <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudPaper</span> <span class="htmlAttributeName">Class</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">pa-4</span><span class="quot">&quot;</span><span class="htmlTagDelimiter">&gt;</span>
     <span class="htmlTagDelimiter">&lt;</span><span class="htmlElementName">MudChart</span> <span class="htmlAttributeName">T</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue">int</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ChartType</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="enum">ChartType</span><span class="enumValue">.HeatMap</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ChartSeries</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_series</span><span class="quot">&quot;</span> <span class="htmlAttributeName">ChartOptions</span><span class="htmlOperator">=</span><span class="quot">&quot;</span><span class="htmlAttributeValue"><span class="atSign">&#64;</span>_options</span><span class="quot">&quot;</span>
@@ -31,8 +32,10 @@
         <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudHeatMapCell</span><span class="htmlTagDelimiter">&gt;</span>
     <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudChart</span><span class="htmlTagDelimiter">&gt;</span>
 <span class="htmlTagDelimiter">&lt;/</span><span class="htmlElementName">MudPaper</span><span class="htmlTagDelimiter">&gt;</span>
-</pre></div>
-<div class="csharp"><pre>
+</pre>
+    </div>
+    <div class="csharp">
+        <pre>
 <span class="atSign">&#64;</span>code {
     <span class="keyword">private</span> <span class="keyword">readonly</span> <span class="keyword">string</span>[] _colors = [<span class="string">&quot;#5AC8FA&quot;</span>, <span class="string">&quot;#34C759&quot;</span>, <span class="string">&quot;#007AFF&quot;</span>];
     <span class="keyword">private</span> List&lt;ChartSeries&lt;<span class="keyword">int</span>&gt;&gt; _series = [];
@@ -75,5 +78,6 @@
         _series = heatMapSeries;
     }
 }
-</pre></div>
+</pre>
+    </div>
 </div>

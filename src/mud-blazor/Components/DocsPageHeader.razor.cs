@@ -94,7 +94,7 @@ public sealed partial class DocsPageHeader
             // Look for an example page for this type
             Example = DocumentedType == null ? null : MenuService.GetExample(DocumentedType);
             // If there is no subtitle set, but we have a component summary, use the component summary
-            if (string.IsNullOrEmpty(SubTitle) && !string.IsNullOrEmpty(DocumentedType.Summary))
+            if (string.IsNullOrEmpty(SubTitle) && DocumentedType != null && !string.IsNullOrEmpty(DocumentedType.Summary))
             {
                 SubTitle = DocumentedType.Summary;
             }

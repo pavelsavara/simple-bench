@@ -1,20 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>$(BenchmarkTargetFramework)</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>MudBlazor.Docs</RootNamespace>
     <AssemblyName>MudBlazor.Docs</AssemblyName>
     <BlazorWebAssemblyLoadAllGlobalizationData>true</BlazorWebAssemblyLoadAllGlobalizationData>
-    <NoWarn>$(NoWarn);CS8669;CS8632;CS0618;CS8603;CS8625;CS8618;CS8601;BL0007;CS8714;CS8602;CS8604;CS8600;CS8769;CS8622;CS8605;CS8619;CS8621;CS8767;RZ10012;CS8765;CS8620;</NoWarn>
+    <NoWarn>$(NoWarn);CS8669;CS8632;CS0618;CS8603;CS8625;CS8618;CS8601;BL0007;CS8714;CS8602;CS8604;CS8600;CS8769;CS8622;CS8605;CS8619;CS8621;CS8767;RZ10012;CS8765;CS8620;CS1998</NoWarn>
   </PropertyGroup>
 
   <!-- MudBlazor core -->
   <ItemGroup>
     <PackageReference Include="MudBlazor" Version="$(MudBlazorVersion)" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="$(MudBlazorAspNetCoreVersion)" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="$(MudBlazorAspNetCoreVersion)" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="$(MicrosoftAspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="$(MicrosoftAspNetCoreVersion)" PrivateAssets="all" />
   </ItemGroup>
 
   <!-- Docs dependencies (kept for download-size fidelity, analytics registration disabled) -->
@@ -23,9 +23,9 @@
     <PackageReference Include="BytexDigital.Blazor.Components.CookieConsent" Version="$(BytexDigitalCookieConsentVersion)" />
     <PackageReference Include="FluentValidation" Version="$(FluentValidationVersion)" />
     <PackageReference Include="FuzzySharp" Version="$(FuzzySharpVersion)" />
-    <PackageReference Include="Microsoft.AspNetCore.Components" Version="$(MudBlazorAspNetCoreVersion)" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="$(MudBlazorAspNetCoreVersion)" />
-    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="$(MudBlazorAspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="$(MicrosoftAspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="$(MicrosoftAspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="$(MicrosoftAspNetCoreWebUtilitiesVersion)" />
     <PackageReference Include="Markdig" Version="$(MarkdigVersion)" />
     <PackageReference Include="Blazored.LocalStorage" Version="$(BlazoredLocalStorageVersion)" />
     <PackageReference Include="NetEscapades.EnumGenerators.Generators" Version="$(NetEscapadesEnumGeneratorsVersion)" PrivateAssets="all" />

@@ -22,10 +22,11 @@ export const METRICS: Record<MetricKey, MetricInfo> = {
     [MetricKey.WasmMemorySize]: { displayName: 'WASM Memory Size', unit: 'bytes', category: 'memory' },
     [MetricKey.MemoryPeak]: { displayName: 'Peak JS Heap', unit: 'bytes', category: 'memory' },
     [MetricKey.PizzaWalkthrough]: { displayName: 'Pizza Walkthrough', unit: 'ms', category: 'time' },
+    [MetricKey.HavitWalkthrough]: { displayName: 'Havit Walkthrough', unit: 'ms', category: 'time' },
+    [MetricKey.MudWalkthrough]: { displayName: 'Mud Walkthrough', unit: 'ms', category: 'time' },
     [MetricKey.JsInteropOps]: { displayName: 'JS Interop', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.JsonParseOps]: { displayName: 'JSON Parse', unit: 'ops/sec', category: 'throughput' },
     [MetricKey.ExceptionOps]: { displayName: 'Exception Handling', unit: 'ops/sec', category: 'throughput' },
-    [MetricKey.HavitWalkthrough]: { displayName: 'Havit Walkthrough', unit: 'ms', category: 'time' },
 };
 
 export const EXTERNAL_METRICS: MetricKey[] = [
@@ -43,6 +44,7 @@ export const EXTERNAL_METRICS: MetricKey[] = [
     MetricKey.MemoryPeak,
     MetricKey.PizzaWalkthrough,
     MetricKey.HavitWalkthrough,
+    MetricKey.MudWalkthrough,
 ];
 
 export const INTERNAL_METRICS: MetricKey[] = [

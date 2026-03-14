@@ -12,7 +12,7 @@
     [Inject] public NavigationManager NavMan { get; set; }
     [CascadingParameter] public DocsPage DocsPage { get; set; }
 
-    public bool IsTestEnvironment => NavMan.BaseUri.Contains("localhost") || NavMan.Uri.Contains("dev.mudblazor.com");
+    public bool IsTestEnvironment => true;
 
     private double _renderMs;
 

@@ -1,5 +1,7 @@
 // ── Dimension Enums ──────────────────────────────────────────────────────────
 
+import { BenchContext } from "./context.js";
+
 export enum Runtime {
     Mono = 'mono',
     CoreCLR = 'coreclr',
@@ -70,6 +72,7 @@ export enum MetricKey {
     MemoryPeak = 'memory-peak',
     PizzaWalkthrough = 'pizza-walkthrough',
     HavitWalkthrough = 'havit-walkthrough',
+    MudWalkthrough = 'mud-walkthrough',
     JsInteropOps = 'js-interop-ops',
     JsonParseOps = 'json-parse-ops',
     ExceptionOps = 'exception-ops',
@@ -127,7 +130,11 @@ export const REDUCE_PRESETS = new Set<Preset>([Preset.NativeRelink, Preset.NoJit
  * Returns a reason string if the app+preset combination should be skipped,
  * or null if the combination is valid.
  */
-export function shouldSkipMeasurement(app: App, preset: Preset): string | null {
+export function shouldSkipMeasurement(app: App, preset: Preset, ctx: BenchContext): string | null {
+    const majorSdkVersion = parseInt(ctx.sdkInfo.sdkVersion.split('.')[0], 10);
+    if (MONO_ONLY_PRESETS.has(preset) && ctx.runtime === Runtime.CoreCLR) {
+        return `Preset '${preset}' is mono-only and cannot be used with runtime '${ctx.runtime}'`;
+    }
     if (BLAZOR_APPS.has(app) && preset === Preset.NoReflectionEmit) {
         return `Blazor app '${app}' is not supported with preset '${preset}'`;
     }
@@ -136,6 +143,9 @@ export function shouldSkipMeasurement(app: App, preset: Preset): string | null {
     }
     if (REDUCE_APPS.has(app) && REDUCE_PRESETS.has(preset)) {
         return `Blazor app '${app}' with '${preset}' is in reduced matrix `;
+    }
+    if (app === App.MudBlazor && majorSdkVersion < 9) {
+        return `MudBlazor app '${app}' does not build with SDK versions below 9.0.0`;
     }
     return null;
 }
