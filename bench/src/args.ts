@@ -78,7 +78,7 @@ const ARG_OPTIONS = {
     'dry-run': { type: 'boolean' as const, default: false },
 
     // SDK & Runtime
-    'sdk-channel': { type: 'string' as const, default: '11.0' },
+    'sdk-channel': { type: 'string' as const, default: '' },
     'sdk-version': { type: 'string' as const, default: '' },
     'runtime': { type: 'string' as const, default: 'mono' },
     'runtime-pack': { type: 'string' as const, default: '' },
@@ -218,7 +218,7 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
         verbose: values.verbose ?? false,
 
         // SDK & Runtime
-        sdkChannel: values['sdk-channel']!,
+        sdkChannel: values['sdk-channel'] || loaded.sdkChannel || '11.0',
         sdkVersion: values['sdk-version'],
         runtime: parseRuntime(values.runtime!),
         runtimePack: values['runtime-pack'],
