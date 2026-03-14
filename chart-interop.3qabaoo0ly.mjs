@@ -100,7 +100,9 @@ const MICROBENCH_SKIP_METRICS = new Set([
 
 async function fetchJson(url) {
     if (cache[url]) return cache[url];
-    const resp = await fetch(url);
+    const resp = await fetch(url, {
+        cache: 'no-cache',
+    });
     if (!resp.ok) return null;
     const data = await resp.json();
     cache[url] = data;
@@ -367,6 +369,7 @@ export async function loadAppCharts(app, filtersJson) {
                         _colIndex: i,
                         _bucket: bucket.path,
                         _bucketType: 'week',
+                        _sdkVersion: col.sdkVersion,
                     };
                 }).filter(p => p != null && p.x != null && p.y != null);
 
@@ -454,6 +457,17 @@ export async function loadAppCharts(app, filtersJson) {
 
         const chartDatasets = mergedDatasets;
 
+        // Build date → sdkVersion lookup for x-axis labels
+        const dateToSdk = new Map();
+        for (const ds of chartDatasets) {
+            for (const pt of ds.data) {
+                if (pt._sdkVersion && pt.x) dateToSdk.set(pt.x, pt._sdkVersion);
+            }
+        }
+        const sdkLookup = [...dateToSdk.entries()]
+            .map(([d, v]) => [new Date(d).getTime(), v])
+            .sort((a, b) => a[0] - b[0]);
+
         const config = {
             type: 'line',
             data: { datasets: chartDatasets },
@@ -524,7 +538,26 @@ export async function loadAppCharts(app, filtersJson) {
                             unit: 'day',
                             tooltipFormat: 'MMM d, yyyy',
                         },
-                        title: { display: true, text: 'Date' },
+                        title: { display: true, text: 'SDK Version' },
+                        ticks: {
+                            callback(value) {
+                                if (!sdkLookup.length) return '';
+                                const ts = typeof value === 'number' ? value : new Date(value).getTime();
+                                // Find nearest sdkVersion for this tick
+                                let best = sdkLookup[0];
+                                let bestDist = Math.abs(ts - best[0]);
+                                for (let i = 1; i < sdkLookup.length; i++) {
+                                    const dist = Math.abs(ts - sdkLookup[i][0]);
+                                    if (dist < bestDist) { best = sdkLookup[i]; bestDist = dist; }
+                                }
+                                // Shorten: e.g. "11.0.100-preview.3.26153.117" → "preview.3.26153"
+                                const ver = best[1];
+                                const m = ver.match(/-(\w+\.\d+\.\d+)/);
+                                return m ? m[1] : ver;
+                            },
+                            maxRotation: 45,
+                            autoSkip: true,
+                        },
                     },
                     y: {
                         title: { display: true, text: unit },
