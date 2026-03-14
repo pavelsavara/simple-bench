@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "runtimeCommitDateTime": "2026-02-18T18:36:50Z",
+    "runtimeCommitAuthor": "github-actions[bot]",
+    "runtimeCommitMessage": "[release/10.0] fix Vector2/3 EqualsAny (#124223)",
+    "sdkVersion": "10.0.200",
+    "runtimeGitHash": "081d220c0a773ffb7c6bea6b48727833576a65ef",
+    "aspnetCoreGitHash": "233fc7812a61ec7edd51b9e04063f3ed77ec71fe",
+    "sdkGitHash": "9396d43dc6d7b16db3af666867585c4f4db99628",
+    "vmrGitHash": "40cd698e5cfb2d90f436889726ee01f48d99f3ab",
+    "aspnetCoreCommitDateTime": "2026-02-18T19:09:30Z",
+    "aspnetCoreVersion": "10.0.4",
+    "runtimePackVersion": "10.0.4",
+    "workloadVersion": "10.0.105",
+    "runtime": "mono",
+    "preset": "no-workload",
+    "profile": "desktop",
+    "engine": "firefox",
+    "app": "blazing-pizza",
+    "benchmarkDateTime": "2026-03-14T12:11:17.196Z",
+    "warmRunCount": 5,
+    "ciRunId": "23087350072",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23087350072"
+  },
+  "metrics": {
+    "compile-time": 26277,
+    "disk-size-native": 976780,
+    "disk-size-assemblies": 1360721,
+    "time-to-reach-managed-warm": 1409,
+    "time-to-reach-managed-cold": 1438,
+    "time-to-create-dotnet-warm": 282,
+    "time-to-create-dotnet-cold": 292,
+    "wasm-memory-size": 33554432
+  }
+}
