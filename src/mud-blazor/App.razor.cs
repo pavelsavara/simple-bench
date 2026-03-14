@@ -3,7 +3,7 @@ using System;
 using System.Runtime.InteropServices.JavaScript;
 using System.Threading.Tasks;
 
-namespace MudBlazor;
+namespace MudBlazor.Docs;
 
 public partial class App : ComponentBase
 {

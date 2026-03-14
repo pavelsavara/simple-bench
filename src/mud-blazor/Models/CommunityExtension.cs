@@ -9,7 +9,7 @@ namespace MudBlazor.Docs.Models;
 [DebuggerDisplay($"Name = {nameof(Name)}")]
 public class CommunityExtension
 {
-    public string AvatarImageSrc => @$"_content/MudBlazor.Docs/images/extensions/{GitHubUserPath}.{GitHubRepoPath}.webp";
+    public string AvatarImageSrc => @$"images/extensions/{GitHubUserPath}.{GitHubRepoPath}.webp";
 
     public required string Category { get; set; }
 

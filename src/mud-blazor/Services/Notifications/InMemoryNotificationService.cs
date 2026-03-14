@@ -107,7 +107,7 @@ public class InMemoryNotificationService(ILocalStorageService localStorageServic
             "We are paving the way for the future of Blazor",
             "Announcement",
             new DateTime(2022, 01, 13),
-            "_content/MudBlazor.Docs/images/announcements/mudblazor_heretostay.png",
+            "images/announcements/mudblazor_heretostay.png",
             [
                 new NotificationAuthor("Jonny Larsson",
                     "https://avatars.githubusercontent.com/u/10367109?v=4")
