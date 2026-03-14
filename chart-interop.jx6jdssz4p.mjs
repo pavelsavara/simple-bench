@@ -11,6 +11,7 @@ let loadGeneration = 0;    // guards against concurrent loadAppCharts calls
 let currentTimeRange = 'all';   // '7d', '30d', '90d', '1y', 'all'
 let pointClickCallback = null;  // C# callback for chart point clicks
 let showReleases = true;         // Whether to show GA release data on charts
+let showDailyReleases = true;    // Whether to show daily week data on charts
 
 // ── Series Encoding ──────────────────────────────────────────────────────────
 
@@ -281,16 +282,18 @@ export async function loadAppCharts(app, filtersJson) {
 
     const weekBuckets = [];
     const cutoff = getTimeRangeCutoff();
-    for (const week of viewIndex.weeks) {
-        // Filter week buckets by time range
-        if (cutoff) {
-            const weekDate = new Date(week);
-            // Skip entire week bucket if its Monday is before the cutoff
-            // (allow 7 days grace since the week spans Mon-Sun)
-            if (weekDate < new Date(cutoff.getTime() - 7 * 86400000)) continue;
+    if (showDailyReleases) {
+        for (const week of viewIndex.weeks) {
+            // Filter week buckets by time range
+            if (cutoff) {
+                const weekDate = new Date(week);
+                // Skip entire week bucket if its Monday is before the cutoff
+                // (allow 7 days grace since the week spans Mon-Sun)
+                if (weekDate < new Date(cutoff.getTime() - 7 * 86400000)) continue;
+            }
+            const header = await fetchJson(`${dataBaseUrl}/${week}/header.json`);
+            if (header) weekBuckets.push({ path: week, header, type: 'week', label: week });
         }
-        const header = await fetchJson(`${dataBaseUrl}/${week}/header.json`);
-        if (header) weekBuckets.push({ path: week, header, type: 'week', label: week });
     }
 
     const rendered = [];
@@ -777,4 +780,12 @@ export function getTimeRange() {
  */
 export function setShowReleases(show) {
     showReleases = !!show;
+}
+
+/**
+ * Set whether to show daily week data on charts.
+ * @param {boolean} show
+ */
+export function setShowDailyReleases(show) {
+    showDailyReleases = !!show;
 }
