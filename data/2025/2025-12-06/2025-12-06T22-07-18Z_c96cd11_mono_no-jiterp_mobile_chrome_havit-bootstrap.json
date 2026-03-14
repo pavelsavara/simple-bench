@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "runtimeCommitDateTime": "2025-12-06T22:07:18Z",
+    "runtimeCommitAuthor": "Mirroring",
+    "runtimeCommitMessage": "Merge commit 'ac345324f04146714172ea78c5496bd979fc3dcf'",
+    "sdkVersion": "8.0.417",
+    "runtimeGitHash": "c96cd11cb2f0c204f272b2280082a329aee24cf7",
+    "aspnetCoreGitHash": "568fff703254def7dcd35fda9892bf702d4c81d3",
+    "sdkGitHash": "e6abed5c59bd02aec05a2e0558c10ea67370666e",
+    "vmrGitHash": "e6abed5c59bd02aec05a2e0558c10ea67370666e",
+    "aspnetCoreCommitDateTime": "2025-12-09T21:05:35Z",
+    "aspnetCoreVersion": "8.0.23",
+    "runtimePackVersion": "8.0.23",
+    "workloadVersion": "8.0.25",
+    "runtime": "mono",
+    "preset": "no-jiterp",
+    "profile": "mobile",
+    "engine": "chrome",
+    "app": "havit-bootstrap",
+    "benchmarkDateTime": "2026-03-14T03:21:05.302Z",
+    "warmRunCount": 3,
+    "ciRunId": "23078915079",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23078915079"
+  },
+  "metrics": {
+    "compile-time": 44921,
+    "disk-size-total": 36258216,
+    "disk-size-native": 2736892,
+    "disk-size-assemblies": 6488619,
+    "download-size-total": 19183351,
+    "time-to-reach-managed-warm": 1360,
+    "time-to-reach-managed-cold": 6066,
+    "memory-peak": 8999684
+  }
+}
