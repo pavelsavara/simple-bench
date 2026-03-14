@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "runtimeCommitDateTime": "2025-08-19T21:43:09Z",
+    "runtimeCommitAuthor": "Mirroring",
+    "runtimeCommitMessage": "Merge commit '3b1cfdc32ac10833176a22d2d5b9ae03595472bf'",
+    "sdkVersion": "9.0.305",
+    "runtimeGitHash": "893c2ebbd49952ca49e93298148af2d95a61a0a4",
+    "aspnetCoreGitHash": "ff66c263be7ed395794bdaf616322977b8ec897c",
+    "sdkGitHash": "3fc74f35299b08613acefa6fa7d70ccd72ff6139",
+    "vmrGitHash": "3fc74f35299b08613acefa6fa7d70ccd72ff6139",
+    "aspnetCoreCommitDateTime": "2025-08-20T08:01:20Z",
+    "aspnetCoreVersion": "9.0.9",
+    "runtimePackVersion": "9.0.9",
+    "workloadVersion": "9.0.14",
+    "runtime": "mono",
+    "preset": "invariant",
+    "profile": "desktop",
+    "engine": "node",
+    "app": "micro-benchmarks",
+    "benchmarkDateTime": "2026-03-14T08:26:58.360Z",
+    "warmRunCount": 3,
+    "ciRunId": "23083880157",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23083880157"
+  },
+  "metrics": {
+    "compile-time": 22871,
+    "js-interop-ops": 2738240,
+    "json-parse-ops": 83487,
+    "exception-ops": 404
+  }
+}
