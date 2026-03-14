@@ -2,8 +2,23 @@
   "feed": "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet11/nuget/v3/index.json",
   "major": 11,
   "months": 3,
-  "totalPacks": 152,
+  "totalPacks": 153,
   "packs": [
+    {
+      "sdkVersion": "11.0.100-preview.3.26164.102",
+      "runtimeGitHash": "281d01cfd353f1ce15208c80b2f148b0d6ce106f",
+      "aspnetCoreGitHash": "552c986d27a1b0fc01a4dfe635a5621f7e672037",
+      "sdkGitHash": "fa5d8d28a5f206401cb45a60669cdc8fc9d433ba",
+      "vmrGitHash": "3bb52afde2bdfe203e6b2b4debaa8905d15e7c22",
+      "runtimeCommitDateTime": "2026-03-13T01:37:51Z",
+      "runtimeCommitAuthor": "Copilot",
+      "runtimeCommitMessage": "Fix Tensor stride computation for single-element (length <= 1) tensors (#125403)",
+      "aspnetCoreCommitDateTime": "2026-03-04T21:52:10Z",
+      "aspnetCoreVersion": "11.0.0-preview.3.26164.102",
+      "runtimePackVersion": "11.0.0-preview.3.26164.102",
+      "workloadVersion": "11.0.0-preview.3.26164.102",
+      "bootstrapSdkVersion": "11.0.100-preview.3.26161.119"
+    },
     {
       "sdkVersion": "11.0.100-preview.3.26164.101",
       "runtimeGitHash": "281d01cfd353f1ce15208c80b2f148b0d6ce106f",
