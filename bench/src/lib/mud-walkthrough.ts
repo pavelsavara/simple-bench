@@ -17,6 +17,7 @@ type PlaywrightPage = {
     click(selector: string, options?: { timeout?: number }): Promise<void>;
     evaluate<T>(fn: (() => T) | ((arg: string) => T), arg?: string): Promise<T>;
     on(event: string, handler: (...args: unknown[]) => void): void;
+    off(event: string, handler: (...args: unknown[]) => void): void;
 };
 
 /**
@@ -136,59 +137,71 @@ export async function runMudWalkthrough(
 ): Promise<number> {
     const t = timeout;
     const log = verbose ? (msg: string) => debug(`Mud: ${msg}`) : () => { };
+    const dialogHandler = (dialog: unknown) => {
+        void (dialog as { accept: () => Promise<void> }).accept().catch((err: unknown) => {
+            const message = err instanceof Error ? err.message : String(err);
+            if (!message.includes('already handled')) {
+                throw err;
+            }
+        });
+    };
 
-    // ── Step 0: Load home ────────────────────────────────────────────────
-    log('navigating to home...');
-    await page.goto(url, { timeout: t, waitUntil: 'load' });
-    await page.waitForFunction(
-        () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
-        null, { timeout: t },
-    );
-    // Wait for MudBlazor Docs landing page to render
-    await page.waitForSelector('.docs-page-header, .mud-main-content', { timeout: t });
-    log('home loaded');
+    page.on('dialog', dialogHandler);
 
-    // Capture start time AFTER initial navigation
-    const startTime: number = await page.evaluate(() => performance.now());
+    try {
+        // ── Step 0: Load home ────────────────────────────────────────────────
+        log('navigating to home...');
+        await page.goto(url, { timeout: t, waitUntil: 'load' });
+        await page.waitForFunction(
+            () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
+            null, { timeout: t },
+        );
+        // Wait for MudBlazor Docs landing page to render
+        await page.waitForSelector('.docs-page-header, .mud-main-content', { timeout: t });
+        log('home loaded');
 
-    // Auto-accept beforeunload dialogs (exitprompt page registers one)
-    page.on('dialog', (dialog: unknown) => void (dialog as { accept: () => Promise<void> }).accept());
+        // Capture start time AFTER initial navigation
+        const startTime: number = await page.evaluate(() => performance.now());
 
-    // ── Step 1: Visit every component page via client-side navigation ────
-    for (const route of COMPONENT_ROUTES) {
-        log(`navigating to ${route}`);
-        await page.evaluate((r: string) => {
-            // Blazor intercepts click events only from DOM-attached <a> elements.
-            // A detached element's click triggers a full HTTP navigation (404).
+        // ── Step 1: Visit every component page via client-side navigation ────
+        for (const route of COMPONENT_ROUTES) {
+            log(`navigating to ${route}`);
+            await page.evaluate((r: string) => {
+                // Blazor intercepts click events only from DOM-attached <a> elements.
+                // A detached element's click triggers a full HTTP navigation (404).
+                const link = document.createElement('a');
+                link.href = r;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }, route);
+            // Wait for URL to update
+            const basePath = route.split('#')[0];
+            await page.waitForURL(new RegExp(basePath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), { timeout: t });
+            // Wait for MudBlazor page content to render
+            await page.waitForSelector('.docs-page-header, .mud-main-content .docs-section-header, .mud-main-content h1', { timeout: t });
+            log(`loaded: ${route}`);
+        }
+
+        // Capture end time immediately after visiting all component pages
+        const endTime: number = await page.evaluate(() => performance.now());
+
+        // ── Step 2: Navigate back home (cleanup, not timed) ──────────────────
+        log('navigating home...');
+        await page.evaluate(() => {
             const link = document.createElement('a');
-            link.href = r;
+            link.href = '/';
             link.style.display = 'none';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-        }, route);
-        // Wait for URL to update
-        const basePath = route.split('#')[0];
-        await page.waitForURL(new RegExp(basePath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), { timeout: t });
-        // Wait for MudBlazor page content to render
-        await page.waitForSelector('.docs-page-header, .mud-main-content .docs-section-header, .mud-main-content h1', { timeout: t });
-        log(`loaded: ${route}`);
+        });
+        log('walkthrough complete');
+
+        return endTime - startTime;
     }
-
-    // Capture end time immediately after visiting all component pages
-    const endTime: number = await page.evaluate(() => performance.now());
-
-    // ── Step 2: Navigate back home (cleanup, not timed) ──────────────────
-    log('navigating home...');
-    await page.evaluate(() => {
-        const link = document.createElement('a');
-        link.href = '/';
-        link.style.display = 'none';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    });
-    log('walkthrough complete');
-
-    return endTime - startTime;
+    finally {
+        page.off('dialog', dialogHandler);
+    }
 }
