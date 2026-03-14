@@ -133,8 +133,6 @@ export async function runHavitWalkthrough(
     const t = timeout;
     const log = verbose ? (msg: string) => debug(`Havit: ${msg}`) : () => { };
 
-    const startTime: number = await page.evaluate(() => performance.now());
-
     // ── Step 0: Load home ────────────────────────────────────────────────
     log('navigating to home...');
     await page.goto(url, { timeout: t, waitUntil: 'load' });
@@ -144,6 +142,9 @@ export async function runHavitWalkthrough(
     );
     await page.waitForSelector('h1.fw-bold.display-3', { timeout: t });
     log('home loaded');
+
+    // Capture start time AFTER navigation (page.goto resets performance.now())
+    const startTime: number = await page.evaluate(() => performance.now());
 
     // ── Step 1: Click "Documentation" to go to /getting-started ──────────
     await page.click('a[href="/getting-started"].btn', { timeout: t });

@@ -354,20 +354,32 @@ async function measureBrowser(
                 }
             }
 
-            // Pizza walkthrough (blazing-pizza only, chrome, desktop profile)
+            // Pizza walkthrough (blazing-pizza only, chrome, desktop profile) — median-of-N
             let pizzaWalkthrough: number | null = null;
             if (entry.app === A.BlazingPizza && profile === 'desktop' && engine === E.Chrome) {
-                if (ctx.verbose) debug(`Running pizza walkthrough...`);
-                pizzaWalkthrough = await runPizzaWalkthrough(page, pageUrl, timeout, ctx.verbose);
-                if (ctx.verbose) debug(`Pizza walkthrough completed: ${pizzaWalkthrough}ms`);
+                const pizzaTimes: number[] = [];
+                for (let i = 0; i < warmRuns; i++) {
+                    if (ctx.verbose) debug(`Pizza walkthrough ${i + 1}/${warmRuns}...`);
+                    const t = await runPizzaWalkthrough(page, pageUrl, timeout, ctx.verbose);
+                    pizzaTimes.push(t);
+                    if (ctx.verbose) debug(`Pizza walkthrough ${i + 1}/${warmRuns}: ${t}ms`);
+                }
+                pizzaWalkthrough = Math.round(median([...pizzaTimes].sort((a, b) => a - b)));
+                if (ctx.verbose) debug(`Pizza walkthrough times: [${pizzaTimes.join(', ')}] → median=${pizzaWalkthrough}ms`);
             }
 
-            // Havit walkthrough (havit-bootstrap only, chrome, desktop profile)
+            // Havit walkthrough (havit-bootstrap only, chrome, desktop profile) — median-of-N
             let havitWalkthrough: number | null = null;
             if (entry.app === A.HavitBootstrap && profile === 'desktop' && engine === E.Chrome) {
-                if (ctx.verbose) debug(`Running havit walkthrough...`);
-                havitWalkthrough = await runHavitWalkthrough(page, pageUrl, timeout, ctx.verbose);
-                if (ctx.verbose) debug(`Havit walkthrough completed: ${havitWalkthrough}ms`);
+                const havitTimes: number[] = [];
+                for (let i = 0; i < warmRuns; i++) {
+                    if (ctx.verbose) debug(`Havit walkthrough ${i + 1}/${warmRuns}...`);
+                    const t = await runHavitWalkthrough(page, pageUrl, timeout, ctx.verbose);
+                    havitTimes.push(t);
+                    if (ctx.verbose) debug(`Havit walkthrough ${i + 1}/${warmRuns}: ${t}ms`);
+                }
+                havitWalkthrough = Math.round(median([...havitTimes].sort((a, b) => a - b)));
+                if (ctx.verbose) debug(`Havit walkthrough times: [${havitTimes.join(', ')}] → median=${havitWalkthrough}ms`);
             }
 
             // Collect internal benchmark samples before closing the page

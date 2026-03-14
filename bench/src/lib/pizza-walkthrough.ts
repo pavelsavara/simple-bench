@@ -23,6 +23,7 @@ type PlaywrightPage = {
     dispatchEvent(selector: string, type: string): Promise<void>;
     evaluate<T>(fn: (() => T) | ((arg: string) => T), arg?: string): Promise<T>;
     on(event: string, handler: (...args: unknown[]) => void): void;
+    off(event: string, handler: (...args: unknown[]) => void): void;
 };
 
 const sel = (id: string) => `[data-testid="${id}"]`;
@@ -42,9 +43,8 @@ export async function runPizzaWalkthrough(
 
     // Handle confirm dialogs (remove-pizza triggers one)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    page.on('dialog', (dialog: any) => { void (dialog as { accept: () => Promise<void> }).accept(); });
-
-    const startTime: number = await page.evaluate(() => performance.now());
+    const dialogHandler = (dialog: any) => { void (dialog as { accept: () => Promise<void> }).accept(); };
+    page.on('dialog', dialogHandler);
 
     // ── Step 0: Load home ────────────────────────────────────────────────
     log('navigating to home...');
@@ -56,6 +56,9 @@ export async function runPizzaWalkthrough(
     await page.waitForSelector(sel('pizza-cards'), { timeout: t });
     await page.waitForSelector(sel('pizza-special-1'), { timeout: t });
     log('home loaded, specials rendered');
+
+    // Capture start time AFTER navigation (page.goto resets performance.now())
+    const startTime: number = await page.evaluate(() => performance.now());
 
     // ── Step 1: Open dialog & cancel ─────────────────────────────────────
     await page.click(sel('pizza-special-1'));
@@ -144,6 +147,8 @@ export async function runPizzaWalkthrough(
     await page.click(sel('logo-link'));
     await page.waitForSelector(sel('pizza-cards'), { timeout: t });
     log('navigated home via logo');
+
+    page.off('dialog', dialogHandler);
 
     const endTime: number = await page.evaluate(() => performance.now());
     return endTime - startTime;
