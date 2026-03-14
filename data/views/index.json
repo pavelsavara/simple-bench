@@ -1,9 +1,10 @@
 {
-  "lastUpdated": "2026-03-14T16:30:37.813Z",
+  "lastUpdated": "2026-03-14T16:34:13.774Z",
   "activeRelease": "net11",
   "releases": [
     "net10",
-    "net8"
+    "net8",
+    "net9"
   ],
   "weeks": [
     "2026-03-09"
