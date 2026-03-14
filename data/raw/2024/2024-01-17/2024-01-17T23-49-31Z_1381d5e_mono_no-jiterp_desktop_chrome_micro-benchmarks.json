@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "runtimeCommitDateTime": "2024-01-17T23:49:31Z",
+    "runtimeCommitAuthor": "dotnet-bot",
+    "runtimeCommitMessage": "Merge in 'release/8.0' changes",
+    "sdkVersion": "8.0.201",
+    "runtimeGitHash": "1381d5ebd2ab1f292848d5b19b80cf71ac332508",
+    "aspnetCoreGitHash": "da7e9894ce22ef8cc02e5acc56e95a6f8cf8f644",
+    "sdkGitHash": "af4967de46a87229c49f6d567028791c4c4683d0",
+    "vmrGitHash": "af4967de46a87229c49f6d567028791c4c4683d0",
+    "aspnetCoreCommitDateTime": "2024-01-18T13:20:34Z",
+    "aspnetCoreVersion": "8.0.2",
+    "runtimePackVersion": "8.0.2",
+    "workloadVersion": "8.0.25",
+    "runtime": "mono",
+    "preset": "no-jiterp",
+    "profile": "desktop",
+    "engine": "chrome",
+    "app": "micro-benchmarks",
+    "benchmarkDateTime": "2026-03-14T16:51:08.458Z",
+    "warmRunCount": 5,
+    "ciRunId": "23091844960",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23091844960"
+  },
+  "metrics": {
+    "compile-time": 30357,
+    "memory-peak": 4608624,
+    "time-to-create-dotnet-cold": 198,
+    "time-to-exit-cold": 42289,
+    "wasm-memory-size": 36372480,
+    "js-interop-ops": 1645615,
+    "json-parse-ops": 23932,
+    "exception-ops": 332
+  }
+}
