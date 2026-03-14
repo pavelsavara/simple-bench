@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "runtimeCommitDateTime": "2026-03-13T01:37:51Z",
+    "runtimeCommitAuthor": "Copilot",
+    "runtimeCommitMessage": "Fix Tensor stride computation for single-element (length <= 1) tensors (#125403)",
+    "sdkVersion": "11.0.100-preview.3.26164.101",
+    "runtimeGitHash": "281d01cfd353f1ce15208c80b2f148b0d6ce106f",
+    "aspnetCoreGitHash": "552c986d27a1b0fc01a4dfe635a5621f7e672037",
+    "sdkGitHash": "fa5d8d28a5f206401cb45a60669cdc8fc9d433ba",
+    "vmrGitHash": "3bb52afde2bdfe203e6b2b4debaa8905d15e7c22",
+    "aspnetCoreCommitDateTime": "2026-03-04T21:52:10Z",
+    "aspnetCoreVersion": "11.0.0-preview.3.26164.101",
+    "runtimePackVersion": "11.0.0-preview.3.26164.101",
+    "workloadVersion": "11.0.100-preview.3.26164.101",
+    "runtime": "mono",
+    "preset": "aot",
+    "profile": "mobile",
+    "engine": "chrome",
+    "app": "micro-benchmarks",
+    "benchmarkDateTime": "2026-03-14T16:27:24.920Z",
+    "warmRunCount": 5,
+    "ciRunId": "23091378731",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23091378731"
+  },
+  "metrics": {
+    "compile-time": 77874,
+    "memory-peak": 8020148,
+    "time-to-create-dotnet-cold": 1466,
+    "time-to-exit-cold": 43653,
+    "wasm-memory-size": 120586240,
+    "js-interop-ops": 577601,
+    "json-parse-ops": 121838,
+    "exception-ops": 48
+  }
+}
