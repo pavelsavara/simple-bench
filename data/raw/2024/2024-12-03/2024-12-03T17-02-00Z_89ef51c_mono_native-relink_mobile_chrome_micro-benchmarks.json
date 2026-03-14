@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "runtimeCommitDateTime": "2024-12-03T17:02:00Z",
+    "runtimeCommitAuthor": "Tom McDonald",
+    "runtimeCommitMessage": "Merged PR 45620: Update DIA to 17.12.0-beta1.24603.5",
+    "sdkVersion": "8.0.405",
+    "runtimeGitHash": "89ef51c5d8f5239345127a1e282e11036e590c8b",
+    "aspnetCoreGitHash": "31d685b2d9a86ca1243014d175a3da813f78e428",
+    "sdkGitHash": "f6ad34c0ba03ad79257a09903033493414af4ffa",
+    "vmrGitHash": "f6ad34c0ba03ad79257a09903033493414af4ffa",
+    "aspnetCoreCommitDateTime": "2024-12-04T05:18:59Z",
+    "aspnetCoreVersion": "8.0.12",
+    "runtimePackVersion": "8.0.12",
+    "workloadVersion": "8.0.25",
+    "runtime": "mono",
+    "preset": "native-relink",
+    "profile": "mobile",
+    "engine": "chrome",
+    "app": "micro-benchmarks",
+    "benchmarkDateTime": "2026-03-14T17:52:27.802Z",
+    "warmRunCount": 5,
+    "ciRunId": "23092817036",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23092817036"
+  },
+  "metrics": {
+    "compile-time": 31891,
+    "memory-peak": 5511724,
+    "time-to-create-dotnet-cold": 1046,
+    "time-to-exit-cold": 43223,
+    "wasm-memory-size": 36372480,
+    "js-interop-ops": 596536,
+    "json-parse-ops": 20893,
+    "exception-ops": 127
+  }
+}
