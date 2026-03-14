@@ -8,6 +8,7 @@ function setManagedReady() {
     globalThis.bench_results = {
         'time-to-create-dotnet': Math.round(globalThis.dotnet_created - globalThis.js_loaded),
         'time-to-reach-managed': Math.round(globalThis.dotnet_managed_ready - globalThis.js_loaded),
+        'wasm-memory-size': globalThis.getDotnetRuntime(0).Module.HEAPU8.byteLength,
     };
     globalThis.bench_complete = true;
     const isBrowser = typeof globalThis.window !== 'undefined';

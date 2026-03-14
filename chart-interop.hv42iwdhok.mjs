@@ -43,12 +43,16 @@ const PROFILE_LINE_WIDTH = {
 
 const METRIC_UNITS = {
     'compile-time': 's',
-    'disk-size-total': 'bytes',
     'disk-size-native': 'bytes',
     'disk-size-assemblies': 'bytes',
     'download-size-total': 'bytes',
     'time-to-reach-managed-warm': 'ms',
     'time-to-reach-managed-cold': 'ms',
+    'time-to-create-dotnet-warm': 'ms',
+    'time-to-create-dotnet-cold': 'ms',
+    'time-to-exit-warm': 'ms',
+    'time-to-exit-cold': 'ms',
+    'wasm-memory-size': 'bytes',
     'memory-peak': 'bytes',
     'pizza-walkthrough': 'ms',
     'js-interop-ops': 'ops/sec',
@@ -59,12 +63,16 @@ const METRIC_UNITS = {
 
 const METRIC_DISPLAY = {
     'compile-time': 'Compile Time (s)',
-    'disk-size-total': 'Disk Size (Total)',
-    'disk-size-native': 'Disk Size (WASM)',
-    'disk-size-assemblies': 'Disk Size (DLLs)',
+    'disk-size-native': 'Naive runtime binary size - brotli (bytes)',
+    'disk-size-assemblies': 'Assemblies size - brotli (bytes)',
     'download-size-total': 'Download Size (Total)',
     'time-to-reach-managed-warm': 'Time to Managed (Warm)',
     'time-to-reach-managed-cold': 'Time to Managed (Cold)',
+    'time-to-create-dotnet-warm': 'Time to Create Dotnet (Warm)',
+    'time-to-create-dotnet-cold': 'Time to Create Dotnet (Cold)',
+    'time-to-exit-warm': 'Time to Exit (Warm)',
+    'time-to-exit-cold': 'Time to Exit (Cold)',
+    'wasm-memory-size': 'WASM Linear Memory Size',
     'memory-peak': 'Peak JS Heap',
     'pizza-walkthrough': 'Pizza Walkthrough',
     'js-interop-ops': 'JS Interop',
@@ -76,6 +84,11 @@ const METRIC_DISPLAY = {
 // Build-time metrics are identical across engines/profiles — only show chrome/desktop
 const BUILD_METRICS = new Set([
     'compile-time', 'disk-size-native', 'disk-size-assemblies', 'download-size-total',
+]);
+
+// Walkthrough metrics are only collected for chrome/desktop — same filtering as build metrics
+const WALKTHROUGH_METRICS = new Set([
+    'pizza-walkthrough', 'havit-walkthrough',
 ]);
 
 // Metrics to skip for micro-benchmarks (not meaningful for internal throughput tests)
@@ -122,8 +135,8 @@ function parseRowKey(key) {
 
 function isRowVisible(rowKey, filters, metric) {
     const d = parseRowKey(rowKey);
-    // Build-time metrics: only show chrome/desktop (values are identical across engines)
-    if (BUILD_METRICS.has(metric)) {
+    // Build-time and walkthrough metrics: only show chrome/desktop (values are identical or only collected there)
+    if (BUILD_METRICS.has(metric) || WALKTHROUGH_METRICS.has(metric)) {
         if (d.engine !== 'chrome' || d.profile !== 'desktop') return false;
         // Skip engine/profile filters — always display if runtime and preset match
         return filters.runtimes.includes(d.runtime)
@@ -136,8 +149,8 @@ function isRowVisible(rowKey, filters, metric) {
 }
 
 function formatRowLabel(rowKey, metric) {
-    if (BUILD_METRICS.has(metric)) {
-        // Strip redundant /desktop/chrome for build-time and disk-size metrics
+    if (BUILD_METRICS.has(metric) || WALKTHROUGH_METRICS.has(metric)) {
+        // Strip redundant /desktop/chrome for build-time, disk-size, and walkthrough metrics
         const d = parseRowKey(rowKey);
         return `${d.runtime}/${d.preset}`;
     }

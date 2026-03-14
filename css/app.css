@@ -183,6 +183,14 @@ code {
     overflow-y: auto;
 }
 
+.commit-info-block {
+    padding: 0.25rem 0;
+}
+
+.commit-info-block + hr + .commit-info-block {
+    opacity: 0.85;
+}
+
 .time-range-selector {
     white-space: nowrap;
 }
