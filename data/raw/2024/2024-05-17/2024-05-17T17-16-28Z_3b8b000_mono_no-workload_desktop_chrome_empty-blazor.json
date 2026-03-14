@@ -1,0 +1,37 @@
+{
+  "meta": {
+    "runtimeCommitDateTime": "2024-05-17T17:16:28Z",
+    "runtimeCommitAuthor": "Matt Mitchell",
+    "runtimeCommitMessage": "Merged PR 39680: Update to arcade with emsdk 225841",
+    "sdkVersion": "8.0.302",
+    "runtimeGitHash": "3b8b000a0e115700b18265d8ec8c6307056dc94d",
+    "aspnetCoreGitHash": "b8139c5ee58f1708b0e3368a1b241400edd6cbc4",
+    "sdkGitHash": "2f67447c504e79e71919f9a13c59617896999586",
+    "vmrGitHash": "2f67447c504e79e71919f9a13c59617896999586",
+    "aspnetCoreCommitDateTime": "2024-05-20T03:56:00Z",
+    "aspnetCoreVersion": "8.0.6",
+    "runtimePackVersion": "8.0.6",
+    "workloadVersion": "8.0.25",
+    "runtime": "mono",
+    "preset": "no-workload",
+    "profile": "desktop",
+    "engine": "chrome",
+    "app": "empty-blazor",
+    "benchmarkDateTime": "2026-03-14T17:20:06.833Z",
+    "warmRunCount": 5,
+    "ciRunId": "23092300998",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23092300998"
+  },
+  "metrics": {
+    "compile-time": 25673,
+    "disk-size-native": 951110,
+    "disk-size-assemblies": 928771,
+    "download-size-total": 4178342,
+    "time-to-reach-managed-warm": 267,
+    "time-to-reach-managed-cold": 610,
+    "time-to-create-dotnet-warm": 63,
+    "time-to-create-dotnet-cold": 278,
+    "wasm-memory-size": 46530560,
+    "memory-peak": 9622832
+  }
+}
