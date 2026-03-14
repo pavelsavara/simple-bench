@@ -17,15 +17,15 @@
     "profile": "desktop",
     "engine": "node",
     "app": "micro-benchmarks",
-    "benchmarkDateTime": "2026-03-14T05:31:28.750Z",
+    "benchmarkDateTime": "2026-03-14T05:53:09.091Z",
     "warmRunCount": 3,
-    "ciRunId": "23081028985",
-    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23081028985"
+    "ciRunId": "23081403347",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23081403347"
   },
   "metrics": {
-    "compile-time": 83629,
-    "js-interop-ops": 2888989,
-    "json-parse-ops": 328625,
-    "exception-ops": 139
+    "compile-time": 83574,
+    "js-interop-ops": 2961200,
+    "json-parse-ops": 333270,
+    "exception-ops": 142
   }
 }

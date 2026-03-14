@@ -17,19 +17,19 @@
     "profile": "mobile",
     "engine": "chrome",
     "app": "blazing-pizza",
-    "benchmarkDateTime": "2026-03-14T05:30:59.702Z",
+    "benchmarkDateTime": "2026-03-14T05:51:58.177Z",
     "warmRunCount": 3,
-    "ciRunId": "23081028985",
-    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23081028985"
+    "ciRunId": "23081403347",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23081403347"
   },
   "metrics": {
-    "compile-time": 28988,
-    "disk-size-total": 19071898,
+    "compile-time": 28378,
+    "disk-size-total": 19071715,
     "disk-size-native": 2974997,
     "disk-size-assemblies": 3803548,
     "download-size-total": 11192108,
-    "time-to-reach-managed-warm": 915,
-    "time-to-reach-managed-cold": 4399,
-    "memory-peak": 6689884
+    "time-to-reach-managed-warm": 883,
+    "time-to-reach-managed-cold": 4305,
+    "memory-peak": 7851692
   }
 }

@@ -17,19 +17,19 @@
     "profile": "desktop",
     "engine": "chrome",
     "app": "empty-blazor",
-    "benchmarkDateTime": "2026-03-14T05:28:43.003Z",
+    "benchmarkDateTime": "2026-03-14T05:49:43.532Z",
     "warmRunCount": 3,
-    "ciRunId": "23081028985",
-    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23081028985"
+    "ciRunId": "23081403347",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23081403347"
   },
   "metrics": {
-    "compile-time": 30047,
-    "disk-size-total": 26838399,
+    "compile-time": 29049,
+    "disk-size-total": 26838394,
     "disk-size-native": 2974997,
     "disk-size-assemblies": 3102922,
     "download-size-total": 9377214,
-    "time-to-reach-managed-warm": 213,
-    "time-to-reach-managed-cold": 579,
-    "memory-peak": 9197852
+    "time-to-reach-managed-warm": 183,
+    "time-to-reach-managed-cold": 546,
+    "memory-peak": 8430636
   }
 }

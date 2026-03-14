@@ -17,17 +17,17 @@
     "profile": "desktop",
     "engine": "firefox",
     "app": "blazing-pizza",
-    "benchmarkDateTime": "2026-03-14T05:29:24.209Z",
+    "benchmarkDateTime": "2026-03-14T05:52:42.472Z",
     "warmRunCount": 3,
-    "ciRunId": "23081028985",
-    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23081028985"
+    "ciRunId": "23081403347",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23081403347"
   },
   "metrics": {
-    "compile-time": 3300,
+    "compile-time": 3283,
     "disk-size-total": 30859685,
     "disk-size-native": 2974997,
     "disk-size-assemblies": 22811520,
-    "time-to-reach-managed-warm": 1432,
-    "time-to-reach-managed-cold": 1928
+    "time-to-reach-managed-warm": 1474,
+    "time-to-reach-managed-cold": 1986
   }
 }
