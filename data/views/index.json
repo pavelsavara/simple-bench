@@ -3,8 +3,7 @@
   "activeRelease": "net11",
   "releases": [
     "net10",
-    "net8",
-    "net9"
+    "net8"
   ],
   "weeks": [
     "2026-03-09"
