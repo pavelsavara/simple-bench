@@ -35,6 +35,7 @@ export enum App {
     HavitBootstrap = 'havit-bootstrap',
     MicroBenchmarks = 'micro-benchmarks',
     BenchViewer = 'bench-viewer',
+    MudBlazor = 'mud-blazor',
 }
 
 export enum Stage {
@@ -89,6 +90,7 @@ export const APP_CONFIG: Record<App, AppConfig> = {
     [App.BlazingPizza]: { browserOnly: true, internal: false },
     [App.HavitBootstrap]: { browserOnly: true, internal: false },
     [App.BenchViewer]: { browserOnly: true, internal: false },
+    [App.MudBlazor]: { browserOnly: true, internal: false },
 };
 
 // ── Preset Constraints ───────────────────────────────────────────────────────
@@ -115,8 +117,8 @@ export const MONO_ONLY_PRESETS = new Set<Preset>([
 ]);
 
 /** Apps that use Blazor (DOM-dependent, no CLI engine support). */
-export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazingPizza, App.HavitBootstrap, App.BenchViewer]);
-export const REDUCE_APPS = new Set<App>([App.EmptyBlazor, App.EmptyBrowser, App.BlazingPizza, App.BenchViewer]);
+export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazingPizza, App.HavitBootstrap, App.BenchViewer, App.MudBlazor]);
+export const REDUCE_APPS = new Set<App>([App.EmptyBlazor, App.EmptyBrowser, App.BlazingPizza, App.BenchViewer, App.MudBlazor]);
 export const REDUCE_PRESETS = new Set<Preset>([Preset.NativeRelink, Preset.NoJiterp, Preset.Invariant, Preset.NoReflectionEmit]);
 
 

@@ -19,41 +19,22 @@
     <MicrosoftAspNetCoreWebUtilitiesVersion>$(BundledNETCoreAppPackageVersion)</MicrosoftAspNetCoreWebUtilitiesVersion>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(BenchmarkTargetFramework)' == 'net11.0'">
-
+  <!-- default shared versions of dependencies -->
+  <PropertyGroup>
+    <MudBlazorVersion>9.1.0</MudBlazorVersion>
+    <MudBlazorAspNetCoreVersion>9.0.3</MudBlazorAspNetCoreVersion>
+    <BlazorAnalyticsVersion>4.0.0</BlazorAnalyticsVersion>
+    <BytexDigitalCookieConsentVersion>1.2.1</BytexDigitalCookieConsentVersion>
+    <FuzzySharpVersion>2.0.2</FuzzySharpVersion>
+    <MarkdigVersion>1.0.1</MarkdigVersion>
+    <BlazoredLocalStorageVersion>4.5.0</BlazoredLocalStorageVersion>
     <WebPushVersion>1.0.12</WebPushVersion>
     <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
     <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.25112.101</MicrosoftNetCompilersRazorToolsetVersion>
     <FluentValidationVersion>12.1.1</FluentValidationVersion>
     <HavitBlazorVersion>4.23.0</HavitBlazorVersion>
     <HavitBlazorSmartVersion>4.23.0-preview04</HavitBlazorSmartVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(BenchmarkTargetFramework)' == 'net10.0'">
-    <WebPushVersion>1.0.12</WebPushVersion>
-    <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
-    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.25112.101</MicrosoftNetCompilersRazorToolsetVersion>
-    <FluentValidationVersion>12.1.1</FluentValidationVersion>
-    <HavitBlazorVersion>4.23.0</HavitBlazorVersion>
-    <HavitBlazorSmartVersion>4.23.0-preview04</HavitBlazorSmartVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(BenchmarkTargetFramework)' == 'net9.0'">
-    <WebPushVersion>1.0.12</WebPushVersion>
-    <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
-    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.25112.101</MicrosoftNetCompilersRazorToolsetVersion>
-    <FluentValidationVersion>12.1.1</FluentValidationVersion>
-    <HavitBlazorVersion>4.23.0</HavitBlazorVersion>
-    <HavitBlazorSmartVersion>4.23.0-preview04</HavitBlazorSmartVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(BenchmarkTargetFramework)' == 'net8.0'">
-    <WebPushVersion>1.0.12</WebPushVersion>
-    <MicrosoftCodeAnalysisCSharpVersion>5.0.0</MicrosoftCodeAnalysisCSharpVersion>
-    <MicrosoftNetCompilersRazorToolsetVersion>9.0.0-preview.25112.101</MicrosoftNetCompilersRazorToolsetVersion>
-    <FluentValidationVersion>12.1.1</FluentValidationVersion>
-    <HavitBlazorVersion>4.23.0</HavitBlazorVersion>
-    <HavitBlazorSmartVersion>4.23.0-preview04</HavitBlazorSmartVersion>
+    <NetEscapadesEnumGeneratorsVersion>1.0.0-beta20</NetEscapadesEnumGeneratorsVersion>
   </PropertyGroup>
 
 </Project>
