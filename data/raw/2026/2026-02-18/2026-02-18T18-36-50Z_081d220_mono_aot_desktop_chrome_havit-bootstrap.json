@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "runtimeCommitDateTime": "2026-02-18T18:36:50Z",
+    "runtimeCommitAuthor": "github-actions[bot]",
+    "runtimeCommitMessage": "[release/10.0] fix Vector2/3 EqualsAny (#124223)",
+    "sdkVersion": "10.0.201",
+    "runtimeGitHash": "081d220c0a773ffb7c6bea6b48727833576a65ef",
+    "aspnetCoreGitHash": "233fc7812a61ec7edd51b9e04063f3ed77ec71fe",
+    "sdkGitHash": "9396d43dc6d7b16db3af666867585c4f4db99628",
+    "vmrGitHash": "4d3023de605a78ba3e59e50c657eed70f125c68a",
+    "aspnetCoreCommitDateTime": "2026-02-18T19:09:30Z",
+    "aspnetCoreVersion": "10.0.5",
+    "runtimePackVersion": "10.0.5",
+    "workloadVersion": "10.0.105",
+    "runtime": "mono",
+    "preset": "aot",
+    "profile": "desktop",
+    "engine": "chrome",
+    "app": "havit-bootstrap",
+    "benchmarkDateTime": "2026-03-14T16:23:22.778Z",
+    "warmRunCount": 5,
+    "ciRunId": "23091386694",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23091386694"
+  },
+  "metrics": {
+    "compile-time": 273989,
+    "disk-size-native": 5191403,
+    "disk-size-assemblies": 1649268,
+    "download-size-total": 145277190,
+    "time-to-reach-managed-warm": 435,
+    "time-to-reach-managed-cold": 637,
+    "time-to-create-dotnet-warm": 340,
+    "time-to-create-dotnet-cold": 399,
+    "wasm-memory-size": 48365568,
+    "memory-peak": 61620664,
+    "havit-walkthrough": 9214
+  }
+}
