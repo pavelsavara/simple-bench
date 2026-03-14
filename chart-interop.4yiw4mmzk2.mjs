@@ -339,7 +339,6 @@ export async function loadAppCharts(app, filtersJson) {
 
                 for (const [rowKey, values] of Object.entries(metricData)) {
                     allRowKeys.add(rowKey);
-                    if (!isRowVisible(rowKey, filters, metric)) continue;
 
                     const points = values.map((v, i) => {
                         const col = cols[i];
@@ -376,7 +375,6 @@ export async function loadAppCharts(app, filtersJson) {
 
             for (const [rowKey, values] of Object.entries(metricData)) {
                 allRowKeys.add(rowKey);
-                if (!isRowVisible(rowKey, filters, metric)) continue;
 
                 const points = values.map((v, i) => {
                     const col = bucket.header.columns[i];
@@ -578,6 +576,7 @@ export async function loadAppCharts(app, filtersJson) {
                         time: {
                             tooltipFormat: 'MMM d, yyyy',
                         },
+                        grid: { display: false },
                         title: { display: true, text: 'SDK Version' },
                         ticks: {
                             source: 'data',
@@ -589,7 +588,8 @@ export async function loadAppCharts(app, filtersJson) {
                                 const m = ver.match(/-(\w+\.\d+\.\d+)/);
                                 return m ? m[1] : ver;
                             },
-                            maxRotation: 45,
+                            maxRotation: 90,
+                            minRotation: 90,
                             autoSkip: true,
                         },
                     },
@@ -640,6 +640,15 @@ export async function loadAppCharts(app, filtersJson) {
         chart._metric = metric;
         charts[canvasId] = chart;
 
+        // Apply initial filter visibility
+        for (let i = 0; i < chart.data.datasets.length; i++) {
+            const ds = chart.data.datasets[i];
+            if (ds._rowKey) {
+                chart.setDatasetVisibility(i, isRowVisible(ds._rowKey, filters, metric));
+            }
+        }
+        chart.update('none');
+
         // Shift+wheel zoom (complement to Ctrl+wheel handled by plugin)
         canvas.addEventListener('wheel', (e) => {
             if (e.shiftKey && !e.ctrlKey) {
@@ -664,10 +673,12 @@ export function applyFilters(filtersJson) {
     for (const [canvasId, chart] of Object.entries(charts)) {
         // Extract metric from chart._metric stored during creation
         const metric = chart._metric || '';
-        for (const ds of chart.data.datasets) {
+        for (let i = 0; i < chart.data.datasets.length; i++) {
+            const ds = chart.data.datasets[i];
             const key = ds._rowKey;
             if (key) {
-                ds.hidden = !isRowVisible(key, filters, metric);
+                const visible = isRowVisible(key, filters, metric);
+                chart.setDatasetVisibility(i, visible);
             }
         }
         chart.update('none');
