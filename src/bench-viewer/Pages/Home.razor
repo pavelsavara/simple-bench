@@ -157,7 +157,16 @@
                 }
                 <tr>
                     <td class="text-muted py-0 pe-2" style="white-space:nowrap;">SDK</td>
-                    <td class="py-0" style="word-break:break-all;">@point.SdkVersion</td>
+                    <td class="py-0" style="word-break:break-all;">
+                        @if (!string.IsNullOrEmpty(point.VmrGitHash))
+                        {
+                            <a href="https://github.com/dotnet/dotnet/commit/@point.VmrGitHash" target="_blank" rel="noopener">@point.SdkVersion</a>
+                        }
+                        else
+                        {
+                            @point.SdkVersion
+                        }
+                    </td>
                 </tr>
                 <tr>
                     <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Row</td>
@@ -167,14 +176,32 @@
                 {
                     <tr>
                         <td class="text-muted py-0 pe-2" style="white-space:nowrap;">Runtime Pack</td>
-                        <td class="py-0" style="word-break:break-all;">@point.RuntimePackVersion</td>
+                        <td class="py-0" style="word-break:break-all;">
+                            @if (!string.IsNullOrEmpty(point.RuntimeGitHash))
+                            {
+                                <a href="https://github.com/dotnet/runtime/commit/@point.RuntimeGitHash" target="_blank" rel="noopener">@point.RuntimePackVersion</a>
+                            }
+                            else
+                            {
+                                @point.RuntimePackVersion
+                            }
+                        </td>
                     </tr>
                 }
                 @if (!string.IsNullOrEmpty(point.AspnetCoreVersion))
                 {
                     <tr>
                         <td class="text-muted py-0 pe-2" style="white-space:nowrap;">ASP.NET Core</td>
-                        <td class="py-0" style="word-break:break-all;">@point.AspnetCoreVersion</td>
+                        <td class="py-0" style="word-break:break-all;">
+                            @if (!string.IsNullOrEmpty(point.AspnetCoreGitHash))
+                            {
+                                <a href="https://github.com/dotnet/aspnetcore/commit/@point.AspnetCoreGitHash" target="_blank" rel="noopener">@point.AspnetCoreVersion</a>
+                            }
+                            else
+                            {
+                                @point.AspnetCoreVersion
+                            }
+                        </td>
                     </tr>
                 }
                 @if (!string.IsNullOrEmpty(point.WorkloadVersion))
@@ -187,57 +214,24 @@
             </tbody>
         </table>
 
-        <div class="mb-1" style="font-size: 0.8rem;">
-            @if (!string.IsNullOrEmpty(point.RuntimeGitHash))
-            {
-                <div>
-                    <a href="https://github.com/dotnet/runtime/commit/@point.RuntimeGitHash" target="_blank" rel="noopener">
-                        Runtime @@@Short(point.RuntimeGitHash)
-                    </a>
-                </div>
-            }
-            @if (!string.IsNullOrEmpty(point.VmrGitHash))
-            {
-                <div>
-                    <a href="https://github.com/dotnet/dotnet/commit/@point.VmrGitHash" target="_blank" rel="noopener">
-                        VMR @@@Short(point.VmrGitHash)
-                    </a>
-                </div>
-            }
-            @if (!string.IsNullOrEmpty(point.SdkGitHash))
-            {
-                <div>
-                    <a href="https://github.com/dotnet/sdk/commit/@point.SdkGitHash" target="_blank" rel="noopener">
-                        SDK @@@Short(point.SdkGitHash)
-                    </a>
-                </div>
-            }
-            @if (!string.IsNullOrEmpty(point.AspnetCoreGitHash))
-            {
-                <div>
-                    <a href="https://github.com/dotnet/aspnetcore/commit/@point.AspnetCoreGitHash" target="_blank" rel="noopener">
-                        ASP.NET @@@Short(point.AspnetCoreGitHash)
-                    </a>
-                </div>
-            }
-        </div>
-
         @if (point.Metrics.Count > 0)
         {
             @if (expanded)
             {
                 <hr class="my-1" />
                 <div class="mb-1"><strong>Metrics:</strong></div>
-                @foreach (var kv in point.Metrics)
-                {
-                    <div>@GetMetricDisplay(kv.Key): @FormatMetricValue(kv.Key, kv.Value)</div>
-                }
+                <div style="font-size: 0.75rem;">
+                    @foreach (var kv in point.Metrics)
+                    {
+                        <div>@GetMetricDisplay(kv.Key): @FormatMetricValue(kv.Key, kv.Value)</div>
+                    }
+                </div>
             }
             else
             {
                 <details class="mt-1">
                     <summary class="fw-bold" style="cursor:pointer; font-size:0.8rem;">Metrics</summary>
-                    <div class="mt-1">
+                    <div class="mt-1" style="font-size: 0.75rem;">
                         @foreach (var kv in point.Metrics)
                         {
                             <div>@GetMetricDisplay(kv.Key): @FormatMetricValue(kv.Key, kv.Value)</div>
