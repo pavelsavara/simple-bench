@@ -62,4 +62,5 @@ playwright-report/
 
 # gh-pages worktree
 gh-pages/
+tracking/
 dist/

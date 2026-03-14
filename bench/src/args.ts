@@ -51,7 +51,7 @@ Docker (only with --via-docker):
 
 Consolidation:
   --artifacts-dir <path>   CI artifacts input directory
-  --data-dir <path>        gh-pages data/ output directory
+  --data-dir <path>        gh-pages data/ directory for view output
 
 Scheduling:
   --max-dispatches <n>     Max workflow dispatches (default: 1)

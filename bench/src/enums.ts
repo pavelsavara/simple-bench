@@ -39,7 +39,8 @@ export enum App {
 }
 
 export enum Stage {
-    CheckOutPages = 'check-out-cache',
+    CheckOutTracking = 'check-out-tracking',
+    CheckOutData = 'check-out-data',
     DockerImage = 'docker-image',
     EnumerateCommits = 'enumerate-commits',
     EnumerateDailyPacks = 'enumerate-daily-packs',

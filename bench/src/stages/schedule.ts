@@ -1,4 +1,4 @@
-import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, readdir, unlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
 import { type BenchContext } from '../context.js';
@@ -8,7 +8,7 @@ import { exec } from '../exec.js';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const LOCK_DIR = 'cache/locks';
+const LOCK_DIR = 'locks';
 const LOCK_TTL_MS = 48 * 60 * 60 * 1000; // 48 hours
 const MAX_PUSH_RETRIES = 3;
 
@@ -20,33 +20,32 @@ interface PackEntry {
     [key: string]: unknown;
 }
 
-interface MonthIndex {
-    month: string;
-    commits: Array<{
-        runtimeGitHash: string;
-        sdkVersion: string;
-        [key: string]: unknown;
-    }>;
-}
-
-interface DataIndex {
-    months: string[];
-}
-
 // ── Stage Entry ──────────────────────────────────────────────────────────────
 
 export async function run(ctx: BenchContext): Promise<BenchContext> {
     banner('Schedule');
 
-    const ghPagesDir = join(ctx.repoRoot, 'gh-pages');
+    const trackingDir = join(ctx.repoRoot, 'tracking');
 
-    // 1. Build the set of already-tested SDK versions from gh-pages data
-    const dataDir = join(ghPagesDir, 'data');
-    const testedSdkVersions = await buildTestedSet(dataDir, ctx.verbose);
-    info(`Found ${testedSdkVersions.size} already-tested SDK versions`);
+    // Pull latest tracking state
+    await exec('git', ['-C', trackingDir, 'pull'], { throwOnError: false });
+
+    // 0. Mark current SDK as done (if we just completed a benchmark run)
+    if (ctx.sdkInfo?.sdkVersion) {
+        const locksDir = join(trackingDir, LOCK_DIR);
+        const doneFile = join(locksDir, `${ctx.sdkInfo.sdkVersion}.done`);
+        if (!existsSync(doneFile)) {
+            info(`Marking ${ctx.sdkInfo.sdkVersion} as done`);
+            await pushDoneMarker(trackingDir, ctx.sdkInfo.sdkVersion, ctx);
+        }
+    }
+
+    // 1. Build the set of already-done SDK versions from tracking/locks/*.done
+    const doneSdkVersions = await buildDoneSet(trackingDir, ctx.verbose);
+    info(`Found ${doneSdkVersions.size} done SDK versions`);
 
     // 2. Build the set of in-progress (locked) SDK versions
-    const lockedSdkVersions = await buildLockedSet(ghPagesDir, ctx.verbose);
+    const lockedSdkVersions = await buildLockedSet(trackingDir, ctx.verbose);
     info(`Found ${lockedSdkVersions.size} locked (in-progress) SDK versions`);
 
     // 3. Load pack lists from artifacts (populated by enumerate stages)
@@ -55,9 +54,9 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     // 4. Filter to untested and unlocked packs
     const untestedReleases = releasePacks.filter(p =>
-        !testedSdkVersions.has(p.sdkVersion) && !lockedSdkVersions.has(p.sdkVersion));
+        !doneSdkVersions.has(p.sdkVersion) && !lockedSdkVersions.has(p.sdkVersion));
     const untestedDaily = dailyPacks.filter(p =>
-        !testedSdkVersions.has(p.sdkVersion) && !lockedSdkVersions.has(p.sdkVersion));
+        !doneSdkVersions.has(p.sdkVersion) && !lockedSdkVersions.has(p.sdkVersion));
 
     if (ctx.verbose) {
         debug(`Release packs: ${releasePacks.length} total, ${untestedReleases.length} untested+unlocked`);
@@ -72,7 +71,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     ];
 
     if (candidates.length === 0) {
-        info('All packs already tested or locked — nothing to dispatch');
+        info('All packs already done or locked — nothing to dispatch');
         return ctx;
     }
 
@@ -88,7 +87,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     for (const pack of toDispatch) {
         // Create lock file locally (even in dry-run, so repeated dry-runs see the lock)
-        const created = await createLockFile(ghPagesDir, pack.sdkVersion, ctx);
+        const created = await createLockFile(trackingDir, pack.sdkVersion, ctx);
         if (!created) {
             info(`Skipping ${pack.sdkVersion} — already locked by another scheduler`);
             continue;
@@ -99,8 +98,8 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
             continue;
         }
 
-        // Push lock to gh-pages before dispatching (so concurrent schedulers see it)
-        const pushed = await pushLockFile(ghPagesDir, pack.sdkVersion, ctx);
+        // Push lock to tracking before dispatching (so concurrent schedulers see it)
+        const pushed = await pushLockFile(trackingDir, pack.sdkVersion, ctx);
         if (!pushed) {
             info(`Skipping ${pack.sdkVersion} — another scheduler locked it concurrently`);
             continue;
@@ -125,6 +124,102 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     return ctx;
 }
 
+// ── Done Helpers ─────────────────────────────────────────────────────────────
+
+interface DoneFile {
+    completedAt: string;
+    ciRunId?: string;
+}
+
+/**
+ * Scan tracking/locks/ for .done files and return the set of completed SDK versions.
+ */
+async function buildDoneSet(trackingDir: string, verbose?: boolean): Promise<Set<string>> {
+    const done = new Set<string>();
+    const locksDir = join(trackingDir, LOCK_DIR);
+
+    if (!existsSync(locksDir)) {
+        if (verbose) debug('No locks/ directory — no done SDK versions');
+        return done;
+    }
+
+    const entries = await readdir(locksDir);
+    for (const entry of entries) {
+        if (!entry.endsWith('.done')) continue;
+        const sdkVersion = entry.replace(/\.done$/, '');
+        done.add(sdkVersion);
+    }
+
+    return done;
+}
+
+/**
+ * Mark an SDK version as done: write .done file, remove .lock file, push to tracking.
+ */
+async function pushDoneMarker(
+    trackingDir: string,
+    sdkVersion: string,
+    ctx: BenchContext,
+): Promise<boolean> {
+    const locksDir = join(trackingDir, LOCK_DIR);
+    await mkdir(locksDir, { recursive: true });
+
+    const lockFile = join(locksDir, `${sdkVersion}.lock`);
+    const doneFile = join(locksDir, `${sdkVersion}.done`);
+
+    const doneContent: DoneFile = {
+        completedAt: new Date().toISOString(),
+        ciRunId: ctx.ciRunId,
+    };
+
+    await writeFile(doneFile, JSON.stringify(doneContent, null, 2), 'utf-8');
+    if (existsSync(lockFile)) {
+        await unlink(lockFile);
+    }
+
+    if (ctx.dryRun) {
+        info(`[dry-run] Marked ${sdkVersion} as done`);
+        return true;
+    }
+
+    for (let attempt = 1; attempt <= MAX_PUSH_RETRIES; attempt++) {
+        await exec('git', ['-C', trackingDir, 'pull', '--rebase'], { throwOnError: false });
+
+        // Re-apply changes after pull (rebase may have clobbered them)
+        await writeFile(doneFile, JSON.stringify(doneContent, null, 2), 'utf-8');
+        if (existsSync(lockFile)) await unlink(lockFile);
+
+        await exec('git', ['-C', trackingDir, 'config', 'user.name', 'github-actions[bot]']);
+        await exec('git', ['-C', trackingDir, 'config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
+
+        await exec('git', ['-C', trackingDir, 'add', `${LOCK_DIR}/`]);
+        const { exitCode: diffCode } = await exec('git', ['-C', trackingDir, 'diff', '--cached', '--quiet'], {
+            throwOnError: false,
+        });
+        if (diffCode === 0) {
+            info(`Done marker for ${sdkVersion} already in git`);
+            return true;
+        }
+        await exec('git', ['-C', trackingDir, 'commit', '-m', `Done ${sdkVersion}`]);
+
+        const { exitCode: pushCode } = await exec('git', ['-C', trackingDir, 'push'], {
+            throwOnError: false,
+        });
+        if (pushCode === 0) {
+            info(`Done marker pushed for ${sdkVersion}`);
+            return true;
+        }
+
+        if (attempt < MAX_PUSH_RETRIES) {
+            info(`Push failed (attempt ${attempt}/${MAX_PUSH_RETRIES}) — pulling and retrying`);
+            await exec('git', ['-C', trackingDir, 'reset', '--soft', 'HEAD~1'], { throwOnError: false });
+        }
+    }
+
+    err(`Failed to push done marker for ${sdkVersion} after ${MAX_PUSH_RETRIES} attempts`);
+    return false;
+}
+
 // ── Lock Helpers ─────────────────────────────────────────────────────────────
 
 interface LockFile {
@@ -133,15 +228,15 @@ interface LockFile {
 }
 
 /**
- * Scan gh-pages/cache/locks/ and return SDK versions with non-expired lock files.
+ * Scan tracking/locks/ and return SDK versions with non-expired lock files.
  * Lock files older than LOCK_TTL_MS (48h) are treated as expired (stuck/failed runs).
  */
-async function buildLockedSet(ghPagesDir: string, verbose?: boolean): Promise<Set<string>> {
+async function buildLockedSet(trackingDir: string, verbose?: boolean): Promise<Set<string>> {
     const locked = new Set<string>();
-    const locksDir = join(ghPagesDir, LOCK_DIR);
+    const locksDir = join(trackingDir, LOCK_DIR);
 
     if (!existsSync(locksDir)) {
-        if (verbose) debug('No cache/locks/ directory — no active locks');
+        if (verbose) debug('No locks/ directory — no active locks');
         return locked;
     }
 
@@ -178,11 +273,11 @@ async function buildLockedSet(ghPagesDir: string, verbose?: boolean): Promise<Se
  * Returns true if the lock was written locally, false if already locked.
  */
 async function createLockFile(
-    ghPagesDir: string,
+    trackingDir: string,
     sdkVersion: string,
     ctx: BenchContext,
 ): Promise<boolean> {
-    const locksDir = join(ghPagesDir, LOCK_DIR);
+    const locksDir = join(trackingDir, LOCK_DIR);
     await mkdir(locksDir, { recursive: true });
 
     const lockFile = join(locksDir, `${sdkVersion}.lock`);
@@ -212,21 +307,21 @@ async function createLockFile(
 }
 
 /**
- * Commit and push an already-created lock file to gh-pages.
+ * Commit and push an already-created lock file to tracking.
  * Uses pull-recheck-push with retries to handle concurrent schedulers.
  * Returns true if the lock was successfully pushed, false if another scheduler got it first.
  */
 async function pushLockFile(
-    ghPagesDir: string,
+    trackingDir: string,
     sdkVersion: string,
     ctx: BenchContext,
 ): Promise<boolean> {
     const lockRelPath = join(LOCK_DIR, `${sdkVersion}.lock`);
-    const lockAbsPath = join(ghPagesDir, lockRelPath);
+    const lockAbsPath = join(trackingDir, lockRelPath);
 
     for (let attempt = 1; attempt <= MAX_PUSH_RETRIES; attempt++) {
         // Pull latest to see if someone else created this lock
-        await exec('git', ['-C', ghPagesDir, 'pull', '--rebase'], { throwOnError: false });
+        await exec('git', ['-C', trackingDir, 'pull', '--rebase'], { throwOnError: false });
 
         // Re-check: another scheduler may have pushed this lock while we were writing ours
         if (existsSync(lockAbsPath)) {
@@ -254,12 +349,12 @@ async function pushLockFile(
         await writeFile(lockAbsPath, JSON.stringify(lockContent, null, 2), 'utf-8');
 
         // Configure git user
-        await exec('git', ['-C', ghPagesDir, 'config', 'user.name', 'github-actions[bot]']);
-        await exec('git', ['-C', ghPagesDir, 'config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
+        await exec('git', ['-C', trackingDir, 'config', 'user.name', 'github-actions[bot]']);
+        await exec('git', ['-C', trackingDir, 'config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
 
         // Stage and commit
-        await exec('git', ['-C', ghPagesDir, 'add', lockRelPath]);
-        const { exitCode: diffCode } = await exec('git', ['-C', ghPagesDir, 'diff', '--cached', '--quiet'], {
+        await exec('git', ['-C', trackingDir, 'add', lockRelPath]);
+        const { exitCode: diffCode } = await exec('git', ['-C', trackingDir, 'diff', '--cached', '--quiet'], {
             throwOnError: false,
         });
         if (diffCode === 0) {
@@ -267,10 +362,10 @@ async function pushLockFile(
             info(`Lock for ${sdkVersion} already in git`);
             return true;
         }
-        await exec('git', ['-C', ghPagesDir, 'commit', '-m', `Lock ${sdkVersion}`]);
+        await exec('git', ['-C', trackingDir, 'commit', '-m', `Lock ${sdkVersion}`]);
 
         // Push
-        const { exitCode: pushCode } = await exec('git', ['-C', ghPagesDir, 'push'], {
+        const { exitCode: pushCode } = await exec('git', ['-C', trackingDir, 'push'], {
             throwOnError: false,
         });
         if (pushCode === 0) {
@@ -281,7 +376,7 @@ async function pushLockFile(
         // Push failed (likely concurrent push) — retry
         if (attempt < MAX_PUSH_RETRIES) {
             info(`Push failed (attempt ${attempt}/${MAX_PUSH_RETRIES}) — pulling and retrying`);
-            await exec('git', ['-C', ghPagesDir, 'reset', '--soft', 'HEAD~1'], { throwOnError: false });
+            await exec('git', ['-C', trackingDir, 'reset', '--soft', 'HEAD~1'], { throwOnError: false });
         }
     }
 
@@ -290,32 +385,6 @@ async function pushLockFile(
 }
 
 // ── Data Helpers ─────────────────────────────────────────────────────────────
-
-async function buildTestedSet(dataDir: string, verbose?: boolean): Promise<Set<string>> {
-    const tested = new Set<string>();
-
-    const indexPath = join(dataDir, 'index.json');
-    if (!existsSync(indexPath)) {
-        if (verbose) debug('No data/index.json found — treating all packs as untested');
-        return tested;
-    }
-
-    const index: DataIndex = JSON.parse(await readFile(indexPath, 'utf-8'));
-
-    for (const monthName of index.months) {
-        const monthPath = join(dataDir, `${monthName}.json`);
-        if (!existsSync(monthPath)) continue;
-
-        const month: MonthIndex = JSON.parse(await readFile(monthPath, 'utf-8'));
-        for (const commit of month.commits) {
-            if (commit.sdkVersion) {
-                tested.add(commit.sdkVersion);
-            }
-        }
-    }
-
-    return tested;
-}
 
 async function loadPacks(path: string): Promise<PackEntry[]> {
     if (!existsSync(path)) return [];

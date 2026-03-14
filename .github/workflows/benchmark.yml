@@ -60,7 +60,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           npx --prefix bench tsx bench/src/main.ts \
-            --stages check-out-cache,enumerate-daily-packs,enumerate-release-packs,update-cache,resolve-sdk \
+            --stages check-out-tracking,enumerate-daily-packs,enumerate-release-packs,update-cache,resolve-sdk \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
             --sdk-channel "${{ inputs.sdk_channel || '11.0' }}" \
             ${{ inputs.sdk_version && format('--sdk-version "{0}"', inputs.sdk_version) || '' }} \
@@ -300,7 +300,7 @@ jobs:
         shell: bash
         run: |
           npx --prefix bench tsx bench/src/main.ts \
-            --stages transform-views,update-views \
+            --stages check-out-data,transform-views,update-views \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
             --runtime mono \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}
@@ -351,7 +351,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           npx --prefix bench tsx bench/src/main.ts \
-            --stages check-out-cache,schedule \
+            --stages check-out-tracking,schedule \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
             --runtime mono \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}

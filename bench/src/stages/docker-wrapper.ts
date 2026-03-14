@@ -10,7 +10,8 @@ import { banner, info, debug } from '../log.js';
 type ContainerTarget = 'host' | 'build' | 'measure';
 
 const STAGE_CONTAINER: Record<Stage, ContainerTarget> = {
-    [Stage.CheckOutPages]: 'host',
+    [Stage.CheckOutTracking]: 'host',
+    [Stage.CheckOutData]: 'host',
     [Stage.DockerImage]: 'host',
     [Stage.EnumerateCommits]: 'build',
     [Stage.EnumerateDailyPacks]: 'build',

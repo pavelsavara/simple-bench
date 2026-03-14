@@ -4,27 +4,27 @@ import { exec, execCapture } from '../exec.js';
 import { info, debug } from '../log.js';
 
 /**
- * Ensure the gh-pages branch is available locally under <repoRoot>/gh-pages/.
+ * Ensure a given branch is available locally under <repoRoot>/<localDir>/.
  *   • If the folder already contains a .git directory: git pull
- *   • Otherwise: git clone --branch gh-pages --single-branch --depth 1
+ *   • Otherwise: git clone --branch <branch> --single-branch --depth 1
  *
- * Returns the path to the gh-pages directory.
+ * Returns the path to the checkout directory.
  */
-export async function ensureGhPagesCheckout(repoRoot: string, verbose?: boolean): Promise<string> {
-    const ghPagesDir = join(repoRoot, 'gh-pages');
+export async function ensureBranchCheckout(repoRoot: string, branch: string, localDir: string, verbose?: boolean): Promise<string> {
+    const dir = join(repoRoot, localDir);
 
-    if (existsSync(join(ghPagesDir, '.git'))) {
-        info('gh-pages/ exists — pulling latest');
-        await exec('git', ['-C', ghPagesDir, 'pull'], { throwOnError: false });
+    if (existsSync(join(dir, '.git'))) {
+        info(`${localDir}/ exists — pulling latest`);
+        await exec('git', ['-C', dir, 'pull'], { throwOnError: false });
     } else {
-        info('gh-pages/ not found — cloning gh-pages branch');
+        info(`${localDir}/ not found — cloning ${branch} branch`);
         await exec('git', ['config', '--global', '--add', 'safe.directory', repoRoot], { throwOnError: false });
         const remoteUrl = await execCapture('git', ['remote', 'get-url', 'origin'], {
             cwd: repoRoot,
         });
         await exec('git', [
-            'clone', '--branch', 'gh-pages', '--single-branch', '--depth', '1',
-            remoteUrl, ghPagesDir,
+            'clone', '--branch', branch, '--single-branch', '--depth', '1',
+            remoteUrl, dir,
         ]);
 
         // Propagate any extraheader auth from the main checkout so push works in CI
@@ -33,12 +33,12 @@ export async function ensureGhPagesCheckout(repoRoot: string, verbose?: boolean)
         ], { throwOnError: false });
         if (extraHeader) {
             await exec('git', [
-                '-C', ghPagesDir, 'config',
+                '-C', dir, 'config',
                 'http.https://github.com/.extraheader', extraHeader,
             ]);
         }
     }
 
-    if (verbose) debug(`gh-pages checkout ready at ${ghPagesDir}`);
-    return ghPagesDir;
+    if (verbose) debug(`${branch} checkout ready at ${dir}`);
+    return dir;
 }

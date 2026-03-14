@@ -7,16 +7,16 @@ import { info } from '../log.js';
 
 // ── Stage: update-cache ──────────────────────────────────────────────────────
 //
-// Copies updated pack/commit lists from artifacts/ back into the gh-pages
+// Copies updated pack/commit lists from artifacts/ back into the tracking
 // branch's cache/ directory, then commits and pushes if anything changed.
 //
-// Requires check-out-cache to have run first (gh-pages/ must exist).
+// Requires check-out-tracking to have run first (tracking/ must exist).
 
 const CACHE_FILES = ['daily-packs-list.json', 'release-packs-list.json', 'commits-list.json'];
 
 export async function run(ctx: BenchContext): Promise<BenchContext> {
-    const ghPagesDir = join(ctx.repoRoot, 'gh-pages');
-    const cacheDir = join(ghPagesDir, 'cache');
+    const trackingDir = join(ctx.repoRoot, 'tracking');
+    const cacheDir = join(trackingDir, 'cache');
     await mkdir(cacheDir, { recursive: true });
 
     // Copy updated lists into gh-pages cache
@@ -31,6 +31,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     await commitAndPush({
         repoRoot: ctx.repoRoot,
         dryRun: ctx.dryRun,
+        checkoutDir: 'tracking',
         addPaths: ['cache/'],
         commitMessage: `Update cache ${new Date().toISOString().slice(0, 10)}`,
         label: 'Cache',

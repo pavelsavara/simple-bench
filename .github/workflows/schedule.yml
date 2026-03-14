@@ -28,4 +28,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           npx --prefix bench tsx bench/src/main.ts \
-            --stages check-out-cache,enumerate-daily-packs,enumerate-release-packs,schedule
+            --stages check-out-tracking,enumerate-daily-packs,enumerate-release-packs,schedule
