@@ -73,6 +73,43 @@ interface LoadedResult {
     metrics: Record<string, number>;
 }
 
+interface ViewColumn {
+    runtimeGitHash: string;
+    aspnetCoreGitHash: string;
+    sdkGitHash: string;
+    vmrGitHash: string;
+    runtimeCommitDateTime: string;
+    runtimeCommitAuthor: string;
+    runtimeCommitMessage: string;
+    aspnetCoreCommitDateTime: string;
+    aspnetCoreVersion: string;
+    sdkVersion: string;
+    runtimePackVersion: string;
+    workloadVersion: string;
+}
+
+interface ViewHeader {
+    columns?: ViewColumn[];
+    apps?: Record<string, string[]>;
+    week?: string;
+    release?: string;
+}
+
+interface ViewIndex {
+    lastUpdated?: string;
+    activeRelease?: string;
+    releases?: string[];
+    weeks?: string[];
+    apps?: string[];
+    metrics?: Record<string, string[]>;
+    dimensions?: {
+        runtimes?: string[];
+        presets?: string[];
+        profiles?: string[];
+        engines?: string[];
+    };
+}
+
 // ── Stage Entry ──────────────────────────────────────────────────────────────
 
 export async function run(ctx: BenchContext): Promise<BenchContext> {
@@ -377,7 +414,10 @@ async function buildViews(ctx: BenchContext, rawDir: string, viewsDir: string): 
     }
 
     // Write global views index LAST (makes update atomic from UI perspective)
-    const viewIndex = buildViewIndex(allResults, activeRelease, weekKeys, releaseKeys);
+    const viewIndex = mergeViewIndex(
+        await readJsonIfExists<ViewIndex>(join(viewsDir, 'index.json')),
+        buildViewIndex(allResults, activeRelease, weekKeys, releaseKeys),
+    );
     await mkdir(viewsDir, { recursive: true });
     await writeFile(join(viewsDir, 'index.json'), JSON.stringify(viewIndex, null, 2), 'utf-8');
     if (ctx.verbose) debug(`  wrote views/index.json`);
@@ -396,27 +436,15 @@ async function writeBucketView(
 ): Promise<void> {
     await mkdir(dir, { recursive: true });
 
-    interface Column {
-        runtimeGitHash: string;
-        aspnetCoreGitHash: string;
-        sdkGitHash: string;
-        vmrGitHash: string;
-        runtimeCommitDateTime: string;
-        runtimeCommitAuthor: string;
-        runtimeCommitMessage: string;
-        aspnetCoreCommitDateTime: string;
-        aspnetCoreVersion: string;
-        sdkVersion: string;
-        runtimePackVersion: string;
-        workloadVersion: string;
-    }
-
     const columnKey = type === 'week'
         ? (r: LoadedResult) => r.runtimeGitHash
         : (r: LoadedResult) => r.sdkVersion;
+    const getColumnId = type === 'week'
+        ? (column: ViewColumn) => column.runtimeGitHash
+        : (column: ViewColumn) => column.sdkVersion;
 
     // Deduplicate columns
-    const columnMap = new Map<string, Column>();
+    const columnMap = new Map<string, ViewColumn>();
     for (const r of results) {
         const key = columnKey(r);
         if (!columnMap.has(key)) {
@@ -437,8 +465,16 @@ async function writeBucketView(
         }
     }
 
+    const existingHeader = await readJsonIfExists<ViewHeader>(join(dir, 'header.json'));
+    for (const column of existingHeader?.columns || []) {
+        const key = getColumnId(column);
+        if (!columnMap.has(key)) {
+            columnMap.set(key, column);
+        }
+    }
+
     // Sort columns
-    const columns: Column[] = type === 'week'
+    const columns: ViewColumn[] = type === 'week'
         ? [...columnMap.values()].sort((a, b) =>
             a.runtimeCommitDateTime.localeCompare(b.runtimeCommitDateTime))
         : [...columnMap.values()].sort((a, b) =>
@@ -477,28 +513,78 @@ async function writeBucketView(
     const appsManifest: Record<string, string[]> = {};
 
     for (const [app, metricMap] of grid) {
-        const metricKeys: string[] = [];
-        for (const [metricKey, rowMap] of metricMap) {
-            const data: Record<string, (number | null)[]> = {};
-            for (const [rowKey, values] of rowMap) {
-                if (values.some(v => v !== null)) {
-                    data[rowKey] = values;
-                }
-            }
-            if (Object.keys(data).length > 0) {
-                const dataFile = `${app}_${metricKey}.json`;
-                await writeFile(join(dir, dataFile), JSON.stringify(data), 'utf-8');
-                if (ctx.verbose) debug(`  wrote ${dataFile}`);
-                metricKeys.push(metricKey);
+        appsManifest[app] = [];
+    }
+
+    for (const [app, metricKeys] of Object.entries(existingHeader?.apps || {})) {
+        if (!appsManifest[app]) {
+            appsManifest[app] = [];
+        }
+        for (const metricKey of metricKeys) {
+            if (!appsManifest[app].includes(metricKey)) {
+                appsManifest[app].push(metricKey);
             }
         }
-        if (metricKeys.length > 0) {
-            appsManifest[app] = metricKeys.sort();
+    }
+
+    const existingColumnIndex = new Map(
+        (existingHeader?.columns || []).map((column, index) => [getColumnId(column), index]),
+    );
+
+    for (const app of Object.keys(appsManifest).sort()) {
+        const metricKeys = new Set<string>([
+            ...(appsManifest[app] || []),
+            ...(metricMapKeys(grid.get(app))),
+        ]);
+
+        const writtenMetricKeys: string[] = [];
+        for (const metricKey of [...metricKeys].sort()) {
+            const dataFile = `${app}_${metricKey}.json`;
+            const existingData = await readJsonIfExists<Record<string, (number | null)[]>>(
+                join(dir, dataFile),
+            );
+            const data: Record<string, (number | null)[]> = {};
+
+            for (const [rowKey, values] of Object.entries(existingData || {})) {
+                const merged = new Array(columns.length).fill(null) as (number | null)[];
+                for (const [columnId, oldIndex] of existingColumnIndex) {
+                    const newIndex = colIndex.get(columnId);
+                    if (newIndex === undefined || oldIndex >= values.length) continue;
+                    merged[newIndex] = values[oldIndex] ?? null;
+                }
+                if (merged.some(v => v !== null)) {
+                    data[rowKey] = merged;
+                }
+            }
+
+            const rowMap = grid.get(app)?.get(metricKey);
+            for (const [rowKey, values] of rowMap || []) {
+                if (!data[rowKey]) {
+                    data[rowKey] = new Array(columns.length).fill(null);
+                }
+                for (let index = 0; index < values.length; index++) {
+                    if (values[index] !== null) {
+                        data[rowKey][index] = values[index];
+                    }
+                }
+            }
+
+            if (Object.keys(data).length > 0) {
+                await writeFile(join(dir, dataFile), JSON.stringify(data), 'utf-8');
+                if (ctx.verbose) debug(`  wrote ${dataFile}`);
+                writtenMetricKeys.push(metricKey);
+            }
+        }
+
+        if (writtenMetricKeys.length > 0) {
+            appsManifest[app] = writtenMetricKeys;
+        } else {
+            delete appsManifest[app];
         }
     }
 
     // Write header AFTER data files
-    const header: Record<string, unknown> = { columns, apps: appsManifest };
+    const header: ViewHeader = { columns, apps: sortAppsManifest(appsManifest) };
     if (type === 'week') header.week = label;
     else header.release = label;
 
@@ -517,7 +603,7 @@ function buildViewIndex(
     activeRelease: string,
     weeks: string[],
     releases: string[],
-): Record<string, unknown> {
+): ViewIndex {
     const apps = new Set<string>();
     const runtimes = new Set<string>();
     const presets = new Set<string>();
@@ -560,7 +646,61 @@ function buildViewIndex(
     };
 }
 
+function mergeViewIndex(existing: ViewIndex | null, current: ViewIndex): ViewIndex {
+    const mergedMetrics: Record<string, string[]> = {};
+    for (const [app, metricKeys] of Object.entries(existing?.metrics || {})) {
+        mergedMetrics[app] = [...metricKeys].sort();
+    }
+    for (const [app, metricKeys] of Object.entries(current.metrics || {})) {
+        mergedMetrics[app] = [...new Set([...(mergedMetrics[app] || []), ...metricKeys])].sort();
+    }
+
+    return {
+        lastUpdated: new Date().toISOString(),
+        activeRelease: current.activeRelease || existing?.activeRelease || '',
+        releases: [...new Set([...(existing?.releases || []), ...(current.releases || [])])].sort(),
+        weeks: [...new Set([...(existing?.weeks || []), ...(current.weeks || [])])].sort().reverse(),
+        apps: [...new Set([...(existing?.apps || []), ...(current.apps || [])])].sort(),
+        metrics: mergedMetrics,
+        dimensions: {
+            runtimes: [...new Set([
+                ...(existing?.dimensions?.runtimes || []),
+                ...(current.dimensions?.runtimes || []),
+            ])].sort(),
+            presets: [...new Set([
+                ...(existing?.dimensions?.presets || []),
+                ...(current.dimensions?.presets || []),
+            ])].sort(),
+            profiles: [...new Set([
+                ...(existing?.dimensions?.profiles || []),
+                ...(current.dimensions?.profiles || []),
+            ])].sort(),
+            engines: [...new Set([
+                ...(existing?.dimensions?.engines || []),
+                ...(current.dimensions?.engines || []),
+            ])].sort(),
+        },
+    };
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
+
+async function readJsonIfExists<T>(path: string): Promise<T | null> {
+    if (!existsSync(path)) return null;
+    return JSON.parse(await readFile(path, 'utf-8')) as T;
+}
+
+function metricMapKeys(metricMap?: Map<string, Map<string, (number | null)[]>>): string[] {
+    return metricMap ? [...metricMap.keys()] : [];
+}
+
+function sortAppsManifest(appsManifest: Record<string, string[]>): Record<string, string[]> {
+    const sorted: Record<string, string[]> = {};
+    for (const app of Object.keys(appsManifest).sort()) {
+        sorted[app] = [...new Set(appsManifest[app])].sort();
+    }
+    return sorted;
+}
 
 function isDailyBuild(sdkVersion: string): boolean {
     return sdkVersion.includes('-');
