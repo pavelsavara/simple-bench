@@ -22,6 +22,7 @@
     <ProjectReference Include="bench-viewer\BenchViewer.csproj" />
     <ProjectReference Include="blazing-pizza\BlazingPizza.Client.csproj" />
     <ProjectReference Include="havit-bootstrap\HavitBootstrap.csproj" />
+    <ProjectReference Include="mud-blazor\MudBlazor.csproj" />
     <ProjectReference Include="micro-benchmarks\MicroBenchmarks.csproj" />
   </ItemGroup>
 

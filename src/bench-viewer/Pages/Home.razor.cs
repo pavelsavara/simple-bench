@@ -49,7 +49,7 @@ public partial class Home : IAsyncDisposable
     // Preferred app display order
     private static readonly List<string> AppOrder = new()
     {
-        "blazing-pizza", "havit-bootstrap", "bench-viewer", "empty-blazor",
+        "blazing-pizza", "havit-bootstrap", "mud-blazor", "bench-viewer", "empty-blazor",
         "empty-browser", "micro-benchmarks"
     };
 
