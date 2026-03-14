@@ -22,7 +22,7 @@ import { PROFILES } from '../lib/throttle-profiles.js';
 import { getEngineCommand, parseCliOutput } from '../lib/internal-utils.js';
 import { runPizzaWalkthrough } from '../lib/pizza-walkthrough.js';
 import { runHavitWalkthrough } from '../lib/havit-walkthrough.js';
-import { type SampleStats, computeStats, formatStats } from '../lib/stats.js';
+import { type SampleStats, computeStats, formatStats, median } from '../lib/stats.js';
 
 // ── Stage Entry Point ────────────────────────────────────────────────────────
 
@@ -279,25 +279,46 @@ async function measureBrowser(
             const coldResults: Record<string, number> = await page.evaluate(
                 () => (globalThis as Record<string, unknown>).bench_results as Record<string, number>,
             );
-            const timeToReachManagedCold = coldResults['time-to-reach-managed'] ?? null;
+            const firstColdTime = coldResults['time-to-reach-managed'] ?? null;
             if (ctx.verbose) debug(`Cold results: ${JSON.stringify(coldResults)}`);
 
-            // Collect performance.timing for cold load
-            const perfTiming = await page.evaluate(() => {
-                const t = performance.timing;
-                return {
-                    navigationStart: t.navigationStart,
-                    responseStart: t.responseStart,
-                    domContentLoadedEventEnd: t.domContentLoadedEventEnd,
-                    loadEventEnd: t.loadEventEnd,
-                };
-            });
-            void perfTiming; // available for future diagnostic use
+            // Additional cold loads in fresh contexts (median-of-N)
+            const coldTimes: number[] = firstColdTime != null ? [firstColdTime] : [];
+            if (!isInternal) {
+                for (let i = 1; i < warmRuns; i++) {
+                    if (ctx.verbose) debug(`Cold load ${i + 1}/${warmRuns}: fresh context...`);
+                    const coldCtx = await browser.newContext();
+                    const coldPage = await coldCtx.newPage();
+                    try {
+                        await coldPage.goto(pageUrl, { timeout, waitUntil: 'load' });
+                        await coldPage.waitForFunction(
+                            () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
+                            null,
+                            { timeout },
+                        );
+                        const cr: Record<string, number> = await coldPage.evaluate(
+                            () => (globalThis as Record<string, unknown>).bench_results as Record<string, number>,
+                        );
+                        const ct = cr['time-to-reach-managed'];
+                        if (ctx.verbose) debug(`Cold load ${i + 1}/${warmRuns}: time-to-reach-managed=${ct}`);
+                        if (ct != null) coldTimes.push(ct);
+                    } finally {
+                        await coldPage.close();
+                        await coldCtx.close();
+                    }
+                }
+            }
+            const timeToReachManagedCold = coldTimes.length > 0
+                ? median([...coldTimes].sort((a, b) => a - b))
+                : null;
+            if (ctx.verbose && coldTimes.length > 1) {
+                debug(`Cold times: [${coldTimes.join(', ')}] → median=${timeToReachManagedCold}`);
+            }
 
-            // Warm loads (external apps only)
+            // Warm loads (external apps only, median-of-N)
             let timeToReachManaged: number | null = null;
             if (!isInternal) {
-                let warmMin = Infinity;
+                const warmTimes: number[] = [];
                 for (let i = 0; i < warmRuns; i++) {
                     if (ctx.verbose) debug(`Warm load ${i + 1}/${warmRuns}: reloading...`);
                     await page.reload({ timeout, waitUntil: 'load' });
@@ -312,9 +333,14 @@ async function measureBrowser(
                     );
                     const warm = warmResults['time-to-reach-managed'];
                     if (ctx.verbose) debug(`Warm load ${i + 1}/${warmRuns}: time-to-reach-managed=${warm}`);
-                    if (warm != null && warm < warmMin) warmMin = warm;
+                    if (warm != null) warmTimes.push(warm);
                 }
-                timeToReachManaged = Number.isFinite(warmMin) ? warmMin : null;
+                timeToReachManaged = warmTimes.length > 0
+                    ? median([...warmTimes].sort((a, b) => a - b))
+                    : null;
+                if (ctx.verbose && warmTimes.length > 1) {
+                    debug(`Warm times: [${warmTimes.join(', ')}] → median=${timeToReachManaged}`);
+                }
             }
 
             // Pizza walkthrough (blazing-pizza only, chrome, desktop profile)

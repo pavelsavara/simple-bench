@@ -51,7 +51,7 @@ export function formatStats(label: string, s: SampleStats): string {
 }
 
 /** Median of a pre-sorted array. */
-function median(sorted: number[]): number {
+export function median(sorted: number[]): number {
     const mid = Math.floor(sorted.length / 2);
     return sorted.length % 2 !== 0
         ? sorted[mid]
