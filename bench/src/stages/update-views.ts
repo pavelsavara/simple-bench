@@ -20,7 +20,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         repoRoot: ctx.repoRoot,
         dryRun: false,
         checkoutDir: 'gh-pages',
-        addPaths: ['data/'],
+        addPaths: ['data/views/'],
         commitMessage: `Update views ${new Date().toISOString().slice(0, 10)}`,
         label: 'Views',
     });
