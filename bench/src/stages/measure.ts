@@ -285,11 +285,22 @@ async function measureBrowser(
             // Additional cold loads in fresh contexts (median-of-N)
             const coldTimes: number[] = firstColdTime != null ? [firstColdTime] : [];
             if (!isInternal) {
+                const throttle = PROFILES[profile];
                 for (let i = 1; i < warmRuns; i++) {
                     if (ctx.verbose) debug(`Cold load ${i + 1}/${warmRuns}: fresh context...`);
                     const coldCtx = await browser.newContext();
                     const coldPage = await coldCtx.newPage();
                     try {
+                        // Apply throttle profile to cold-load context (CDP only)
+                        if (useCDP && throttle) {
+                            const coldClient = await coldCtx.newCDPSession(coldPage);
+                            if (throttle.network) {
+                                await coldClient.send('Network.emulateNetworkConditions', { ...throttle.network });
+                            }
+                            if (throttle.cpu) {
+                                await coldClient.send('Emulation.setCPUThrottlingRate', { ...throttle.cpu });
+                            }
+                        }
                         await coldPage.goto(pageUrl, { timeout, waitUntil: 'load' });
                         await coldPage.waitForFunction(
                             () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
