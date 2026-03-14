@@ -1,5 +1,5 @@
 import { createServer, type Server, type IncomingMessage, type ServerResponse } from 'node:http';
-import { readFile, readdir, stat } from 'node:fs/promises';
+import { readFile, readdir, stat, access } from 'node:fs/promises';
 import { join, extname, resolve, normalize } from 'node:path';
 import type { SdkInfo } from '../context.js';
 import type { MetricKey } from '../enums.js';
@@ -60,18 +60,34 @@ export function startStaticServer(webRoot: string, port = 0): Promise<StaticServ
                     return;
                 }
 
-                const content = await readFile(filePath);
                 const ext = extname(filePath).toLowerCase();
                 const mime = MIME_TYPES[ext] ?? 'application/octet-stream';
 
-                res.writeHead(200, {
+                // Negotiate pre-compressed variants (.br / .gz on disk)
+                const accept = req.headers['accept-encoding'] || '';
+                let servePath = filePath;
+                let encoding: string | undefined;
+                if (accept.includes('br')) {
+                    try { await access(filePath + '.br'); servePath = filePath + '.br'; encoding = 'br'; }
+                    catch { /* no .br variant */ }
+                }
+                if (!encoding && accept.includes('gzip')) {
+                    try { await access(filePath + '.gz'); servePath = filePath + '.gz'; encoding = 'gzip'; }
+                    catch { /* no .gz variant */ }
+                }
+
+                const content = await readFile(servePath);
+                const headers: Record<string, string | number> = {
                     'Content-Type': mime,
                     'Content-Length': content.length,
                     'Cross-Origin-Opener-Policy': 'same-origin',
                     'Cross-Origin-Embedder-Policy': 'require-corp',
                     'Timing-Allow-Origin': '*',
                     'Cache-Control': 'no-cache',
-                });
+                };
+                if (encoding) headers['Content-Encoding'] = encoding;
+
+                res.writeHead(200, headers);
                 res.end(content);
             } catch (e: unknown) {
                 const code = (e as NodeJS.ErrnoException).code;
