@@ -2,6 +2,1305 @@
   "month": "2026-01",
   "commits": [
     {
+      "runtimeGitHash": "dc5fd7a8dce8309e4add8fd4bd5d8718f221b15a",
+      "aspnetCoreGitHash": "d4361d83777feb859fcf453b00f966325ea40e9a",
+      "sdkGitHash": "2f84158d51768d1a7b42961611a2adc4a8979a6b",
+      "vmrGitHash": "c2435c3e0f46de784341ac3ed62863ce77e117b4",
+      "runtimeCommitDateTime": "2026-01-12T22:49:49Z",
+      "runtimeCommitAuthor": "dotnet-maestro[bot]",
+      "runtimeCommitMessage": "[release/10.0] Source code updates from dotnet/dotnet (#122554)",
+      "aspnetCoreCommitDateTime": "2026-01-15T20:14:39Z",
+      "aspnetCoreVersion": "10.0.3",
+      "sdkVersion": "10.0.103",
+      "runtimePackVersion": "10.0.3",
+      "workloadVersion": "10.0.105",
+      "results": [
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "profile": "desktop",
+          "engine": "chrome",
+          "app": "blazing-pizza",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_aot_desktop_chrome_blazing-pizza.json",
+          "metrics": {
+            "compile-time": 186312,
+            "disk-size-native": 3765747,
+            "disk-size-assemblies": 1039768,
+            "download-size-total": 63344720,
+            "time-to-reach-managed-warm": 341,
+            "time-to-reach-managed-cold": 545,
+            "time-to-create-dotnet-warm": 263,
+            "time-to-create-dotnet-cold": 325,
+            "wasm-memory-size": 40304640,
+            "memory-peak": 36649848,
+            "pizza-walkthrough": 3375
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "profile": "desktop",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_aot_desktop_chrome_empty-blazor.json",
+          "metrics": {
+            "compile-time": 159861,
+            "disk-size-native": 3224093,
+            "disk-size-assemblies": 852183,
+            "download-size-total": 26284398,
+            "time-to-reach-managed-warm": 298,
+            "time-to-reach-managed-cold": 482,
+            "time-to-create-dotnet-warm": 217,
+            "time-to-create-dotnet-cold": 252,
+            "wasm-memory-size": 40304640,
+            "memory-peak": 25751692
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "profile": "desktop",
+          "engine": "chrome",
+          "app": "havit-bootstrap",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_aot_desktop_chrome_havit-bootstrap.json",
+          "metrics": {
+            "compile-time": 281695,
+            "disk-size-native": 5190245,
+            "disk-size-assemblies": 1648329,
+            "download-size-total": 145254739,
+            "time-to-reach-managed-warm": 431,
+            "time-to-reach-managed-cold": 603,
+            "time-to-create-dotnet-warm": 333,
+            "time-to-create-dotnet-cold": 374,
+            "wasm-memory-size": 48365568,
+            "memory-peak": 47184260,
+            "havit-walkthrough": 8761
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "profile": "desktop",
+          "engine": "chrome",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_aot_desktop_chrome_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 78102,
+            "memory-peak": 7874244,
+            "time-to-create-dotnet-cold": 164,
+            "time-to-exit-cold": 42216,
+            "wasm-memory-size": 360185856,
+            "js-interop-ops": 1983967,
+            "json-parse-ops": 423518,
+            "exception-ops": 157
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "profile": "desktop",
+          "engine": "firefox",
+          "app": "blazing-pizza",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_aot_desktop_firefox_blazing-pizza.json",
+          "metrics": {
+            "compile-time": 186312,
+            "disk-size-native": 3765747,
+            "disk-size-assemblies": 1039768,
+            "time-to-reach-managed-warm": 1159,
+            "time-to-reach-managed-cold": 1184,
+            "time-to-create-dotnet-warm": 652,
+            "time-to-create-dotnet-cold": 671,
+            "wasm-memory-size": 40304640
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "profile": "desktop",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_aot_desktop_firefox_empty-blazor.json",
+          "metrics": {
+            "compile-time": 159861,
+            "disk-size-native": 3224093,
+            "disk-size-assemblies": 852183,
+            "time-to-reach-managed-warm": 1012,
+            "time-to-reach-managed-cold": 1028,
+            "time-to-create-dotnet-warm": 533,
+            "time-to-create-dotnet-cold": 548,
+            "wasm-memory-size": 40304640
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "profile": "desktop",
+          "engine": "firefox",
+          "app": "havit-bootstrap",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_aot_desktop_firefox_havit-bootstrap.json",
+          "metrics": {
+            "compile-time": 281695,
+            "disk-size-native": 5190245,
+            "disk-size-assemblies": 1648329,
+            "time-to-reach-managed-warm": 1476,
+            "time-to-reach-managed-cold": 1480,
+            "time-to-create-dotnet-warm": 931,
+            "time-to-create-dotnet-cold": 925,
+            "wasm-memory-size": 48365568
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "profile": "desktop",
+          "engine": "firefox",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_aot_desktop_firefox_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 78102,
+            "time-to-create-dotnet-cold": 352,
+            "time-to-exit-cold": 42933,
+            "wasm-memory-size": 48365568,
+            "js-interop-ops": 1005447,
+            "json-parse-ops": 22332,
+            "exception-ops": 9
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "profile": "desktop",
+          "engine": "node",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_aot_desktop_node_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 78102,
+            "time-to-create-dotnet-warm": 111,
+            "time-to-create-dotnet-cold": 111,
+            "time-to-exit-warm": 42161,
+            "time-to-exit-cold": 42161,
+            "wasm-memory-size": 360185856,
+            "js-interop-ops": 2933140,
+            "json-parse-ops": 405314,
+            "exception-ops": 150
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "profile": "desktop",
+          "engine": "v8",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_aot_desktop_v8_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 78102,
+            "time-to-create-dotnet-warm": 101,
+            "time-to-create-dotnet-cold": 101,
+            "time-to-exit-warm": 42155,
+            "time-to-exit-cold": 42155,
+            "wasm-memory-size": 360185856,
+            "js-interop-ops": 3234273,
+            "json-parse-ops": 469066,
+            "exception-ops": 157
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "profile": "mobile",
+          "engine": "chrome",
+          "app": "blazing-pizza",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_aot_mobile_chrome_blazing-pizza.json",
+          "metrics": {
+            "compile-time": 186312,
+            "disk-size-native": 3765747,
+            "disk-size-assemblies": 1039768,
+            "download-size-total": 32687452,
+            "time-to-reach-managed-warm": 2821,
+            "time-to-reach-managed-cold": 3363,
+            "time-to-create-dotnet-warm": 2535,
+            "time-to-create-dotnet-cold": 2636,
+            "wasm-memory-size": 40304640,
+            "memory-peak": 20682656
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "profile": "mobile",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_aot_mobile_chrome_empty-blazor.json",
+          "metrics": {
+            "compile-time": 159861,
+            "disk-size-native": 3224093,
+            "disk-size-assemblies": 852183,
+            "download-size-total": 26284398,
+            "time-to-reach-managed-warm": 2449,
+            "time-to-reach-managed-cold": 3019,
+            "time-to-create-dotnet-warm": 2180,
+            "time-to-create-dotnet-cold": 2290,
+            "wasm-memory-size": 40304640,
+            "memory-peak": 20959584
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "profile": "mobile",
+          "engine": "chrome",
+          "app": "havit-bootstrap",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_aot_mobile_chrome_havit-bootstrap.json",
+          "metrics": {
+            "compile-time": 281695,
+            "disk-size-native": 5190245,
+            "disk-size-assemblies": 1648329,
+            "download-size-total": 48606494,
+            "time-to-reach-managed-warm": 3813,
+            "time-to-reach-managed-cold": 4454,
+            "time-to-create-dotnet-warm": 3511,
+            "time-to-create-dotnet-cold": 3680,
+            "wasm-memory-size": 48365568,
+            "memory-peak": 18366856
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "aot",
+          "profile": "mobile",
+          "engine": "chrome",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_aot_mobile_chrome_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 78102,
+            "memory-peak": 7960072,
+            "time-to-create-dotnet-cold": 1304,
+            "time-to-exit-cold": 43463,
+            "wasm-memory-size": 120586240,
+            "js-interop-ops": 615480,
+            "json-parse-ops": 124179,
+            "exception-ops": 46
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "devloop",
+          "profile": "desktop",
+          "engine": "chrome",
+          "app": "blazing-pizza",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_devloop_desktop_chrome_blazing-pizza.json",
+          "metrics": {
+            "compile-time": 3333,
+            "disk-size-native": 3001993,
+            "disk-size-assemblies": 24244512,
+            "download-size-total": 321136133,
+            "time-to-reach-managed-warm": 591,
+            "time-to-reach-managed-cold": 748,
+            "time-to-create-dotnet-warm": 406,
+            "time-to-create-dotnet-cold": 485,
+            "wasm-memory-size": 58064896,
+            "memory-peak": 10021344,
+            "pizza-walkthrough": 3564
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "devloop",
+          "profile": "desktop",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_devloop_desktop_chrome_empty-blazor.json",
+          "metrics": {
+            "compile-time": 4546,
+            "disk-size-native": 3001993,
+            "disk-size-assemblies": 23987424,
+            "download-size-total": 169975146,
+            "time-to-reach-managed-warm": 594,
+            "time-to-reach-managed-cold": 724,
+            "time-to-create-dotnet-warm": 403,
+            "time-to-create-dotnet-cold": 469,
+            "wasm-memory-size": 58064896,
+            "memory-peak": 9048620
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "devloop",
+          "profile": "desktop",
+          "engine": "chrome",
+          "app": "havit-bootstrap",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_devloop_desktop_chrome_havit-bootstrap.json",
+          "metrics": {
+            "compile-time": 8887,
+            "disk-size-native": 3001993,
+            "disk-size-assemblies": 26663664,
+            "download-size-total": 423023361,
+            "time-to-reach-managed-warm": 699,
+            "time-to-reach-managed-cold": 776,
+            "time-to-create-dotnet-warm": 490,
+            "time-to-create-dotnet-cold": 492,
+            "wasm-memory-size": 58064896,
+            "memory-peak": 41843728,
+            "havit-walkthrough": 11006
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "devloop",
+          "profile": "desktop",
+          "engine": "chrome",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_devloop_desktop_chrome_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 5034,
+            "memory-peak": 6434820,
+            "time-to-create-dotnet-cold": 578,
+            "time-to-exit-cold": 42646,
+            "wasm-memory-size": 58064896,
+            "js-interop-ops": 1572332,
+            "json-parse-ops": 81575,
+            "exception-ops": 409
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "devloop",
+          "profile": "desktop",
+          "engine": "firefox",
+          "app": "blazing-pizza",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_devloop_desktop_firefox_blazing-pizza.json",
+          "metrics": {
+            "compile-time": 3333,
+            "disk-size-native": 3001993,
+            "disk-size-assemblies": 24244512,
+            "time-to-reach-managed-warm": 1913,
+            "time-to-reach-managed-cold": 1909,
+            "time-to-create-dotnet-warm": 673,
+            "time-to-create-dotnet-cold": 680,
+            "wasm-memory-size": 58195968
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "devloop",
+          "profile": "desktop",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_devloop_desktop_firefox_empty-blazor.json",
+          "metrics": {
+            "compile-time": 4546,
+            "disk-size-native": 3001993,
+            "disk-size-assemblies": 23987424,
+            "time-to-reach-managed-warm": 1901,
+            "time-to-reach-managed-cold": 1908,
+            "time-to-create-dotnet-warm": 687,
+            "time-to-create-dotnet-cold": 681,
+            "wasm-memory-size": 58064896
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "devloop",
+          "profile": "desktop",
+          "engine": "firefox",
+          "app": "havit-bootstrap",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_devloop_desktop_firefox_havit-bootstrap.json",
+          "metrics": {
+            "compile-time": 8887,
+            "disk-size-native": 3001993,
+            "disk-size-assemblies": 26663664,
+            "time-to-reach-managed-warm": 1975,
+            "time-to-reach-managed-cold": 1943,
+            "time-to-create-dotnet-warm": 735,
+            "time-to-create-dotnet-cold": 696,
+            "wasm-memory-size": 58064896
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "devloop",
+          "profile": "desktop",
+          "engine": "firefox",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_devloop_desktop_firefox_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 5034,
+            "time-to-create-dotnet-cold": 664,
+            "time-to-exit-cold": 42928,
+            "wasm-memory-size": 48365568,
+            "js-interop-ops": 810090,
+            "json-parse-ops": 7508,
+            "exception-ops": 29
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "devloop",
+          "profile": "desktop",
+          "engine": "node",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_devloop_desktop_node_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 5034,
+            "time-to-create-dotnet-warm": 184,
+            "time-to-create-dotnet-cold": 184,
+            "time-to-exit-warm": 42262,
+            "time-to-exit-cold": 42262,
+            "wasm-memory-size": 58064896,
+            "js-interop-ops": 2359415,
+            "json-parse-ops": 81049,
+            "exception-ops": 375
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "devloop",
+          "profile": "desktop",
+          "engine": "v8",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_devloop_desktop_v8_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 5034,
+            "time-to-create-dotnet-warm": 155,
+            "time-to-create-dotnet-cold": 155,
+            "time-to-exit-warm": 42247,
+            "time-to-exit-cold": 42247,
+            "wasm-memory-size": 58064896,
+            "js-interop-ops": 2554226,
+            "json-parse-ops": 82659,
+            "exception-ops": 410
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "devloop",
+          "profile": "mobile",
+          "engine": "chrome",
+          "app": "blazing-pizza",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_devloop_mobile_chrome_blazing-pizza.json",
+          "metrics": {
+            "compile-time": 3333,
+            "disk-size-native": 3001993,
+            "disk-size-assemblies": 24244512,
+            "download-size-total": 172946320,
+            "time-to-reach-managed-warm": 12353,
+            "time-to-reach-managed-cold": 12613,
+            "time-to-create-dotnet-warm": 11665,
+            "time-to-create-dotnet-cold": 11664,
+            "wasm-memory-size": 58064896,
+            "memory-peak": 5792444
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "devloop",
+          "profile": "mobile",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_devloop_mobile_chrome_empty-blazor.json",
+          "metrics": {
+            "compile-time": 4546,
+            "disk-size-native": 3001993,
+            "disk-size-assemblies": 23987424,
+            "download-size-total": 169975146,
+            "time-to-reach-managed-warm": 12249,
+            "time-to-reach-managed-cold": 12493,
+            "time-to-create-dotnet-warm": 11556,
+            "time-to-create-dotnet-cold": 11549,
+            "wasm-memory-size": 58064896,
+            "memory-peak": 5752324
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "devloop",
+          "profile": "mobile",
+          "engine": "chrome",
+          "app": "havit-bootstrap",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_devloop_mobile_chrome_havit-bootstrap.json",
+          "metrics": {
+            "compile-time": 8887,
+            "disk-size-native": 3001993,
+            "disk-size-assemblies": 26663664,
+            "download-size-total": 200505281,
+            "time-to-reach-managed-warm": 13791,
+            "time-to-reach-managed-cold": 14095,
+            "time-to-create-dotnet-warm": 13136,
+            "time-to-create-dotnet-cold": 13146,
+            "wasm-memory-size": 58064896,
+            "memory-peak": 9566752
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "devloop",
+          "profile": "mobile",
+          "engine": "chrome",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_devloop_mobile_chrome_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 5034,
+            "memory-peak": 5413380,
+            "time-to-create-dotnet-cold": 10716,
+            "time-to-exit-cold": 52907,
+            "wasm-memory-size": 48365568,
+            "js-interop-ops": 513432,
+            "json-parse-ops": 23552,
+            "exception-ops": 124
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "invariant",
+          "profile": "desktop",
+          "engine": "chrome",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_invariant_desktop_chrome_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 15886,
+            "memory-peak": 6216260,
+            "time-to-create-dotnet-cold": 130,
+            "time-to-exit-cold": 42208,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 1671106,
+            "json-parse-ops": 84166,
+            "exception-ops": 397
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "invariant",
+          "profile": "desktop",
+          "engine": "firefox",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_invariant_desktop_firefox_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 15886,
+            "time-to-create-dotnet-cold": 165,
+            "time-to-exit-cold": 42485,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 743654,
+            "json-parse-ops": 7440,
+            "exception-ops": 30
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "invariant",
+          "profile": "desktop",
+          "engine": "node",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_invariant_desktop_node_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 15886,
+            "time-to-create-dotnet-warm": 105,
+            "time-to-create-dotnet-cold": 105,
+            "time-to-exit-warm": 42188,
+            "time-to-exit-cold": 42188,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 2430275,
+            "json-parse-ops": 82168,
+            "exception-ops": 394
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "invariant",
+          "profile": "desktop",
+          "engine": "v8",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_invariant_desktop_v8_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 15886,
+            "time-to-create-dotnet-warm": 95,
+            "time-to-create-dotnet-cold": 95,
+            "time-to-exit-warm": 42163,
+            "time-to-exit-cold": 42163,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 2465599,
+            "json-parse-ops": 85729,
+            "exception-ops": 404
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "invariant",
+          "profile": "mobile",
+          "engine": "chrome",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_invariant_mobile_chrome_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 15886,
+            "memory-peak": 5772100,
+            "time-to-create-dotnet-cold": 633,
+            "time-to-exit-cold": 42821,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 523026,
+            "json-parse-ops": 23781,
+            "exception-ops": 122
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "native-relink",
+          "profile": "desktop",
+          "engine": "chrome",
+          "app": "havit-bootstrap",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_native-relink_desktop_chrome_havit-bootstrap.json",
+          "metrics": {
+            "compile-time": 41177,
+            "disk-size-native": 933531,
+            "disk-size-assemblies": 2120134,
+            "download-size-total": 103607386,
+            "time-to-reach-managed-warm": 404,
+            "time-to-reach-managed-cold": 552,
+            "time-to-create-dotnet-warm": 229,
+            "time-to-create-dotnet-cold": 270,
+            "wasm-memory-size": 40304640,
+            "memory-peak": 41747708,
+            "havit-walkthrough": 11126
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "native-relink",
+          "profile": "desktop",
+          "engine": "chrome",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_native-relink_desktop_chrome_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 24786,
+            "memory-peak": 6208100,
+            "time-to-create-dotnet-cold": 162,
+            "time-to-exit-cold": 42249,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 1692575,
+            "json-parse-ops": 83902,
+            "exception-ops": 407
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "native-relink",
+          "profile": "desktop",
+          "engine": "firefox",
+          "app": "havit-bootstrap",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_native-relink_desktop_firefox_havit-bootstrap.json",
+          "metrics": {
+            "compile-time": 41177,
+            "disk-size-native": 933531,
+            "disk-size-assemblies": 2120134,
+            "time-to-reach-managed-warm": 1523,
+            "time-to-reach-managed-cold": 1551,
+            "time-to-create-dotnet-warm": 309,
+            "time-to-create-dotnet-cold": 320,
+            "wasm-memory-size": 40304640
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "native-relink",
+          "profile": "desktop",
+          "engine": "firefox",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_native-relink_desktop_firefox_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 24786,
+            "time-to-create-dotnet-cold": 202,
+            "time-to-exit-cold": 42484,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 758392,
+            "json-parse-ops": 7427,
+            "exception-ops": 29
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "native-relink",
+          "profile": "desktop",
+          "engine": "node",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_native-relink_desktop_node_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 24786,
+            "time-to-create-dotnet-warm": 113,
+            "time-to-create-dotnet-cold": 113,
+            "time-to-exit-warm": 42195,
+            "time-to-exit-cold": 42195,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 2372197,
+            "json-parse-ops": 85325,
+            "exception-ops": 385
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "native-relink",
+          "profile": "desktop",
+          "engine": "v8",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_native-relink_desktop_v8_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 24786,
+            "time-to-create-dotnet-warm": 95,
+            "time-to-create-dotnet-cold": 95,
+            "time-to-exit-warm": 42162,
+            "time-to-exit-cold": 42162,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 2521521,
+            "json-parse-ops": 85817,
+            "exception-ops": 401
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "native-relink",
+          "profile": "mobile",
+          "engine": "chrome",
+          "app": "havit-bootstrap",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_native-relink_mobile_chrome_havit-bootstrap.json",
+          "metrics": {
+            "compile-time": 41177,
+            "disk-size-native": 933531,
+            "disk-size-assemblies": 2120134,
+            "download-size-total": 26292791,
+            "time-to-reach-managed-warm": 2524,
+            "time-to-reach-managed-cold": 2885,
+            "time-to-create-dotnet-warm": 1927,
+            "time-to-create-dotnet-cold": 1950,
+            "wasm-memory-size": 40304640,
+            "memory-peak": 14204248
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "native-relink",
+          "profile": "mobile",
+          "engine": "chrome",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_native-relink_mobile_chrome_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 24786,
+            "memory-peak": 6099864,
+            "time-to-create-dotnet-cold": 943,
+            "time-to-exit-cold": 43104,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 525554,
+            "json-parse-ops": 23655,
+            "exception-ops": 125
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-jiterp",
+          "profile": "desktop",
+          "engine": "chrome",
+          "app": "havit-bootstrap",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-jiterp_desktop_chrome_havit-bootstrap.json",
+          "metrics": {
+            "compile-time": 46587,
+            "disk-size-native": 933531,
+            "disk-size-assemblies": 2120164,
+            "download-size-total": 103608255,
+            "time-to-reach-managed-warm": 378,
+            "time-to-reach-managed-cold": 561,
+            "time-to-create-dotnet-warm": 211,
+            "time-to-create-dotnet-cold": 282,
+            "wasm-memory-size": 40304640,
+            "memory-peak": 39469520,
+            "havit-walkthrough": 10661
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-jiterp",
+          "profile": "desktop",
+          "engine": "chrome",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-jiterp_desktop_chrome_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 24252,
+            "memory-peak": 4913348,
+            "time-to-create-dotnet-cold": 140,
+            "time-to-exit-cold": 42219,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 1578851,
+            "json-parse-ops": 24430,
+            "exception-ops": 354
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-jiterp",
+          "profile": "desktop",
+          "engine": "firefox",
+          "app": "havit-bootstrap",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-jiterp_desktop_firefox_havit-bootstrap.json",
+          "metrics": {
+            "compile-time": 46587,
+            "disk-size-native": 933531,
+            "disk-size-assemblies": 2120164,
+            "time-to-reach-managed-warm": 1518,
+            "time-to-reach-managed-cold": 1561,
+            "time-to-create-dotnet-warm": 305,
+            "time-to-create-dotnet-cold": 336,
+            "wasm-memory-size": 40304640
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-jiterp",
+          "profile": "desktop",
+          "engine": "firefox",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-jiterp_desktop_firefox_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 24252,
+            "time-to-create-dotnet-cold": 220,
+            "time-to-exit-cold": 42416,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 629828,
+            "json-parse-ops": 7526,
+            "exception-ops": 33
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-jiterp",
+          "profile": "desktop",
+          "engine": "node",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-jiterp_desktop_node_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 24252,
+            "time-to-create-dotnet-warm": 110,
+            "time-to-create-dotnet-cold": 110,
+            "time-to-exit-warm": 42181,
+            "time-to-exit-cold": 42181,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 2193023,
+            "json-parse-ops": 23938,
+            "exception-ops": 343
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-jiterp",
+          "profile": "desktop",
+          "engine": "v8",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-jiterp_desktop_v8_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 24252,
+            "time-to-create-dotnet-warm": 98,
+            "time-to-create-dotnet-cold": 98,
+            "time-to-exit-warm": 42170,
+            "time-to-exit-cold": 42170,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 2225832,
+            "json-parse-ops": 24368,
+            "exception-ops": 337
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-jiterp",
+          "profile": "mobile",
+          "engine": "chrome",
+          "app": "havit-bootstrap",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-jiterp_mobile_chrome_havit-bootstrap.json",
+          "metrics": {
+            "compile-time": 46587,
+            "disk-size-native": 933531,
+            "disk-size-assemblies": 2120164,
+            "download-size-total": 26427610,
+            "time-to-reach-managed-warm": 2530,
+            "time-to-reach-managed-cold": 2872,
+            "time-to-create-dotnet-warm": 1924,
+            "time-to-create-dotnet-cold": 1951,
+            "wasm-memory-size": 40304640,
+            "memory-peak": 11736348
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-jiterp",
+          "profile": "mobile",
+          "engine": "chrome",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-jiterp_mobile_chrome_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 24252,
+            "memory-peak": 4881660,
+            "time-to-create-dotnet-cold": 950,
+            "time-to-exit-cold": 43131,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 481890,
+            "json-parse-ops": 7223,
+            "exception-ops": 105
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-reflection-emit",
+          "profile": "desktop",
+          "engine": "chrome",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-reflection-emit_desktop_chrome_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 15535,
+            "memory-peak": 5981284,
+            "time-to-create-dotnet-cold": 119,
+            "time-to-exit-cold": 42192,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 1689200,
+            "json-parse-ops": 81735,
+            "exception-ops": 394
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-reflection-emit",
+          "profile": "desktop",
+          "engine": "firefox",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-reflection-emit_desktop_firefox_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 15535,
+            "time-to-create-dotnet-cold": 164,
+            "time-to-exit-cold": 42386,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 763641,
+            "json-parse-ops": 7517,
+            "exception-ops": 31
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-reflection-emit",
+          "profile": "desktop",
+          "engine": "node",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-reflection-emit_desktop_node_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 15535,
+            "time-to-create-dotnet-warm": 103,
+            "time-to-create-dotnet-cold": 103,
+            "time-to-exit-warm": 42182,
+            "time-to-exit-cold": 42182,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 2379840,
+            "json-parse-ops": 83898,
+            "exception-ops": 392
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-reflection-emit",
+          "profile": "desktop",
+          "engine": "v8",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-reflection-emit_desktop_v8_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 15535,
+            "time-to-create-dotnet-warm": 88,
+            "time-to-create-dotnet-cold": 88,
+            "time-to-exit-warm": 42155,
+            "time-to-exit-cold": 42155,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 2520916,
+            "json-parse-ops": 86523,
+            "exception-ops": 401
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-reflection-emit",
+          "profile": "mobile",
+          "engine": "chrome",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-reflection-emit_mobile_chrome_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 15535,
+            "memory-peak": 5881488,
+            "time-to-create-dotnet-cold": 598,
+            "time-to-exit-cold": 42764,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 512162,
+            "json-parse-ops": 23498,
+            "exception-ops": 121
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "profile": "desktop",
+          "engine": "chrome",
+          "app": "blazing-pizza",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-workload_desktop_chrome_blazing-pizza.json",
+          "metrics": {
+            "compile-time": 26077,
+            "disk-size-native": 977122,
+            "disk-size-assemblies": 1361149,
+            "download-size-total": 36059396,
+            "time-to-reach-managed-warm": 343,
+            "time-to-reach-managed-cold": 520,
+            "time-to-create-dotnet-warm": 174,
+            "time-to-create-dotnet-cold": 223,
+            "wasm-memory-size": 33554432,
+            "memory-peak": 13366436,
+            "pizza-walkthrough": 3533
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "profile": "desktop",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-workload_desktop_chrome_empty-blazor.json",
+          "metrics": {
+            "compile-time": 30450,
+            "disk-size-native": 977122,
+            "disk-size-assemblies": 1113194,
+            "download-size-total": 14290560,
+            "time-to-reach-managed-warm": 304,
+            "time-to-reach-managed-cold": 547,
+            "time-to-create-dotnet-warm": 142,
+            "time-to-create-dotnet-cold": 216,
+            "wasm-memory-size": 33554432,
+            "memory-peak": 9713012
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "profile": "desktop",
+          "engine": "chrome",
+          "app": "havit-bootstrap",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-workload_desktop_chrome_havit-bootstrap.json",
+          "metrics": {
+            "compile-time": 40713,
+            "disk-size-native": 977122,
+            "disk-size-assemblies": 2118435,
+            "download-size-total": 103853302,
+            "time-to-reach-managed-warm": 364,
+            "time-to-reach-managed-cold": 533,
+            "time-to-create-dotnet-warm": 203,
+            "time-to-create-dotnet-cold": 268,
+            "wasm-memory-size": 40304640,
+            "memory-peak": 41577328,
+            "havit-walkthrough": 10755
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "profile": "desktop",
+          "engine": "chrome",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-workload_desktop_chrome_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 16898,
+            "memory-peak": 6266900,
+            "time-to-create-dotnet-cold": 146,
+            "time-to-exit-cold": 42218,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 1717252,
+            "json-parse-ops": 80411,
+            "exception-ops": 428
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "profile": "desktop",
+          "engine": "firefox",
+          "app": "blazing-pizza",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-workload_desktop_firefox_blazing-pizza.json",
+          "metrics": {
+            "compile-time": 26077,
+            "disk-size-native": 977122,
+            "disk-size-assemblies": 1361149,
+            "time-to-reach-managed-warm": 1406,
+            "time-to-reach-managed-cold": 1444,
+            "time-to-create-dotnet-warm": 269,
+            "time-to-create-dotnet-cold": 292,
+            "wasm-memory-size": 33554432
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "profile": "desktop",
+          "engine": "firefox",
+          "app": "empty-blazor",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-workload_desktop_firefox_empty-blazor.json",
+          "metrics": {
+            "compile-time": 30450,
+            "disk-size-native": 977122,
+            "disk-size-assemblies": 1113194,
+            "time-to-reach-managed-warm": 1327,
+            "time-to-reach-managed-cold": 1370,
+            "time-to-create-dotnet-warm": 236,
+            "time-to-create-dotnet-cold": 258,
+            "wasm-memory-size": 33554432
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "profile": "desktop",
+          "engine": "firefox",
+          "app": "havit-bootstrap",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-workload_desktop_firefox_havit-bootstrap.json",
+          "metrics": {
+            "compile-time": 40713,
+            "disk-size-native": 977122,
+            "disk-size-assemblies": 2118435,
+            "time-to-reach-managed-warm": 1046,
+            "time-to-reach-managed-cold": 1061,
+            "time-to-create-dotnet-warm": 290,
+            "time-to-create-dotnet-cold": 305,
+            "wasm-memory-size": 40304640
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "profile": "desktop",
+          "engine": "firefox",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-workload_desktop_firefox_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 16898,
+            "time-to-create-dotnet-cold": 207,
+            "time-to-exit-cold": 42496,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 811183,
+            "json-parse-ops": 7443,
+            "exception-ops": 32
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "profile": "desktop",
+          "engine": "node",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-workload_desktop_node_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 16898,
+            "time-to-create-dotnet-warm": 115,
+            "time-to-create-dotnet-cold": 115,
+            "time-to-exit-warm": 42179,
+            "time-to-exit-cold": 42179,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 2366499,
+            "json-parse-ops": 79082,
+            "exception-ops": 407
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "profile": "desktop",
+          "engine": "v8",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-workload_desktop_v8_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 16898,
+            "time-to-create-dotnet-warm": 96,
+            "time-to-create-dotnet-cold": 96,
+            "time-to-exit-warm": 42161,
+            "time-to-exit-cold": 42161,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 2528824,
+            "json-parse-ops": 83960,
+            "exception-ops": 422
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "profile": "mobile",
+          "engine": "chrome",
+          "app": "blazing-pizza",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-workload_mobile_chrome_blazing-pizza.json",
+          "metrics": {
+            "compile-time": 26077,
+            "disk-size-native": 977122,
+            "disk-size-assemblies": 1361149,
+            "download-size-total": 18928172,
+            "time-to-reach-managed-warm": 1901,
+            "time-to-reach-managed-cold": 2354,
+            "time-to-create-dotnet-warm": 1291,
+            "time-to-create-dotnet-cold": 1407,
+            "wasm-memory-size": 33554432,
+            "memory-peak": 8185800
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "profile": "mobile",
+          "engine": "chrome",
+          "app": "empty-blazor",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-workload_mobile_chrome_empty-blazor.json",
+          "metrics": {
+            "compile-time": 30450,
+            "disk-size-native": 977122,
+            "disk-size-assemblies": 1113194,
+            "download-size-total": 14290560,
+            "time-to-reach-managed-warm": 1772,
+            "time-to-reach-managed-cold": 2238,
+            "time-to-create-dotnet-warm": 1204,
+            "time-to-create-dotnet-cold": 1373,
+            "wasm-memory-size": 33554432,
+            "memory-peak": 10099740
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "profile": "mobile",
+          "engine": "chrome",
+          "app": "havit-bootstrap",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-workload_mobile_chrome_havit-bootstrap.json",
+          "metrics": {
+            "compile-time": 40713,
+            "disk-size-native": 977122,
+            "disk-size-assemblies": 2118435,
+            "download-size-total": 26023892,
+            "time-to-reach-managed-warm": 2445,
+            "time-to-reach-managed-cold": 2780,
+            "time-to-create-dotnet-warm": 1919,
+            "time-to-create-dotnet-cold": 1944,
+            "wasm-memory-size": 40304640,
+            "memory-peak": 12181960
+          }
+        },
+        {
+          "runtime": "mono",
+          "preset": "no-workload",
+          "profile": "mobile",
+          "engine": "chrome",
+          "app": "micro-benchmarks",
+          "file": "2026/2026-01-12/2026-01-12T22-49-49Z_dc5fd7a_mono_no-workload_mobile_chrome_micro-benchmarks.json",
+          "metrics": {
+            "compile-time": 16898,
+            "memory-peak": 6327056,
+            "time-to-create-dotnet-cold": 950,
+            "time-to-exit-cold": 43115,
+            "wasm-memory-size": 33554432,
+            "js-interop-ops": 525650,
+            "json-parse-ops": 23815,
+            "exception-ops": 132
+          }
+        }
+      ]
+    },
+    {
       "runtimeGitHash": "9ecbfd4f3f330dc9649bce49cb12570b19d48c87",
       "aspnetCoreGitHash": "087328de5f1e0067be48d87295ae8d92064a1535",
       "sdkGitHash": "354186e528a59602c3f93ce4a3bc0cd51ba63754",
