@@ -65,7 +65,6 @@ export interface BenchContext {
 
     // ── Consolidation ──
     artifactsInputDir?: string;
-    dataDir?: string;
 
     // ── Scheduling ──
     maxDispatches: number;

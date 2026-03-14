@@ -51,7 +51,6 @@ Docker (only with --via-docker):
 
 Consolidation:
   --artifacts-dir <path>   CI artifacts input directory
-  --data-dir <path>        gh-pages data/ directory for view output
 
 Scheduling:
   --max-dispatches <n>     Max workflow dispatches (default: 1)
@@ -103,7 +102,6 @@ const ARG_OPTIONS = {
 
     // Consolidation
     'artifacts-dir': { type: 'string' as const, default: '' },
-    'data-dir': { type: 'string' as const, default: '' },
 
     // Scheduling
     'max-dispatches': { type: 'string' as const, default: '1' },
@@ -244,7 +242,6 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
 
         // Consolidation
         artifactsInputDir: values['artifacts-dir'] || undefined,
-        dataDir: values['data-dir'] || undefined,
 
         // Scheduling
         maxDispatches: parseIntStrict(values['max-dispatches']!, 'max-dispatches'),

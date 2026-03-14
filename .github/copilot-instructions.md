@@ -13,7 +13,7 @@ This is **simple-bench**, a .NET Browser WebAssembly benchmark suite. It builds 
 - **CI**: GitHub Actions — daily benchmark run, weekly Docker image rebuild
 - **Docker**: Multi-stage — `browser-bench-build` (SDK + emscripten) and `browser-bench-measure` (Playwright + d8)
 - **Data storage**: `gh-pages` branch — JSON result files, month indexes, pivot-table views
-- **Dashboard**: Static HTML + Svelte app in `gh-pages/app/`
+- **Dashboard**: Static HTML + Blazor app in `gh-pages/app/`
 
 ## Key Directories
 

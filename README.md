@@ -68,7 +68,7 @@ src/                .NET sample apps and MSBuild configuration
 docker/             Dockerfile (build + measure images) and entrypoint
 .github/workflows/  CI: benchmark.yml (daily), docker-build.yml, schedule.yml
 artifacts/          Build outputs, SDK cache, NuGet packages, results
-gh-pages/           Dashboard (index.html + Svelte app) and result data
+gh-pages/           Dashboard and result data
 docs/               Detailed documentation
 ```
 

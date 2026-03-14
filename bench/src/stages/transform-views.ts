@@ -77,14 +77,14 @@ interface LoadedResult {
 
 export async function run(ctx: BenchContext): Promise<BenchContext> {
     // Ensure gh-pages is checked out (measure pipeline may not run check-out-data)
-    if (!ctx.dataDir) {
-        await ensureBranchCheckout(ctx.repoRoot, 'gh-pages', 'gh-pages', ctx.verbose);
-    }
+    await ensureBranchCheckout(ctx.repoRoot, 'gh-pages', 'gh-pages', ctx.verbose);
 
-    const dataDir = ctx.dataDir || join(ctx.repoRoot, 'gh-pages', 'data');
+    const dataDir = join(ctx.repoRoot, 'gh-pages', 'data');
+    const rawDir = join(dataDir, 'raw');
+    const viewsDir = join(dataDir, 'views');
 
-    await consolidateResults(ctx, dataDir);
-    await buildViews(ctx, dataDir);
+    await consolidateResults(ctx, rawDir);
+    await buildViews(ctx, rawDir, viewsDir);
 
     return ctx;
 }
@@ -274,16 +274,16 @@ function requireField(value: unknown, name: string, filename: string): asserts v
 
 // ── Phase 2: Build Views ─────────────────────────────────────────────────────
 
-async function buildViews(ctx: BenchContext, dataDir: string): Promise<void> {
+async function buildViews(ctx: BenchContext, rawDir: string, viewsDir: string): Promise<void> {
     banner('Build views');
 
     let monthFileNames: string[];
     try {
-        monthFileNames = (await readdir(dataDir))
+        monthFileNames = (await readdir(rawDir))
             .filter(f => /^\d{4}-\d{2}\.json$/.test(f))
             .sort();
     } catch {
-        info('No data directory — skipping view generation');
+        info('No raw data directory — skipping view generation');
         return;
     }
 
@@ -294,7 +294,7 @@ async function buildViews(ctx: BenchContext, dataDir: string): Promise<void> {
 
     const allMonths: MonthIndex[] = [];
     for (const f of monthFileNames) {
-        allMonths.push(JSON.parse(await readFile(join(dataDir, f), 'utf-8')));
+        allMonths.push(JSON.parse(await readFile(join(rawDir, f), 'utf-8')));
     }
 
     const allResults: LoadedResult[] = [];
@@ -360,8 +360,6 @@ async function buildViews(ctx: BenchContext, dataDir: string): Promise<void> {
         if (!releaseBuckets.has(release)) releaseBuckets.set(release, []);
         releaseBuckets.get(release)!.push(result);
     }
-
-    const viewsDir = join(dataDir, 'views');
 
     // Write week views
     const weekKeys = [...weekBuckets.keys()].sort().reverse();
