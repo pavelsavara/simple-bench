@@ -17,17 +17,17 @@
     "profile": "desktop",
     "engine": "firefox",
     "app": "havit-bootstrap",
-    "benchmarkDateTime": "2026-03-14T05:54:56.055Z",
+    "benchmarkDateTime": "2026-03-14T06:15:41.420Z",
     "warmRunCount": 3,
-    "ciRunId": "23081456500",
-    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23081456500"
+    "ciRunId": "23081799667",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23081799667"
   },
   "metrics": {
-    "compile-time": 7582,
+    "compile-time": 7928,
     "disk-size-total": 47167005,
     "disk-size-native": 2975279,
     "disk-size-assemblies": 25250200,
-    "time-to-reach-managed-warm": 1454,
-    "time-to-reach-managed-cold": 2019
+    "time-to-reach-managed-warm": 1029,
+    "time-to-reach-managed-cold": 1521
   }
 }

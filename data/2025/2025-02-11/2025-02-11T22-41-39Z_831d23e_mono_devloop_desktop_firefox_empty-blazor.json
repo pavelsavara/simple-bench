@@ -17,17 +17,17 @@
     "profile": "desktop",
     "engine": "firefox",
     "app": "empty-blazor",
-    "benchmarkDateTime": "2026-03-14T05:53:01.017Z",
+    "benchmarkDateTime": "2026-03-14T06:15:16.059Z",
     "warmRunCount": 3,
-    "ciRunId": "23081456500",
-    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23081456500"
+    "ciRunId": "23081799667",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23081799667"
   },
   "metrics": {
-    "compile-time": 4267,
+    "compile-time": 5195,
     "disk-size-total": 37346045,
     "disk-size-native": 2975279,
     "disk-size-assemblies": 22554096,
-    "time-to-reach-managed-warm": 1418,
-    "time-to-reach-managed-cold": 1986
+    "time-to-reach-managed-warm": 1447,
+    "time-to-reach-managed-cold": 2029
   }
 }

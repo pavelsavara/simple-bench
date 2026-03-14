@@ -17,16 +17,16 @@
     "profile": "desktop",
     "engine": "chrome",
     "app": "micro-benchmarks",
-    "benchmarkDateTime": "2026-03-14T05:53:08.478Z",
+    "benchmarkDateTime": "2026-03-14T06:15:32.519Z",
     "warmRunCount": 3,
-    "ciRunId": "23081456500",
-    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23081456500"
+    "ciRunId": "23081799667",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23081799667"
   },
   "metrics": {
-    "compile-time": 15898,
-    "memory-peak": 6272724,
-    "js-interop-ops": 1766359,
-    "json-parse-ops": 71175,
-    "exception-ops": 421
+    "compile-time": 16991,
+    "memory-peak": 6197240,
+    "js-interop-ops": 1766932,
+    "json-parse-ops": 74319,
+    "exception-ops": 409
   }
 }

@@ -17,15 +17,15 @@
     "profile": "desktop",
     "engine": "firefox",
     "app": "micro-benchmarks",
-    "benchmarkDateTime": "2026-03-14T05:54:40.119Z",
+    "benchmarkDateTime": "2026-03-14T06:17:04.169Z",
     "warmRunCount": 3,
-    "ciRunId": "23081456500",
-    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23081456500"
+    "ciRunId": "23081799667",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23081799667"
   },
   "metrics": {
-    "compile-time": 15898,
-    "js-interop-ops": 980325,
-    "json-parse-ops": 7235,
-    "exception-ops": 32
+    "compile-time": 16991,
+    "js-interop-ops": 1004935,
+    "json-parse-ops": 7540,
+    "exception-ops": 33
   }
 }

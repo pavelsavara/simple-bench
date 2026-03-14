@@ -17,19 +17,19 @@
     "profile": "mobile",
     "engine": "chrome",
     "app": "havit-bootstrap",
-    "benchmarkDateTime": "2026-03-14T05:53:12.740Z",
+    "benchmarkDateTime": "2026-03-14T06:15:10.158Z",
     "warmRunCount": 3,
-    "ciRunId": "23081456500",
-    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23081456500"
+    "ciRunId": "23081799667",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23081799667"
   },
   "metrics": {
-    "compile-time": 51919,
-    "disk-size-total": 38408580,
+    "compile-time": 51731,
+    "disk-size-total": 38408827,
     "disk-size-native": 2848959,
     "disk-size-assemblies": 7022165,
     "download-size-total": 19669844,
-    "time-to-reach-managed-warm": 1101,
-    "time-to-reach-managed-cold": 6069,
-    "memory-peak": 12941860
+    "time-to-reach-managed-warm": 1074,
+    "time-to-reach-managed-cold": 6018,
+    "memory-peak": 12954340
   }
 }
