@@ -80,7 +80,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         // Measure file sizes (once per app×preset, shared across engines)
         const fileSizes = isInternal ? null : await measureFileSizes(webRoot);
         if (ctx.verbose && fileSizes) {
-            debug(`File sizes — total: ${fileSizes.diskSizeTotal}, native: ${fileSizes.diskSizeNative}, assemblies: ${fileSizes.diskSizeAssemblies}`);
+            debug(`File sizes — native: ${fileSizes.diskSizeNative}, assemblies: ${fileSizes.diskSizeAssemblies}`);
         }
         const compileTime = entry.compileTimeMs;
 
@@ -177,7 +177,7 @@ async function measureBrowser(
     entry: BuildManifestEntry,
     webRoot: string,
     compileTime: number,
-    fileSizes: { diskSizeTotal: number; diskSizeNative: number; diskSizeAssemblies: number } | null,
+    fileSizes: { diskSizeNative: number; diskSizeAssemblies: number } | null,
     isInternal: boolean,
     ctx: BenchContext,
 ): Promise<Partial<Record<MetricKey, number | null>>> {
@@ -383,7 +383,6 @@ async function measureBrowser(
 
             return {
                 [MetricKey.CompileTime]: compileTime,
-                [MetricKey.DiskSizeTotal]: fileSizes!.diskSizeTotal,
                 [MetricKey.DiskSizeNative]: fileSizes!.diskSizeNative,
                 [MetricKey.DiskSizeAssemblies]: fileSizes!.diskSizeAssemblies,
                 [MetricKey.DownloadSizeTotal]: useCDP ? (downloadSizeTotal || null) : null,
@@ -415,7 +414,7 @@ async function measureCli(
     entry: BuildManifestEntry,
     webRoot: string,
     compileTime: number,
-    fileSizes: { diskSizeTotal: number; diskSizeNative: number; diskSizeAssemblies: number } | null,
+    fileSizes: { diskSizeNative: number; diskSizeAssemblies: number } | null,
     isInternal: boolean,
     ctx: BenchContext,
 ): Promise<Partial<Record<MetricKey, number | null>>> {
@@ -476,7 +475,6 @@ async function measureCli(
 
     return {
         [MetricKey.CompileTime]: compileTime,
-        [MetricKey.DiskSizeTotal]: fileSizes!.diskSizeTotal,
         [MetricKey.DiskSizeNative]: fileSizes!.diskSizeNative,
         [MetricKey.DiskSizeAssemblies]: fileSizes!.diskSizeAssemblies,
         [MetricKey.DownloadSizeTotal]: null,

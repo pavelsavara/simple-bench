@@ -12,7 +12,6 @@ export interface StaticServer {
 }
 
 export interface FileSizes {
-    diskSizeTotal: number;
     diskSizeNative: number;
     diskSizeAssemblies: number;
 }
@@ -108,7 +107,6 @@ export function startStaticServer(webRoot: string, port = 0): Promise<StaticServ
  * - dlls: *.dll files in _framework/
  */
 export async function measureFileSizes(webRoot: string): Promise<FileSizes> {
-    let diskSizeTotal = 0;
     let diskSizeNative = 0;
     let diskSizeAssemblies = 0;
 
@@ -118,7 +116,6 @@ export async function measureFileSizes(webRoot: string): Promise<FileSizes> {
         const parentPath = entry.parentPath || entry.path;
         const fullPath = join(parentPath, entry.name);
         const s = await stat(fullPath);
-        diskSizeTotal += s.size;
 
         // Check if file is inside _framework/ subdirectory
         const relativePath = fullPath.slice(webRoot.length);
@@ -134,7 +131,7 @@ export async function measureFileSizes(webRoot: string): Promise<FileSizes> {
         }
     }
 
-    return { diskSizeTotal, diskSizeNative: diskSizeNative, diskSizeAssemblies: diskSizeAssemblies };
+    return { diskSizeNative: diskSizeNative, diskSizeAssemblies: diskSizeAssemblies };
 }
 
 // ── Integrity Verification ───────────────────────────────────────────────────

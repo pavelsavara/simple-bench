@@ -42,7 +42,7 @@ public partial class Home : IAsyncDisposable
     // Metrics to skip for micro-benchmarks (build/disk not meaningful)
     private static readonly HashSet<string> MicrobenchSkipMetrics = new()
     {
-        "compile-time", "disk-size-total", "disk-size-native", "disk-size-assemblies","download-size-total"
+        "compile-time", "disk-size-native", "disk-size-assemblies","download-size-total"
     };
 
     // Preferred app display order
@@ -58,7 +58,7 @@ public partial class Home : IAsyncDisposable
         "pizza-walkthrough", "havit-walkthrough",
         "json-parse-ops", "js-interop-ops", "exception-ops",
         "time-to-reach-managed-cold", "time-to-reach-managed-warm",
-        "download-size-total", "disk-size-total", "disk-size-native", "disk-size-assemblies",
+        "download-size-total", "disk-size-native", "disk-size-assemblies",
         "memory-peak", "compile-time"
     };
 

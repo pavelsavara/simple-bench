@@ -55,7 +55,6 @@ export enum Stage {
 
 export enum MetricKey {
     CompileTime = 'compile-time',
-    DiskSizeTotal = 'disk-size-total',
     DiskSizeNative = 'disk-size-native',
     DiskSizeAssemblies = 'disk-size-assemblies',
     DownloadSizeTotal = 'download-size-total',

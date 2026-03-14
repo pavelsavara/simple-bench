@@ -90,7 +90,6 @@ These presets break Blazor's runtime reflection requirements.
 | Key | Display Name | Unit | Category | Source |
 |-----|-------------|------|----------|--------|
 | `compile-time` | Compile Time | ms | time | `dotnet publish` wall clock |
-| `disk-size-total` | Disk Size (Total) | bytes | size | Published output directory walk |
 | `disk-size-native` | Disk Size (WASM) | bytes | size | `*.wasm` files in `_framework/` |
 | `disk-size-assemblies` | Disk Size (DLLs) | bytes | size | `*.dll` files in `_framework/` |
 | `download-size-total` | Download Size (Total) | bytes | size | CDP `Network.loadingFinished` sum (Chrome only) |

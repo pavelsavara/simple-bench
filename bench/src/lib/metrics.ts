@@ -10,7 +10,6 @@ export interface MetricInfo {
 
 export const METRICS: Record<MetricKey, MetricInfo> = {
     [MetricKey.CompileTime]: { displayName: 'Compile Time', unit: 'ms', category: 'time' },
-    [MetricKey.DiskSizeTotal]: { displayName: 'Disk Size (Total)', unit: 'bytes', category: 'size' },
     [MetricKey.DiskSizeNative]: { displayName: 'Disk Size (WASM)', unit: 'bytes', category: 'size' },
     [MetricKey.DiskSizeAssemblies]: { displayName: 'Disk Size (DLLs)', unit: 'bytes', category: 'size' },
     [MetricKey.DownloadSizeTotal]: { displayName: 'Download Size (Total)', unit: 'bytes', category: 'size' },
@@ -26,7 +25,6 @@ export const METRICS: Record<MetricKey, MetricInfo> = {
 
 export const EXTERNAL_METRICS: MetricKey[] = [
     MetricKey.CompileTime,
-    MetricKey.DiskSizeTotal,
     MetricKey.DiskSizeNative,
     MetricKey.DiskSizeAssemblies,
     MetricKey.DownloadSizeTotal,

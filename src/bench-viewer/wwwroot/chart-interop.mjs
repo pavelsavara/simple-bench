@@ -43,7 +43,6 @@ const PROFILE_LINE_WIDTH = {
 
 const METRIC_UNITS = {
     'compile-time': 's',
-    'disk-size-total': 'bytes',
     'disk-size-native': 'bytes',
     'disk-size-assemblies': 'bytes',
     'download-size-total': 'bytes',
@@ -59,7 +58,6 @@ const METRIC_UNITS = {
 
 const METRIC_DISPLAY = {
     'compile-time': 'Compile Time (s)',
-    'disk-size-total': 'Disk Size (Total)',
     'disk-size-native': 'Disk Size (WASM)',
     'disk-size-assemblies': 'Disk Size (DLLs)',
     'download-size-total': 'Download Size (Total)',
