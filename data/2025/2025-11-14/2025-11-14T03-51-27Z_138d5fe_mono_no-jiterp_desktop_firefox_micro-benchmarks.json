@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "runtimeCommitDateTime": "2025-11-14T03:51:27Z",
+    "runtimeCommitAuthor": "Copilot",
+    "runtimeCommitMessage": "[release/10.0] Composite ML-DSA Draft 12 and 13 updates (#120601, #120961) (#121555)",
+    "sdkVersion": "10.0.101",
+    "runtimeGitHash": "138d5fe8f32e954a3a834be6360a834688130d4f",
+    "aspnetCoreGitHash": "373d4826c58ac2f1c8d49fdaf31bc9eddf9e7437",
+    "sdkGitHash": "b7adad29114ef57fabf65324e712753767038626",
+    "vmrGitHash": "fad253f51b461736dfd3cd9c15977bb7493becef",
+    "aspnetCoreCommitDateTime": "2025-11-17T22:40:43Z",
+    "aspnetCoreVersion": "10.0.1",
+    "runtimePackVersion": "10.0.1",
+    "workloadVersion": "10.0.105",
+    "runtime": "mono",
+    "preset": "no-jiterp",
+    "profile": "desktop",
+    "engine": "firefox",
+    "app": "micro-benchmarks",
+    "benchmarkDateTime": "2026-03-14T11:21:05.244Z",
+    "warmRunCount": 5,
+    "ciRunId": "23086580864",
+    "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23086580864"
+  },
+  "metrics": {
+    "compile-time": 25118,
+    "js-interop-ops": 891819,
+    "json-parse-ops": 7310,
+    "exception-ops": 47
+  }
+}
