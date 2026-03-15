@@ -20,9 +20,9 @@
       "patch": 312,
       "channel": "9.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-15T21:14:38.808Z",
-      "ciRunId": "23118435678",
-      "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23118435678"
+      "benchmarkDateTime": "2026-03-15T22:32:14.766Z",
+      "ciRunId": "23120276805",
+      "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23120276805"
     }
   ],
   "apps": {
