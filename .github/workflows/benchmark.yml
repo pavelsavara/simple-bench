@@ -98,7 +98,7 @@ jobs:
     runs-on: ubuntu-latest
     container: ghcr.io/${{ github.repository }}/browser-bench-build:latest
     permissions:
-      contents: read
+      contents: write
       packages: read
     timeout-minutes: 60
     outputs:
