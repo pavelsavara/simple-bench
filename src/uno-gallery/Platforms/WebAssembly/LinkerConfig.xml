@@ -6,5 +6,5 @@
 	</assembly>
 	<assembly fullname="Uno.UI">
 		<type fullname="Uno.UI.Helpers.Automation" />
-  </assembly>
+	</assembly>
 </linker>

@@ -2,7 +2,8 @@ import { readFile, writeFile, readdir, rm, mkdir, stat } from 'node:fs/promises'
 import { join } from 'node:path';
 import { type BenchContext, type BuildManifestEntry } from '../context.js';
 import {
-    type App, type Preset, type Runtime,
+    type Preset, type Runtime,
+    App,
     Runtime as R,
     WORKLOAD_PRESETS, NON_WORKLOAD_PRESETS, MONO_ONLY_PRESETS,
     PRESET_MAP, PRESET_CONFIG,
@@ -50,6 +51,7 @@ async function computeIntegrity(dir: string): Promise<{ fileCount: number; total
 function getRestoreArgs(
     ctx: BenchContext,
     appDir: string,
+    app: App,
     preset: Preset,
 ): string[] {
     const args = [
@@ -57,9 +59,13 @@ function getRestoreArgs(
         `/p:BenchmarkPreset=${PRESET_MAP[preset]}`,
         `/p:RuntimeFlavor=${mapRuntimeFlavor(ctx.runtime)}`,
         `/p:BuildLabel=${ctx.buildLabel}`,
+
     ];
     if (ctx.runtimePackDir) {
         args.push(`/p:RuntimePackDir=${ctx.runtimePackDir}`);
+    }
+    if (app === App.UnoGallery) {
+        args.push(`/p:TargetFramework=net${ctx.sdkInfo.major}.0-browserwasm`);
     }
     return args;
 }
@@ -67,18 +73,25 @@ function getRestoreArgs(
 function getPublishArgs(
     ctx: BenchContext,
     appDir: string,
+    app: App,
     preset: Preset,
     publishDir: string,
 ): string[] {
     const args = [
         appDir,
+        '--no-restore',
+    ];
+    if (app === App.UnoGallery) {
+        args.push('--framework', `net${ctx.sdkInfo.major}.0-browserwasm`);
+    }
+    args.push(
         `/p:BenchmarkPreset=${PRESET_MAP[preset]}`,
         '-c', PRESET_CONFIG[preset],
         `/p:RuntimeFlavor=${mapRuntimeFlavor(ctx.runtime)}`,
-        `/p:BuildLabel=${ctx.buildLabel}`,
+        `/p:BuildLabel=${ctx.buildLabel!}`,
         `-bl:${publishDir}/publish.binlog`,
         '-o', publishDir,
-    ];
+    );
     if (ctx.runtimePackDir) {
         args.push(`/p:RuntimePackDir=${ctx.runtimePackDir}`);
     }
@@ -110,17 +123,15 @@ async function buildPhase(
 
                 info(`Building ${app} (runtime=${ctx.runtime}, preset=${preset})`);
 
-                const publishArgs = getPublishArgs(
-                    ctx, appDir, preset, publishDir,
-                );
+                const publishArgs = getPublishArgs(ctx, appDir, app, preset, publishDir);
 
-                const restoreArgs = getRestoreArgs(
-                    ctx, appDir, preset,
-                );
+                // Uno.Gallery uses Uno.Sdk with complex build targets (Resizetizer, ShellTask)
+                // that break when restore and publish are split. Run publish with implicit restore.
+                const restoreArgs = getRestoreArgs(ctx, appDir, app, preset);
                 await dotnetRestore(ctx.dotnetBin!, restoreArgs, { cwd: ctx.repoRoot });
 
                 const startTime = performance.now();
-                await dotnetPublish(ctx.dotnetBin!, ['--no-restore', ...publishArgs], { cwd: ctx.repoRoot });
+                await dotnetPublish(ctx.dotnetBin!, publishArgs, { cwd: ctx.repoRoot });
                 const compileTimeMs = Math.round(performance.now() - startTime);
 
                 await writeFile(

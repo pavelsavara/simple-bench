@@ -24,6 +24,7 @@
     <ProjectReference Include="havit-bootstrap\HavitBootstrap.csproj" />
     <ProjectReference Include="mud-blazor\MudBlazor.csproj" />
     <ProjectReference Include="micro-benchmarks\MicroBenchmarks.csproj" />
+    <ProjectReference Include="uno-gallery\Uno.Gallery.csproj" />
   </ItemGroup>
 
 </Project>

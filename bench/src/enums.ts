@@ -37,6 +37,7 @@ export enum App {
     HavitBootstrap = 'havit-bootstrap',
     MicroBenchmarks = 'micro-benchmarks',
     BenchViewer = 'bench-viewer',
+    UnoGallery = 'uno-gallery',
     MudBlazor = 'mud-blazor',
 }
 
@@ -74,6 +75,7 @@ export enum MetricKey {
     PizzaWalkthrough = 'pizza-walkthrough',
     HavitWalkthrough = 'havit-walkthrough',
     MudWalkthrough = 'mud-walkthrough',
+    UnoWalkthrough = 'uno-walkthrough',
     JsInteropOps = 'js-interop-ops',
     JsonParseOps = 'json-parse-ops',
     ExceptionOps = 'exception-ops',
@@ -96,6 +98,7 @@ export const APP_CONFIG: Record<App, AppConfig> = {
     [App.HavitBootstrap]: { browserOnly: true, internal: false },
     [App.BenchViewer]: { browserOnly: true, internal: false },
     [App.MudBlazor]: { browserOnly: true, internal: false },
+    [App.UnoGallery]: { browserOnly: true, internal: false },
 };
 
 // ── Preset Constraints ───────────────────────────────────────────────────────
@@ -122,7 +125,7 @@ export const MONO_ONLY_PRESETS = new Set<Preset>([
 ]);
 
 /** Apps that use Blazor (DOM-dependent, no CLI engine support). */
-export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazingPizza, App.HavitBootstrap, App.BenchViewer, App.MudBlazor]);
+export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazingPizza, App.HavitBootstrap, App.BenchViewer, App.MudBlazor, App.UnoGallery]);
 export const REDUCE_APPS = new Set<App>([App.EmptyBlazor, App.EmptyBrowser, App.BlazingPizza, App.BenchViewer, App.MudBlazor]);
 export const REDUCE_PRESETS = new Set<Preset>([Preset.NativeRelink, Preset.NoJiterp, Preset.Invariant, Preset.NoReflectionEmit]);
 
@@ -146,6 +149,9 @@ export function shouldSkipMeasurement(app: App, preset: Preset, ctx: BenchContex
     }
     if (app === App.MudBlazor && ctx.sdkInfo.major < 9) {
         return `MudBlazor app '${app}' does not build with SDK versions below 9.0.0`;
+    }
+    if (app === App.UnoGallery && preset !== Preset.NativeRelink) {
+        return `UnoGallery app '${app}' is not supported with preset '${preset}'`;
     }
     return null;
 }
