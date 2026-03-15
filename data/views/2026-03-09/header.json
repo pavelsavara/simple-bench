@@ -1,22 +1,31 @@
 {
-  "lastUpdated": "2026-03-15T22:29:10.360Z",
-  "activeRelease": "net11",
-  "releases": [
-    "net8",
-    "net9",
-    "net10"
+  "columns": [
+    {
+      "sdkVersion": "11.0.100-preview.3.26165.107",
+      "runtimeGitHash": "8cf2e90c41f50c41d49698b3e37598f96bff9be0",
+      "aspnetCoreGitHash": "f8410f812a2a76401468a78a4f776586c3af498c",
+      "sdkGitHash": "9cd9ee7618877c277db7c78705c04b244745481d",
+      "vmrGitHash": "5ff448a6425ec6980e08b5c9a35e454c8a843c35",
+      "runtimeCommitDateTime": "2026-03-14T00:22:22Z",
+      "runtimeCommitAuthor": "Levi Broderick",
+      "runtimeCommitMessage": "Exclude noisy crypto rules from the repo's CodeQL runs (#125364)",
+      "aspnetCoreCommitDateTime": "2026-03-13T19:32:44Z",
+      "aspnetCoreVersion": "11.0.0-preview.3.26165.107",
+      "runtimePackVersion": "11.0.0-preview.3.26165.107",
+      "workloadVersion": "11.0.100-preview.3.26165.107",
+      "bootstrapSdkVersion": "11.0.100-preview.3.26161.119",
+      "releaseDate": "2026-03-15",
+      "major": 11,
+      "minor": 0,
+      "patch": 100,
+      "channel": "11.0",
+      "isPrerelease": true,
+      "benchmarkDateTime": "2026-03-15T22:07:56.640Z",
+      "ciRunId": "23119792457",
+      "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23119792457"
+    }
   ],
-  "weeks": [
-    "2026-03-09"
-  ],
-  "apps": [
-    "blazing-pizza",
-    "empty-blazor",
-    "havit-bootstrap",
-    "micro-benchmarks",
-    "mud-blazor"
-  ],
-  "metrics": {
+  "apps": {
     "blazing-pizza": [
       "compile-time",
       "disk-size-assemblies",
@@ -79,28 +88,5 @@
       "wasm-memory-size"
     ]
   },
-  "dimensions": {
-    "runtimes": [
-      "mono"
-    ],
-    "presets": [
-      "aot",
-      "devloop",
-      "invariant",
-      "native-relink",
-      "no-jiterp",
-      "no-reflection-emit",
-      "no-workload"
-    ],
-    "profiles": [
-      "desktop",
-      "mobile"
-    ],
-    "engines": [
-      "chrome",
-      "firefox",
-      "node",
-      "v8"
-    ]
-  }
+  "week": "2026-03-09"
 }
