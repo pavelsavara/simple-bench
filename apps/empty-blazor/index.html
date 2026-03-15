@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>empty-blazor</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/simple-bench/apps/empty-blazor/" />
+    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png" />
+    <script type="importmap">{
+  "imports": {
+    "./_framework/blazor.webassembly.js": "./_framework/blazor.webassembly.u5pmnvwhn0.js",
+    "./_framework/dotnet.js": "./_framework/dotnet.enwegsyfk9.js",
+    "./_framework/dotnet.native.js": "./_framework/dotnet.native.r8sioez2hs.js",
+    "./_framework/dotnet.runtime.js": "./_framework/dotnet.runtime.708nqne47n.js",
+    "./lib/bootstrap/dist/js/bootstrap.bundle.js": "./lib/bootstrap/dist/js/bootstrap.bundle.c2gs0umjsq.js",
+    "./lib/bootstrap/dist/js/bootstrap.bundle.min.js": "./lib/bootstrap/dist/js/bootstrap.bundle.min.hd3gran6i8.js",
+    "./lib/bootstrap/dist/js/bootstrap.esm.min.js": "./lib/bootstrap/dist/js/bootstrap.esm.min.8vyfqsqgz1.js",
+    "./lib/bootstrap/dist/js/bootstrap.esm.js": "./lib/bootstrap/dist/js/bootstrap.esm.z6kamik3hy.js",
+    "./lib/bootstrap/dist/js/bootstrap.min.js": "./lib/bootstrap/dist/js/bootstrap.min.4d85u1mtcx.js",
+    "./lib/bootstrap/dist/js/bootstrap.js": "./lib/bootstrap/dist/js/bootstrap.ne8a8kgik2.js",
+    "./main.mjs": "./main.nxnipo8hhw.mjs"
+  },
+  "scopes": {},
+  "integrity": {
+    "./_framework/blazor.webassembly.js": "sha256-4rvih6OlUJUQSz1GJ6uN5xpXWrFrItRSvRewvrKfNos=",
+    "./_framework/blazor.webassembly.u5pmnvwhn0.js": "sha256-4rvih6OlUJUQSz1GJ6uN5xpXWrFrItRSvRewvrKfNos=",
+    "./_framework/dotnet.enwegsyfk9.js": "sha256-NoPzabvabZnmnRTavcDF8KyKztJ7LQQZ/QdZIWbarXY=",
+    "./_framework/dotnet.js": "sha256-NoPzabvabZnmnRTavcDF8KyKztJ7LQQZ/QdZIWbarXY=",
+    "./_framework/dotnet.native.js": "sha256-heCJoW0lYMqEB1s2MeGkymeqHVjVtFeZam5zu3mmwVE=",
+    "./_framework/dotnet.native.r8sioez2hs.js": "sha256-heCJoW0lYMqEB1s2MeGkymeqHVjVtFeZam5zu3mmwVE=",
+    "./_framework/dotnet.runtime.708nqne47n.js": "sha256-uYGB5SK3OrGdYL7yuzLLLMvTNXHSX27G717Hlt7gbj8=",
+    "./_framework/dotnet.runtime.js": "sha256-uYGB5SK3OrGdYL7yuzLLLMvTNXHSX27G717Hlt7gbj8=",
+    "./lib/bootstrap/dist/js/bootstrap.bundle.c2gs0umjsq.js": "sha256-VJjRA1MaZxAgC39Druy1Iw9M5lIMcrv0irI3gwEW4tE=",
+    "./lib/bootstrap/dist/js/bootstrap.bundle.js": "sha256-VJjRA1MaZxAgC39Druy1Iw9M5lIMcrv0irI3gwEW4tE=",
+    "./lib/bootstrap/dist/js/bootstrap.bundle.min.hd3gran6i8.js": "sha256-6zfk2L8R3wCgRbZzpkEi7UYC2bc6fYGIgFfNeqyOWnQ=",
+    "./lib/bootstrap/dist/js/bootstrap.bundle.min.js": "sha256-6zfk2L8R3wCgRbZzpkEi7UYC2bc6fYGIgFfNeqyOWnQ=",
+    "./lib/bootstrap/dist/js/bootstrap.esm.js": "sha256-u+JrJdVbIjxho/CG63MmQaZtCnizmViwAYz4vVsLUhk=",
+    "./lib/bootstrap/dist/js/bootstrap.esm.min.8vyfqsqgz1.js": "sha256-REjSeieVKd00nAKwd6dv7MMhuVKvKctPmLI4iDRs/cc=",
+    "./lib/bootstrap/dist/js/bootstrap.esm.min.js": "sha256-REjSeieVKd00nAKwd6dv7MMhuVKvKctPmLI4iDRs/cc=",
+    "./lib/bootstrap/dist/js/bootstrap.esm.z6kamik3hy.js": "sha256-u+JrJdVbIjxho/CG63MmQaZtCnizmViwAYz4vVsLUhk=",
+    "./lib/bootstrap/dist/js/bootstrap.js": "sha256-D6Hma+IGpHoAnTfpE09VZuxs6Xxr26PSbU1JWYW1u10=",
+    "./lib/bootstrap/dist/js/bootstrap.min.4d85u1mtcx.js": "sha256-aCTIqw9op0XQGYnNe1649V7fnihACD48OP3M8BP2xVM=",
+    "./lib/bootstrap/dist/js/bootstrap.min.js": "sha256-aCTIqw9op0XQGYnNe1649V7fnihACD48OP3M8BP2xVM=",
+    "./lib/bootstrap/dist/js/bootstrap.ne8a8kgik2.js": "sha256-D6Hma+IGpHoAnTfpE09VZuxs6Xxr26PSbU1JWYW1u10=",
+    "./main.mjs": "sha256-qyJ5Q3RNh+0EgA/J8v6CBA3uEfohwV4lfOYffGeHdi0=",
+    "./main.nxnipo8hhw.mjs": "sha256-qyJ5Q3RNh+0EgA/J8v6CBA3uEfohwV4lfOYffGeHdi0="
+  }
+}</script>
+</head>
+
+<body>
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40%" cx="50%" cy="50%" />
+            <circle r="40%" cx="50%" cy="50%" />
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="." class="reload">Reload</a>
+        <span class="dismiss">🗙</span>
+    </div>
+    <script src="_framework/blazor.webassembly.u5pmnvwhn0.js" autostart="false"></script>
+    <script src="main.nxnipo8hhw.mjs" type="module"></script>
+</body>
+
+</html>
