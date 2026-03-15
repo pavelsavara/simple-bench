@@ -20,6 +20,7 @@ const STAGE_CONTAINER: Record<Stage, ContainerTarget> = {
     [Stage.ResolveSdk]: 'build',
     [Stage.DownloadSdk]: 'build',
     [Stage.Build]: 'build',
+    [Stage.DeployLatestApp]: 'build',
     [Stage.Measure]: 'measure',
     [Stage.TransformViews]: 'measure',
     [Stage.UpdateViews]: 'host',

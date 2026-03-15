@@ -48,43 +48,39 @@ async function computeIntegrity(dir: string): Promise<{ fileCount: number; total
 // ── Publish arg builder ──────────────────────────────────────────────────────
 
 function getRestoreArgs(
+    ctx: BenchContext,
     appDir: string,
-    runtime: Runtime,
     preset: Preset,
-    buildLabel: string,
-    runtimePackDir?: string,
 ): string[] {
     const args = [
         appDir,
         `/p:BenchmarkPreset=${PRESET_MAP[preset]}`,
-        `/p:RuntimeFlavor=${mapRuntimeFlavor(runtime)}`,
-        `/p:BuildLabel=${buildLabel}`,
+        `/p:RuntimeFlavor=${mapRuntimeFlavor(ctx.runtime)}`,
+        `/p:BuildLabel=${ctx.buildLabel}`,
     ];
-    if (runtimePackDir) {
-        args.push(`/p:RuntimePackDir=${runtimePackDir}`);
+    if (ctx.runtimePackDir) {
+        args.push(`/p:RuntimePackDir=${ctx.runtimePackDir}`);
     }
     return args;
 }
 
 function getPublishArgs(
+    ctx: BenchContext,
     appDir: string,
-    runtime: Runtime,
     preset: Preset,
     publishDir: string,
-    buildLabel: string,
-    runtimePackDir?: string,
 ): string[] {
     const args = [
         appDir,
         `/p:BenchmarkPreset=${PRESET_MAP[preset]}`,
         '-c', PRESET_CONFIG[preset],
-        `/p:RuntimeFlavor=${mapRuntimeFlavor(runtime)}`,
-        `/p:BuildLabel=${buildLabel}`,
+        `/p:RuntimeFlavor=${mapRuntimeFlavor(ctx.runtime)}`,
+        `/p:BuildLabel=${ctx.buildLabel}`,
         `-bl:${publishDir}/publish.binlog`,
         '-o', publishDir,
     ];
-    if (runtimePackDir) {
-        args.push(`/p:RuntimePackDir=${runtimePackDir}`);
+    if (ctx.runtimePackDir) {
+        args.push(`/p:RuntimePackDir=${ctx.runtimePackDir}`);
     }
     return args;
 }
@@ -115,13 +111,11 @@ async function buildPhase(
                 info(`Building ${app} (runtime=${ctx.runtime}, preset=${preset})`);
 
                 const publishArgs = getPublishArgs(
-                    appDir, ctx.runtime, preset, publishDir,
-                    ctx.buildLabel!, ctx.runtimePackDir,
+                    ctx, appDir, preset, publishDir,
                 );
 
                 const restoreArgs = getRestoreArgs(
-                    appDir, ctx.runtime, preset,
-                    ctx.buildLabel!, ctx.runtimePackDir,
+                    ctx, appDir, preset,
                 );
                 await dotnetRestore(ctx.dotnetBin!, restoreArgs, { cwd: ctx.repoRoot });
 

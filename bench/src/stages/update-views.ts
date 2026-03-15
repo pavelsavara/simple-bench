@@ -21,7 +21,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         dryRun: false,
         checkoutDir: 'gh-pages',
         addPaths: ['data/views/'],
-        commitMessage: `Update views ${ctx.sdkVersion || ctx.sdkChannel}`,
+        commitMessage: `Update views ${ctx.sdkInfo.sdkVersion}`,
         label: 'Views',
     });
 

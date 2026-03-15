@@ -4,6 +4,7 @@ import { existsSync } from 'node:fs';
 import { type BenchContext } from '../context.js';
 import { banner, info, debug, err } from '../log.js';
 import { GITHUB_API, githubHeaders, resolveGitHubToken } from '../lib/http.js';
+import { getVersionMajor } from '../lib/version-utils.js';
 import { exec } from '../exec.js';
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -64,9 +65,9 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     }
 
     // 5. Filter by channel major if --sdk-channel was specified
-    const channelMajor = parseInt(ctx.sdkChannel.split('.')[0], 10);
+    const channelMajor = getVersionMajor(ctx.sdkChannel);
     const filterByMajor = (p: PackEntry) => {
-        const major = parseInt(p.sdkVersion.split('.')[0], 10);
+        const major = getVersionMajor(p.sdkVersion);
         return major === channelMajor;
     };
     const filteredReleases = isNaN(channelMajor) ? untestedReleases : untestedReleases.filter(filterByMajor);

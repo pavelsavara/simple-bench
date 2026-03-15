@@ -34,10 +34,9 @@ async function downloadInstallScript(platform: string): Promise<string> {
 }
 
 async function installSdk(
-    sdkVersion: string,
+    sdkInfo: SdkInfo,
     sdkDir: string,
     platform: string,
-    source: 'daily' | 'release',
 ): Promise<void> {
     await mkdir(sdkDir, { recursive: true });
     const scriptPath = await downloadInstallScript(platform);
@@ -47,20 +46,20 @@ async function installSdk(
         const args = [
             '-ExecutionPolicy', 'Bypass',
             '-File', scriptPath,
-            '-Version', sdkVersion,
+            '-Version', sdkInfo.sdkVersion,
             '-InstallDir', sdkDir,
         ];
-        if (source === 'daily') {
+        if (sdkInfo.isPrerelease) {
             args.push('-AzureFeed', DAILY_AZURE_FEED);
         }
         await exec('powershell', args, { label: 'dotnet-install.ps1' });
     } else {
         const args = [
             scriptPath,
-            '--version', sdkVersion,
+            '--version', sdkInfo.sdkVersion,
             '--install-dir', sdkDir,
         ];
-        if (source === 'daily') {
+        if (sdkInfo.isPrerelease) {
             args.push('--azure-feed', DAILY_AZURE_FEED);
         }
         await exec('bash', args, { label: 'dotnet-install.sh' });
@@ -69,8 +68,8 @@ async function installSdk(
 
 // ── Bundled Version Detection ────────────────────────────────────────────────
 
-async function detectBundledRuntimeVersion(sdkDir: string, sdkVersion: string): Promise<string> {
-    const propsPath = join(sdkDir, 'sdk', sdkVersion, 'Microsoft.NETCoreSdk.BundledVersions.props');
+async function detectBundledRuntimeVersion(sdkDir: string, sdkInfo: SdkInfo): Promise<string> {
+    const propsPath = join(sdkDir, 'sdk', sdkInfo.sdkVersion, 'Microsoft.NETCoreSdk.BundledVersions.props');
     if (!existsSync(propsPath)) {
         throw new Error(`BundledVersions.props not found at ${propsPath}`);
     }
@@ -122,41 +121,39 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     if (!ctx.sdkInfo) throw new Error('download-sdk stage requires ctx.sdkInfo (run resolve-sdk first)');
 
-    const { sdkVersion, runtimePackVersion, source } = ctx.sdkInfo;
-    const sdkSource = source ?? 'daily';
-    const { sdkDir, dotnetBin, platform } = ctx;
+    const { sdkInfo, sdkDir, dotnetBin, platform } = ctx;
 
-    info(`SDK: ${sdkVersion} (${sdkSource})`);
-    info(`Runtime pack: ${runtimePackVersion}`);
+    info(`SDK: ${sdkInfo.sdkVersion} (${sdkInfo.isPrerelease ? 'prerelease' : 'release'})`);
+    info(`Runtime pack: ${sdkInfo.runtimePackVersion}`);
 
     // ── Step 1: Check cache ──────────────────────────────────────────────
     const sdkInfoPath = join(sdkDir, 'sdk-info.json');
     let skipInstall = false;
     if (existsSync(sdkInfoPath) && existsSync(dotnetBin)) {
         const existing = JSON.parse(await readFile(sdkInfoPath, 'utf-8')) as SdkInfo;
-        if (existing.sdkVersion === sdkVersion) {
-            info(`SDK ${sdkVersion} already installed — skipping download`);
+        if (existing.sdkVersion === sdkInfo.sdkVersion) {
+            info(`SDK ${sdkInfo.sdkVersion} already installed — skipping download`);
             skipInstall = true;
         }
     }
 
     // ── Step 2: Install SDK ──────────────────────────────────────────────
     if (!skipInstall) {
-        info(`Installing SDK ${sdkVersion}...`);
-        await installSdk(sdkVersion, sdkDir, platform, sdkSource);
+        info(`Installing SDK ${sdkInfo.sdkVersion}...`);
+        await installSdk(sdkInfo, sdkDir, platform);
         info(`SDK installed to ${sdkDir}`);
     }
 
     // ── Step 3: Detect bundled runtime version ───────────────────────────
-    const bundledVersion = await detectBundledRuntimeVersion(sdkDir, sdkVersion);
+    const bundledVersion = await detectBundledRuntimeVersion(sdkDir, sdkInfo);
     info(`Bundled runtime pack: ${bundledVersion}`);
 
     // ── Step 4: Runtime pack override ────────────────────────────────────
     let runtimePackDir: string | undefined;
-    if (runtimePackVersion !== bundledVersion) {
-        info(`Runtime pack override: ${runtimePackVersion} (bundled: ${bundledVersion})`);
+    if (sdkInfo.runtimePackVersion !== bundledVersion) {
+        info(`Runtime pack override: ${sdkInfo.runtimePackVersion} (bundled: ${bundledVersion})`);
         runtimePackDir = await restoreRuntimePack(
-            dotnetBin, ctx.repoRoot, ctx.artifactsDir, runtimePackVersion,
+            dotnetBin, ctx.repoRoot, ctx.artifactsDir, sdkInfo.runtimePackVersion,
         );
         info(`Runtime pack restored to ${runtimePackDir}`);
     } else {
@@ -165,13 +162,13 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     // ── Step 5: Write sdk-info.json ──────────────────────────────────────
     await mkdir(sdkDir, { recursive: true });
-    await writeFile(sdkInfoPath, JSON.stringify(ctx.sdkInfo, null, 2) + '\n');
+    await writeFile(sdkInfoPath, JSON.stringify(sdkInfo, null, 2) + '\n');
     info(`SDK info written to ${sdkInfoPath}`);
 
     // ── Step 6: Update context ───────────────────────────────────────────
     const buildLabel = runtimePackDir
-        ? `${sdkVersion}_${runtimePackVersion}`
-        : sdkVersion;
+        ? `${sdkInfo.sdkVersion}_${sdkInfo.runtimePackVersion}`
+        : sdkInfo.sdkVersion;
 
     return {
         ...ctx,

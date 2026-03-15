@@ -145,9 +145,8 @@ function buildMeta(
     engine: Engine,
     profile: Profile,
 ): Record<string, unknown> {
-    const { source: _source, ...sdkFields } = ctx.sdkInfo;
     const meta: Record<string, unknown> = {
-        ...sdkFields,
+        ...ctx.sdkInfo,
         runtime: entry.runtime,
         preset: entry.preset,
         profile,

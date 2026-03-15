@@ -7,19 +7,18 @@ import {
     fetchJson, headOk, githubHeaders, resolveGitHubToken, mapConcurrent,
     GITHUB_API, GITHUB_RAW,
 } from '../lib/http.js';
+import {
+    parseArcadeDate, deriveSdkVersion, populateVersionFields,
+} from '../lib/version-utils.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
-
-interface DailyPackEntry extends SdkInfo {
-    bootstrapSdkVersion: string;
-}
 
 interface DailyPacksList {
     feed: string;
     major: number;
     months: number;
     totalPacks: number;
-    packs: DailyPackEntry[];
+    packs: SdkInfo[];
 }
 
 // ── Remote types ─────────────────────────────────────────────────────────────
@@ -50,30 +49,6 @@ const WORKLOAD_PACK_ID = 'microsoft.net.sdk.webassembly.pack';
 const SDK_CDN = 'https://ci.dot.net/public/Sdk';
 const CONCURRENCY = 10;
 
-// ── Arcade SHORT_DATE decoding ───────────────────────────────────────────────
-
-function decodeShortDate(shortDate: number): Date {
-    const yy = Math.floor(shortDate / 1000);
-    const remainder = shortDate % 1000;
-    const mm = Math.floor(remainder / 50);
-    const dd = remainder % 50;
-    return new Date(Date.UTC(2000 + yy, mm - 1, dd));
-}
-
-function parseArcadeDate(version: string): Date | null {
-    // e.g. 11.0.0-preview.3.26160.119 → SHORT_DATE = 26160
-    const m = version.match(/\.\d+\.(\d{5})\.\d+$/);
-    if (!m) return null;
-    return decodeShortDate(parseInt(m[1], 10));
-}
-
-// ── SDK version derivation ───────────────────────────────────────────────────
-
-function deriveSdkVersion(runtimePackVersion: string): string {
-    // 11.0.0-preview.3.26153.117 → 11.0.100-preview.3.26153.117
-    return runtimePackVersion.replace(/^(\d+\.\d+)\.0/, '$1.100');
-}
-
 // ── NuGet feed discovery ─────────────────────────────────────────────────────
 
 async function discoverFlatBaseUrl(feedUrl: string): Promise<string> {
@@ -95,7 +70,7 @@ async function resolveVersion(
     workloadVersions: Set<string>,
     token: string | undefined,
     verbose: boolean,
-): Promise<DailyPackEntry | null> {
+): Promise<SdkInfo | null> {
     const sdkVersion = deriveSdkVersion(runtimePackVersion);
     const label = runtimePackVersion;
 
@@ -171,7 +146,7 @@ async function resolveVersion(
         info(`Resolved ${label}`);
     }
 
-    return {
+    return populateVersionFields({
         sdkVersion,
         runtimeGitHash: rtRepo.commitSha,
         aspnetCoreGitHash: aspRepo.commitSha,
@@ -185,7 +160,8 @@ async function resolveVersion(
         runtimePackVersion,
         workloadVersion: runtimePackVersion,
         bootstrapSdkVersion: gj.tools.dotnet,
-    };
+        releaseDate: parseArcadeDate(runtimePackVersion)?.toISOString().slice(0, 10) ?? '',
+    });
 }
 
 // ── Existing file helpers ────────────────────────────────────────────────────
@@ -276,7 +252,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     const existing = ctx.forceEnumerate ? null : await loadExisting(outputPath);
     let toResolve: string[];
-    const existingPacks: DailyPackEntry[] = existing?.packs ?? [];
+    const existingPacks: SdkInfo[] = existing?.packs ?? [];
 
     if (existing) {
         const knownVersions = new Set(existing.packs.map(p => p.runtimePackVersion));
@@ -293,12 +269,12 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         return resolveVersion(version, workloadVersions, token, ctx.verbose);
     });
 
-    const newPacks = resolved.filter((p): p is DailyPackEntry => p !== null);
+    const newPacks = resolved.filter((p): p is SdkInfo => p !== null);
     info(`Resolved ${newPacks.length}/${toResolve.length} versions`);
 
     // ── Step 6: Merge, prune, and sort ───────────────────────────────────────
 
-    const mergedMap = new Map<string, DailyPackEntry>();
+    const mergedMap = new Map<string, SdkInfo>();
     for (const p of existingPacks) mergedMap.set(p.runtimePackVersion, p);
     for (const p of newPacks) mergedMap.set(p.runtimePackVersion, p);
 

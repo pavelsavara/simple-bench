@@ -6,6 +6,11 @@ import { type App, type Engine, type Preset, type Profile, type Runtime, type St
 
 export interface SdkInfo {
     sdkVersion: string;
+    major: number;
+    minor: number;
+    patch: number;
+    channel: string;
+    isPrerelease: boolean;
     runtimeGitHash: string;
     aspnetCoreGitHash: string;
     sdkGitHash: string;
@@ -17,7 +22,8 @@ export interface SdkInfo {
     aspnetCoreVersion: string;
     runtimePackVersion: string;
     workloadVersion: string;
-    source?: 'daily' | 'release';
+    bootstrapSdkVersion: string;
+    releaseDate: string;
 }
 
 // ── Build Manifest Entry (populated by build stage) ──────────────────────────
@@ -93,6 +99,9 @@ export interface BenchContext {
 
     // ── Build manifest (populated by build stage) ──
     buildManifest: BuildManifestEntry[];
+
+    // ── Deploy (populated by resolve-sdk) ──
+    isLatestDaily: boolean;
 
     // ── Environment detection ──
     platform: 'windows' | 'linux' | 'darwin';

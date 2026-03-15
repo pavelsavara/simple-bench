@@ -30,6 +30,7 @@ import { run as enumerateReleasePacks } from './enumerate-release-packs.js';
 import { run as transformViews } from './transform-views.js';
 import { run as updateCache } from './update-cache.js';
 import { run as updateViews } from './update-views.js';
+import { run as deployLatestApp } from './deploy-latest-app.js';
 
 registerStage(Stage.CheckOutTracking, checkOutTracking);
 registerStage(Stage.CheckOutData, checkOutData);
@@ -45,6 +46,7 @@ registerStage(Stage.Schedule, schedule);
 registerStage(Stage.TransformViews, transformViews);
 registerStage(Stage.UpdateCache, updateCache);
 registerStage(Stage.UpdateViews, updateViews);
+registerStage(Stage.DeployLatestApp, deployLatestApp);
 
 // ── Direct Runner (no docker wrapping) ───────────────────────────────────────
 

@@ -3,16 +3,12 @@ import { join } from 'node:path';
 import { existsSync } from 'node:fs';
 import { type BenchContext, type SdkInfo } from '../context.js';
 import { banner, info } from '../log.js';
+import { getVersionMajor, populateVersionFields } from '../lib/version-utils.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-/** Pack entry from daily-packs-list.json or release-packs-list.json */
-interface PackListEntry extends SdkInfo {
-    bootstrapSdkVersion: string;
-}
-
 interface TaggedPack {
-    entry: PackListEntry;
+    entry: SdkInfo;
     source: 'daily' | 'release';
 }
 
@@ -30,7 +26,7 @@ async function loadPacks(artifactsDir: string): Promise<TaggedPack[]> {
 
     const dailyPath = join(artifactsDir, 'daily-packs-list.json');
     if (existsSync(dailyPath)) {
-        const data = JSON.parse(await readFile(dailyPath, 'utf-8')) as { packs: PackListEntry[] };
+        const data = JSON.parse(await readFile(dailyPath, 'utf-8')) as { packs: SdkInfo[] };
         for (const entry of data.packs) {
             result.push({ entry, source: 'daily' });
         }
@@ -38,7 +34,7 @@ async function loadPacks(artifactsDir: string): Promise<TaggedPack[]> {
 
     const releasePath = join(artifactsDir, 'release-packs-list.json');
     if (existsSync(releasePath)) {
-        const data = JSON.parse(await readFile(releasePath, 'utf-8')) as { packs: PackListEntry[] };
+        const data = JSON.parse(await readFile(releasePath, 'utf-8')) as { packs: SdkInfo[] };
         for (const entry of data.packs) {
             result.push({ entry, source: 'release' });
         }
@@ -110,10 +106,9 @@ function resolveTarget(ctx: BenchContext, packs: TaggedPack[]): ResolvedTarget {
         sdkTarget = runtimeTarget;
     } else {
         // Latest for channel
-        const channelMajor = parseInt(ctx.sdkChannel.split('.')[0], 10);
+        const channelMajor = getVersionMajor(ctx.sdkChannel);
         const match = packs.find(p => {
-            const major = parseInt(p.entry.sdkVersion.split('.')[0], 10);
-            return major === channelMajor;
+            return getVersionMajor(p.entry.sdkVersion) === channelMajor;
         });
         if (!match) {
             throw new Error(
@@ -151,7 +146,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     info(`Runtime commit: ${runtimeEntry.entry.runtimeGitHash.slice(0, 10)}`);
 
     // ── Step 3: Build SdkInfo ────────────────────────────────────────────
-    const sdkInfo: SdkInfo = {
+    const sdkInfo: SdkInfo = populateVersionFields({
         sdkVersion,
         runtimeGitHash: runtimeEntry.entry.runtimeGitHash,
         aspnetCoreGitHash: sdkEntry.entry.aspnetCoreGitHash,
@@ -164,23 +159,37 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         aspnetCoreVersion: sdkEntry.entry.aspnetCoreVersion,
         runtimePackVersion,
         workloadVersion: sdkEntry.entry.workloadVersion,
-        source: sdkEntry.source,
-    };
+        bootstrapSdkVersion: sdkEntry.entry.bootstrapSdkVersion,
+        releaseDate: sdkEntry.entry.releaseDate,
+    });
 
     info(`Resolved SDK info: ${sdkVersion}`);
 
-    // ── Step 4: Compute paths ────────────────────────────────────────────
+    // ── Step 4: Detect if this is the latest daily build ─────────────────
+    const latestDaily = packs.find(p =>
+        p.source === 'daily'
+        && getVersionMajor(p.entry.sdkVersion) === sdkInfo.major,
+    );
+    const isLatestDaily = sdkEntry.source === 'daily'
+        && !!latestDaily
+        && latestDaily.entry.sdkVersion === sdkVersion;
+    if (isLatestDaily) {
+        info('This is the latest daily build for the channel');
+    }
+
+    // ── Step 5: Compute paths ────────────────────────────────────────────
     const platform = ctx.platform;
     const sdkDirName = `${platform}.sdk${sdkVersion}`;
     const sdkDir = join(ctx.artifactsDir, 'sdks', sdkDirName);
     const dotnetBin = join(sdkDir, platform === 'windows' ? 'dotnet.exe' : 'dotnet');
 
-    // ── Step 5: Update context ───────────────────────────────────────────
+    // ── Step 6: Update context ───────────────────────────────────────────
     return {
         ...ctx,
         sdkDir,
         dotnetBin,
         sdkInfo,
+        isLatestDaily,
         buildLabel: sdkVersion,
         publishDir: join(ctx.artifactsDir, 'publish'),
         resultsDir: join(ctx.artifactsDir, 'results'),

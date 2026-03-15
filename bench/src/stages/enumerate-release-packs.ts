@@ -7,18 +7,14 @@ import {
     fetchJson, headOk, githubHeaders, resolveGitHubToken, mapConcurrent,
     GITHUB_API, GITHUB_RAW, NUGET_FLAT, PRODUCT_COMMIT_BASE, RELEASES_INDEX_URL,
 } from '../lib/http.js';
+import { getFeatureBand, getVersionMajor, populateVersionFields } from '../lib/version-utils.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
-
-interface ReleasePackEntry extends SdkInfo {
-    bootstrapSdkVersion: string;
-    releaseDate: string;
-}
 
 interface ReleasePacksList {
     channels: string[];
     totalPacks: number;
-    packs: ReleasePackEntry[];
+    packs: SdkInfo[];
 }
 
 // ── Release metadata types ───────────────────────────────────────────────────
@@ -63,9 +59,7 @@ const CONCURRENCY = 10;
 // ── SDK band extraction ──────────────────────────────────────────────────────
 
 function sdkFeatureBand(sdkVersion: string): number {
-    const match = sdkVersion.match(/^\d+\.\d+\.(\d+)/);
-    if (!match) return 0;
-    return Math.floor(parseInt(match[1], 10) / 100);
+    return getFeatureBand(sdkVersion);
 }
 
 function pickLatestBandSdk(sdks: Array<{ version: string }>): string | null {
@@ -94,7 +88,7 @@ async function resolveRelease(
     candidate: ReleaseCandidate,
     token: string | undefined,
     verbose: boolean,
-): Promise<ReleasePackEntry | null> {
+): Promise<SdkInfo | null> {
     const { runtimeVersion, sdkVersion, releaseDate } = candidate;
     const label = `${runtimeVersion} (SDK ${sdkVersion})`;
 
@@ -223,7 +217,7 @@ async function resolveRelease(
         info(`Resolved ${label} (${isVmr ? 'VMR' : 'pre-VMR'})`);
     }
 
-    return {
+    return populateVersionFields({
         sdkVersion,
         runtimeGitHash,
         aspnetCoreGitHash,
@@ -238,7 +232,7 @@ async function resolveRelease(
         workloadVersion: runtimeVersion,
         bootstrapSdkVersion,
         releaseDate,
-    };
+    });
 }
 
 // ── Existing file helpers ────────────────────────────────────────────────────
@@ -344,7 +338,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     const existing = ctx.forceEnumerate ? null : await loadExisting(outputPath);
     let toResolve: ReleaseCandidate[];
-    const existingPacks: ReleasePackEntry[] = existing?.packs ?? [];
+    const existingPacks: SdkInfo[] = existing?.packs ?? [];
 
     if (existing) {
         const knownVersions = new Set(existing.packs.map(p => p.runtimePackVersion));
@@ -361,12 +355,12 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         return resolveRelease(candidate, token, ctx.verbose);
     });
 
-    const newPacks = resolved.filter((p): p is ReleasePackEntry => p !== null);
+    const newPacks = resolved.filter((p): p is SdkInfo => p !== null);
     info(`Resolved ${newPacks.length}/${toResolve.length} releases`);
 
     // ── Step 5: Merge and sort ───────────────────────────────────────────────
 
-    const mergedMap = new Map<string, ReleasePackEntry>();
+    const mergedMap = new Map<string, SdkInfo>();
     for (const p of existingPacks) mergedMap.set(p.runtimePackVersion, p);
     for (const p of newPacks) mergedMap.set(p.runtimePackVersion, p);
 
@@ -374,13 +368,13 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     const requestedMajors = new Set(releaseMajors);
     const allPacks = [...mergedMap.values()]
         .filter(p => {
-            const major = parseInt(p.runtimePackVersion.split('.')[0], 10);
+            const major = getVersionMajor(p.runtimePackVersion);
             return requestedMajors.has(major);
         })
         .sort((a, b) => {
             // Sort by major descending, then by release date descending
-            const aMajor = parseInt(a.runtimePackVersion.split('.')[0], 10);
-            const bMajor = parseInt(b.runtimePackVersion.split('.')[0], 10);
+            const aMajor = getVersionMajor(a.runtimePackVersion);
+            const bMajor = getVersionMajor(b.runtimePackVersion);
             if (aMajor !== bMajor) return bMajor - aMajor;
             return b.releaseDate.localeCompare(a.releaseDate);
         });

@@ -1,19 +1,15 @@
 import { readFile, writeFile, readdir, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
-import { type BenchContext } from '../context.js';
+import { type BenchContext, type SdkInfo } from '../context.js';
 import { banner, info, debug } from '../log.js';
 import { ensureBranchCheckout } from '../lib/branch-checkout.js';
+import { isPrerelease, getVersionMajor, compareVersions } from '../lib/version-utils.js';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
 interface ResultFile {
-    meta: {
-        runtimeCommitDateTime: string;
-        sdkVersion: string;
-        runtimeGitHash: string;
-        sdkGitHash: string;
-        vmrGitHash: string;
+    meta: SdkInfo & {
         runtime: string;
         preset: string;
         profile: string;
@@ -24,41 +20,14 @@ interface ResultFile {
     metrics: Record<string, number>;
 }
 
-interface LoadedResult {
-    runtimeGitHash: string;
-    aspnetCoreGitHash: string;
-    sdkGitHash: string;
-    vmrGitHash: string;
-    runtimeCommitDateTime: string;
-    runtimeCommitAuthor: string;
-    runtimeCommitMessage: string;
-    aspnetCoreCommitDateTime: string;
-    aspnetCoreVersion: string;
-    sdkVersion: string;
-    runtimePackVersion: string;
-    workloadVersion: string;
+interface LoadedResult extends SdkInfo {
     rowKey: string;
     app: string;
     metrics: Record<string, number>;
 }
 
-interface ViewColumn {
-    runtimeGitHash: string;
-    aspnetCoreGitHash: string;
-    sdkGitHash: string;
-    vmrGitHash: string;
-    runtimeCommitDateTime: string;
-    runtimeCommitAuthor: string;
-    runtimeCommitMessage: string;
-    aspnetCoreCommitDateTime: string;
-    aspnetCoreVersion: string;
-    sdkVersion: string;
-    runtimePackVersion: string;
-    workloadVersion: string;
-}
-
 interface ViewHeader {
-    columns?: ViewColumn[];
+    columns?: SdkInfo[];
     apps?: Record<string, string[]>;
     week?: string;
     release?: string;
@@ -127,22 +96,12 @@ async function loadResults(ctx: BenchContext): Promise<LoadedResult[]> {
             throw new Error(`Missing or unknown sdkVersion in ${filename}`);
         }
 
-        const profile = m.profile || 'desktop';
+        const { runtime, preset, profile: rawProfile, engine, app, ...sdkFields } = m;
+        const profile = rawProfile || 'desktop';
         results.push({
-            runtimeGitHash: m.runtimeGitHash,
-            aspnetCoreGitHash: (m.aspnetCoreGitHash as string) || '',
-            sdkGitHash: (m.sdkGitHash as string) || '',
-            vmrGitHash: (m.vmrGitHash as string) || '',
-            runtimeCommitDateTime: m.runtimeCommitDateTime,
-            runtimeCommitAuthor: (m.runtimeCommitAuthor as string) || '',
-            runtimeCommitMessage: (m.runtimeCommitMessage as string) || '',
-            aspnetCoreCommitDateTime: (m.aspnetCoreCommitDateTime as string) || '',
-            aspnetCoreVersion: (m.aspnetCoreVersion as string) || '',
-            sdkVersion: m.sdkVersion,
-            runtimePackVersion: (m.runtimePackVersion as string) || '',
-            workloadVersion: (m.workloadVersion as string) || '',
-            rowKey: `${m.runtime}/${m.preset}/${profile}/${m.engine}`,
-            app: m.app,
+            ...sdkFields,
+            rowKey: `${runtime}/${preset}/${profile}/${engine}`,
+            app,
             metrics: data.metrics,
         });
     }
@@ -190,11 +149,11 @@ async function buildViews(ctx: BenchContext, allResults: LoadedResult[], viewsDi
     }
 
     // Split results: daily builds (prerelease SDK) vs GA releases (stable SDK)
-    const dailyResults = allResults.filter(r => isDailyBuild(r.sdkVersion));
-    const releaseResults = allResults.filter(r => !isDailyBuild(r.sdkVersion));
+    const dailyResults = allResults.filter(r => isPrerelease(r.sdkVersion));
+    const releaseResults = allResults.filter(r => !isPrerelease(r.sdkVersion));
 
     // Week views: only the highest-major daily builds
-    const dailyMajors = [...new Set(dailyResults.map(r => getSdkMajor(r.sdkVersion)))];
+    const dailyMajors = [...new Set(dailyResults.map(r => getVersionMajor(r.sdkVersion)))];
     const activeDailyMajor = dailyMajors.length > 0 ? Math.max(...dailyMajors) : 0;
     const activeRelease = activeDailyMajor > 0 ? `net${activeDailyMajor}` : '';
 
@@ -205,14 +164,14 @@ async function buildViews(ctx: BenchContext, allResults: LoadedResult[], viewsDi
     const releaseBuckets = new Map<string, LoadedResult[]>();
 
     for (const result of dailyResults) {
-        if (getSdkMajor(result.sdkVersion) !== activeDailyMajor) continue;
+        if (getVersionMajor(result.sdkVersion) !== activeDailyMajor) continue;
         const week = getWeekMonday(result.runtimeCommitDateTime.slice(0, 10));
         if (!weekBuckets.has(week)) weekBuckets.set(week, []);
         weekBuckets.get(week)!.push(result);
     }
 
     for (const result of releaseResults) {
-        const release = `net${getSdkMajor(result.sdkVersion)}`;
+        const release = `net${getVersionMajor(result.sdkVersion)}`;
         if (!releaseBuckets.has(release)) releaseBuckets.set(release, []);
         releaseBuckets.get(release)!.push(result);
     }
@@ -259,28 +218,16 @@ async function writeBucketView(
         ? (r: LoadedResult) => r.runtimeGitHash
         : (r: LoadedResult) => r.sdkVersion;
     const getColumnId = type === 'week'
-        ? (column: ViewColumn) => column.runtimeGitHash
-        : (column: ViewColumn) => column.sdkVersion;
+        ? (column: SdkInfo) => column.runtimeGitHash
+        : (column: SdkInfo) => column.sdkVersion;
 
     // Deduplicate columns
-    const columnMap = new Map<string, ViewColumn>();
+    const columnMap = new Map<string, SdkInfo>();
     for (const r of results) {
         const key = columnKey(r);
         if (!columnMap.has(key)) {
-            columnMap.set(key, {
-                runtimeGitHash: r.runtimeGitHash,
-                aspnetCoreGitHash: r.aspnetCoreGitHash,
-                sdkGitHash: r.sdkGitHash,
-                vmrGitHash: r.vmrGitHash,
-                runtimeCommitDateTime: r.runtimeCommitDateTime,
-                runtimeCommitAuthor: r.runtimeCommitAuthor,
-                runtimeCommitMessage: r.runtimeCommitMessage,
-                aspnetCoreCommitDateTime: r.aspnetCoreCommitDateTime,
-                aspnetCoreVersion: r.aspnetCoreVersion,
-                sdkVersion: r.sdkVersion,
-                runtimePackVersion: r.runtimePackVersion,
-                workloadVersion: r.workloadVersion,
-            });
+            const { rowKey, app, metrics, ...column } = r;
+            columnMap.set(key, column);
         }
     }
 
@@ -293,7 +240,7 @@ async function writeBucketView(
     }
 
     // Sort columns
-    const columns: ViewColumn[] = type === 'week'
+    const columns: SdkInfo[] = type === 'week'
         ? [...columnMap.values()].sort((a, b) =>
             a.runtimeCommitDateTime.localeCompare(b.runtimeCommitDateTime))
         : [...columnMap.values()].sort((a, b) =>
@@ -521,18 +468,6 @@ function sortAppsManifest(appsManifest: Record<string, string[]>): Record<string
     return sorted;
 }
 
-function isDailyBuild(sdkVersion: string): boolean {
-    return sdkVersion.includes('-');
-}
-
-function getSdkMajor(sdkVersion: string): number {
-    const major = parseInt(sdkVersion.split('.')[0], 10);
-    if (!Number.isFinite(major)) {
-        throw new Error(`Cannot parse SDK major version from '${sdkVersion}'`);
-    }
-    return major;
-}
-
 function getWeekMonday(dateStr: string): string {
     const d = new Date(dateStr + 'T00:00:00Z');
     const day = d.getUTCDay();
@@ -546,18 +481,5 @@ function compareNetLabel(a: string, b: string): number {
 }
 
 function compareSdkVersion(a: string, b: string): number {
-    const parse = (v: string) => {
-        const dashIdx = v.indexOf('-');
-        const mainPart = dashIdx === -1 ? v : v.slice(0, dashIdx);
-        const pre = dashIdx === -1 ? '' : v.slice(dashIdx + 1);
-        const [major, minor, patch] = mainPart.split('.').map(Number);
-        const preOrder = pre === '' ? 2 : pre.startsWith('rc') ? 1 : 0;
-        return { major, minor, patch, preOrder, pre };
-    };
-    const pa = parse(a), pb = parse(b);
-    return (pa.major - pb.major)
-        || (pa.minor - pb.minor)
-        || (pa.patch - pb.patch)
-        || (pa.preOrder - pb.preOrder)
-        || pa.pre.localeCompare(pb.pre);
+    return compareVersions(a, b);
 }
