@@ -2,16 +2,18 @@
 <html lang="en">
 
 <head>
-    <title>empty-blazor</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <base href="/" />
+    <title>.NET WASM Benchmark Dashboard</title>
+    <base href="/simple-bench/" />
+    <link rel="preload" id="webassembly" />
     <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
-    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
-    <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png" />
-    <script type="importmap"></script>
+    <script src="lib/chartjs/chart.umd.min.js"></script>
+    <script src="lib/chartjs/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="lib/chartjs/chartjs-plugin-zoom.min.js"></script>
+    <script src="lib/chartjs/hammer.min.js"></script>
 </head>
 
 <body>
@@ -28,8 +30,8 @@
         <a href="." class="reload">Reload</a>
         <span class="dismiss">🗙</span>
     </div>
-    <script src="_framework/blazor.webassembly#[.{fingerprint}].js" autostart="false"></script>
-    <script src="main#[.{fingerprint}].mjs" type="module"></script>
+    <script src="_framework/blazor.webassembly.js" autostart="false"></script>
+    <script src="main.mjs" type="module"></script>
 </body>
 
 </html>

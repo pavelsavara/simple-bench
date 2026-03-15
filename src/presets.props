@@ -3,11 +3,11 @@
   <PropertyGroup>
     <BenchmarkPreset Condition="'$(BenchmarkPreset)' == ''">DevLoop</BenchmarkPreset>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <WasmFingerprintAssets>false</WasmFingerprintAssets>
-    <BlazorFingerprintBlazorJs>false</BlazorFingerprintBlazorJs>
   </PropertyGroup>
 
   <!-- consider
+    <WasmFingerprintAssets>false</WasmFingerprintAssets>
+    <BlazorFingerprintBlazorJs>false</BlazorFingerprintBlazorJs>
     <TrimMode>link</TrimMode>
     <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
     <EnableDiagnostics>true</EnableDiagnostics>
@@ -23,7 +23,7 @@
   </ItemGroup>
   -->
 
-  <!-- Presets -->
+  <!-- Preset DevLoop -->
   <PropertyGroup Condition="'$(BenchmarkPreset)' == 'DevLoop'">
     <Configuration>Debug</Configuration>
     <WasmBuildNative>false</WasmBuildNative>
@@ -41,6 +41,7 @@
     <PublishTrimmed>false</PublishTrimmed>
   </PropertyGroup>
 
+  <!-- Preset NoWorkload -->
   <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NoWorkload'">
     <Configuration>Release</Configuration>
     <WasmBuildNative>false</WasmBuildNative>
@@ -49,6 +50,7 @@
     <PublishTrimmed>true</PublishTrimmed>
   </PropertyGroup>
 
+  <!-- Preset NativeRelink -->
   <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NativeRelink'">
     <Configuration>Release</Configuration>
     <WasmBuildNative>true</WasmBuildNative>
@@ -68,6 +70,7 @@
     <PublishTrimmed>true</PublishTrimmed>
   </PropertyGroup>
 
+  <!-- Preset NoJiterp -->
   <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NoJiterp'">
     <Configuration>Release</Configuration>
     <WasmBuildNative>true</WasmBuildNative>
@@ -78,6 +81,7 @@
     <PublishTrimmed>true</PublishTrimmed>
   </PropertyGroup>
 
+  <!-- Preset Invariant -->
   <PropertyGroup Condition="'$(BenchmarkPreset)' == 'Invariant' or '$(BenchmarkPreset)' == 'NoReflectionEmit'">
     <Configuration>Release</Configuration>
     <WasmBuildNative>true</WasmBuildNative>
@@ -98,9 +102,9 @@
     <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
     <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>full</TrimMode>
-
   </PropertyGroup>
 
+  <!-- Preset NoReflectionEmit -->
   <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NoReflectionEmit'">
     <DynamicCodeSupport>false</DynamicCodeSupport>
     <StackTraceSupport>false</StackTraceSupport>

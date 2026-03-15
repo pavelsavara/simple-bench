@@ -18,4 +18,25 @@
         </ItemGroup>
         <Message Text="Overriding runtime pack with: $(RuntimePackDir)" Importance="High" />
     </Target>
+
+    <Target Name="NoFingerprinting" AfterTargets="ComputeAndCopyFilesToPublishDirectory"
+             Condition="'$(BenchmarkTargetFramework)' == 'net8.0' or '$(BenchmarkTargetFramework)' == 'net9.0'">
+
+        <PropertyGroup>
+            <_PublishedIndexHtml>$(PublishDir)\wwwroot\index.html</_PublishedIndexHtml>
+            <_SourceIndex9Html>$(MSBuildProjectDirectory)\wwwroot\index9.html</_SourceIndex9Html>
+        </PropertyGroup>
+
+        <Message Text="Overriding index.html with index9.html to disable fingerprinting for JS and MJS files." Importance="High" />
+
+        <Copy SourceFiles="$(_SourceIndex9Html)"
+              DestinationFiles="$(_PublishedIndexHtml)"
+              OverwriteReadOnlyFiles="true"
+              Condition="Exists('$(_SourceIndex9Html)') and Exists('$(_PublishedIndexHtml)')" />
+
+        <!-- Remove stale compressed versions of the old index.html -->
+        <Delete Files="$(_PublishedIndexHtml).br" Condition="Exists('$(_PublishedIndexHtml).br')" />
+        <Delete Files="$(_PublishedIndexHtml).gz" Condition="Exists('$(_PublishedIndexHtml).gz')" />
+    </Target>
+
 </Project>

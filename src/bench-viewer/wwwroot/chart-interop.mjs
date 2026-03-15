@@ -35,6 +35,7 @@ const PRESET_DASH = {
 const RUNTIME_MARKER = {
     mono: 'triangle',
     coreclr: 'circle',
+    naotllvm: 'rect',
 };
 
 const PROFILE_LINE_WIDTH = {

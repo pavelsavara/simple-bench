@@ -74,6 +74,14 @@
             </div>
         </div>
 
+        @if (!string.IsNullOrEmpty(@currentApp))
+        {
+            <div class="app-link-panel">
+                <a href="./apps/@currentApp/" target="_blank" rel="noopener">
+                    The application published with no-workload preset with the latest daily SDK ↗
+                </a>
+            </div>
+        }
         <div class="charts-area px-3 py-2">
             @foreach (var metric in currentMetrics)
             {

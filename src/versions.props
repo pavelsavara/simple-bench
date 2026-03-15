@@ -37,4 +37,17 @@
     <NetEscapadesEnumGeneratorsVersion>1.0.0-beta20</NetEscapadesEnumGeneratorsVersion>
   </PropertyGroup>
 
+  <!-- fingerprinting for JS and MJS files only for Net10 and above -->
+  <ItemGroup Condition="'$(BenchmarkTargetFramework)' != 'net8.0' and '$(BenchmarkTargetFramework)' != 'net9.0'">
+    <StaticWebAssetFingerprintPattern Include="JS" Pattern="*.js" Expression="#[.{fingerprint}]!" />
+    <StaticWebAssetFingerprintPattern Include="MJS" Pattern="*.mjs" Expression="#[.{fingerprint}]!" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(BenchmarkTargetFramework)' != 'net8.0' and '$(BenchmarkTargetFramework)' != 'net9.0'">
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(BenchmarkTargetFramework)' == 'net8.0' or '$(BenchmarkTargetFramework)' == 'net9.0'">
+    <WasmFingerprintAssets>false</WasmFingerprintAssets>
+    <BlazorFingerprintBlazorJs>false</BlazorFingerprintBlazorJs>
+  </PropertyGroup>
+
 </Project>
