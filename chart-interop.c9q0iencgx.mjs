@@ -99,21 +99,15 @@ const MICROBENCH_SKIP_METRICS = new Set([
     'compile-time', 'disk-size-native', 'disk-size-assemblies', 'download-size-total',
 ]);
 
-// Release tick spacing: feature band (hundreds digit × 100) × 12h + service release (last 2 digits) × 48h
-// e.g. 8.0.100 → band=100, svc=0; 8.0.302 → band=300, svc=2; 8.0.406 → band=400, svc=6
-const RELEASE_BAND_INTERVAL_MS = 12 * 3600000;     // 12 hours per band unit (band 100 = 50 days)
-const RELEASE_SERVICE_INTERVAL_MS = 48 * 3600000;   // 48 hours per service release
+// Release tick spacing: each release column gets a fixed slot, with gaps between majors
+const RELEASE_TICK_MS = 3 * 86400000;              // 3 days per release column
+const RELEASE_MAJOR_GAP_MS = 10 * 86400000;        // 10-day gap between major version groups
+const RELEASE_DAILY_GAP_MS = 30 * 86400000;        // 30-day gap before daily builds
 
 function parseSdkPatch(sdkVersion) {
     const parts = sdkVersion.split('.');
     if (parts.length < 3) return 0;
     return parseInt(parts[2].split('-')[0], 10) || 0;
-}
-
-function releasePatchOffsetMs(patch) {
-    const band = Math.floor(patch / 100) * 100;  // 100, 200, 300, 400
-    const service = patch % 100;                   // 0, 1, 2, ...
-    return band * RELEASE_BAND_INTERVAL_MS + service * RELEASE_SERVICE_INTERVAL_MS;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -304,6 +298,57 @@ export async function loadAppCharts(app, filtersJson) {
         }
     }
 
+    // ── Pre-compute release tick dates (once for all metrics) ──
+    // Each release column gets a fixed-width slot. Gaps between majors and before dailies.
+    // Result: bucket.label → tickDates[] (ISO strings, one per column)
+    const releaseTickMap = new Map();  // bucket.label → string[]
+
+    {
+        // Find earliest daily build date from week bucket headers
+        let earliestDailyMs = null;
+        for (const wb of weekBuckets) {
+            for (const col of (wb.header.columns || [])) {
+                if (col.runtimeCommitDateTime) {
+                    const ms = new Date(col.runtimeCommitDateTime).getTime();
+                    if (!earliestDailyMs || ms < earliestDailyMs) earliestDailyMs = ms;
+                }
+            }
+        }
+
+        // Count total release columns and compute sequential tick positions
+        const bucketColCounts = releaseBuckets.map(b => (b.header.columns || []).length);
+        const totalCols = bucketColCounts.reduce((a, b) => a + b, 0);
+        const totalGaps = Math.max(0, releaseBuckets.length - 1);
+        const totalSpanMs = totalCols * RELEASE_TICK_MS + totalGaps * RELEASE_MAJOR_GAP_MS;
+
+        // Anchor: place last release tick at (earliestDaily - gap), or use first bucket's natural date
+        let startMs;
+        if (earliestDailyMs) {
+            startMs = earliestDailyMs - RELEASE_DAILY_GAP_MS - totalSpanMs;
+        } else if (releaseBuckets.length > 0) {
+            const firstCol = releaseBuckets[0].header.columns?.[0];
+            startMs = firstCol?.runtimeCommitDateTime
+                ? new Date(firstCol.runtimeCommitDateTime).getTime() : Date.now() - totalSpanMs;
+        } else {
+            startMs = Date.now();
+        }
+
+        let cursor = startMs;
+        for (let bi = 0; bi < releaseBuckets.length; bi++) {
+            const cols = releaseBuckets[bi].header.columns || [];
+            const ticks = cols.map(() => {
+                const t = new Date(cursor).toISOString();
+                cursor += RELEASE_TICK_MS;
+                return t;
+            });
+            releaseTickMap.set(releaseBuckets[bi].label, ticks);
+            // Add gap before next major (but not after the last one)
+            if (bi < releaseBuckets.length - 1) {
+                cursor += RELEASE_MAJOR_GAP_MS;
+            }
+        }
+    }
+
     const rendered = [];
 
     for (const metric of metrics) {
@@ -321,14 +366,10 @@ export async function loadAppCharts(app, filtersJson) {
         const allRowKeys = new Set();
 
         // ── Release data (frozen zone) ──
-        // First release in each major anchors at its runtimeCommitDateTime.
-        // Subsequent releases offset by (patch - firstPatch) * 4 hours.
-        // Each major's anchor is shifted forward if it would overlap the previous major.
+        // Anchors are precomputed above to guarantee net8 < net9 < net10 < daily builds.
         const frozenPointsByRow = {};  // rowKey → points[]
-        const RELEASE_BUCKET_GAP_MS = 30 * 86400000; // 30-day gap between major release groups
 
         if (showReleases) {
-            let prevBucketMaxTickMs = null;
             for (const bucket of releaseBuckets) {
                 const bucketMetrics = bucket.header.apps?.[app];
                 if (!bucketMetrics || !bucketMetrics.includes(metric)) continue;
@@ -337,36 +378,8 @@ export async function loadAppCharts(app, filtersJson) {
                 const metricData = await fetchJson(dataUrl);
                 if (!metricData) continue;
 
-                // Compute tick dates: anchor on first column's runtimeCommitDateTime,
-                // offset subsequent columns by (patch - firstPatch) * 4h
                 const cols = bucket.header.columns || [];
-                const firstCol = cols[0];
-                let anchorDate = firstCol?.runtimeCommitDateTime
-                    ? new Date(firstCol.runtimeCommitDateTime) : null;
-                const firstPatch = firstCol ? parseSdkPatch(firstCol.sdkVersion) : 0;
-                const firstOffset = releasePatchOffsetMs(firstPatch);
-
-                // Ensure this bucket starts after the previous bucket's last tick
-                if (anchorDate && prevBucketMaxTickMs) {
-                    const minRequired = prevBucketMaxTickMs + RELEASE_BUCKET_GAP_MS;
-                    if (anchorDate.getTime() < minRequired) {
-                        anchorDate = new Date(minRequired);
-                    }
-                }
-
-                const tickDates = cols.map((col) => {
-                    if (!anchorDate) return null;
-                    const patch = parseSdkPatch(col.sdkVersion);
-                    return new Date(anchorDate.getTime() + releasePatchOffsetMs(patch) - firstOffset).toISOString();
-                });
-
-                // Track max tick for ensuring next bucket comes after
-                for (const t of tickDates) {
-                    if (t) {
-                        const ms = new Date(t).getTime();
-                        if (!prevBucketMaxTickMs || ms > prevBucketMaxTickMs) prevBucketMaxTickMs = ms;
-                    }
-                }
+                const tickDates = releaseTickMap.get(bucket.label) || [];
 
                 for (const [rowKey, values] of Object.entries(metricData)) {
                     allRowKeys.add(rowKey);
