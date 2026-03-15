@@ -1,0 +1,79 @@
+{
+  "columns": [
+    {
+      "sdkVersion": "8.0.419",
+      "runtimeGitHash": "b753199016332cbf257e70c417aa5d1d02202dc7",
+      "aspnetCoreGitHash": "ef18546e04f9b0127bbd7709b6af054cc18da98a",
+      "sdkGitHash": "9c30042786e42e6be80a6b107d13f51293740a4f",
+      "vmrGitHash": "9c30042786e42e6be80a6b107d13f51293740a4f",
+      "runtimeCommitDateTime": "2026-02-12T09:27:33Z",
+      "runtimeCommitAuthor": "Mirroring",
+      "runtimeCommitMessage": "Merge commit 'cf19152e6aafdcdb03b1f6bab452cd4bb926c58f'",
+      "aspnetCoreCommitDateTime": "2026-02-12T23:39:10Z",
+      "aspnetCoreVersion": "8.0.25",
+      "runtimePackVersion": "8.0.25",
+      "workloadVersion": "8.0.25",
+      "bootstrapSdkVersion": "8.0.122",
+      "releaseDate": "2026-03-10",
+      "major": 8,
+      "minor": 0,
+      "patch": 419,
+      "channel": "8.0",
+      "isPrerelease": false,
+      "benchmarkDateTime": "2026-03-15T20:50:24.527Z",
+      "ciRunId": "23118430818",
+      "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23118430818"
+    }
+  ],
+  "apps": {
+    "blazing-pizza": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-total",
+      "memory-peak",
+      "pizza-walkthrough",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
+    ],
+    "empty-blazor": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-total",
+      "memory-peak",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
+    ],
+    "havit-bootstrap": [
+      "compile-time",
+      "disk-size-assemblies",
+      "disk-size-native",
+      "download-size-total",
+      "havit-walkthrough",
+      "memory-peak",
+      "time-to-create-dotnet-cold",
+      "time-to-create-dotnet-warm",
+      "time-to-reach-managed-cold",
+      "time-to-reach-managed-warm",
+      "wasm-memory-size"
+    ],
+    "micro-benchmarks": [
+      "compile-time",
+      "exception-ops",
+      "js-interop-ops",
+      "json-parse-ops",
+      "memory-peak",
+      "time-to-create-dotnet-cold",
+      "time-to-exit-cold",
+      "wasm-memory-size"
+    ]
+  },
+  "release": "net8"
+}
