@@ -292,6 +292,27 @@ code {
     color: #e0e0e0;
 }
 
+/* Deployed app link panel */
+.app-link-panel {
+    background: linear-gradient(135deg, #512bd4 0%, #7c4dff 100%);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    text-align: center;
+    border-bottom: 2px solid #4724b8;
+}
+
+.app-link-panel a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.app-link-panel a:hover {
+    color: #e0d4ff;
+    text-decoration: underline;
+}
+
 @media (max-width: 767.98px) {
     .page {
         flex-direction: column;
