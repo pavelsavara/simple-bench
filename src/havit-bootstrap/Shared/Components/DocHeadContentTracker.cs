@@ -56,7 +56,7 @@ public class DocHeadContentTracker(NavigationManager navigationManager)
 		var relativeUrl = GetRegisteredCanonicalUrl();
 		if (relativeUrl != null)
 		{
-			result = "https://havit.blazor.eu/" + relativeUrl.TrimStart('/');
+			result = _navigationManager.BaseUri.TrimEnd('/') + "/" + relativeUrl.TrimStart('/');
 			result = result.TrimEnd('/');
 		}
 
