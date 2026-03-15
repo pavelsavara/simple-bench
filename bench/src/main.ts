@@ -16,7 +16,6 @@ async function main(): Promise<void> {
         console.log('Profiles:', ctx.profiles.join(', '));
         console.log('Repo root:', ctx.repoRoot);
         console.log('Artifacts:', ctx.artifactsDir);
-        if (ctx.viaDocker) console.log('Mode: via-docker');
         if (ctx.dryRun) console.log('Mode: dry-run');
     }
 

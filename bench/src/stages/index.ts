@@ -68,9 +68,5 @@ async function runStagesDirect(ctx: BenchContext): Promise<BenchContext> {
 // ── Public Runner ────────────────────────────────────────────────────────────
 
 export async function runStages(ctx: BenchContext): Promise<BenchContext> {
-    if (ctx.viaDocker && !ctx.isDocker) {
-        const { runStagesViaDocker } = await import('./docker-wrapper.js');
-        return runStagesViaDocker(ctx, runStagesDirect);
-    }
     return runStagesDirect(ctx);
 }

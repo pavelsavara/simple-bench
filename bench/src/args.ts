@@ -18,7 +18,6 @@ Usage: bench [options]
 Pipeline control:
   --stages <list>          Comma-separated stage names (default: resolve-sdk,download-sdk,build,measure,transform-views)
                            Valid: ${ALL_STAGES.join(', ')}
-  --via-docker             Run build/measure stages inside Docker containers
   --context <path>         Load/save BenchContext from JSON file (cross-container handoff)
   --dry-run                Minimal run: empty-browser + devloop + chrome only
 
@@ -45,7 +44,7 @@ Measurement:
   --warm-runs <n>          Warm/cold reload iterations (default: 5)
   --no-headless            Launch browsers in headed mode
 
-Docker (only with --via-docker):
+Docker:
   --skip-docker-build      Reuse existing Docker images
   --force-docker-build     Rebuild Docker images even if they exist
 
@@ -73,7 +72,6 @@ General:
 const ARG_OPTIONS = {
     // Pipeline control
     'stages': { type: 'string' as const, default: 'resolve-sdk,download-sdk,build,measure,transform-views' },
-    'via-docker': { type: 'boolean' as const, default: false },
     'context': { type: 'string' as const, default: '' },
     'dry-run': { type: 'boolean' as const, default: false },
 
@@ -213,7 +211,6 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
     const ctx: BenchContext = {
         // Pipeline control
         stages,
-        viaDocker: values['via-docker'] ?? false,
         dryRun,
         verbose: values.verbose ?? false,
 
@@ -267,6 +264,7 @@ export async function buildContext(argv?: string[]): Promise<BenchContext> {
         // Resolved state from earlier stages (via --context)
         sdkInfo: loaded.sdkInfo!,
         buildManifest: loaded.buildManifest!,
+        isLatestDaily: loaded.isLatestDaily ?? false,
 
         // Environment detection
         platform: detectPlatform(),

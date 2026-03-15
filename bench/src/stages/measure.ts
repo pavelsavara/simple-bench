@@ -153,7 +153,6 @@ function buildMeta(
         engine,
         app: entry.app,
         benchmarkDateTime: new Date().toISOString(),
-        warmRunCount: ctx.warmRuns,
     };
     if (ctx.ciRunId) {
         meta.ciRunId = ctx.ciRunId;

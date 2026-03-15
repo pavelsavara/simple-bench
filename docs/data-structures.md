@@ -60,7 +60,7 @@ Written to `artifacts/results/{runId}/` and consumed by `transform-views` when r
 
 **Filename**: `{runtimeCommitDateTime}_{hash:7}_{runtime}_{preset}_{profile}_{engine}_{app}.json`
 
-**Structure**: `{ meta, metrics }` where `meta` contains SDK identity + dimension values (runtime, preset, profile, engine, app, benchmarkDateTime, warmRunCount) and `metrics` contains measured values keyed by `MetricKey`.
+**Structure**: `{ meta, metrics }` where `meta` contains SDK identity + dimension values (runtime, preset, profile, engine, app, benchmarkDateTime) and `metrics` contains measured values keyed by `MetricKey`.
 
 Built by [`buildResultJson()`](../bench/src/lib/measure-utils.ts#L174) and [`buildResultFilename()`](../bench/src/lib/measure-utils.ts#L208). Metric keys defined in [`bench/src/enums.ts`](../bench/src/enums.ts#L62).
 

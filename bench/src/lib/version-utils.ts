@@ -29,10 +29,10 @@ export function parseVersion(version: string): ParsedVersion {
     const prerelease = dashIdx === -1 ? '' : version.slice(dashIdx + 1);
     const parts = mainPart.split('.').map(Number);
     const [major, minor, patch] = parts;
-    if (!Number.isFinite(major) || !Number.isFinite(minor)) {
+    if (!Number.isFinite(major)) {
         throw new Error(`Cannot parse version '${version}'`);
     }
-    return { major, minor, patch: patch || 0, prerelease, isPrerelease: prerelease !== '' };
+    return { major, minor: minor || 0, patch: patch || 0, prerelease, isPrerelease: prerelease !== '' };
 }
 
 // ── Convenience accessors ────────────────────────────────────────────────────

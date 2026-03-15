@@ -42,7 +42,6 @@ export interface BuildManifestEntry {
 export interface BenchContext {
     // ── Parsed CLI options ──
     stages: Stage[];
-    viaDocker: boolean;
     dryRun: boolean;
     verbose: boolean;
 
