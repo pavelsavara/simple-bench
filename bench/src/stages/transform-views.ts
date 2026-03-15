@@ -224,7 +224,7 @@ async function buildViews(ctx: BenchContext, allResults: LoadedResult[], viewsDi
     }
 
     // Write release views
-    const releaseKeys = [...releaseBuckets.keys()].sort();
+    const releaseKeys = [...releaseBuckets.keys()].sort(compareNetLabel);
     for (const release of releaseKeys) {
         await writeBucketView(
             join(viewsDir, 'releases', release),
@@ -477,7 +477,7 @@ function mergeViewIndex(existing: ViewIndex | null, current: ViewIndex): ViewInd
     return {
         lastUpdated: new Date().toISOString(),
         activeRelease: current.activeRelease || existing?.activeRelease || '',
-        releases: [...new Set([...(existing?.releases || []), ...(current.releases || [])])].sort(),
+        releases: [...new Set([...(existing?.releases || []), ...(current.releases || [])])].sort(compareNetLabel),
         weeks: [...new Set([...(existing?.weeks || []), ...(current.weeks || [])])].sort().reverse(),
         apps: [...new Set([...(existing?.apps || []), ...(current.apps || [])])].sort(),
         metrics: mergedMetrics,
@@ -539,6 +539,10 @@ function getWeekMonday(dateStr: string): string {
     const diff = day === 0 ? 6 : day - 1;
     d.setUTCDate(d.getUTCDate() - diff);
     return d.toISOString().slice(0, 10);
+}
+
+function compareNetLabel(a: string, b: string): number {
+    return (parseInt(a.replace('net', ''), 10) || 0) - (parseInt(b.replace('net', ''), 10) || 0);
 }
 
 function compareSdkVersion(a: string, b: string): number {
