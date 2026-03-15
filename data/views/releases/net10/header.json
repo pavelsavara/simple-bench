@@ -1,6 +1,20 @@
 {
   "columns": [
     {
+      "runtimeGitHash": "60629d14374c56f1cb51819049ad1fa529307f8d",
+      "aspnetCoreGitHash": "7387de91234d3ef751fa50b3d1bfede4130213ff",
+      "sdkGitHash": "e6bc966cc3d1348265b0831c6daca23267169d8f",
+      "vmrGitHash": "b0f34d51fccc69fd334253924abd8d6853fad7aa",
+      "runtimeCommitDateTime": "2025-10-22T01:58:18Z",
+      "runtimeCommitAuthor": "github-actions[bot]",
+      "runtimeCommitMessage": "[release/10.0] Mark labels in x64 write barrier code as local/alt_entry (#120923)",
+      "aspnetCoreCommitDateTime": "2025-10-17T17:59:24Z",
+      "aspnetCoreVersion": "10.0.0",
+      "sdkVersion": "10.0.100",
+      "runtimePackVersion": "10.0.0",
+      "workloadVersion": "10.0.105"
+    },
+    {
       "runtimeGitHash": "138d5fe8f32e954a3a834be6360a834688130d4f",
       "aspnetCoreGitHash": "373d4826c58ac2f1c8d49fdaf31bc9eddf9e7437",
       "sdkGitHash": "b7adad29114ef57fabf65324e712753767038626",
