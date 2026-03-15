@@ -1,20 +1,31 @@
 {
-  "lastUpdated": "2026-03-15T21:25:05.946Z",
-  "activeRelease": "",
-  "releases": [
-    "net8",
-    "net9",
-    "net10"
+  "columns": [
+    {
+      "sdkVersion": "9.0.312",
+      "runtimeGitHash": "19c07820cb72aafc554c3bc8fe3c54010f5123f0",
+      "aspnetCoreGitHash": "baa6b294e728e6171378b4e8c52e42e7c4d4ed63",
+      "sdkGitHash": "c45411d3fd7049c50a8bd4391ecb9ff7080fc519",
+      "vmrGitHash": "c45411d3fd7049c50a8bd4391ecb9ff7080fc519",
+      "runtimeCommitDateTime": "2026-02-19T17:58:18Z",
+      "runtimeCommitAuthor": "Tanner Gooding",
+      "runtimeCommitMessage": "#124513 - Guard Base64Url.DecodeFromChars against non-ASCII input (#124540)",
+      "aspnetCoreCommitDateTime": "2026-02-20T05:57:52Z",
+      "aspnetCoreVersion": "9.0.14",
+      "runtimePackVersion": "9.0.14",
+      "workloadVersion": "9.0.14",
+      "bootstrapSdkVersion": "9.0.113",
+      "releaseDate": "2026-03-10",
+      "major": 9,
+      "minor": 0,
+      "patch": 312,
+      "channel": "9.0",
+      "isPrerelease": false,
+      "benchmarkDateTime": "2026-03-15T21:14:38.808Z",
+      "ciRunId": "23118435678",
+      "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23118435678"
+    }
   ],
-  "weeks": [],
-  "apps": [
-    "blazing-pizza",
-    "empty-blazor",
-    "havit-bootstrap",
-    "micro-benchmarks",
-    "mud-blazor"
-  ],
-  "metrics": {
+  "apps": {
     "blazing-pizza": [
       "compile-time",
       "disk-size-assemblies",
@@ -77,28 +88,5 @@
       "wasm-memory-size"
     ]
   },
-  "dimensions": {
-    "runtimes": [
-      "mono"
-    ],
-    "presets": [
-      "aot",
-      "devloop",
-      "invariant",
-      "native-relink",
-      "no-jiterp",
-      "no-reflection-emit",
-      "no-workload"
-    ],
-    "profiles": [
-      "desktop",
-      "mobile"
-    ],
-    "engines": [
-      "chrome",
-      "firefox",
-      "node",
-      "v8"
-    ]
-  }
+  "release": "net9"
 }
