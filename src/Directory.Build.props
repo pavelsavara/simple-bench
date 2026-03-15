@@ -3,6 +3,12 @@
 
   <Import Project="presets.props" />
 
+  <!-- Prevent MSB5022: ILLink/WASM tasks need IBuildEngine callbacks, so
+       they must run in-process rather than in the out-of-proc task host. -->
+  <PropertyGroup>
+    <MSBuildDisableTaskHost>true</MSBuildDisableTaskHost>
+  </PropertyGroup>
+
   <!-- bin/obj location: artifacts/{bin,obj}/{app}/{BuildLabel}/{BenchmarkPreset} -->
   <PropertyGroup>
     <BuildLabel Condition="'$(BuildLabel)' == ''">local</BuildLabel>
