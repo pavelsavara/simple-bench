@@ -101,9 +101,9 @@ These presets break Blazor's runtime reflection requirements.
 | `time-to-exit-cold` | Time to Exit (Cold) | ms | time | Median of N cold loads, `bench_results['time-to-exit']` (non-Blazor only) |
 | `wasm-memory-size` | WASM Memory Size | bytes | memory | Max across all loads, `bench_results['wasm-memory-size']` |
 | `memory-peak` | Peak JS Heap | bytes | memory | CDP `Performance.getMetrics` JSHeapUsedSize polling (Chrome only) |
-| `pizza-walkthrough` | Pizza Walkthrough | ms | time | Playwright UI automation of order flow (blazing-pizza + desktop only) |
-| `havit-walkthrough` | Havit Walkthrough | ms | time | Playwright UI automation |
-| `mud-walkthrough` | Havit Walkthrough | ms | time | Playwright UI automation |
+| `pizza-walkthrough` | Pizza Walkthrough | ms | time | Playwright UI automation of order flow (blazing-pizza + chrome/desktop only) |
+| `havit-walkthrough` | Havit Walkthrough | ms | time | Playwright UI automation (havit-bootstrap + chrome/desktop only) |
+| `mud-walkthrough` | Mud Walkthrough | ms | time | Playwright UI automation (mud-blazor + chrome/desktop only) |
 
 ### Internal metrics (micro-benchmarks only)
 
@@ -133,9 +133,9 @@ These presets break Blazor's runtime reflection requirements.
 | time-to-exit-cold | ✓ (non-Blazor) | ✓ (non-Blazor) | ✓ | ✓ |
 | wasm-memory-size | ✓ | ✓ | ✓ | ✓ |
 | memory-peak | ✓ | null | null | null |
-| pizza-walkthrough | ✓ (blazing-pizza + desktop) | ✓ (blazing-pizza + desktop) | null | null |
-| havit-walkthrough | ✓ (havit-bootstrap + desktop) | ✓ (havit-bootstrap + desktop) | null | null |
-| mud-walkthrough | ✓ (mud-blazor + desktop) | ✓ (mud-blazor + desktop) | null | null |
+| pizza-walkthrough | ✓ (blazing-pizza + desktop) | null | null | null |
+| havit-walkthrough | ✓ (havit-bootstrap + desktop) | null | null | null |
+| mud-walkthrough | ✓ (mud-blazor + desktop) | null | null | null |
 | js-interop-ops | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) |
 | json-parse-ops | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) |
 | exception-ops | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) | ✓ (micro-benchmarks) |

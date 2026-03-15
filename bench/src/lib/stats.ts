@@ -58,6 +58,12 @@ export function median(sorted: number[]): number {
         : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
+/** Copy, sort, and return the median. Returns null if empty. */
+export function sortedMedian(values: number[]): number | null {
+    if (values.length === 0) return null;
+    return median([...values].sort((a, b) => a - b));
+}
+
 /** Approximate t-critical value for 95% CI (two-tailed) for small df. */
 function tCritical95(df: number): number {
     const table: Record<number, number> = {

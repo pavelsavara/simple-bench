@@ -1,4 +1,5 @@
 import { writeFile } from 'node:fs/promises';
+import { setTimeout as sleep } from 'node:timers/promises';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { type BenchContext, type BuildManifestEntry } from '../context.js';
@@ -23,7 +24,8 @@ import { getEngineCommand, parseCliOutput } from '../lib/internal-utils.js';
 import { runPizzaWalkthrough } from '../lib/pizza-walkthrough.js';
 import { runHavitWalkthrough } from '../lib/havit-walkthrough.js';
 import { runMudWalkthrough } from '../lib/mud-walkthrough.js';
-import { type SampleStats, computeStats, formatStats, median } from '../lib/stats.js';
+import { type SampleStats, computeStats, formatStats, sortedMedian } from '../lib/stats.js';
+import type { CDPSession, Page, BrowserContext, Browser } from 'playwright';
 
 // ── Stage Entry Point ────────────────────────────────────────────────────────
 
@@ -143,19 +145,9 @@ function buildMeta(
     engine: Engine,
     profile: Profile,
 ): Record<string, unknown> {
+    const { source: _source, ...sdkFields } = ctx.sdkInfo;
     const meta: Record<string, unknown> = {
-        runtimeCommitDateTime: ctx.sdkInfo.runtimeCommitDateTime,
-        runtimeCommitAuthor: ctx.sdkInfo.runtimeCommitAuthor,
-        runtimeCommitMessage: ctx.sdkInfo.runtimeCommitMessage,
-        sdkVersion: ctx.sdkInfo.sdkVersion,
-        runtimeGitHash: ctx.sdkInfo.runtimeGitHash,
-        aspnetCoreGitHash: ctx.sdkInfo.aspnetCoreGitHash,
-        sdkGitHash: ctx.sdkInfo.sdkGitHash,
-        vmrGitHash: ctx.sdkInfo.vmrGitHash,
-        aspnetCoreCommitDateTime: ctx.sdkInfo.aspnetCoreCommitDateTime,
-        aspnetCoreVersion: ctx.sdkInfo.aspnetCoreVersion,
-        runtimePackVersion: ctx.sdkInfo.runtimePackVersion,
-        workloadVersion: ctx.sdkInfo.workloadVersion,
+        ...sdkFields,
         runtime: entry.runtime,
         preset: entry.preset,
         profile,
@@ -169,6 +161,265 @@ function buildMeta(
         meta.ciRunUrl = `https://github.com/${ctx.repo ?? 'dotnet/simple-bench'}/actions/runs/${ctx.ciRunId}`;
     }
     return meta;
+}
+
+// ── Shared Types & Helpers ───────────────────────────────────────────────────
+
+interface BenchTimings {
+    reachManaged: number | null;
+    createDotnet: number | null;
+    wasmMemory: number | null;
+    exit: number | null;
+}
+
+function extractTimings(results: Record<string, number>): BenchTimings {
+    return {
+        reachManaged: results['time-to-reach-managed'] ?? null,
+        createDotnet: results['time-to-create-dotnet'] ?? null,
+        wasmMemory: results['wasm-memory-size'] ?? null,
+        exit: results['time-to-exit'] ?? null,
+    };
+}
+
+function pushTiming(arrays: TimingArrays, t: BenchTimings): void {
+    if (t.reachManaged != null) arrays.reachManaged.push(t.reachManaged);
+    if (t.createDotnet != null) arrays.createDotnet.push(t.createDotnet);
+    if (t.exit != null) arrays.exit.push(t.exit);
+    if (t.wasmMemory != null) arrays.wasmMemory.push(t.wasmMemory);
+}
+
+interface TimingArrays {
+    reachManaged: number[];
+    createDotnet: number[];
+    exit: number[];
+    wasmMemory: number[];
+}
+
+function emptyTimingArrays(): TimingArrays {
+    return { reachManaged: [], createDotnet: [], exit: [], wasmMemory: [] };
+}
+
+// Walkthrough dispatch table — Chrome + desktop only
+type WalkthroughFn = (page: Page, url: string, timeout: number, verbose: boolean) => Promise<number>;
+
+const WALKTHROUGHS: { app: A; metric: MetricKey; fn: WalkthroughFn }[] = [
+    { app: A.BlazingPizza, metric: MetricKey.PizzaWalkthrough, fn: runPizzaWalkthrough as WalkthroughFn },
+    { app: A.HavitBootstrap, metric: MetricKey.HavitWalkthrough, fn: runHavitWalkthrough as WalkthroughFn },
+    { app: A.MudBlazor, metric: MetricKey.MudWalkthrough, fn: runMudWalkthrough as WalkthroughFn },
+];
+
+const INTERNAL_KEYS = ['js-interop-ops', 'json-parse-ops', 'exception-ops'] as const;
+
+function assembleInternalMetrics(
+    statsMap: Record<string, SampleStats>,
+    compileTime: number,
+    memoryPeak: number | null,
+    timeToCreateDotnetCold: number | null,
+    timeToExitCold: number | null,
+    wasmMemorySize: number | null,
+): Partial<Record<MetricKey, number | null>> {
+    info('    ═══ Benchmark Statistical Summary ═══');
+    for (const [name, s] of Object.entries(statsMap)) {
+        info(formatStats(name, s));
+    }
+    if (timeToCreateDotnetCold != null) info(`    time-to-create-dotnet-cold: ${Math.round(timeToCreateDotnetCold)} ms`);
+    if (timeToExitCold != null) info(`    time-to-exit-cold: ${Math.round(timeToExitCold)} ms`);
+    if (wasmMemorySize != null) info(`    wasm-memory-size: ${wasmMemorySize} bytes`);
+
+    return {
+        [MetricKey.CompileTime]: compileTime,
+        [MetricKey.MemoryPeak]: memoryPeak,
+        [MetricKey.TimeToCreateDotnetCold]: timeToCreateDotnetCold,
+        [MetricKey.TimeToExitCold]: timeToExitCold,
+        [MetricKey.WasmMemorySize]: wasmMemorySize,
+        [MetricKey.JsInteropOps]: statsMap['js-interop-ops'] ? Math.round(statsMap['js-interop-ops'].median) : null,
+        [MetricKey.JsonParseOps]: statsMap['json-parse-ops'] ? Math.round(statsMap['json-parse-ops'].median) : null,
+        [MetricKey.ExceptionOps]: statsMap['exception-ops'] ? Math.round(statsMap['exception-ops'].median) : null,
+    };
+}
+
+function computeInternalStats(samples: Record<string, number[]>): Record<string, SampleStats> {
+    const statsMap: Record<string, SampleStats> = {};
+    for (const key of INTERNAL_KEYS) {
+        if (samples[key]?.length > 0) {
+            statsMap[key] = computeStats(samples[key]);
+        }
+    }
+    return statsMap;
+}
+
+// ── CDP Setup ────────────────────────────────────────────────────────────────
+
+interface CDPState {
+    client: CDPSession;
+    downloadSizeTotal: number;
+    memoryPeak: number;
+    stopMemorySampling: () => Promise<void>;
+}
+
+async function setupCDP(
+    context: BrowserContext,
+    page: Page,
+    profile: Profile,
+): Promise<CDPState> {
+    const client = await context.newCDPSession(page);
+    await client.send('Performance.enable');
+    await client.send('Network.enable');
+
+    let downloadSizeTotal = 0;
+    let memoryPeak = 0;
+    let memorySampling = true;
+
+    client.on('Network.loadingFinished', (params: { encodedDataLength: number }) => {
+        downloadSizeTotal += params.encodedDataLength;
+    });
+
+    const throttle = PROFILES[profile];
+    if (throttle) {
+        if (throttle.network) {
+            await client.send('Network.emulateNetworkConditions', { ...throttle.network });
+        }
+        if (throttle.cpu) {
+            await client.send('Emulation.setCPUThrottlingRate', { ...throttle.cpu });
+        }
+    }
+
+    const memoryPoller = (async () => {
+        while (memorySampling) {
+            try {
+                const perfMetrics = await client.send('Performance.getMetrics');
+                const heapUsed = perfMetrics.metrics.find(
+                    (m: { name: string; value: number }) => m.name === 'JSHeapUsedSize',
+                );
+                if (heapUsed && heapUsed.value > memoryPeak) {
+                    memoryPeak = heapUsed.value;
+                }
+            } catch {
+                break;
+            }
+            await sleep(100);
+        }
+    })();
+
+    return {
+        get downloadSizeTotal() { return downloadSizeTotal; },
+        get memoryPeak() { return memoryPeak; },
+        client,
+        stopMemorySampling: async () => {
+            await sleep(2000);
+            memorySampling = false;
+            await memoryPoller;
+            await client.send('Performance.disable');
+            await client.send('Network.disable');
+        },
+    };
+}
+
+// ── Page Load Helpers ────────────────────────────────────────────────────────
+
+async function waitForBenchComplete(page: Page, timeout: number): Promise<Record<string, number>> {
+    await page.waitForFunction(
+        () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
+        null,
+        { timeout },
+    );
+    return page.evaluate(
+        () => (globalThis as Record<string, unknown>).bench_results as Record<string, number>,
+    );
+}
+
+async function applyColdThrottle(
+    browser: Browser,
+    coldPage: Page,
+    coldCtx: BrowserContext,
+    profile: Profile,
+    useCDP: boolean,
+): Promise<void> {
+    const throttle = PROFILES[profile];
+    if (!useCDP || !throttle) return;
+    const coldClient = await coldCtx.newCDPSession(coldPage);
+    if (throttle.network) {
+        await coldClient.send('Network.emulateNetworkConditions', { ...throttle.network });
+    }
+    if (throttle.cpu) {
+        await coldClient.send('Emulation.setCPUThrottlingRate', { ...throttle.cpu });
+    }
+}
+
+async function runColdLoads(
+    browser: Browser,
+    pageUrl: string,
+    warmRuns: number,
+    timeout: number,
+    profile: Profile,
+    useCDP: boolean,
+    verbose: boolean,
+): Promise<TimingArrays> {
+    const arrays = emptyTimingArrays();
+    for (let i = 0; i < warmRuns; i++) {
+        if (verbose) debug(`Cold load ${i + 1}/${warmRuns}: fresh context...`);
+        const coldCtx = await browser.newContext();
+        const coldPage = await coldCtx.newPage();
+        try {
+            await applyColdThrottle(browser, coldPage, coldCtx, profile, useCDP);
+            await coldPage.goto(pageUrl, { timeout, waitUntil: 'load' });
+            const results = await waitForBenchComplete(coldPage, timeout);
+            const t = extractTimings(results);
+            if (verbose) debug(`Cold load ${i + 1}/${warmRuns}: time-to-reach-managed=${t.reachManaged}`);
+            pushTiming(arrays, t);
+        } finally {
+            await coldPage.close();
+            await coldCtx.close();
+        }
+    }
+    return arrays;
+}
+
+async function runWarmLoads(
+    page: Page,
+    warmRuns: number,
+    timeout: number,
+    verbose: boolean,
+): Promise<TimingArrays> {
+    const arrays = emptyTimingArrays();
+    for (let i = 0; i < warmRuns; i++) {
+        if (verbose) debug(`Warm load ${i + 1}/${warmRuns}: reloading...`);
+        await page.reload({ timeout, waitUntil: 'load' });
+        if (verbose) debug(`Warm load ${i + 1}/${warmRuns}: waiting for bench_complete...`);
+        const results = await waitForBenchComplete(page, timeout);
+        const t = extractTimings(results);
+        if (verbose) debug(`Warm load ${i + 1}/${warmRuns}: time-to-reach-managed=${t.reachManaged}`);
+        pushTiming(arrays, t);
+    }
+    return arrays;
+}
+
+async function runWalkthroughs(
+    page: Page,
+    pageUrl: string,
+    entry: BuildManifestEntry,
+    engine: Engine,
+    profile: Profile,
+    warmRuns: number,
+    timeout: number,
+    verbose: boolean,
+): Promise<Partial<Record<MetricKey, number | null>>> {
+    const results: Partial<Record<MetricKey, number | null>> = {};
+    for (const wt of WALKTHROUGHS) {
+        // Walkthroughs are Chrome-only + desktop-only (CDP required for reliable timing)
+        if (entry.app !== wt.app || profile !== 'desktop' || engine !== E.Chrome) continue;
+        const times: number[] = [];
+        for (let i = 0; i < warmRuns; i++) {
+            if (verbose) debug(`${wt.metric} ${i + 1}/${warmRuns}...`);
+            const t = await wt.fn(page, pageUrl, timeout, verbose);
+            times.push(t);
+            if (verbose) debug(`${wt.metric} ${i + 1}/${warmRuns}: ${t}ms`);
+        }
+        const med = sortedMedian(times);
+        results[wt.metric] = med != null ? Math.round(med) : null;
+        if (verbose) debug(`${wt.metric} times: [${times.join(', ')}] → median=${results[wt.metric]}ms`);
+    }
+    return results;
 }
 
 // ── Browser Measurement ──────────────────────────────────────────────────────
@@ -190,7 +441,6 @@ async function measureBrowser(
     const timeout = ctx.timeout;
     const maxRetries = ctx.retries;
 
-    // Start static server (persists across retries)
     const srv = await startStaticServer(webRoot);
     const pageUrl = `http://127.0.0.1:${srv.port}/`;
     info(`    Serving on ${pageUrl}`);
@@ -200,324 +450,132 @@ async function measureBrowser(
 
     let lastError: Error | null = null;
 
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-        if (attempt > 0) info(`    Retry ${attempt}/${maxRetries}...`);
+    try {
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+            if (attempt > 0) info(`    Retry ${attempt}/${maxRetries}...`);
 
-        if (ctx.verbose) debug(`Launching browser (headless=${ctx.headless})...`);
-        const browser = await browserType.launch({ headless: ctx.headless });
-        try {
-            const context = await browser.newContext();
-            const page = await context.newPage();
+            if (ctx.verbose) debug(`Launching browser (headless=${ctx.headless})...`);
+            const browser = await browserType.launch({ headless: ctx.headless });
+            try {
+                const context = await browser.newContext();
+                const page = await context.newPage();
 
-            // Console error forwarding
-            page.on('console', (msg: { type: () => string; text: () => string }) => {
-                if (msg.type() === 'error') console.error(`    [page] ${msg.text()}`);
-            });
-            page.on('pageerror', (error: { message: string }) => {
-                console.error(`    [page error] ${error.message}`);
-            });
-
-            // CDP setup (Chromium only)
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            let client: any = null;
-            let downloadSizeTotal = 0;
-            let memoryPeak = 0;
-            let memorySampling = false;
-            let memoryPoller: Promise<void> | null = null;
-
-            if (useCDP) {
-                client = await context.newCDPSession(page);
-                await client.send('Performance.enable');
-                await client.send('Network.enable');
-
-                // Track download sizes
-                client.on('Network.loadingFinished', (params: { encodedDataLength: number }) => {
-                    downloadSizeTotal += params.encodedDataLength;
+                page.on('console', (msg) => {
+                    if (msg.type() === 'error') console.error(`    [page] ${msg.text()}`);
+                });
+                page.on('pageerror', (error) => {
+                    console.error(`    [page error] ${error.message}`);
                 });
 
-                // Apply throttle profile
-                const throttle = PROFILES[profile];
-                if (throttle) {
-                    if (throttle.network) {
-                        await client.send('Network.emulateNetworkConditions', { ...throttle.network });
-                    }
-                    if (throttle.cpu) {
-                        await client.send('Emulation.setCPUThrottlingRate', { ...throttle.cpu });
-                    }
+                // CDP setup (Chromium only)
+                let cdp: CDPState | null = null;
+                if (useCDP) {
+                    cdp = await setupCDP(context, page, profile);
                 }
 
-                // Start memory sampling
-                memorySampling = true;
-                memoryPoller = (async () => {
-                    while (memorySampling) {
-                        try {
-                            const perfMetrics = await client.send('Performance.getMetrics');
-                            const heapUsed = perfMetrics.metrics.find(
-                                (m: { name: string; value: number }) => m.name === 'JSHeapUsedSize',
-                            );
-                            if (heapUsed && heapUsed.value > memoryPeak) {
-                                memoryPeak = heapUsed.value;
-                            }
-                        } catch {
-                            break;
-                        }
-                        await sleep(100);
-                    }
-                })();
-            }
+                // Cold load (first one uses the main context)
+                if (ctx.verbose) debug(`Cold load: navigating to ${pageUrl}`);
+                await page.goto(pageUrl, { timeout, waitUntil: 'load' });
+                if (ctx.verbose) debug(`Cold load: page loaded, waiting for bench_complete...`);
+                const coldResults = await waitForBenchComplete(page, timeout);
+                const firstCold = extractTimings(coldResults);
+                if (ctx.verbose) debug(`Cold results: ${JSON.stringify(coldResults)}`);
 
-            // Cold load
-            if (ctx.verbose) debug(`Cold load: navigating to ${pageUrl}`);
-            await page.goto(pageUrl, { timeout, waitUntil: 'load' });
-            if (ctx.verbose) debug(`Cold load: page loaded, waiting for bench_complete...`);
-            await page.waitForFunction(
-                () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
-                null,
-                { timeout },
-            );
-            if (ctx.verbose) debug(`Cold load: bench_complete detected`);
+                // Collect cold + warm timing arrays
+                const coldArrays = emptyTimingArrays();
+                pushTiming(coldArrays, firstCold);
 
-            const coldResults: Record<string, number> = await page.evaluate(
-                () => (globalThis as Record<string, unknown>).bench_results as Record<string, number>,
-            );
-            const firstColdTime = coldResults['time-to-reach-managed'] ?? null;
-            const firstColdCreateDotnet = coldResults['time-to-create-dotnet'] ?? null;
-            const firstColdWasmMemSize = coldResults['wasm-memory-size'] ?? null;
-            const firstColdTimeToExit = coldResults['time-to-exit'] ?? null;
-            if (ctx.verbose) debug(`Cold results: ${JSON.stringify(coldResults)}`);
-
-            // Additional cold loads in fresh contexts (median-of-N)
-            const coldTimes: number[] = firstColdTime != null ? [firstColdTime] : [];
-            const coldCreateDotnetTimes: number[] = firstColdCreateDotnet != null ? [firstColdCreateDotnet] : [];
-            const coldExitTimes: number[] = firstColdTimeToExit != null ? [firstColdTimeToExit] : [];
-            const wasmMemorySizes: number[] = firstColdWasmMemSize != null ? [firstColdWasmMemSize] : [];
-            if (!isInternal) {
-                const throttle = PROFILES[profile];
-                for (let i = 1; i < warmRuns; i++) {
-                    if (ctx.verbose) debug(`Cold load ${i + 1}/${warmRuns}: fresh context...`);
-                    const coldCtx = await browser.newContext();
-                    const coldPage = await coldCtx.newPage();
-                    try {
-                        // Apply throttle profile to cold-load context (CDP only)
-                        if (useCDP && throttle) {
-                            const coldClient = await coldCtx.newCDPSession(coldPage);
-                            if (throttle.network) {
-                                await coldClient.send('Network.emulateNetworkConditions', { ...throttle.network });
-                            }
-                            if (throttle.cpu) {
-                                await coldClient.send('Emulation.setCPUThrottlingRate', { ...throttle.cpu });
-                            }
-                        }
-                        await coldPage.goto(pageUrl, { timeout, waitUntil: 'load' });
-                        await coldPage.waitForFunction(
-                            () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
-                            null,
-                            { timeout },
+                // Additional cold loads + warm loads (external apps only)
+                if (!isInternal) {
+                    // Additional cold loads in fresh contexts
+                    if (warmRuns > 1) {
+                        const extraCold = await runColdLoads(
+                            browser, pageUrl, warmRuns - 1, timeout, profile, useCDP, ctx.verbose,
                         );
-                        const cr: Record<string, number> = await coldPage.evaluate(
-                            () => (globalThis as Record<string, unknown>).bench_results as Record<string, number>,
-                        );
-                        const ct = cr['time-to-reach-managed'];
-                        if (ctx.verbose) debug(`Cold load ${i + 1}/${warmRuns}: time-to-reach-managed=${ct}`);
-                        if (ct != null) coldTimes.push(ct);
-                        const ccd = cr['time-to-create-dotnet'];
-                        if (ccd != null) coldCreateDotnetTimes.push(ccd);
-                        const cte = cr['time-to-exit'];
-                        if (cte != null) coldExitTimes.push(cte);
-                        const cwm = cr['wasm-memory-size'];
-                        if (cwm != null) wasmMemorySizes.push(cwm);
-                    } finally {
-                        await coldPage.close();
-                        await coldCtx.close();
+                        for (const key of Object.keys(coldArrays) as (keyof TimingArrays)[]) {
+                            coldArrays[key].push(...extraCold[key]);
+                        }
+                    }
+                    if (ctx.verbose && coldArrays.reachManaged.length > 1) {
+                        debug(`Cold times: [${coldArrays.reachManaged.join(', ')}] → median=${sortedMedian(coldArrays.reachManaged)}`);
                     }
                 }
-            }
-            const timeToReachManagedCold = coldTimes.length > 0
-                ? median([...coldTimes].sort((a, b) => a - b))
-                : null;
-            if (ctx.verbose && coldTimes.length > 1) {
-                debug(`Cold times: [${coldTimes.join(', ')}] → median=${timeToReachManagedCold}`);
-            }
 
-            // Warm loads (external apps only, median-of-N)
-            let timeToReachManaged: number | null = null;
-            const warmCreateDotnetTimes: number[] = [];
-            const warmExitTimes: number[] = [];
-            if (!isInternal) {
-                const warmTimes: number[] = [];
-                for (let i = 0; i < warmRuns; i++) {
-                    if (ctx.verbose) debug(`Warm load ${i + 1}/${warmRuns}: reloading...`);
-                    await page.reload({ timeout, waitUntil: 'load' });
-                    if (ctx.verbose) debug(`Warm load ${i + 1}/${warmRuns}: waiting for bench_complete...`);
-                    await page.waitForFunction(
-                        () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
-                        null,
-                        { timeout },
-                    );
-                    const warmResults: Record<string, number> = await page.evaluate(
-                        () => (globalThis as Record<string, unknown>).bench_results as Record<string, number>,
-                    );
-                    const warm = warmResults['time-to-reach-managed'];
-                    if (ctx.verbose) debug(`Warm load ${i + 1}/${warmRuns}: time-to-reach-managed=${warm}`);
-                    if (warm != null) warmTimes.push(warm);
-                    const warmCd = warmResults['time-to-create-dotnet'];
-                    if (warmCd != null) warmCreateDotnetTimes.push(warmCd);
-                    const warmTe = warmResults['time-to-exit'];
-                    if (warmTe != null) warmExitTimes.push(warmTe);
-                    const warmWm = warmResults['wasm-memory-size'];
-                    if (warmWm != null) wasmMemorySizes.push(warmWm);
+                const warmArrays = !isInternal
+                    ? await runWarmLoads(page, warmRuns, timeout, ctx.verbose)
+                    : emptyTimingArrays();
+
+                if (ctx.verbose && warmArrays.reachManaged.length > 1) {
+                    debug(`Warm times: [${warmArrays.reachManaged.join(', ')}] → median=${sortedMedian(warmArrays.reachManaged)}`);
                 }
-                timeToReachManaged = warmTimes.length > 0
-                    ? median([...warmTimes].sort((a, b) => a - b))
+
+                const wasmMemorySize = [...coldArrays.wasmMemory, ...warmArrays.wasmMemory].length > 0
+                    ? Math.max(...coldArrays.wasmMemory, ...warmArrays.wasmMemory)
                     : null;
-                if (ctx.verbose && warmTimes.length > 1) {
-                    debug(`Warm times: [${warmTimes.join(', ')}] → median=${timeToReachManaged}`);
-                }
-            }
 
-            const timeToCreateDotnetCold = coldCreateDotnetTimes.length > 0
-                ? median([...coldCreateDotnetTimes].sort((a, b) => a - b))
-                : null;
-            const timeToCreateDotnetWarm = warmCreateDotnetTimes.length > 0
-                ? median([...warmCreateDotnetTimes].sort((a, b) => a - b))
-                : null;
-            const timeToExitCold = coldExitTimes.length > 0
-                ? median([...coldExitTimes].sort((a, b) => a - b))
-                : null;
-            const timeToExitWarm = warmExitTimes.length > 0
-                ? median([...warmExitTimes].sort((a, b) => a - b))
-                : null;
-            const wasmMemorySize = wasmMemorySizes.length > 0
-                ? Math.max(...wasmMemorySizes)
-                : null;
+                // Walkthroughs (external apps only)
+                const walkthroughMetrics = !isInternal
+                    ? await runWalkthroughs(page, pageUrl, entry, engine, profile, warmRuns, timeout, ctx.verbose)
+                    : {};
 
-            // Pizza walkthrough (blazing-pizza only, chrome, desktop profile) — median-of-N
-            let pizzaWalkthrough: number | null = null;
-            if (entry.app === A.BlazingPizza && profile === 'desktop' && engine === E.Chrome) {
-                const pizzaTimes: number[] = [];
-                for (let i = 0; i < warmRuns; i++) {
-                    if (ctx.verbose) debug(`Pizza walkthrough ${i + 1}/${warmRuns}...`);
-                    const t = await runPizzaWalkthrough(page, pageUrl, timeout, ctx.verbose);
-                    pizzaTimes.push(t);
-                    if (ctx.verbose) debug(`Pizza walkthrough ${i + 1}/${warmRuns}: ${t}ms`);
-                }
-                pizzaWalkthrough = Math.round(median([...pizzaTimes].sort((a, b) => a - b)));
-                if (ctx.verbose) debug(`Pizza walkthrough times: [${pizzaTimes.join(', ')}] → median=${pizzaWalkthrough}ms`);
-            }
-
-            // Havit walkthrough (havit-bootstrap only, chrome, desktop profile) — median-of-N
-            let havitWalkthrough: number | null = null;
-            if (entry.app === A.HavitBootstrap && profile === 'desktop' && engine === E.Chrome) {
-                const havitTimes: number[] = [];
-                for (let i = 0; i < warmRuns; i++) {
-                    if (ctx.verbose) debug(`Havit walkthrough ${i + 1}/${warmRuns}...`);
-                    const t = await runHavitWalkthrough(page, pageUrl, timeout, ctx.verbose);
-                    havitTimes.push(t);
-                    if (ctx.verbose) debug(`Havit walkthrough ${i + 1}/${warmRuns}: ${t}ms`);
-                }
-                havitWalkthrough = Math.round(median([...havitTimes].sort((a, b) => a - b)));
-                if (ctx.verbose) debug(`Havit walkthrough times: [${havitTimes.join(', ')}] → median=${havitWalkthrough}ms`);
-            }
-
-            // Mud walkthrough (mud-blazor only, chrome, desktop profile) — median-of-N
-            let mudWalkthrough: number | null = null;
-            if (entry.app === A.MudBlazor && profile === 'desktop' && engine === E.Chrome) {
-                const mudTimes: number[] = [];
-                for (let i = 0; i < warmRuns; i++) {
-                    if (ctx.verbose) debug(`Mud walkthrough ${i + 1}/${warmRuns}...`);
-                    const t = await runMudWalkthrough(page, pageUrl, timeout, ctx.verbose);
-                    mudTimes.push(t);
-                    if (ctx.verbose) debug(`Mud walkthrough ${i + 1}/${warmRuns}: ${t}ms`);
-                }
-                mudWalkthrough = Math.round(median([...mudTimes].sort((a, b) => a - b)));
-                if (ctx.verbose) debug(`Mud walkthrough times: [${mudTimes.join(', ')}] → median=${mudWalkthrough}ms`);
-            }
-
-            // Collect internal benchmark samples before closing the page
-            let benchSamples: Record<string, number[]> | null = null;
-            if (isInternal) {
-                benchSamples = await page.evaluate(
-                    () => (globalThis as Record<string, unknown>).bench_samples as Record<string, number[]>,
-                );
-            }
-
-            // Stop memory sampling + settle
-            if (useCDP && client) {
-                await sleep(2000);
-                memorySampling = false;
-                await memoryPoller;
-                await client.send('Performance.disable');
-                await client.send('Network.disable');
-            }
-
-            if (ctx.verbose) debug(`Closing browser and server...`);
-            await page.close();
-            await context.close();
-            await srv.close();
-            await browser.close();
-            if (ctx.verbose) debug(`Cleanup complete`);
-
-            // Assemble metrics
-            if (isInternal) {
-
-                const internalKeys = ['js-interop-ops', 'json-parse-ops', 'exception-ops'] as const;
-                const statsMap: Record<string, SampleStats> = {};
-                for (const key of internalKeys) {
-                    if (benchSamples![key]?.length > 0) {
-                        statsMap[key] = computeStats(benchSamples![key]);
-                    }
+                // Collect internal benchmark samples before closing the page
+                let benchSamples: Record<string, number[]> | null = null;
+                if (isInternal) {
+                    benchSamples = await page.evaluate(
+                        () => (globalThis as Record<string, unknown>).bench_samples as Record<string, number[]>,
+                    );
                 }
 
-                info('    ═══ Benchmark Statistical Summary ═══');
-                for (const [name, s] of Object.entries(statsMap)) {
-                    info(formatStats(name, s));
+                // Stop memory sampling + settle
+                if (cdp) {
+                    await cdp.stopMemorySampling();
                 }
-                if (timeToCreateDotnetCold != null) info(`    time-to-create-dotnet-cold: ${Math.round(timeToCreateDotnetCold)} ms`);
-                if (timeToExitCold != null) info(`    time-to-exit-cold: ${Math.round(timeToExitCold)} ms`);
-                if (wasmMemorySize != null) info(`    wasm-memory-size: ${wasmMemorySize} bytes`);
+
+                if (ctx.verbose) debug(`Closing browser...`);
+                await page.close();
+                await context.close();
+                await browser.close();
+                if (ctx.verbose) debug(`Cleanup complete`);
+
+                // Assemble metrics
+                if (isInternal) {
+                    const statsMap = computeInternalStats(benchSamples!);
+                    return assembleInternalMetrics(
+                        statsMap, compileTime,
+                        useCDP ? (cdp!.memoryPeak || null) : null,
+                        sortedMedian(coldArrays.createDotnet),
+                        sortedMedian(coldArrays.exit),
+                        wasmMemorySize,
+                    );
+                }
 
                 return {
                     [MetricKey.CompileTime]: compileTime,
-                    [MetricKey.MemoryPeak]: useCDP ? (memoryPeak || null) : null,
-                    [MetricKey.TimeToCreateDotnetCold]: timeToCreateDotnetCold,
-                    [MetricKey.TimeToExitCold]: timeToExitCold,
+                    [MetricKey.DiskSizeNative]: fileSizes!.diskSizeNative,
+                    [MetricKey.DiskSizeAssemblies]: fileSizes!.diskSizeAssemblies,
+                    [MetricKey.DownloadSizeTotal]: useCDP ? (cdp!.downloadSizeTotal || null) : null,
+                    [MetricKey.TimeToReachManagedWarm]: sortedMedian(warmArrays.reachManaged),
+                    [MetricKey.TimeToReachManagedCold]: sortedMedian(coldArrays.reachManaged),
+                    [MetricKey.TimeToCreateDotnetWarm]: sortedMedian(warmArrays.createDotnet),
+                    [MetricKey.TimeToCreateDotnetCold]: sortedMedian(coldArrays.createDotnet),
+                    [MetricKey.TimeToExitWarm]: sortedMedian(warmArrays.exit),
+                    [MetricKey.TimeToExitCold]: sortedMedian(coldArrays.exit),
                     [MetricKey.WasmMemorySize]: wasmMemorySize,
-                    [MetricKey.JsInteropOps]: statsMap['js-interop-ops'] ? Math.round(statsMap['js-interop-ops'].median) : null,
-                    [MetricKey.JsonParseOps]: statsMap['json-parse-ops'] ? Math.round(statsMap['json-parse-ops'].median) : null,
-                    [MetricKey.ExceptionOps]: statsMap['exception-ops'] ? Math.round(statsMap['exception-ops'].median) : null,
+                    [MetricKey.MemoryPeak]: useCDP ? (cdp!.memoryPeak || null) : null,
+                    ...walkthroughMetrics,
                 };
+            } catch (e) {
+                lastError = e instanceof Error ? e : new Error(String(e));
+                try { await browser.close(); } catch { /* ignore */ }
+                if (attempt >= maxRetries) throw lastError;
+                info(`    Attempt ${attempt + 1} failed: ${lastError.message}`);
             }
-
-            return {
-                [MetricKey.CompileTime]: compileTime,
-                [MetricKey.DiskSizeNative]: fileSizes!.diskSizeNative,
-                [MetricKey.DiskSizeAssemblies]: fileSizes!.diskSizeAssemblies,
-                [MetricKey.DownloadSizeTotal]: useCDP ? (downloadSizeTotal || null) : null,
-                [MetricKey.TimeToReachManagedWarm]: timeToReachManaged,
-                [MetricKey.TimeToReachManagedCold]: timeToReachManagedCold,
-                [MetricKey.TimeToCreateDotnetWarm]: timeToCreateDotnetWarm,
-                [MetricKey.TimeToCreateDotnetCold]: timeToCreateDotnetCold,
-                [MetricKey.TimeToExitWarm]: timeToExitWarm,
-                [MetricKey.TimeToExitCold]: timeToExitCold,
-                [MetricKey.WasmMemorySize]: wasmMemorySize,
-                [MetricKey.MemoryPeak]: useCDP ? (memoryPeak || null) : null,
-                [MetricKey.PizzaWalkthrough]: pizzaWalkthrough,
-                [MetricKey.HavitWalkthrough]: havitWalkthrough,
-                [MetricKey.MudWalkthrough]: mudWalkthrough,
-            };
-        } catch (e) {
-            lastError = e instanceof Error ? e : new Error(String(e));
-            try { await browser.close(); } catch { /* ignore */ }
-            if (attempt >= maxRetries) {
-                await srv.close();
-                throw lastError;
-            }
-            info(`    Attempt ${attempt + 1} failed: ${lastError.message}`);
         }
-    }
 
-    await srv.close();
-    throw lastError ?? new Error('All attempts failed');
+        throw lastError ?? new Error('All attempts failed');
+    } finally {
+        await srv.close();
+    }
 }
 
 // ── CLI Measurement ──────────────────────────────────────────────────────────
@@ -553,52 +611,26 @@ async function measureCli(
 
     if (isInternal) {
         const { results: cliInternalResults, samples: cliSamples } = cliParsed as { results: Record<string, number>; samples: Record<string, number[]> };
-        const timeToCreateDotnet = cliInternalResults['time-to-create-dotnet'] ?? null;
-        const wasmMemorySize = cliInternalResults['wasm-memory-size'] ?? null;
-        const timeToExit = cliInternalResults['time-to-exit'] ?? null;
+        const t = extractTimings(cliInternalResults);
 
-        const internalKeys = ['js-interop-ops', 'json-parse-ops', 'exception-ops'] as const;
-        const statsMap: Record<string, SampleStats> = {};
-        for (const key of internalKeys) {
-            if (cliSamples[key]?.length > 0) {
-                statsMap[key] = computeStats(cliSamples[key]);
-            }
-        }
+        const statsMap = computeInternalStats(cliSamples);
 
-        info('    ═══ Benchmark Statistical Summary ═══');
-        for (const [name, s] of Object.entries(statsMap)) {
-            info(formatStats(name, s));
-        }
-        if (timeToCreateDotnet != null) info(`    time-to-create-dotnet: ${Math.round(timeToCreateDotnet)} ms`);
-        if (timeToExit != null) info(`    time-to-exit: ${Math.round(timeToExit)} ms`);
-        if (wasmMemorySize != null) info(`    wasm-memory-size: ${wasmMemorySize} bytes`);
-
-        for (const key of internalKeys) {
+        for (const key of INTERNAL_KEYS) {
             if (!statsMap[key]) {
                 throw new Error(`No samples found for '${key}' in CLI output. Output:\n${stdout}`);
             }
         }
 
-        return {
-            [MetricKey.CompileTime]: compileTime,
-            [MetricKey.MemoryPeak]: null,
-            [MetricKey.TimeToCreateDotnetWarm]: timeToCreateDotnet,
-            [MetricKey.TimeToCreateDotnetCold]: timeToCreateDotnet,
-            [MetricKey.TimeToExitWarm]: timeToExit,
-            [MetricKey.TimeToExitCold]: timeToExit,
-            [MetricKey.WasmMemorySize]: wasmMemorySize,
-            [MetricKey.JsInteropOps]: Math.round(statsMap['js-interop-ops'].median),
-            [MetricKey.JsonParseOps]: Math.round(statsMap['json-parse-ops'].median),
-            [MetricKey.ExceptionOps]: Math.round(statsMap['exception-ops'].median),
-        };
+        return assembleInternalMetrics(
+            statsMap, compileTime, null,
+            t.createDotnet, t.exit, t.wasmMemory,
+        );
     }
 
     // External CLI: timing from bench_results or wall-clock fallback
     const cliResults = cliParsed as Record<string, number>;
     const timeToReachManaged = cliResults['time-to-reach-managed'] ?? wallTimeMs;
-    const timeToCreateDotnet = cliResults['time-to-create-dotnet'] ?? null;
-    const wasmMemorySize = cliResults['wasm-memory-size'] ?? null;
-    const timeToExit = cliResults['time-to-exit'] ?? null;
+    const t = extractTimings(cliResults);
 
     return {
         [MetricKey.CompileTime]: compileTime,
@@ -607,18 +639,14 @@ async function measureCli(
         [MetricKey.DownloadSizeTotal]: null,
         [MetricKey.TimeToReachManagedWarm]: timeToReachManaged,
         [MetricKey.TimeToReachManagedCold]: timeToReachManaged,
-        [MetricKey.TimeToCreateDotnetWarm]: timeToCreateDotnet,
-        [MetricKey.TimeToCreateDotnetCold]: timeToCreateDotnet,
-        [MetricKey.TimeToExitWarm]: timeToExit,
-        [MetricKey.TimeToExitCold]: timeToExit,
-        [MetricKey.WasmMemorySize]: wasmMemorySize,
+        [MetricKey.TimeToCreateDotnetWarm]: t.createDotnet,
+        [MetricKey.TimeToCreateDotnetCold]: t.createDotnet,
+        [MetricKey.TimeToExitWarm]: t.exit,
+        [MetricKey.TimeToExitCold]: t.exit,
+        [MetricKey.WasmMemorySize]: t.wasmMemory,
         [MetricKey.MemoryPeak]: null,
         [MetricKey.PizzaWalkthrough]: null,
+        [MetricKey.HavitWalkthrough]: null,
+        [MetricKey.MudWalkthrough]: null,
     };
-}
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function sleep(ms: number): Promise<void> {
-    return new Promise(r => setTimeout(r, ms));
 }
