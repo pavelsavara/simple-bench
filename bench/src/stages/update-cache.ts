@@ -33,7 +33,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         dryRun: ctx.dryRun,
         checkoutDir: 'tracking',
         addPaths: ['cache/'],
-        commitMessage: `Update cache ${new Date().toISOString().slice(0, 10)}`,
+        commitMessage: `Update cache ${ctx.sdkVersion || ctx.sdkChannel}`,
         label: 'Cache',
     });
 
