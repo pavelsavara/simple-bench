@@ -108,7 +108,13 @@ async function loadResults(ctx: BenchContext): Promise<LoadedResult[]> {
         });
     }
 
-    if (ctx.verbose) debug(`Loaded ${results.length} results from ${resultFiles.length} files`);
+    if (ctx.verbose) {
+        debug(`Loaded ${results.length} results from ${resultFiles.length} files`);
+        const apps = new Set(results.map(r => r.app));
+        const sdks = new Set(results.map(r => r.sdkVersion));
+        debug(`  apps: ${[...apps].sort().join(', ')}`);
+        debug(`  SDK versions: ${[...sdks].sort().join(', ')}`);
+    }
     return results;
 }
 
@@ -159,7 +165,10 @@ async function buildViews(ctx: BenchContext, allResults: LoadedResult[], viewsDi
     const activeDailyMajor = dailyMajors.length > 0 ? Math.max(...dailyMajors) : 0;
     const activeRelease = activeDailyMajor > 0 ? `net${activeDailyMajor}` : '';
 
-    if (ctx.verbose) debug(`Active daily release: ${activeRelease || '(none)'}`);
+    if (ctx.verbose) {
+        debug(`Active daily release: ${activeRelease || '(none)'}`);
+        debug(`Daily results: ${dailyResults.length}, release results: ${releaseResults.length}`);
+    }
 
     // Bucket results
     const weekBuckets = new Map<string, LoadedResult[]>();
@@ -194,13 +203,21 @@ async function buildViews(ctx: BenchContext, allResults: LoadedResult[], viewsDi
     }
 
     // Write global views index LAST (makes update atomic from UI perspective)
-    const viewIndex = mergeViewIndex(
-        await readJsonIfExists<ViewIndex>(join(viewsDir, 'index.json')),
-        buildViewIndex(allResults, activeRelease, weekKeys, releaseKeys),
-    );
+    const existingIndex = await readJsonIfExists<ViewIndex>(join(viewsDir, 'index.json'));
+    const currentIndex = buildViewIndex(allResults, activeRelease, weekKeys, releaseKeys);
+    const viewIndex = mergeViewIndex(existingIndex, currentIndex);
     await mkdir(viewsDir, { recursive: true });
     await writeFile(join(viewsDir, 'index.json'), JSON.stringify(viewIndex, null, 2), 'utf-8');
-    if (ctx.verbose) debug(`  wrote views/index.json`);
+    if (ctx.verbose) {
+        debug(`  wrote views/index.json`);
+        if (existingIndex) {
+            const existingWeeks = existingIndex.weeks?.length || 0;
+            const existingReleases = existingIndex.releases?.length || 0;
+            const mergedWeeks = viewIndex.weeks?.length || 0;
+            const mergedReleases = viewIndex.releases?.length || 0;
+            debug(`  index merge: weeks ${existingWeeks}→${mergedWeeks}, releases ${existingReleases}→${mergedReleases}`);
+        }
+    }
 
     info(`Views: ${weekKeys.length} weeks, ${releaseKeys.length} releases`);
 }
@@ -234,11 +251,17 @@ async function writeBucketView(
     }
 
     const existingHeader = await readJsonIfExists<ViewHeader>(join(dir, 'header.json'));
+    const existingColumnCount = existingHeader?.columns?.length || 0;
+    const newColumnsBefore = columnMap.size;
     for (const column of existingHeader?.columns || []) {
         const key = getColumnId(column);
         if (!columnMap.has(key)) {
             columnMap.set(key, column);
         }
+    }
+    if (ctx.verbose && existingHeader) {
+        const keptFromExisting = columnMap.size - newColumnsBefore;
+        debug(`  ${type} ${label}: merging ${newColumnsBefore} new columns with ${existingColumnCount} existing (${keptFromExisting} unique from existing)`);
     }
 
     // Sort columns
@@ -313,28 +336,44 @@ async function writeBucketView(
             );
             const data: Record<string, (number | null)[]> = {};
 
+            let existingRowsKept = 0;
+            let existingValuesCarried = 0;
             for (const [rowKey, values] of Object.entries(existingData || {})) {
                 const merged = new Array(columns.length).fill(null) as (number | null)[];
                 for (const [columnId, oldIndex] of existingColumnIndex) {
                     const newIndex = colIndex.get(columnId);
                     if (newIndex === undefined || oldIndex >= values.length) continue;
-                    merged[newIndex] = values[oldIndex] ?? null;
+                    if (values[oldIndex] !== null && values[oldIndex] !== undefined) {
+                        merged[newIndex] = values[oldIndex];
+                        existingValuesCarried++;
+                    }
                 }
                 if (merged.some(v => v !== null)) {
                     data[rowKey] = merged;
+                    existingRowsKept++;
                 }
             }
 
             const rowMap = grid.get(app)?.get(metricKey);
+            let newRowsAdded = 0;
+            let newValuesWritten = 0;
+            let valuesOverwritten = 0;
             for (const [rowKey, values] of rowMap || []) {
                 if (!data[rowKey]) {
                     data[rowKey] = new Array(columns.length).fill(null);
+                    newRowsAdded++;
                 }
                 for (let index = 0; index < values.length; index++) {
                     if (values[index] !== null) {
+                        if (data[rowKey][index] !== null) valuesOverwritten++;
                         data[rowKey][index] = values[index];
+                        newValuesWritten++;
                     }
                 }
+            }
+
+            if (ctx.verbose && existingData) {
+                debug(`    ${dataFile}: ${existingRowsKept} existing rows (${existingValuesCarried} values), ${newRowsAdded} new rows, ${newValuesWritten} new values (${valuesOverwritten} overwrites)`);
             }
 
             if (Object.keys(data).length > 0) {

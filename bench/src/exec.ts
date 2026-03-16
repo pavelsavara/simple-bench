@@ -120,9 +120,11 @@ export function exec(command: string, args: string[], opts?: ExecOptions): Promi
             spawnOpts.stdio = 'inherit';
         }
 
+        const cmdStr = [command, ...args].join(' ');
         if (label) {
-            const cmdStr = [command, ...args].join(' ');
             console.info(`[exec] ${label}: ${cmdStr}`);
+        } else {
+            console.info(`[exec] ${cmdStr}`);
         }
 
         const child = spawn(command, args, spawnOpts);
