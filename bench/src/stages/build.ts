@@ -59,7 +59,7 @@ function getRestoreArgs(
         `/p:BenchmarkPreset=${PRESET_MAP[preset]}`,
         `/p:RuntimeFlavor=${mapRuntimeFlavor(ctx.runtime)}`,
         `/p:BuildLabel=${ctx.buildLabel}`,
-
+        '/p:MSBuildDisableTaskHost=true',
     ];
     if (ctx.runtimePackDir) {
         args.push(`/p:RuntimePackDir=${ctx.runtimePackDir}`);
@@ -89,6 +89,7 @@ function getPublishArgs(
         '-c', PRESET_CONFIG[preset],
         `/p:RuntimeFlavor=${mapRuntimeFlavor(ctx.runtime)}`,
         `/p:BuildLabel=${ctx.buildLabel!}`,
+        '/p:MSBuildDisableTaskHost=true',
         `-bl:${publishDir}/publish.binlog`,
         '-o', publishDir,
     );
