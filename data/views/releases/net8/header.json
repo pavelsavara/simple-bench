@@ -44,9 +44,9 @@
       "patch": 101,
       "channel": "8.0",
       "isPrerelease": false,
-      "benchmarkDateTime": "2026-03-16T10:47:20.518Z",
-      "ciRunId": "23138869706",
-      "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23138869706"
+      "benchmarkDateTime": "2026-03-16T12:23:36.973Z",
+      "ciRunId": "23142445754",
+      "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23142445754"
     },
     {
       "sdkVersion": "8.0.201",
