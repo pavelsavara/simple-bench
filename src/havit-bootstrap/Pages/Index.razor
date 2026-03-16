@@ -1,5 +1,6 @@
-﻿@page "/"
+﻿@page "/home"
 @layout HomeLayout
+@inject NavigationManager NavigationManager
 
 <PageTitle>HAVIT Blazor | Free Bootstrap 5 components for Blazor</PageTitle>
 <DocHeadContent CanonicalRelativeUrl="./" />
@@ -19,7 +20,7 @@
 				<a href="https://www.peopleinneed.net/what-we-do/humanitarian-aid-and-development/ukraine">#StandWithUkraine: Russian warship, go f#ck yourself</a>
 			</div>
 			<div class="d-flex flex-wrap gap-3 my-5 justify-content-center align-items-center">
-                <a href="/getting-started" class="btn btn-dark btn-lg rounded-pill d-inline-flex justify-content-center gap-2">
+				<a href="@NavigationManager.ToAbsoluteUri("./getting-started")" class="btn btn-dark btn-lg rounded-pill d-inline-flex justify-content-center gap-2">
 					Documentation
 					<HxIcon Icon="BootstrapIcon.MortarboardFill" />
 				</a>

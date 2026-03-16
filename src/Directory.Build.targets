@@ -19,7 +19,7 @@
         <Message Text="Overriding runtime pack with: $(RuntimePackDir)" Importance="High" />
     </Target>
 
-    <Target Name="NoFingerprinting" AfterTargets="ComputeAndCopyFilesToPublishDirectory"
+    <Target Name="RenameFingerprinting" AfterTargets="ComputeAndCopyFilesToPublishDirectory"
              Condition="'$(BenchmarkPreset)' == 'EnableFingerprinting'">
 
         <PropertyGroup>
