@@ -51,8 +51,10 @@ interface ViewIndex {
 // ── Stage Entry ──────────────────────────────────────────────────────────────
 
 export async function run(ctx: BenchContext): Promise<BenchContext> {
-    // Ensure gh-pages is checked out (measure pipeline may not run check-out-data)
-    await ensureBranchCheckout(ctx.repoRoot, 'gh-pages', 'gh-pages', ctx.verbose);
+    await ensureBranchCheckout(ctx.repoRoot, 'gh-pages', 'gh-pages', {
+        verbose: ctx.verbose,
+        sparsePaths: ['data'],
+    });
 
     const viewsDir = join(ctx.repoRoot, 'gh-pages', 'data', 'views');
     const results = await loadResults(ctx);

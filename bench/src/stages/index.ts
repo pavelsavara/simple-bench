@@ -17,7 +17,6 @@ export function registerStage(stage: Stage, handler: StageFn): void {
 // ── Register All Stages ──────────────────────────────────────────────────────
 
 import { run as checkOutTracking } from './check-out-tracking.js';
-import { run as checkOutData } from './check-out-data.js';
 import { run as dockerImage } from './docker-image.js';
 import { run as resolveSdk } from './resolve-sdk.js';
 import { run as downloadSdk } from './download-sdk.js';
@@ -33,7 +32,6 @@ import { run as updateViews } from './update-views.js';
 import { run as deployLatestApp } from './deploy-latest-app.js';
 
 registerStage(Stage.CheckOutTracking, checkOutTracking);
-registerStage(Stage.CheckOutData, checkOutData);
 registerStage(Stage.EnumerateCommits, enumerateCommits);
 registerStage(Stage.EnumerateDailyPacks, enumerateDailyPacks);
 registerStage(Stage.EnumerateReleasePacks, enumerateReleasePacks);

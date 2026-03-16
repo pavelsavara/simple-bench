@@ -300,7 +300,7 @@ jobs:
         shell: bash
         run: |
           npx --prefix bench tsx bench/src/main.ts \
-            --stages check-out-data,transform-views,update-views \
+            --stages transform-views,update-views \
             --context "${ARTIFACTS_DIR}/bench-context.json" \
             --runtime mono \
             ${{ (inputs.dry_run || github.event_name == 'pull_request') && '--dry-run' || '' }}

@@ -7,8 +7,6 @@ import { info } from '../log.js';
 // Commits and pushes the view JSON files that transform-views wrote into
 // gh-pages/data/views/.
 //
-// Requires check-out-data (gh-pages/ must exist) and transform-views to have
-// run first.
 
 export async function run(ctx: BenchContext): Promise<BenchContext> {
     if (ctx.dryRun) {
