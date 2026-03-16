@@ -90,6 +90,8 @@ function getPublishArgs(
         `/p:RuntimeFlavor=${mapRuntimeFlavor(ctx.runtime)}`,
         `/p:BuildLabel=${ctx.buildLabel!}`,
         '/p:MSBuildDisableTaskHost=true',
+        '/p:DisableParallelEmccCompile=true',
+        '/p:DisableParallelAot=true',
         `-bl:${publishDir}/publish.binlog`,
         '-o', publishDir,
     );
