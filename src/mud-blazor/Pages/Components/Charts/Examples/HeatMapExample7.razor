@@ -7,7 +7,7 @@
                     ChartOptions="@chartOptions"
                     ChartLabels="@testLabels"
                     Width="100%" Height="300px">
-            <MudHeatMapCell Row="0" Column="0" MinValue="@(_useOverride ? 0 : null)" MaxValue="@(_useOverride ? .95 : null)" />
+            <MudHeatMapCell Row="0" Column="0" MinValue="@(_useOverride ? (double?)0 : null)" MaxValue="@(_useOverride ? (double?).95 : null)" />
         </MudChart>
     </MudTabPanel>
     <MudTabPanel Text="Example Two">
@@ -16,7 +16,7 @@
                     ChartOptions="@chartOptions"
                     ChartLabels="@testLabels"
                     Width="100%" Height="300px">
-            <MudHeatMapCell Row="0" Column="0" MinValue="@(_useOverride ? 0 : null)" MaxValue="@(_useOverride ? .95 : null)" />
+            <MudHeatMapCell Row="0" Column="0" MinValue="@(_useOverride ? (double?)0 : null)" MaxValue="@(_useOverride ? (double?).95 : null)" />
         </MudChart>
     </MudTabPanel>
 </MudTabs>
