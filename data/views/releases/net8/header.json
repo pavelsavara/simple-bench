@@ -119,6 +119,30 @@
       "benchmarkDateTime": "2026-03-16T14:08:40.942Z",
       "ciRunId": "23146633486",
       "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23146633486"
+    },
+    {
+      "sdkVersion": "8.0.300",
+      "runtimeGitHash": "087e15321bb712ef6fe8b0ba6f8bd12facf92629",
+      "aspnetCoreGitHash": "c9e3996173cec136bc2e9f3b4ec45f2a323b1d63",
+      "sdkGitHash": "5c2ea7348fe2457b5187dce990b10bda9bb1902b",
+      "vmrGitHash": "5c2ea7348fe2457b5187dce990b10bda9bb1902b",
+      "runtimeCommitDateTime": "2024-04-16T21:39:54Z",
+      "runtimeCommitAuthor": "dotnet-bot",
+      "runtimeCommitMessage": "Merge in 'release/8.0' changes",
+      "aspnetCoreCommitDateTime": "2024-04-24T18:21:52Z",
+      "aspnetCoreVersion": "8.0.5",
+      "runtimePackVersion": "8.0.5",
+      "workloadVersion": "8.0.25",
+      "bootstrapSdkVersion": "8.0.101",
+      "releaseDate": "2024-05-14",
+      "major": 8,
+      "minor": 0,
+      "patch": 300,
+      "channel": "8.0",
+      "isPrerelease": false,
+      "benchmarkDateTime": "2026-03-16T14:37:50.873Z",
+      "ciRunId": "23148087657",
+      "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23148087657"
     }
   ],
   "apps": {
