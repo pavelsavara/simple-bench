@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>$(BenchmarkTargetFramework)</TargetFramework>
+    <DashName>havit-bootstrap</DashName>
     <AssemblyName>Havit.Blazor.Documentation</AssemblyName>
     <RootNamespace>Havit.Blazor.Documentation</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>

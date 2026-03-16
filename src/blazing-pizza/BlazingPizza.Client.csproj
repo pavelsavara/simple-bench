@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>$(BenchmarkTargetFramework)</TargetFramework>
+    <DashName>blazing-pizza</DashName>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <NoWarn>$(NoWarn);CS8669;CS8632</NoWarn>

@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>$(BenchmarkTargetFramework)</TargetFramework>
+    <DashName>mud-blazor</DashName>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>MudBlazor.Docs</RootNamespace>

@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>$(BenchmarkTargetFramework)</TargetFramework>
+    <DashName>bench-viewer</DashName>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <WasmFingerprintAssets>true</WasmFingerprintAssets>

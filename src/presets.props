@@ -60,19 +60,7 @@
     <PublishTrimmed>true</PublishTrimmed>
   </PropertyGroup>
 
-  <!-- Preset EnableFingerprinting -->
-  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'EnableFingerprinting'">
-    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
-  </PropertyGroup>
-  <ItemGroup Condition="'$(BenchmarkPreset)' == 'EnableFingerprinting'">
-    <StaticWebAssetFingerprintPattern Include="JS" Pattern="*.js" Expression="#[.{fingerprint}]!" />
-    <StaticWebAssetFingerprintPattern Include="MJS" Pattern="*.mjs" Expression="#[.{fingerprint}]!" />
-  </ItemGroup>
-  <PropertyGroup Condition="'$(BenchmarkPreset)' != 'EnableFingerprinting'">
-    <WasmFingerprintAssets>false</WasmFingerprintAssets>
-    <BlazorFingerprintBlazorJs>false</BlazorFingerprintBlazorJs>
-  </PropertyGroup>
-
+  <!-- Preset Aot -->
   <PropertyGroup Condition="'$(BenchmarkPreset)' == 'Aot'">
     <Configuration>Release</Configuration>
     <WasmBuildNative>true</WasmBuildNative>
@@ -121,6 +109,19 @@
   <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NoReflectionEmit'">
     <DynamicCodeSupport>false</DynamicCodeSupport>
     <StackTraceSupport>false</StackTraceSupport>
+  </PropertyGroup>
+
+  <!-- Preset EnableFingerprinting -->
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'EnableFingerprinting'">
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(BenchmarkPreset)' == 'EnableFingerprinting'">
+    <StaticWebAssetFingerprintPattern Include="JS" Pattern="*.js" Expression="#[.{fingerprint}]!" />
+    <StaticWebAssetFingerprintPattern Include="MJS" Pattern="*.mjs" Expression="#[.{fingerprint}]!" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(BenchmarkPreset)' != 'EnableFingerprinting'">
+    <WasmFingerprintAssets>false</WasmFingerprintAssets>
+    <BlazorFingerprintBlazorJs>false</BlazorFingerprintBlazorJs>
   </PropertyGroup>
 
 </Project>
