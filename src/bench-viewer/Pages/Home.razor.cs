@@ -148,6 +148,13 @@ public partial class Home : IAsyncDisposable
         currentMetrics = GetFilteredMetrics(app);
         selectedPoint = null;
         previousPoint = null;
+
+        // micro-benchmarks needs desktop profile enabled (it's the primary profile for that app)
+        if (app == "micro-benchmarks" && checkedValues.TryGetValue("profiles", out var profiles))
+        {
+            profiles.Add("desktop");
+        }
+
         StateHasChanged();
 
         await Task.Yield();
