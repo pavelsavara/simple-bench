@@ -7,7 +7,7 @@
                     ChartOptions="@chartOptions"
                     ChartLabels="@testLabels"
                     Width="100%" Height="300px">
-            <MudHeatMapCell Row="0" Column="0" MinValue="@(_useOverride ? (double?)0 : null)" MaxValue="@(_useOverride ? (double?).95 : null)" />
+            <MudHeatMapCell Row="0" Column="0" MinValue="@_overrideMin" MaxValue="@_overrideMax" />
         </MudChart>
     </MudTabPanel>
     <MudTabPanel Text="Example Two">
@@ -16,7 +16,7 @@
                     ChartOptions="@chartOptions"
                     ChartLabels="@testLabels"
                     Width="100%" Height="300px">
-            <MudHeatMapCell Row="0" Column="0" MinValue="@(_useOverride ? (double?)0 : null)" MaxValue="@(_useOverride ? (double?).95 : null)" />
+            <MudHeatMapCell Row="0" Column="0" MinValue="@_overrideMin" MaxValue="@_overrideMax" />
         </MudChart>
     </MudTabPanel>
 </MudTabs>
@@ -32,6 +32,8 @@
     private const string COLOR_HORRIBLE = "#b80000";
     private bool _useOverride;
     private bool _showLegend = true;
+    private double? _overrideMin => _useOverride ? 0.0 : null;
+    private double? _overrideMax => _useOverride ? 0.95 : null;
 
     private HeatMapChartOptions chartOptions = new()
     {
