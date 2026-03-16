@@ -84,7 +84,6 @@ export function startStaticServer(webRoot: string, port = 0): Promise<StaticServ
                     'Cross-Origin-Opener-Policy': 'same-origin',
                     'Cross-Origin-Embedder-Policy': 'require-corp',
                     'Timing-Allow-Origin': '*',
-                    'Cache-Control': 'no-cache',
                 };
                 if (encoding) headers['Content-Encoding'] = encoding;
 
@@ -105,7 +104,6 @@ export function startStaticServer(webRoot: string, port = 0): Promise<StaticServ
                                 'Cross-Origin-Opener-Policy': 'same-origin',
                                 'Cross-Origin-Embedder-Policy': 'require-corp',
                                 'Timing-Allow-Origin': '*',
-                                'Cache-Control': 'no-cache',
                             });
                             res.end(content);
                             return;

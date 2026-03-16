@@ -115,9 +115,7 @@ function parseSdkPatch(sdkVersion) {
 
 async function fetchJson(url) {
     if (cache[url]) return cache[url];
-    const resp = await fetch(url, {
-        cache: 'no-cache',
-    });
+    const resp = await fetch(url);
     if (!resp.ok) return null;
     const data = await resp.json();
     cache[url] = data;
