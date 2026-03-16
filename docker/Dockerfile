@@ -93,13 +93,14 @@ RUN apt-get update && apt-get install -y \
 RUN useradd -u 1001 -m -s /bin/bash benchuser
 
 # V8 d8 via jsvu — install then relocate to /opt/jsvu so any user can access it
+# Pinned version: jsvu names the wrapper v8-{version} (not plain v8)
 RUN npm install -g jsvu@3.0.3 \
     && jsvu v8@14.8.33 --os=linux64 \
     && mkdir -p /opt/jsvu \
     && cp -a /root/.jsvu/. /opt/jsvu/ \
     && rm -rf /root/.jsvu \
     && sed -i 's|/root/\.jsvu|/opt/jsvu|g' /opt/jsvu/bin/* \
-    && ln -sf /opt/jsvu/bin/v8 /usr/local/bin/d8 \
+    && ln -sf /opt/jsvu/bin/v8-14.8.33 /usr/local/bin/d8 \
     && chmod -R a+rX /opt/jsvu
 
 # Pre-install npm dependencies to /opt/bench-deps/ (not /bench/) so they
