@@ -7,10 +7,6 @@ import { ensureBranchCheckout } from '../lib/branch-checkout.js';
 import { commitAndPush } from '../lib/git-push.js';
 import { banner, info } from '../log.js';
 
-// ── Apps excluded from deployment ────────────────────────────────────────────
-
-const EXCLUDED_APPS = new Set<App>([App.BenchViewer]);
-
 // ── Stage: deploy-latest-app ─────────────────────────────────────────────────
 //
 // Deploys the published wwwroot of each app (no-workload preset) to
@@ -34,40 +30,48 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
     const deployedApps: string[] = [];
 
     for (const app of ctx.apps) {
-        if (EXCLUDED_APPS.has(app)) {
-            info(`Skipping ${app} (excluded from deployment)`);
-            continue;
-        }
-
-        const publishDir = join(ctx.artifactsDir, 'publish', app, ctx.buildLabel, Preset.NoWorkload);
+        const publishDir = join(ctx.artifactsDir, 'publish', app, ctx.buildLabel, Preset.EnableFingerprinting);
         const wwwrootSrc = join(publishDir, 'wwwroot');
 
-        // filtering to no-workload
+        // filtering to enable-fingerprinting
         if (!existsSync(wwwrootSrc)) {
             info(`Skipping ${app} — no published wwwroot at ${wwwrootSrc}`);
             continue;
         }
 
-        const appDestDir = join(appsDir, app);
+        if (app === App.BenchViewer) {
+            const appDestDir = ghPagesDir;
 
-        // ── Clean destination ────────────────────────────────────────────
-        if (existsSync(appDestDir)) {
-            await rm(appDestDir, { recursive: true, force: true });
-        }
-        await mkdir(appDestDir, { recursive: true });
+            // ── Clean destination ────────────────────────────────────────────
+            await rm(join(appDestDir, '_framework'), { recursive: true, force: true });
+            await rm(join(appDestDir, 'css'), { recursive: true, force: true });
+            await rm(join(appDestDir, '*.mjs'), { recursive: true, force: true });
 
-        // ── Copy wwwroot contents ────────────────────────────────────────
-        await cp(wwwrootSrc, appDestDir, { recursive: true });
+            // ── Copy wwwroot contents ────────────────────────────────────────
+            await cp(wwwrootSrc, appDestDir, { recursive: true });
 
-        // ── Rewrite base href in index.html ──────────────────────────────
-        const indexPath = join(appDestDir, 'index.html');
-        if (existsSync(indexPath)) {
-            let html = await readFile(indexPath, 'utf-8');
-            html = html.replace(
-                '<base href="/" />',
-                `<base href="/simple-bench/apps/${app}/" />`,
-            );
-            await writeFile(indexPath, html, 'utf-8');
+        } else {
+            const appDestDir = join(appsDir, app);
+
+            // ── Clean destination ────────────────────────────────────────────
+            if (existsSync(appDestDir)) {
+                await rm(appDestDir, { recursive: true, force: true });
+            }
+            await mkdir(appDestDir, { recursive: true });
+
+            // ── Copy wwwroot contents ────────────────────────────────────────
+            await cp(wwwrootSrc, appDestDir, { recursive: true });
+
+            // ── Rewrite base href in index.html ──────────────────────────────
+            const indexPath = join(appDestDir, 'index.html');
+            if (existsSync(indexPath)) {
+                let html = await readFile(indexPath, 'utf-8');
+                html = html.replace(
+                    '<base href="/" />',
+                    `<base href="/simple-bench/apps/${app}/" />`,
+                );
+                await writeFile(indexPath, html, 'utf-8');
+            }
         }
 
         deployedApps.push(app);
@@ -87,7 +91,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
             repoRoot: ctx.repoRoot,
             dryRun: false,
             checkoutDir: 'gh-pages',
-            addPaths: ['apps/'],
+            addPaths: ['./'],
             commitMessage: `Deploy apps (${ctx.buildLabel})`,
             label: 'Deploy apps',
         });

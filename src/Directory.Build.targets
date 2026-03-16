@@ -20,19 +20,19 @@
     </Target>
 
     <Target Name="NoFingerprinting" AfterTargets="ComputeAndCopyFilesToPublishDirectory"
-             Condition="'$(BenchmarkTargetFramework)' == 'net8.0' or '$(BenchmarkTargetFramework)' == 'net9.0'">
+             Condition="'$(BenchmarkPreset)' == 'EnableFingerprinting'">
 
         <PropertyGroup>
             <_PublishedIndexHtml>$(PublishDir)\wwwroot\index.html</_PublishedIndexHtml>
-            <_SourceIndex9Html>$(MSBuildProjectDirectory)\wwwroot\index9.html</_SourceIndex9Html>
+            <_SourceIndexFingerprintHtml>$(MSBuildProjectDirectory)\wwwroot\index-fp.html</_SourceIndexFingerprintHtml>
         </PropertyGroup>
 
-        <Message Text="Overriding index.html with index9.html to disable fingerprinting for JS and MJS files." Importance="High" />
+        <Message Text="Overriding index.html with index-fp.html to enable fingerprinting for JS and MJS files." Importance="High" />
 
-        <Copy SourceFiles="$(_SourceIndex9Html)"
+        <Copy SourceFiles="$(_SourceIndexFingerprintHtml)"
               DestinationFiles="$(_PublishedIndexHtml)"
               OverwriteReadOnlyFiles="true"
-              Condition="Exists('$(_SourceIndex9Html)') and Exists('$(_PublishedIndexHtml)')" />
+              Condition="Exists('$(_SourceIndexFingerprintHtml)') and Exists('$(_PublishedIndexHtml)')" />
 
         <!-- Remove stale compressed versions of the old index.html -->
         <Delete Files="$(_PublishedIndexHtml).br" Condition="Exists('$(_PublishedIndexHtml).br')" />

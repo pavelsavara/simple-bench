@@ -51,13 +51,26 @@
   </PropertyGroup>
 
   <!-- Preset NativeRelink -->
-  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NativeRelink'">
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'NativeRelink' or '$(BenchmarkPreset)' == 'EnableFingerprinting'">
     <Configuration>Release</Configuration>
     <WasmBuildNative>true</WasmBuildNative>
     <WasmNativeStrip>true</WasmNativeStrip>
 
     <EnableAggressiveTrimming>true</EnableAggressiveTrimming>
     <PublishTrimmed>true</PublishTrimmed>
+  </PropertyGroup>
+
+  <!-- Preset EnableFingerprinting -->
+  <PropertyGroup Condition="'$(BenchmarkPreset)' == 'EnableFingerprinting'">
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(BenchmarkPreset)' == 'EnableFingerprinting'">
+    <StaticWebAssetFingerprintPattern Include="JS" Pattern="*.js" Expression="#[.{fingerprint}]!" />
+    <StaticWebAssetFingerprintPattern Include="MJS" Pattern="*.mjs" Expression="#[.{fingerprint}]!" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(BenchmarkPreset)' != 'EnableFingerprinting'">
+    <WasmFingerprintAssets>false</WasmFingerprintAssets>
+    <BlazorFingerprintBlazorJs>false</BlazorFingerprintBlazorJs>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(BenchmarkPreset)' == 'Aot'">

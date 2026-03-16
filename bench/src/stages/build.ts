@@ -5,9 +5,9 @@ import {
     type Preset, type Runtime,
     App,
     Runtime as R,
-    WORKLOAD_PRESETS, NON_WORKLOAD_PRESETS, MONO_ONLY_PRESETS,
+    NON_WORKLOAD_PRESETS,
     PRESET_MAP, PRESET_CONFIG,
-    shouldSkipMeasurement,
+    shouldSkipBuild,
 } from '../enums.js';
 import { dotnetRestore, dotnetPublish, dotnetWorkloadInstall, dotnetWorkloadList } from '../exec.js';
 import { banner, info, err } from '../log.js';
@@ -110,7 +110,7 @@ async function buildPhase(
     for (const app of ctx.apps) {
         const appDir = join(ctx.repoRoot, 'src', app);
         for (const preset of presets) {
-            const skipReason = shouldSkipMeasurement(app, preset, ctx);
+            const skipReason = shouldSkipBuild(app, preset, ctx);
             if (skipReason) {
                 info(`Skipping ${app}/${preset}: ${skipReason}`);
                 continue;
@@ -165,7 +165,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
 
     // Partition presets
     const nonWorkloadPresets = ctx.presets.filter(p => NON_WORKLOAD_PRESETS.has(p));
-    const workloadPresets = ctx.presets.filter(p => WORKLOAD_PRESETS.has(p));
+    const workloadPresets = ctx.presets.filter(p => !NON_WORKLOAD_PRESETS.has(p));
 
     // Validate no pre-installed workload
     banner('Validate wasm-tools workload is NOT installed');

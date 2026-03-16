@@ -16,6 +16,7 @@ export enum Preset {
     NoJiterp = 'no-jiterp',
     Invariant = 'invariant',
     NoReflectionEmit = 'no-reflection-emit',
+    EnableFingerprinting = 'enable-fingerprinting',
 }
 
 export enum Engine {
@@ -103,15 +104,6 @@ export const APP_CONFIG: Record<App, AppConfig> = {
 
 // ── Preset Constraints ───────────────────────────────────────────────────────
 
-/** Presets that require `dotnet workload install wasm-tools` */
-export const WORKLOAD_PRESETS = new Set<Preset>([
-    Preset.NativeRelink,
-    Preset.Aot,
-    Preset.NoJiterp,
-    Preset.Invariant,
-    Preset.NoReflectionEmit,
-]);
-
 /** Presets that work without wasm-tools workload */
 export const NON_WORKLOAD_PRESETS = new Set<Preset>([
     Preset.DevLoop,
@@ -129,12 +121,27 @@ export const BLAZOR_APPS = new Set<App>([App.EmptyBlazor, App.BlazingPizza, App.
 export const REDUCE_APPS = new Set<App>([App.EmptyBlazor, App.EmptyBrowser, App.BlazingPizza, App.BenchViewer, App.MudBlazor]);
 export const REDUCE_PRESETS = new Set<Preset>([Preset.NativeRelink, Preset.NoJiterp, Preset.Invariant, Preset.NoReflectionEmit]);
 
-
 /**
  * Returns a reason string if the app+preset combination should be skipped,
  * or null if the combination is valid.
  */
 export function shouldSkipMeasurement(app: App, preset: Preset, ctx: BenchContext): string | null {
+    const build = shouldSkipBuild(app, preset, ctx);
+    if (build) {
+        return build;
+    }
+    if (preset === Preset.EnableFingerprinting) {
+        return `Preset '${preset}' is only for deployment`;
+    }
+
+    return null;
+}
+
+/**
+ * Returns a reason string if the app+preset combination should be skipped,
+ * or null if the combination is valid.
+ */
+export function shouldSkipBuild(app: App, preset: Preset, ctx: BenchContext): string | null {
     if (MONO_ONLY_PRESETS.has(preset) && ctx.runtime === Runtime.CoreCLR) {
         return `Preset '${preset}' is mono-only and cannot be used with runtime '${ctx.runtime}'`;
     }
@@ -153,6 +160,9 @@ export function shouldSkipMeasurement(app: App, preset: Preset, ctx: BenchContex
     if (app === App.UnoGallery && preset !== Preset.NativeRelink) {
         return `UnoGallery app '${app}' is not supported with preset '${preset}'`;
     }
+    if (preset === Preset.EnableFingerprinting && !ctx.isLatestDaily) {
+        return `Preset '${preset}' is only for deployment of latest daily builds`;
+    }
     return null;
 }
 
@@ -167,6 +177,7 @@ export const PRESET_MAP: Record<Preset, string> = {
     [Preset.NoJiterp]: 'NoJiterp',
     [Preset.Invariant]: 'Invariant',
     [Preset.NoReflectionEmit]: 'NoReflectionEmit',
+    [Preset.EnableFingerprinting]: 'EnableFingerprinting',
 };
 
 /** Maps CLI preset to MSBuild Configuration value */
@@ -178,6 +189,7 @@ export const PRESET_CONFIG: Record<Preset, string> = {
     [Preset.NoJiterp]: 'Release',
     [Preset.Invariant]: 'Release',
     [Preset.NoReflectionEmit]: 'Release',
+    [Preset.EnableFingerprinting]: 'Release',
 };
 
 // ── Engine / Profile Constraints ─────────────────────────────────────────────

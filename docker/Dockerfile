@@ -94,7 +94,7 @@ RUN useradd -u 1001 -m -s /bin/bash benchuser
 
 # V8 d8 via jsvu — install then relocate to /opt/jsvu so any user can access it
 RUN npm install -g jsvu@3.0.3 \
-    && jsvu --os=linux64 --engines=v8 \
+    && jsvu v8@14.8.33 --os=linux64 \
     && mkdir -p /opt/jsvu \
     && cp -a /root/.jsvu/. /opt/jsvu/ \
     && rm -rf /root/.jsvu \
