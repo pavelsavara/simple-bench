@@ -157,9 +157,11 @@ function isRowVisible(rowKey, filters, metric) {
         return filters.runtimes.includes(d.runtime)
             && filters.presets.includes(d.preset);
     }
+    // Firefox, v8, and node only collect desktop profile — skip profile filter for them
+    const skipProfileFilter = d.engine === 'firefox' || d.engine === 'v8' || d.engine === 'node';
     return filters.runtimes.includes(d.runtime)
         && filters.presets.includes(d.preset)
-        && filters.profiles.includes(d.profile)
+        && (skipProfileFilter || filters.profiles.includes(d.profile))
         && filters.engines.includes(d.engine);
 }
 
