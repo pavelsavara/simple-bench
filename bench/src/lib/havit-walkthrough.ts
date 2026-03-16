@@ -140,17 +140,11 @@ export async function runHavitWalkthrough(
         () => (globalThis as Record<string, unknown>).bench_complete !== undefined,
         null, { timeout: t },
     );
-    await page.waitForSelector('h1.fw-bold.display-3', { timeout: t });
+    await page.waitForSelector('#done', { timeout: t });
     log('home loaded');
 
     // Capture start time AFTER navigation (page.goto resets performance.now())
     const startTime: number = await page.evaluate(() => performance.now());
-
-    // ── Step 1: Click "Documentation" to go to /getting-started ──────────
-    await page.click('a[href="/getting-started"].btn', { timeout: t });
-    await page.waitForURL(/\/getting-started/, { timeout: t });
-    await page.waitForSelector('.doc-content h1', { timeout: t });
-    log('getting-started loaded');
 
     // ── Step 2: Visit every sidebar page ──────────────────────────────
     for (const [category, href] of SIDEBAR_ROUTES) {
@@ -170,13 +164,14 @@ export async function runHavitWalkthrough(
             }
         }, category);
         // Wait for the collapse section link to become visible
+        // Use $= (ends-with) because Blazor may render hrefs as full URLs
         await page.waitForSelector(
-            `a.nav-link.hx-sidebar-item:not(.dropdown-item)[href="${href}"]`,
+            `a.nav-link.hx-sidebar-item:not(.dropdown-item)[href$="${href}"]`,
             { timeout: t, state: 'visible' },
         );
         log(`clicking sidebar link: ${href}`);
         await page.click(
-            `a.nav-link.hx-sidebar-item:not(.dropdown-item)[href="${href}"]`,
+            `a.nav-link.hx-sidebar-item:not(.dropdown-item)[href$="${href}"]`,
             { timeout: t },
         );
         // Wait for navigation: match path portion of href (\b prevents partial matches)
@@ -196,7 +191,7 @@ export async function runHavitWalkthrough(
     // ── Step 4: Navigate back home via navbar ────────────────────────────
     log('navigating home via navbar...');
     await page.click('.nav-container a[href=""]', { timeout: t });
-    await page.waitForSelector('h1.fw-bold.display-3', { timeout: t });
+    await page.waitForSelector('h1#getting-started', { timeout: t });
     log('home loaded again');
 
     const endTime: number = await page.evaluate(() => performance.now());
