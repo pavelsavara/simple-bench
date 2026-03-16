@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-03-16T11:20:04.285Z",
+  "lastUpdated": "2026-03-16T11:56:35.118Z",
   "activeRelease": "net11",
   "releases": [
     "net8",
@@ -99,7 +99,8 @@
     "engines": [
       "chrome",
       "firefox",
-      "node"
+      "node",
+      "v8"
     ]
   }
 }
