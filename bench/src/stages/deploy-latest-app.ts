@@ -42,6 +42,7 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
         const publishDir = join(ctx.artifactsDir, 'publish', app, ctx.buildLabel, Preset.NoWorkload);
         const wwwrootSrc = join(publishDir, 'wwwroot');
 
+        // filtering to no-workload
         if (!existsSync(wwwrootSrc)) {
             info(`Skipping ${app} — no published wwwroot at ${wwwrootSrc}`);
             continue;
