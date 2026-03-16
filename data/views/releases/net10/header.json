@@ -23,6 +23,30 @@
       "benchmarkDateTime": "2026-03-16T12:06:52.067Z",
       "ciRunId": "23141347485",
       "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23141347485"
+    },
+    {
+      "sdkVersion": "10.0.101",
+      "runtimeGitHash": "138d5fe8f32e954a3a834be6360a834688130d4f",
+      "aspnetCoreGitHash": "373d4826c58ac2f1c8d49fdaf31bc9eddf9e7437",
+      "sdkGitHash": "b7adad29114ef57fabf65324e712753767038626",
+      "vmrGitHash": "fad253f51b461736dfd3cd9c15977bb7493becef",
+      "runtimeCommitDateTime": "2025-11-14T03:51:27Z",
+      "runtimeCommitAuthor": "Copilot",
+      "runtimeCommitMessage": "[release/10.0] Composite ML-DSA Draft 12 and 13 updates (#120601, #120961) (#121555)",
+      "aspnetCoreCommitDateTime": "2025-11-17T22:40:43Z",
+      "aspnetCoreVersion": "10.0.1",
+      "runtimePackVersion": "10.0.1",
+      "workloadVersion": "10.0.105",
+      "bootstrapSdkVersion": "10.0.100",
+      "releaseDate": "2025-12-09",
+      "major": 10,
+      "minor": 0,
+      "patch": 101,
+      "channel": "10.0",
+      "isPrerelease": false,
+      "benchmarkDateTime": "2026-03-16T13:00:08.141Z",
+      "ciRunId": "23143308429",
+      "ciRunUrl": "https://github.com/dotnet/simple-bench/actions/runs/23143308429"
     }
   ],
   "apps": {
