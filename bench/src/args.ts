@@ -19,7 +19,7 @@ Pipeline control:
   --stages <list>          Comma-separated stage names (default: resolve-sdk,download-sdk,build,measure,transform-views)
                            Valid: ${ALL_STAGES.join(', ')}
   --context <path>         Load/save BenchContext from JSON file (cross-container handoff)
-  --dry-run                Minimal run: empty-browser + devloop + chrome only
+  --dry-run                Minimal run: empty-browser + dev-loop + chrome only
 
 SDK & Runtime:
   --sdk-channel <ch>       SDK channel (default: 11.0)
@@ -31,7 +31,7 @@ SDK & Runtime:
 Filters (comma-separated, restrict what gets built/measured):
   --app <list>             App filter (default: all)
                            Valid: ${ALL_APPS.join(', ')}
-  --preset <list>          Preset filter (default: all; dry-run: devloop)
+  --preset <list>          Preset filter (default: all; dry-run: dev-loop)
                            Valid: ${ALL_PRESETS.join(', ')}
   --engine <list>          Engine filter (default: all; dry-run: chrome)
                            Valid: ${ALL_ENGINES.join(', ')}

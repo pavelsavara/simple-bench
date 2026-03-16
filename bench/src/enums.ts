@@ -9,7 +9,7 @@ export enum Runtime {
 }
 
 export enum Preset {
-    DevLoop = 'devloop',
+    DevLoop = 'dev-loop',
     NoWorkload = 'no-workload',
     Aot = 'aot',
     NativeRelink = 'native-relink',

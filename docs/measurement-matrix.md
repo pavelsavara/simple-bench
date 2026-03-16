@@ -17,7 +17,7 @@ Not all combinations are valid — constraints prune the matrix significantly.
 
 | Value | MSBuild Preset | Configuration | Requires Workload |
 |-------|----------------|---------------|--------------------|
-| `devloop` | DevLoop | Debug | No |
+| `dev-loop` | DevLoop | Debug | No |
 | `no-workload` | NoWorkload | Release | No |
 | `native-relink` | NativeRelink | Release | Yes (`wasm-tools`) |
 | `aot` | Aot | Release | Yes |
@@ -154,7 +154,7 @@ These presets break Blazor's runtime reflection requirements.
 
 ### App × Preset validity
 
-| App | devloop | no-workload | native-relink | aot | no-jiterp | invariant | no-reflection-emit |
+| App | dev-loop | no-workload | native-relink | aot | no-jiterp | invariant | no-reflection-emit |
 |-----|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 | empty-browser | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | empty-blazor | ✓ | ✓ | ✓ | ✓ | ✓ | **skip** | **skip** |
@@ -167,7 +167,7 @@ These presets break Blazor's runtime reflection requirements.
 
 | Preset | mono | coreclr | naotllvm |
 |--------|:-:|:-:|:-:|
-| devloop | ✓ | ✓ | ✓ |
+| dev-loop | ✓ | ✓ | ✓ |
 | no-workload | ✓ | ✓ | ✓ |
 | native-relink | ✓ | ✓ | ✓ |
 | aot | ✓ | — | — |
@@ -193,7 +193,7 @@ Each measurement produces one result JSON file with the full set of metrics for 
 
 The `build` stage processes presets in two phases:
 
-1. **Non-workload phase** (`devloop`, `no-workload`) — built without `wasm-tools` workload installed
+1. **Non-workload phase** (`dev-loop`, `no-workload`) — built without `wasm-tools` workload installed
 2. **Workload phase** (`native-relink`, `aot`, `no-jiterp`, `invariant`, `no-reflection-emit`) — built after `dotnet workload install wasm-tools`
 
 Both phases build all apps for each applicable preset, producing a build manifest consumed by the `measure` stage.

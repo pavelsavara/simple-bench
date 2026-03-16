@@ -23,13 +23,13 @@ const ENGINE_COLORS = {
 };
 
 const PRESET_DASH = {
-    devloop: [5, 5],
-    'no-workload': [],
+    dev- loop: [5, 5],
+'no-workload': [],
     aot: [10, 5],
-    'native-relink': [3, 3],
-    'no-jiterp': [10, 3, 3, 3],
-    invariant: [10, 3, 3, 3],
-    'no-reflection-emit': [15, 5],
+        'native-relink': [3, 3],
+            'no-jiterp': [10, 3, 3, 3],
+                invariant: [10, 3, 3, 3],
+                    'no-reflection-emit': [15, 5],
 };
 
 const RUNTIME_MARKER = {
