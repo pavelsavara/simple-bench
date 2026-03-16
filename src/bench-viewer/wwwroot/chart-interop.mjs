@@ -23,13 +23,13 @@ const ENGINE_COLORS = {
 };
 
 const PRESET_DASH = {
-    dev- loop: [5, 5],
-'no-workload': [],
-    aot: [10, 5],
-        'native-relink': [3, 3],
-            'no-jiterp': [10, 3, 3, 3],
-                invariant: [10, 3, 3, 3],
-                    'no-reflection-emit': [15, 5],
+    'dev-loop': [5, 5],
+    'no-workload': [],
+    'aot': [10, 5],
+    'native-relink': [3, 3],
+    'no-jiterp': [10, 3, 3, 3],
+    'invariant': [10, 3, 3, 3],
+    'no-reflection-emit': [15, 5],
 };
 
 const RUNTIME_MARKER = {
@@ -238,12 +238,12 @@ export async function initDashboard(baseUrl) {
 
     // Fetch all bucket headers and filter apps to only those with actual data
     const appsWithData = new Set();
-    for (const rel of viewIndex.releases) {
-        const header = await fetchJson(`${dataBaseUrl}/releases/${rel}/header.json`);
-        if (header?.apps) Object.keys(header.apps).forEach(a => appsWithData.add(a));
-    }
-    for (const week of viewIndex.weeks) {
-        const header = await fetchJson(`${dataBaseUrl}/${week}/header.json`);
+    const allHeaderPromises = [
+        ...viewIndex.releases.map(rel => fetchJson(`${dataBaseUrl}/releases/${rel}/header.json`)),
+        ...viewIndex.weeks.map(week => fetchJson(`${dataBaseUrl}/${week}/header.json`)),
+    ];
+    const allHeaders = await Promise.all(allHeaderPromises);
+    for (const header of allHeaders) {
         if (header?.apps) Object.keys(header.apps).forEach(a => appsWithData.add(a));
     }
     viewIndex.apps = viewIndex.apps.filter(a => appsWithData.has(a));
@@ -268,12 +268,12 @@ export async function loadAppCharts(app, filtersJson) {
     const gen = ++loadGeneration;
 
     // Collect bucket data: releases + weeks
-    const releaseBuckets = [];
-    for (const rel of viewIndex.releases) {
-        const path = `releases/${rel}`;
-        const header = await fetchJson(`${dataBaseUrl}/${path}/header.json`);
-        if (header) releaseBuckets.push({ path, header, type: 'release', label: rel });
-    }
+    const releaseHeaders = await Promise.all(
+        viewIndex.releases.map(rel => fetchJson(`${dataBaseUrl}/releases/${rel}/header.json`))
+    );
+    const releaseBuckets = viewIndex.releases
+        .map((rel, i) => ({ path: `releases/${rel}`, header: releaseHeaders[i], type: 'release', label: rel }))
+        .filter(b => b.header != null);
     // Sort release buckets by major version number (ascending: net8, net9, net10)
     releaseBuckets.sort((a, b) => {
         const numA = parseInt(a.label.replace('net', ''), 10) || 0;
@@ -281,20 +281,20 @@ export async function loadAppCharts(app, filtersJson) {
         return numA - numB;
     });
 
-    const weekBuckets = [];
     const cutoff = getTimeRangeCutoff();
+    let weekBuckets = [];
     if (showDailyReleases) {
-        for (const week of viewIndex.weeks) {
-            // Filter week buckets by time range
-            if (cutoff) {
-                const weekDate = new Date(week);
-                // Skip entire week bucket if its Monday is before the cutoff
-                // (allow 7 days grace since the week spans Mon-Sun)
-                if (weekDate < new Date(cutoff.getTime() - 7 * 86400000)) continue;
-            }
-            const header = await fetchJson(`${dataBaseUrl}/${week}/header.json`);
-            if (header) weekBuckets.push({ path: week, header, type: 'week', label: week });
-        }
+        const filteredWeeks = viewIndex.weeks.filter(week => {
+            if (!cutoff) return true;
+            const weekDate = new Date(week);
+            return weekDate >= new Date(cutoff.getTime() - 7 * 86400000);
+        });
+        const weekHeaders = await Promise.all(
+            filteredWeeks.map(week => fetchJson(`${dataBaseUrl}/${week}/header.json`))
+        );
+        weekBuckets = filteredWeeks
+            .map((week, i) => ({ path: week, header: weekHeaders[i], type: 'week', label: week }))
+            .filter(b => b.header != null);
     }
 
     // ── Pre-compute release tick dates (once for all metrics) ──
@@ -350,6 +350,27 @@ export async function loadAppCharts(app, filtersJson) {
 
     const rendered = [];
 
+    // Pre-fetch all metric data files across all buckets in parallel (populates fetchJson cache)
+    {
+        const prefetchUrls = [];
+        for (const metric of metrics) {
+            if (app === 'micro-benchmarks' && MICROBENCH_SKIP_METRICS.has(metric)) continue;
+            if (showReleases) for (const bucket of releaseBuckets) {
+                const bucketMetrics = bucket.header.apps?.[app];
+                if (bucketMetrics && bucketMetrics.includes(metric)) {
+                    prefetchUrls.push(`${dataBaseUrl}/${bucket.path}/${app}_${metric}.json`);
+                }
+            }
+            if (showDailyReleases) for (const bucket of weekBuckets) {
+                const bucketMetrics = bucket.header.apps?.[app];
+                if (bucketMetrics && bucketMetrics.includes(metric)) {
+                    prefetchUrls.push(`${dataBaseUrl}/${bucket.path}/${app}_${metric}.json`);
+                }
+            }
+        }
+        await Promise.all(prefetchUrls.map(url => fetchJson(url)));
+    }
+
     for (const metric of metrics) {
         // Abort if a newer loadAppCharts call has started
         if (gen !== loadGeneration) return JSON.stringify(rendered);
@@ -369,12 +390,18 @@ export async function loadAppCharts(app, filtersJson) {
         const frozenPointsByRow = {};  // rowKey → points[]
 
         if (showReleases) {
-            for (const bucket of releaseBuckets) {
+            const releaseDataBuckets = releaseBuckets.filter(bucket => {
                 const bucketMetrics = bucket.header.apps?.[app];
-                if (!bucketMetrics || !bucketMetrics.includes(metric)) continue;
-
-                const dataUrl = `${dataBaseUrl}/${bucket.path}/${app}_${metric}.json`;
-                const metricData = await fetchJson(dataUrl);
+                return bucketMetrics && bucketMetrics.includes(metric);
+            });
+            const releaseMetricResults = await Promise.all(
+                releaseDataBuckets.map(bucket =>
+                    fetchJson(`${dataBaseUrl}/${bucket.path}/${app}_${metric}.json`)
+                )
+            );
+            for (let ri = 0; ri < releaseDataBuckets.length; ri++) {
+                const bucket = releaseDataBuckets[ri];
+                const metricData = releaseMetricResults[ri];
                 if (!metricData) continue;
 
                 const cols = bucket.header.columns || [];
@@ -407,13 +434,18 @@ export async function loadAppCharts(app, filtersJson) {
         }
 
         // ── Week data (active zone) ──
-        for (const bucket of weekBuckets) {
-            // Skip if this bucket's header doesn't list this app+metric
+        const weekDataBuckets = weekBuckets.filter(bucket => {
             const bucketMetrics = bucket.header.apps?.[app];
-            if (!bucketMetrics || !bucketMetrics.includes(metric)) continue;
-
-            const dataUrl = `${dataBaseUrl}/${bucket.path}/${app}_${metric}.json`;
-            const metricData = await fetchJson(dataUrl);
+            return bucketMetrics && bucketMetrics.includes(metric);
+        });
+        const weekMetricResults = await Promise.all(
+            weekDataBuckets.map(bucket =>
+                fetchJson(`${dataBaseUrl}/${bucket.path}/${app}_${metric}.json`)
+            )
+        );
+        for (let wi = 0; wi < weekDataBuckets.length; wi++) {
+            const bucket = weekDataBuckets[wi];
+            const metricData = weekMetricResults[wi];
             if (!metricData) continue;
 
             for (const [rowKey, values] of Object.entries(metricData)) {
@@ -755,11 +787,13 @@ export async function getPointMetrics(app, bucket, rowKey, colIndex) {
     const appMetrics = header.apps[app] || [];
     const result = {};
 
-    for (const metric of appMetrics) {
-        const dataUrl = `${dataBaseUrl}/${bucket}/${app}_${metric}.json`;
-        const metricData = await fetchJson(dataUrl);
+    const metricResults = await Promise.all(
+        appMetrics.map(metric => fetchJson(`${dataBaseUrl}/${bucket}/${app}_${metric}.json`))
+    );
+    for (let i = 0; i < appMetrics.length; i++) {
+        const metricData = metricResults[i];
         if (metricData && metricData[rowKey] && metricData[rowKey][colIndex] != null) {
-            result[metric] = metricData[rowKey][colIndex];
+            result[appMetrics[i]] = metricData[rowKey][colIndex];
         }
     }
 

@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
-import { readFile, writeFile, rm, mkdir, cp } from 'node:fs/promises';
+import { readFile, writeFile, rm, mkdir, cp, readdir, unlink } from 'node:fs/promises';
 import { type BenchContext } from '../context.js';
 import { App, Preset } from '../enums.js';
 import { ensureBranchCheckout } from '../lib/branch-checkout.js';
@@ -45,7 +45,9 @@ export async function run(ctx: BenchContext): Promise<BenchContext> {
             // ── Clean destination ────────────────────────────────────────────
             await rm(join(appDestDir, '_framework'), { recursive: true, force: true });
             await rm(join(appDestDir, 'css'), { recursive: true, force: true });
-            await rm(join(appDestDir, '*.mjs'), { recursive: true, force: true });
+            for (const f of await readdir(appDestDir)) {
+                if (f.endsWith('.mjs')) await unlink(join(appDestDir, f));
+            }
 
             // ── Copy wwwroot contents ────────────────────────────────────────
             await cp(wwwrootSrc, appDestDir, { recursive: true });
