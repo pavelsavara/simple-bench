@@ -25,7 +25,8 @@
                                        checked="@IsChecked(group.Key, value)"
                                        @onchange="e => OnCheckChanged(group.Key, value, (bool)e.Value!)" />
                                 <label class="form-check-label small"
-                                       for="@($"filter-{group.Key}-{value}")">
+                                       for="@($"filter-{group.Key}-{value}")"
+                                       title="@GetTooltip(group.Key, value)">
                                     @value
                                 </label>
                             </div>
@@ -85,4 +86,78 @@
         "engines" => "Engine",
         _ => key
     };
+
+    // keep in sync with src\presets.props
+    private static string GetTooltip(string group, string value)
+    {
+        if (group != "presets") return value;
+        return value switch
+        {
+            "dev-loop" => "Configuration=Debug\n"
+                + "WasmBuildNative=false\n"
+                + "PublishTrimmed=false\n"
+                + "CompressionEnabled=false\n"
+                + "WasmEnableWebcil=false\n"
+                + "WasmIncludeFullIcuData=true\n"
+                + "WasmEmitSymbolMap=true\n"
+                + "DebugSymbols=true\n"
+                + "MetricsSupport=true\n"
+                + "EventSourceSupport=true\n"
+                + "StackTraceSupport=true",
+            "no-workload" => "Configuration=Release\n"
+                + "WasmBuildNative=false\n"
+                + "PublishTrimmed=true",
+            "native-relink" => "Configuration=Release\n"
+                + "WasmBuildNative=true\n"
+                + "WasmNativeStrip=true\n"
+                + "PublishTrimmed=true",
+            "enable-fingerprinting" => "Configuration=Release\n"
+                + "WasmBuildNative=true\n"
+                + "WasmNativeStrip=true\n"
+                + "PublishTrimmed=true\n"
+                + "OverrideHtmlAssetPlaceholders=true\n"
+                + "FingerprintPattern: *.js, *.mjs",
+            "aot" => "Configuration=Release\n"
+                + "WasmBuildNative=true\n"
+                + "WasmNativeStrip=true\n"
+                + "RunAOTCompilation=true\n"
+                + "PublishTrimmed=true",
+            "no-jiterp" => "Configuration=Release\n"
+                + "WasmBuildNative=true\n"
+                + "WasmNativeStrip=true\n"
+                + "BlazorWebAssemblyJiterpreter=false\n"
+                + "PublishTrimmed=true",
+            "invariant" => "Configuration=Release\n"
+                + "WasmBuildNative=true\n"
+                + "WasmNativeStrip=true\n"
+                + "InvariantGlobalization=true\n"
+                + "InvariantTimeZone=true\n"
+                + "TrimMode=full\n"
+                + "PublishTrimmed=true\n"
+                + "EnableDiagnostics=false\n"
+                + "MetricsSupport=false\n"
+                + "EventSourceSupport=false\n"
+                + "StackTraceSupport=false\n"
+                + "DebugSymbols=false\n"
+                + "PredefinedCulturesOnly=true\n"
+                + "WasmEmitSymbolMap=false",
+            "no-reflection-emit" => "Configuration=Release\n"
+                + "WasmBuildNative=true\n"
+                + "WasmNativeStrip=true\n"
+                + "InvariantGlobalization=true\n"
+                + "InvariantTimeZone=true\n"
+                + "TrimMode=full\n"
+                + "PublishTrimmed=true\n"
+                + "EnableDiagnostics=false\n"
+                + "MetricsSupport=false\n"
+                + "EventSourceSupport=false\n"
+                + "StackTraceSupport=false\n"
+                + "DebugSymbols=false\n"
+                + "PredefinedCulturesOnly=true\n"
+                + "WasmEmitSymbolMap=false\n"
+                + "DynamicCodeSupport=false\n"
+                + "StackTraceSupport=false",
+            _ => value
+        };
+    }
 }
